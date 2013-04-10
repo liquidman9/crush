@@ -3,10 +3,13 @@
  */
 
 class Entity {
+private:
+	static id_gen;
+
 public:
 	const long id;
-	float3 position;
-	float3 orientation;
+	Float3 position;
+	Quaternion orientation;
 
 	Entity();
 	Entity(position, orientation);
