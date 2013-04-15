@@ -568,163 +568,12 @@ bool D3DWindow::InitD3DDevice(const SIZE& sizeBackBuffer)
 		return false;
 	}
 
-	//// Create the vertex buffer
-	//hResult = Gbls::pd3dDevice->CreateVertexBuffer(sizeof(Vertex)*24, D3DUSAGE_WRITEONLY, Vertex::FVF,
-	//	D3DPOOL_MANAGED, &s_pVB, NULL);
-	//if(FAILED(hResult))
-	//{
-	//	s_strError = L"CreateVertexBuffer() failed. Error: " + Util::DXErrorToString(hResult);
-	//	Gbls::pd3dDevice->Release();
-	//	Gbls::pd3dDevice = NULL;
-	//	Gbls::pD3D->Release();
-	//	Gbls::pD3D = NULL;
-	//	return false;
-	//}
-
-	//// Create the index buffer
-	//hResult = Gbls::pd3dDevice->CreateIndexBuffer(sizeof(WORD)*36, D3DUSAGE_WRITEONLY, D3DFMT_INDEX16,
-	//	D3DPOOL_MANAGED, &s_pIB, NULL);
-	//if(FAILED(hResult))
-	//{
-	//	s_strError = L"CreateIndexBuffer() failed. Error: " + Util::DXErrorToString(hResult);
-	//	s_pVB->Release();
-	//	s_pVB = NULL;
-	//	Gbls::pd3dDevice->Release();
-	//	Gbls::pd3dDevice = NULL;
-	//	Gbls::pD3D->Release();
-	//	Gbls::pD3D = NULL;
-	//	return false;
-	//}
-
-	//// Lock the vertex buffer to get a pointer to the data in it
-	//Vertex* pVertex;
-	//hResult = s_pVB->Lock(0, 0, (void**)&pVertex, 0);
-	//if(FAILED(hResult))
-	//{
-	//	s_strError = L"VB::Lock() failed. Error: " + Util::DXErrorToString(hResult);
-	//	s_pVB->Release();
-	//	s_pVB = NULL;
-	//	Gbls::pd3dDevice->Release();
-	//	Gbls::pd3dDevice = NULL;
-	//	Gbls::pD3D->Release();
-	//	Gbls::pD3D = NULL;
-	//	return false;
-	//}
-
-	//// Lock the index buffer to get a pointer to the data in it
-	//WORD* pIndex;
-	//hResult = s_pIB->Lock(0, 0, (void**)&pIndex, 0);
-	//if(FAILED(hResult))
-	//{
-	//	s_strError = L"IB::Lock() failed. Error: " + Util::DXErrorToString(hResult);
-	//	s_pVB->Unlock();
-	//	s_pIB->Release();
-	//	s_pIB = NULL;
-	//	s_pVB->Release();
-	//	s_pVB = NULL;
-	//	Gbls::pd3dDevice->Release();
-	//	Gbls::pd3dDevice = NULL;
-	//	Gbls::pD3D->Release();
-	//	Gbls::pD3D = NULL;
-	//	return false;
-	//}
-
-	//// Fill in the vertices...
-	//// Top face (+Y)
-	//*pVertex++ = Vertex(-0.5f, 0.5f, -0.5f, D3DCOLOR_XRGB(255, 64, 64), 0.0f, 1.0f);
-	//*pVertex++ = Vertex(-0.5f, 0.5f, 0.5f, D3DCOLOR_XRGB(255, 64, 64), 0.0f, 0.0f);
-	//*pVertex++ = Vertex(0.5f, 0.5f, 0.5f, D3DCOLOR_XRGB(255, 64, 64), 1.0f, 0.0f);
-	//*pVertex++ = Vertex(0.5f, 0.5f, -0.5f, D3DCOLOR_XRGB(255, 64, 64), 1.0f, 1.0f);
-	//*pIndex++ = 0; *pIndex++ = 1; *pIndex++ = 2;
-	//*pIndex++ = 0; *pIndex++ = 2; *pIndex++ = 3;
-
-	//// Bottom face (-Y)
-	//*pVertex++ = Vertex(0.5f, -0.5f, -0.5f, D3DCOLOR_XRGB(64, 255, 64), 1.0f, 0.0f);
-	//*pVertex++ = Vertex(0.5f, -0.5f, 0.5f, D3DCOLOR_XRGB(64, 255, 64), 1.0f, 1.0f);
-	//*pVertex++ = Vertex(-0.5f, -0.5f, 0.5f, D3DCOLOR_XRGB(64, 255, 64), 0.0f, 1.0f);
-	//*pVertex++ = Vertex(-0.5f, -0.5f, -0.5f, D3DCOLOR_XRGB(64, 255, 64), 0.0f, 0.0f);
-	//*pIndex++ = 4; *pIndex++ = 5; *pIndex++ = 6;
-	//*pIndex++ = 4; *pIndex++ = 6; *pIndex++ = 7;
-
-	//// Front face (-Z)
-	//*pVertex++ = Vertex(-0.5f, -0.5f, -0.5f, D3DCOLOR_XRGB(64, 64, 255), 0.0f, 1.0f);
-	//*pVertex++ = Vertex(-0.5f, 0.5f, -0.5f, D3DCOLOR_XRGB(64, 64, 255), 0.0f, 0.0f);
-	//*pVertex++ = Vertex(0.5f, 0.5f, -0.5f, D3DCOLOR_XRGB(64, 64, 255), 1.0f, 0.0f);
-	//*pVertex++ = Vertex(0.5f, -0.5f, -0.5f, D3DCOLOR_XRGB(64, 64, 255), 1.0f, 1.0f);
-	//*pIndex++ = 8; *pIndex++ = 9; *pIndex++ = 10;
-	//*pIndex++ = 8; *pIndex++ = 10; *pIndex++ = 11;
-
-	//// Back face (+Z)
-	//*pVertex++ = Vertex(0.5f, -0.5f, 0.5f, D3DCOLOR_XRGB(255, 255, 64), 0.0f, 1.0f);
-	//*pVertex++ = Vertex(0.5f, 0.5f, 0.5f, D3DCOLOR_XRGB(255, 255, 64), 0.0f, 0.0f);
-	//*pVertex++ = Vertex(-0.5f, 0.5f, 0.5f, D3DCOLOR_XRGB(255, 255, 64), 1.0f, 0.0f);
-	//*pVertex++ = Vertex(-0.5f, -0.5f, 0.5f, D3DCOLOR_XRGB(255, 255, 64), 1.0f, 1.0f);
-	//*pIndex++ = 12; *pIndex++ = 13; *pIndex++ = 14;
-	//*pIndex++ = 12; *pIndex++ = 14; *pIndex++ = 15;
-
-	//// Left face (-X)
-	//*pVertex++ = Vertex(-0.5f, -0.5f, 0.5f, D3DCOLOR_XRGB(255, 64, 255), 0.0f, 1.0f);
-	//*pVertex++ = Vertex(-0.5f, 0.5f, 0.5f, D3DCOLOR_XRGB(255, 64, 255), 0.0f, 0.0f);
-	//*pVertex++ = Vertex(-0.5f, 0.5f, -0.5f, D3DCOLOR_XRGB(255, 64, 255), 1.0f, 0.0f);
-	//*pVertex++ = Vertex(-0.5f, -0.5f, -0.5f, D3DCOLOR_XRGB(255, 64, 255), 1.0f, 1.0f);
-	//*pIndex++ = 16; *pIndex++ = 17; *pIndex++ = 18;
-	//*pIndex++ = 16; *pIndex++ = 18; *pIndex++ = 19;
-
-	//// Right face (+X)
-	//*pVertex++ = Vertex(0.5f, -0.5f, -0.5f, D3DCOLOR_XRGB(64, 255, 255), 0.0f, 1.0f);
-	//*pVertex++ = Vertex(0.5f, 0.5f, -0.5f, D3DCOLOR_XRGB(64, 255, 255), 0.0f, 0.0f);
-	//*pVertex++ = Vertex(0.5f, 0.5f, 0.5f, D3DCOLOR_XRGB(64, 255, 255), 1.0f, 0.0f);
-	//*pVertex++ = Vertex(0.5f, -0.5f, 0.5f, D3DCOLOR_XRGB(64, 255, 255), 1.0f, 1.0f);
-	//*pIndex++ = 20; *pIndex++ = 21; *pIndex++ = 22;
-	//*pIndex++ = 20; *pIndex++ = 22; *pIndex++ = 23;
-
-	//// Unlock the vertex and index buffers to tell the device that we're done with the pointer
-	//// it gave us. There's not much point in checking the return value, since if something is
-	//// wrong, it'll get caught at render time.
-	//s_pIB->Unlock();
-	//s_pVB->Unlock();
-
-	//// Load the texture
-	//hResult = D3DXCreateTextureFromFileEx(Gbls::pd3dDevice, L"Texture.png", D3DX_DEFAULT, D3DX_DEFAULT,
-	//	D3DX_DEFAULT, 0, fmtTextureSelected, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_DEFAULT,
-	//	0, NULL, NULL, &s_pTexture);
-	//if(FAILED(hResult))
-	//{
-	//	s_strError = L"D3DXCreateTextureFromFileEx() failed. Error: " +
-	//		Util::DXErrorToString(hResult);
-	//	s_pIB->Release();
-	//	s_pIB = NULL;
-	//	s_pVB->Release();
-	//	s_pVB = NULL;
-	//	Gbls::pd3dDevice->Release();
-	//	Gbls::pd3dDevice = NULL;
-	//	Gbls::pD3D->Release();
-	//	Gbls::pD3D = NULL;
-	//	return false;
-	//}
-
-	// Set up the device state, since it won't change on a frame by frame basis
-	//SetupState(); Done by main now
-
-	// All done
 	return true;
 }
 
 void D3DWindow::ShutdownD3DDevice()
 {
-	// It's "good form" to release D3D interfaces in the reverse order that they were
-	// created in. So kill the resources first, then the device, then the D3D interface.
-	//if(s_pTexture)
-	//	s_pTexture->Release();
-	//s_pTexture = NULL;
-
-	//if(s_pIB)
-	//	s_pIB->Release();
-	//s_pIB = NULL;
-
-	//if(s_pVB)
-	//	s_pVB->Release();
-	//s_pVB = NULL;
+	GameResources::releaseResources();
 
 	if(Gbls::pd3dDevice)
 		Gbls::pd3dDevice->Release();
@@ -742,30 +591,7 @@ void D3DWindow::ShutdownD3DDevice()
 
 HRESULT D3DWindow::SetupState() //currently does nothing
 {
-	//TODO fix all this nonsense
-
-	// Create the projection matrix (45 degrees FOV), and set it on the device
-	//D3DXMATRIXA16 matProj;
-	//float fAspect = (float)Gbls::thePresentParams.BackBufferWidth /
-	//	(float)Gbls::thePresentParams.BackBufferHeight;
-	//D3DXMatrixPerspectiveFovLH(&matProj, D3DXToRadian(45.0f), fAspect, 0.1f, 1000.0f);
-	//Gbls::pd3dDevice->SetTransform(D3DTS_PROJECTION, &matProj);
-
-	//GameResources::debugCam.updateProjection();
-
-	// Create the view matrix (Camera), and set it on the device
-	//D3DXMATRIXA16 matView;
-	//D3DXVECTOR3 vEye(0, 0, -3.0f);      // Camera position
-	//D3DXVECTOR3 vAt(0, 0, 0);           // Camera look-at position
-	//D3DXVECTOR3 vUp(0, 1.0f, 0);        // Camera "up" direction
-	//D3DXMatrixLookAtLH(&matView, &vEye, &vAt, &vUp);
-	//Gbls::pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
-
-	
-	//GameResources::debugCam.updateView();
-
-	// Tell the device not to do any dynamic lighting
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	//TODO fix all this nonsense, this function might still be useful though
 
 	return S_OK;
 }
@@ -786,38 +612,8 @@ void D3DWindow::DrawFrame()
 		return;
 	}
 
-	// Create three rotation matrices, one around each axis, rotating at different rates,
-	// and combine them into one.
-	//float fTimeDifferenceInSeconds = (float)(GetTickCount() - s_dwStartTime) / 1000.0f;
-	//float fAngleInDegrees = fTimeDifferenceInSeconds * 180.0f;
-	//D3DXMATRIXA16 matRotateX, matRotateY, matRotateZ, matFinalRotate;
-	//D3DXMatrixRotationX(&matRotateX, D3DXToRadian(fAngleInDegrees)/2.0f);
-	//D3DXMatrixRotationY(&matRotateY, D3DXToRadian(fAngleInDegrees));
-	//D3DXMatrixRotationZ(&matRotateZ, D3DXToRadian(fAngleInDegrees)/3.0f);
-	//matFinalRotate = matRotateX * matRotateY * matRotateZ;
-	//Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &matFinalRotate);
-
-	//render test mesh TODO remove
 	GameResources::drawAll();
 
-	//// Tell the device the format of the stream of vertices it's getting
-	//Gbls::pd3dDevice->SetFVF(Vertex::FVF);
-
-	//// Tell the device where to read the stream of vertices from, and the size of one vertex
-	//Gbls::pd3dDevice->SetStreamSource(0, s_pVB, 0, sizeof(Vertex));
-
-	//// Tell the device where to read the stream of indices from
-	//Gbls::pd3dDevice->SetIndices(s_pIB);
-
-	//// Tell the device which texture to use
-	//Gbls::pd3dDevice->SetTexture(0, s_pTexture);
-
-	//// Draw our indexed box
-	//Gbls::pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, 24, 0, 12);
-
-	// Tell the device we're finished rendering. Don't bother checking return value, there's
-	// nothing we can really do if it fails, and if there's a real problem it'll be caught on the
-	// next frame anyway.
 	Gbls::pd3dDevice->EndScene();
 
 	// Present

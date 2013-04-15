@@ -12,13 +12,13 @@
 #include "R_Ship.h"
 
 class GameResources {
-
 public:
 
 	//static enum cameras {DEBUG_CAM, PLAYER_CAM};  //better to use boolean with only two cameras, can extend later
 
 	static bool debugCamOn;
 	static Camera debugCam;
+	static Camera* curCam;
 	static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;
 
@@ -52,6 +52,7 @@ public:
 	static void drawAll();
 	static void updateDebugCamera();
 	static void updateGameState();
+	static void releaseResources();
 
 };
 

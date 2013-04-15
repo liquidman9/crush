@@ -31,6 +31,9 @@ public:
 
 	// Create the view matrix, and set it on the device
 	void updateView();
+
+	// Set a location 0 view matrix with correct direction for use with skybox
+	void Camera::setSkyboxView();
 };
 
 

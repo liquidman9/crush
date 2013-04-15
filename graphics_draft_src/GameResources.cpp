@@ -6,37 +6,48 @@
 #include "Gbls.h"
 #include <algorithm>
 #include "R_Ship.h"
+#include "Skybox.h"
 
 //static member initializations
 //static enum cameras {DEBUG_CAM, PLAYER_CAM};  //better to use boolean with only two cameras, can extend later
 bool GameResources::debugCamOn = true;
 Camera GameResources::debugCam;
+Camera* GameResources::curCam = NULL;
 std::vector<R_Ship*> GameResources::r_ShipList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
 struct GameResources::KeyboardState GameResources::m_ks;
 
 HRESULT GameResources::initState() {
-	GameResources::debugCam.updateProjection();
+	HRESULT hres;
+	
+	curCam = &debugCam;
 
-	GameResources::debugCam.updateView();
+	debugCam.updateProjection();
+
+	debugCam.updateView();
 
 	// Tell the device to automatically normalize surface normals to keep them normal after scaling
 	Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 
+	// Initialize the skybox
+	hres = Skybox::initSkybox();
+	if(FAILED (hres))
+		return hres;
+
 	// Create lights for scene and set light properties
-	HRESULT hres = GameResources::initLights();
+	hres = GameResources::initLights();
 	if(FAILED (hres))
 		return hres;
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
 
-	// create mesh(es)
+	// create meshes
 	hres = GameResources::initMeshes();
 	if(FAILED (hres))
 		return hres;
 
-	/*set up temp entities for test rendering TODO remove this*/
+	/*set up temp entities for test rendering TODO remove this and replace with normal object creation from network*/
 	
 	D3DXVECTOR3 pos(0.0f, 1.0f, -1.0f);
 	D3DXVECTOR3 dir(0.0f, 0.0f, 1.0f);
@@ -53,7 +64,7 @@ HRESULT GameResources::initState() {
 	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 180.0f, 0.0f);
 	r_ShipList.push_back(tmp);
 
-	//a bit ugly, probably easier to just loop through all the entity lists
+	//a bit ugly, probably easier to just loop through all the entity lists (left here in case we want to switch back)
 	//renderList.push_back((std::vector<Renderable*>*)(&r_ShipList));
 
 	/*end TODO remove*/
@@ -66,9 +77,9 @@ HRESULT GameResources::initMeshes()
 	HRESULT hres;
 
 	//do for all needed meshes
-	if(FAILED(hres = Gbls::shipMesh1.Create(L"tiger.x")))
+	if(FAILED(hres = Gbls::shipMesh1.Create(Gbls::shipMeshFilepath_1)))
 		return hres;
-	if(FAILED(hres = Gbls::shipMesh2.Create(L"tiny.x")))
+	if(FAILED(hres = Gbls::shipMesh2.Create(Gbls::shipMeshFilepath_2)))
 		return hres;
 
 	return S_OK;
@@ -87,11 +98,11 @@ HRESULT GameResources::initLights() {
 	// directional light
     D3DLIGHT9 light;    // create the light struct
 
-    ZeroMemory(&light, sizeof(light));    // clear out the light struct for use
-    light.Type = D3DLIGHT_DIRECTIONAL;    // make the light type 'directional light'
-    light.Diffuse = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f);    // set the light's diffuse color
-	light.Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);    // set the light's specular color
-    light.Direction = D3DXVECTOR3(-1.0f, -0.3f, -1.0f);
+    ZeroMemory(&light, sizeof(light));         // clear out the light struct for use
+    light.Type = D3DLIGHT_DIRECTIONAL;         // make the light type 'directional light'
+    light.Diffuse = Gbls::lightDiffuseColor;   // set the light's diffuse color
+	light.Specular = Gbls::lightSpecularColor; // set the light's specular color
+    light.Direction = Gbls::lightDirection;    // set the light's direction
     //D3DXVec3Normalize((D3DXVECTOR3*) &light.Direction, &D3DXVECTOR3(-1.0f, -0.3f, -1.0f));
 	light.Range = 1000;
 	light.Falloff = 0;
@@ -107,10 +118,12 @@ HRESULT GameResources::initLights() {
 
 void GameResources::drawAll()
 {
+	Skybox::drawSkybox();
+
 	// Loop through all lists. Set up shaders, etc, as needed for each.
-		for (DWORD i = 0; i < r_ShipList.size(); i++) {
-			r_ShipList.at(i)->draw();
-		}
+	for (DWORD i = 0; i < r_ShipList.size(); i++) {
+		r_ShipList.at(i)->draw();
+	}
 }
 
 // called each frame after processing keyboard state from that frame
@@ -146,27 +159,6 @@ void GameResources::updateDebugCamera() {
 		debugCam.m_yaw += updateYaw*D3DXToRadian(Gbls::debugCamTurnSpeed);
 		debugCam.m_pitch += updatePitch*D3DXToRadian(Gbls::debugCamTurnSpeed);
 		debugCam.m_pitch = max(Gbls::debugCamMinPitch, min(Gbls::debugCamMaxPitch, debugCam.m_pitch)); // clip m_pitch
-
-		/*old*/
-		//fwdVec = debugCam.m_vAt-debugCam.m_vEye; // get fwd vector
-		//D3DXVec3Normalize(&fwdVec, &fwdVec);
-		//D3DXVec3Cross(&rightVec, &(debugCam.m_vUp), &fwdVec); // get right vector
-		//D3DXVec3Normalize(&rightVec, &rightVec);
-		//
-		//D3DXMATRIX yawMatrix;
-		//D3DXMATRIX pitchMatrix;
-
-		//D3DXMatrixRotationAxis(&yawMatrix, &debugCam.m_vUp, updateYaw*D3DXToRadian(Gbls::DebugCamTurnSpeed));
-		//D3DXMatrixRotationAxis(&pitchMatrix, &rightVec, updatePitch*D3DXToRadian(Gbls::DebugCamTurnSpeed));
-		//
-		//D3DXVec3TransformCoord(&debugCam.m_vEye, &debugCam.m_vEye, &yawMatrix);
-		//D3DXVec3TransformCoord(&debugCam.m_vEye, &debugCam.m_vEye, &pitchMatrix);
-		//D3DXVec3Normalize(&debugCam.m_vEye, &debugCam.m_vEye);
-		//
-		//D3DXVec3Cross(&rightVec, &(debugCam.m_vUp), &fwdVec); // get right vector
-		//D3DXVec3Normalize(&rightVec, &rightVec);
-
-		//D3DXVec3Cross(&debugCam.m_vUp, &fwdVec, &rightVec); //update up vector
 	}
 
 	if(updateFwd || updateStrafe) { // update position
@@ -225,4 +217,10 @@ void GameResources::updateGameState() {
 		float move = i%2 ? 0.001f : -0.001f;
 		r_ShipList.at(i)->m_pos.y += move;
 	}
+}
+
+void GameResources::releaseResources() {
+	Gbls::shipMesh2.Destroy();
+	Gbls::shipMesh1.Destroy();
+	Skybox::releaseSkybox();
 }

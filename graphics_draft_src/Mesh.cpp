@@ -83,26 +83,35 @@ HRESULT Mesh::Create(std::wstring filepath)
 
     // Done with the material buffer
     pD3DXMtrlBuffer->Release();
+	pD3DXMtrlBuffer = NULL;
 
     return S_OK;
 }
 
 void Mesh::Destroy()
 {
-	if( m_pMeshMaterials != NULL )
+	if( m_pMeshMaterials != NULL ) {
         delete[] m_pMeshMaterials;
+		m_pMeshMaterials = NULL;
+	}
 
     if( m_pMeshTextures )
     {
         for( DWORD i = 0; i < m_dwNumMaterials; i++ )
         {
-            if( m_pMeshTextures[i] )
+            if( m_pMeshTextures[i] ){
                 m_pMeshTextures[i]->Release();
+				m_pMeshTextures[i] = NULL;
+			}
         }
         delete[] m_pMeshTextures;
+		m_pMeshTextures = NULL;
+
     }
-    if( m_pMesh != NULL )
+    if( m_pMesh != NULL ) {
         m_pMesh->Release();
+		m_pMesh = NULL;
+	}
 }
 
 void Mesh::draw()
