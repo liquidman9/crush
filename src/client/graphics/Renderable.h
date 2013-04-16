@@ -13,7 +13,7 @@
 // Project includes
 #include <client/graphics/Mesh.h>
 
-class RenderableEntity : public virtual Entity {
+class Renderable {
 public:
 	//Mesh* m_mesh; give each subclass a static mesh or mesh pointer
 

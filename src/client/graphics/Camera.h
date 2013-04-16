@@ -5,7 +5,6 @@
 #ifndef Camera_H_INCLUDED
 #define Camera_H_INCLUDED
 
-// Global includes
 #include <d3dx9.h>
 
 class Camera {

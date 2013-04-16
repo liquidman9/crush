@@ -2,23 +2,17 @@
  * Ship.cpp
  */
 
-// Project includes
-#include <shared/game/Ship.h>
+#include "Ship.h"
 
-Ship::Ship() : 	
-	Entity(SHIP),
-  	m_playerNum(0),
-	m_tractorBeamOn(false),
-	m_thrustersOn(false) 
-{ }
+Ship::Ship() : 
+	m_playerNum(0),
+	m_tractorBeamOn(false)
+{
+}
 
-Ship::Ship(Vector3 pos, Vector3 dir, int pNum) :
-	Entity(SHIP, pos, dir),
+Ship::Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
+	Entity(pos, dir),
 	m_playerNum(pNum),
-	m_tractorBeamOn(false),
-	m_thrustersOn(false) 
-{ }
-
-void Ship::toggleThrust() {
-	m_thrustersOn = !m_thrustersOn;
+	m_tractorBeamOn(tBeamOn)
+{
 }

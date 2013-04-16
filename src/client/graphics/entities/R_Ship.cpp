@@ -2,20 +2,18 @@
  * R_Ship.cpp
  */
 
-// Project includes
 #include <client/Gbls.h>
 #include <client/graphics/entities/R_Ship.h>
-
- 
 //Mesh R_Ship::s_mesh;
 
 R_Ship::R_Ship()
 {
 }
 
-R_Ship::R_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn, Mesh* pMesh) :
+R_Ship::R_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn, Mesh* pMesh, D3DXCOLOR color) :
 	Ship(pos, dir, pNum, tBeamOn),
-	m_pMesh(pMesh)
+	m_pMesh(pMesh),
+	m_color(color)
 {
 	D3DXMatrixIdentity(&m_matInitScaleRot);
 }

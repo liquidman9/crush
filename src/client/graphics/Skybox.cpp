@@ -8,6 +8,7 @@
 #include <client/Gbls.h>
 #include <client/GameResources.h>
 
+
 LPDIRECT3DVERTEXBUFFER9 Skybox::s_pVertexBuffer = NULL;
 
 LPDIRECT3DTEXTURE9 Skybox::s_SkyTextures[6];

@@ -3,6 +3,7 @@
 //=================================================================================================
 
 // Global includes
+#include <Windows.h>
 #include <dxerr.h>
 
 // Project includes

@@ -5,18 +5,14 @@
 #ifndef SHIP_H_INCLUDED
 #define SHIP_H_INCLUDED
 
+#include "Entity.h"
 
-// Project includes
-#include <shared/game/Entity.h>
-
-class Ship : public virtual Entity {
+class Ship : public Entity {
 public:
 	int m_playerNum;
 	bool m_tractorBeamOn;
-	bool m_thrustersOn;
 	Ship();
-	Ship(Vector3 pos, Vector3 dir, int pNum);
-	void toggleThrust();
+	Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn);
 };
 
 

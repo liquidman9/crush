@@ -2,10 +2,6 @@
 // Camera.h Camera class for storing view/projection matricies and appropriate functions
 //=================================================================================================
 
-// Global includes
-#include <d3dx9.h>
-
-// Project includes
 #include <client/graphics/Camera.h>
 #include <client/Gbls.h>
 

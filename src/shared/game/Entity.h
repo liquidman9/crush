@@ -42,30 +42,41 @@ public:
 #ifndef ENTITIY_H_INCLUDED
 #define ENTITIY_H_INCLUDED
 
-// External includes
-#ifdef _WIN32
-	#include <d3d9.h>
-	#include <d3dx9.h>
-#endif
+#include <windows.h>
+#include <d3d9.h>
+#include <d3dx9.h>
+#include<iostream>
+using namespace std;
 
-// Project includes
-//#include <shared/math/Vector3.h>
-
-// Entity type enum
-enum Type {ENTITY, SHIP, BASE, ASTEROID};
+enum Type { ENTITY, SHIP, BASE, ASTEROID};
 
 class Entity {
 private:
 	static int s_id_gen;
+	int m_id;
 
 public:
-	const int m_id;
-	const Type m_type;
-	Vector3 m_pos;
-	Vector3 m_dir;
+	Type m_type;
+	static const unsigned int size;
+	D3DXVECTOR3 m_pos;
+	D3DXVECTOR3 m_dir;
 
-	Entity(Type type);
-	Entity(Type type, Vector3 pos, Vector3 dir);
+	Entity();
+	Entity(Entity const &e) {
+		m_type = ENTITY;
+		m_id = e.m_id;
+		memcpy(m_pos, e.m_pos, sizeof(D3DXVECTOR3));
+		memcpy(m_dir, e.m_dir, sizeof(D3DXVECTOR3));
+	}
+
+	Entity(D3DXVECTOR3 pos, D3DXVECTOR3 dir);
+	const int getID() const { return m_id; };
+	virtual ~Entity();
+	virtual const char * encode() const;
+	virtual Entity decode(const char *) const;
+	friend ostream& operator<<(ostream& os, const Entity& e);
+	
 };
+
 
 #endif
