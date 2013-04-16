@@ -1,8 +1,12 @@
 //=================================================================================================
 // Main.cpp - Program entry point
 //=================================================================================================
+#include "networking\NetworkClient.h"
 #include "D3DWindow.h"
 #include "GameResources.h"
+#include <sstream>
+
+#pragma comment(lib, "WINMM.LIB")
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
@@ -12,12 +16,41 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 		//init space
 		if(SUCCEEDED(GameResources::initState())) {
 
+			//networking init
+			//try {
+			NetworkClient nc(8888);
+			nc.bindToServer("192.168.5.149", 8888);
+			//} catch (exception & e) {
+			//	cerr << e.what();
+			//}
+
 			// Main loop
 			MSG msg;
-			//LARGE_INTEGER time;
-			//LARGE_INTEGER deltaTime;
+
+			//for checking fps
+			//DWORD startTime = timeGetTime();
+			//DWORD count = 0;
 			for(;;) // "forever"
 			{
+				//for checking fps
+				//count++;
+				//if(!(count%600)) {
+				//	DWORD x = count / ((timeGetTime() - startTime)/1000.0);
+				//	std::stringstream os;
+				//	os << "FPS:" << x;
+				//	string s =os.str();
+				//	std::wstring wsTmp(s.begin(), s.end());
+				//	MessageBox( NULL, wsTmp.c_str(), wsTmp.c_str(), MB_OK );
+				//}
+				nc.sendToServer(Entity());
+
+				vector<Entity> newGameState;
+
+				// Get game state from network
+				if(nc.newStateAvailable()) {
+					newGameState = nc.getGameState();
+				}
+
 				// Process all pending window messages
 				while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 				{
@@ -25,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 					DispatchMessage(&msg);
 				}
 
-				GameResources::updateGameState();
+				GameResources::updateGameState(newGameState);
 
 				// Render
 				if(D3DWindow::Tick())
@@ -42,7 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 		MessageBox(NULL, strError.c_str(), L"Error", MB_OK | MB_ICONERROR);
 	}
 
-	return -1;
+	return 0;
 }
 
 //=================================================================================================

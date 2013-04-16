@@ -51,7 +51,7 @@ public:
 	static HRESULT initLights();
 	static void drawAll();
 	static void updateDebugCamera();
-	static void updateGameState();
+	static void updateGameState(vector<Entity> & newGameState);
 	static void releaseResources();
 
 };
