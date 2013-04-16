@@ -6,7 +6,7 @@
 #define S_SHIP_H_INCLUDED
 
 // External includes
-#include <shared/math/Vector3.h>
+//#include <shared/math/Vector3.h>
 
 // Project includes
 #include <shared/game/Ship.h>
