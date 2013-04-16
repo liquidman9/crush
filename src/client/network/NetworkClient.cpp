@@ -53,7 +53,7 @@ int NetworkClient::bindToServer(string ip, unsigned short port) {
 	return 0;
 }
 
-void NetworkClient::sendToServer(Event e) {
+void NetworkClient::sendToServer(Event* e) {
 	//char local_buf[MAX_PACKET_SIZE];
 	//strcpy(local_buf, e.c_str());
 	//struct sockaddr_in server;
@@ -61,8 +61,8 @@ void NetworkClient::sendToServer(Event e) {
 	//server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
 	//server.sin_port = htons( 8888 );
 	//m_server = Network("127.0.0.1", 8888);*/
-	const char * encoded = e.encode();
-	if(sendto(m_sock, encoded, Entity::size, 0, (sockaddr *) &m_server.getSockAddr(), sizeof(sockaddr_in)) == SOCKET_ERROR) {
+	const char * encoded = e->encode();
+	if(sendto(m_sock, encoded, e->size(), 0, (sockaddr *) &m_server.getSockAddr(), sizeof(sockaddr_in)) == SOCKET_ERROR) {
 		throw runtime_error("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
 	}
 	delete encoded;
@@ -83,9 +83,10 @@ void NetworkClient::updateGameState() {
 			error = true;
 		}
 		if(!error){
+			NetworkDecoder nd(local_buf, recv_len);
 			EnterCriticalSection(&m_cs);
-			Entity n;
-			m_gameState.push_back(n.decode(local_buf));
+			nd.decodeGameState(m_gameState);
+			//m_gameState.push_back(n.decode(local_buf));
 			m_stateAvailable = true;
 			//m_gameState.push_back(string(local_buf);
 			LeaveCriticalSection(&m_cs);
@@ -98,6 +99,7 @@ State_t NetworkClient::getGameState() {
 	EnterCriticalSection(&m_cs);
 	State_t rtn = m_gameState;
 	m_gameState.clear();
+	m_stateAvailable = false;
 	LeaveCriticalSection(&m_cs);
 	return rtn;
 }

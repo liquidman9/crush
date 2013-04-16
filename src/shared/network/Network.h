@@ -1,14 +1,21 @@
 #pragma once
-#include<WinSock2.h>
-#include<string>
-#include<iostream>
-#include<process.h>
+
+// Global includes
+#include <WinSock2.h>
+#include <string>
+#include <iostream>
+#include <process.h>
+
+// Project includes
+#include <client/game/GameState.h>
+#include <client/game/Entity.h>
 
 #pragma comment(lib,"ws2_32.lib")
 
 #define WIN32_LEAN_AND_MEAN
 #define DEFAULT_PORT 5555
 #define MAX_PACKET_SIZE 65507
+
 using namespace std;
 
 class Network
@@ -54,4 +61,3 @@ private:
 	friend class NetworkClient;
 	friend class NetworkServer;
 };
-

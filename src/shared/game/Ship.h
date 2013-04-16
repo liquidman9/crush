@@ -5,7 +5,7 @@
 #ifndef SHIP_H_INCLUDED
 #define SHIP_H_INCLUDED
 
-#include "Entity.h"
+#include <shared/game/Entity.h>
 
 class Ship : public Entity {
 public:

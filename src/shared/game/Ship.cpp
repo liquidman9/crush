@@ -2,7 +2,7 @@
  * Ship.cpp
  */
 
-#include "Ship.h"
+#include <shared/game/Ship.h>
 
 Ship::Ship() : 
 	m_playerNum(0),

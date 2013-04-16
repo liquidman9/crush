@@ -1,6 +1,9 @@
-#include <shared/network/Network.h>
-#include<WinSock2.h>
 
+// Global includes
+#include <WinSock2.h>
+
+// Project includes
+#include <shared/network/Network.h>
 
 Network::Network(void) {
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
