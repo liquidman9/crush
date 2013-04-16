@@ -1,5 +1,10 @@
-#include "S_Ship.h"
+
+// Global includes
 #include <stdio.h>
+
+// Project includes
+#include <server/game/S_Ship.h>
+
 
 void main()
 {

@@ -42,11 +42,17 @@ public:
 #ifndef ENTITIY_H_INCLUDED
 #define ENTITIY_H_INCLUDED
 
-#include <windows.h>
-#include <d3d9.h>
-#include <d3dx9.h>
+// External includes
+#ifdef _WIN32
+	#include <d3d9.h>
+	#include <d3dx9.h>
+#endif
 
-enum Type { ENTITY, SHIP, BASE, ASTEROID};
+// Project includes
+//#include <shared/math/Vector3.h>
+
+// Entity type enum
+enum Type {ENTITY, SHIP, BASE, ASTEROID};
 
 class Entity {
 private:
@@ -54,12 +60,12 @@ private:
 
 public:
 	const int m_id;
-	Type m_type;
-	D3DXVECTOR3 m_pos;
-	D3DXVECTOR3 m_dir;
+	const Type m_type;
+	Vector3 m_pos;
+	Vector3 m_dir;
 
-	Entity();
-	Entity(D3DXVECTOR3 pos, D3DXVECTOR3 dir);
+	Entity(Type type);
+	Entity(Type type, Vector3 pos, Vector3 dir);
 };
 
 #endif

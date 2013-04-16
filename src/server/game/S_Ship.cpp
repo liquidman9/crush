@@ -2,8 +2,11 @@
  * S_Ship.cpp
  */
 
-#include "S_Ship.h"
+// External includes
 #include <stdio.h>
+
+// Project includes
+#include <server/game/S_Ship.h>
 
 
 S_Ship::S_Ship() {
@@ -11,8 +14,10 @@ S_Ship::S_Ship() {
 	init();
 }
 
-S_Ship::S_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) {
-	Ship(pos,dir,pNum,tBeamOn);
+S_Ship::S_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
+	Ship(pos, dir, pNum)
+{
+	Ship(pos, dir, pNum);
 	init();
 }
 
@@ -22,6 +27,7 @@ void S_Ship::init() {
 	mass = 100;
 	velocity = 0;
 	maxVelocity = 100;
+	// In the future, this method will load from a config file.
 }
 
 void S_Ship::rotate(D3DXVECTOR3 rotation){

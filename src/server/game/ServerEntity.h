@@ -2,7 +2,7 @@
  * ServerEntity.hpp
  */
 
-#include "D3DX10math.h"
+#include <d3dx9.h>
 
 class ServerEntity {
 public:
