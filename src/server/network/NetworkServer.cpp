@@ -55,13 +55,13 @@ NetworkServer::NetworkServer(unsigned short port) : Network(port), m_eventsAvail
 		&threadID );
 }
 
-void NetworkServer::broadcastGameState(const State_t &g) {
+void NetworkServer::broadcastGameState(const State_t &state) {
 	map<Network,Network>::iterator start = m_connectedClients.begin();
 	map<Network,Network>::iterator end = m_connectedClients.end();
 	char local_buff[MAX_PACKET_SIZE] = { 0 };
 	memset(m_packetData,'\0', MAX_PACKET_SIZE);
 	unsigned int total_size = 0;
-	vector<Entity*> state = g.getEntities();
+	//vector<Entity*> state = g.getEntities();
 	for(unsigned int i = 0; i < state.size(); i++) {
 		const char* tmp = state[i]->encode();
 		memcpy(local_buff + total_size, tmp, state[i]->size());

@@ -60,7 +60,7 @@ void Entity::draw() {
 
 }
 
-void Entity::update(Entity* source) {
+void Entity::update(shared_ptr<Entity> source) {
 	m_pos = source->m_pos;
 	m_dir = source->m_pos;
 }

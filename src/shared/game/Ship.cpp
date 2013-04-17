@@ -48,11 +48,26 @@ void Ship::decode(const char *buff) {
 	m_tractorBeamOn = *(bool *) buff;
 }
 
-void Ship::update(Entity * source) {
+//void Ship::update(Entity * source) {
+//	Ship * srcShip = dynamic_cast<Ship*>(source);
+//	if (srcShip == 0) {
+//#ifdef _DEBUG
+////		MessageBox( NULL, L"Error converting Entity to Ship", L"CRUSH Game", MB_OK );
+//#endif
+//	} else {
+//		m_pos = srcShip->m_pos;
+//		m_dir = srcShip->m_dir;
+//		m_tractorBeamOn = srcShip->m_tractorBeamOn;
+//		m_playerNum = srcShip -> m_playerNum;
+//	}
+//}
+
+void Ship::update(shared_ptr<Entity> sp_source) {
+	Entity *source = sp_source.get();
 	Ship * srcShip = dynamic_cast<Ship*>(source);
 	if (srcShip == 0) {
 #ifdef _DEBUG
-		MessageBox( NULL, L"Error converting Entity to Ship", L"CRUSH Game", MB_OK );
+//		MessageBox( NULL, L"Error converting Entity to Ship", L"CRUSH Game", MB_OK );
 #endif
 	} else {
 		m_pos = srcShip->m_pos;

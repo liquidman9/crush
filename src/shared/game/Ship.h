@@ -4,7 +4,7 @@
 
 #ifndef SHIP_H_INCLUDED
 #define SHIP_H_INCLUDED
-
+#include<memory>
 #include <shared/game/Entity.h>
 #define SHIP_PLAYERNUM_TYPE char
 
@@ -20,8 +20,9 @@ public:
 	virtual const char* encode() const;
 	virtual void decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
-	virtual void update(Entity * source);
+	//virtual void update(Entity * source);
 	friend ostream& operator<<(ostream& os, const Ship&);
+	virtual void update(shared_ptr<Entity> source);
 };
 
 

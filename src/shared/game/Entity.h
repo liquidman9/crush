@@ -14,6 +14,7 @@
 #include <iostream>
 #include <shared/network/Sendable.h>
 #include <client/graphics/Renderable.h>
+#include <memory>
 
 using namespace std;
 
@@ -44,7 +45,8 @@ public:
 	virtual void decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
 	virtual void draw();
-	virtual void update(Entity* source);
+	virtual void update(shared_ptr<Entity> source);
+	//virtual void update(Entity* source);
 
 	friend ostream& operator<<(ostream& os, const Entity& e);	
 };
