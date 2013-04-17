@@ -7,8 +7,9 @@
 #include <shared/game/Entity.h>
 #include <shared/game/Ship.h>
 #include <shared/network/Network.h>
+#include <shared/InputState.h>
 
-typedef Entity Event;
+typedef Sendable Event;
 
 class NetworkDecoder
 {
@@ -52,7 +53,7 @@ public:
 		for(unsigned int size = 0; size < m_size; size += ep->size() ){
 			/*switch(*(ENUM_TYPE*) m_head) {
 			case ENTITY:*/
-				ep = new Entity();
+				ep = new InputState();
 				ep->decode(curr_head);
 				g.push_back(ep);
 				break;

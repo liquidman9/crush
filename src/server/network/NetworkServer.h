@@ -7,9 +7,9 @@
 #include <shared/network/NetworkDecoder.h>
 #include <shared/game/Entity.h>
 
-typedef Entity Event;
+typedef Sendable Event;
 //typedef string Entity;
-typedef vector<Entity *> EventBuff_t;
+typedef vector<Event *> EventBuff_t;
 typedef GameState State_t;
 
 class NetworkServer :

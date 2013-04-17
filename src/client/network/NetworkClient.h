@@ -8,7 +8,7 @@
 #include <shared/network/NetworkDecoder.h>
 #include <shared/game/GameState.h>
 
-typedef Entity Event;
+typedef Sendable Event;
 typedef GameState State_t;
 
 class NetworkClient :

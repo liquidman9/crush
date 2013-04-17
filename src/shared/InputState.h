@@ -4,7 +4,7 @@
 
 #include <shared/network/Sendable.h>
 
-class InputState {
+class InputState : public Sendable {
 	public:
 	bool tractBeam;
 	char thrust;
