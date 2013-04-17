@@ -23,8 +23,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//networking init
 			//try {
 			NetworkClient nc(8887);
-			nc.bindToServer("128.54.70.21", 8888);
-			InputState * emptyEvent = new InputState();
+			nc.bindToServer("127.0.0.1", 8888);
+			GameInput * input = new GameInput();
 			//} catch (exception & e) {
 			//	cerr << e.what();
 			//}
@@ -37,6 +37,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//DWORD count = 0;
 			for(;;) // "forever"
 			{
+
+				input->refreshState();
+				input->vibrate(input->input.thrust*200,input->input.thrust*200);
 				//for checking fps
 				//count++;
 				//if(!(count%600)) {
@@ -51,7 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 				GameState newGameState;
 
 #ifdef MYNETWORKON
-				nc.sendToServer(emptyEvent);
+				nc.sendToServer(&(input->input));
 
 
 				// Get game state from network

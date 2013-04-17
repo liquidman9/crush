@@ -7,7 +7,7 @@
 class InputState : public Sendable {
 	public:
 	bool tractBeam;
-	char thrust;
+	unsigned char thrust;
 	short turn;
 	short pitch;
 

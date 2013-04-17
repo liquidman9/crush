@@ -15,6 +15,7 @@
 #include <shared/game/Entity.h>
 #include <shared/game/GameState.h>
 //#include <client/graphics/entities/R_Ship.h>
+#include <shared/GameInput.h>
 
 class GameResources {
 public:
