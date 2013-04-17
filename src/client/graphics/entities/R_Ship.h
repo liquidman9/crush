@@ -8,7 +8,7 @@
 #include <shared/game/Ship.h>
 #include <client/graphics/Renderable.h>
 
-class R_Ship : public Ship, public Renderable {
+class R_Ship : public Ship {
 public:
 	Mesh* m_pMesh;
 	D3DXCOLOR m_color;
