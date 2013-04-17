@@ -6,7 +6,7 @@
 #define UTIL_H_INCLUDED
 
 // Global includes
-#include <windows.h>
+//#include <windows.h>
 #include <string>
 
 namespace Util

@@ -5,6 +5,7 @@
 #ifndef Camera_H_INCLUDED
 #define Camera_H_INCLUDED
 
+#define WIN32_LEAN_AND_MEAN
 #include <d3dx9.h>
 
 class Camera {

@@ -7,7 +7,8 @@
 #pragma once
 
 #include <WinSock2.h>
-#include <windows.h>
+//#include <windows.h>
+#define WIN32_LEAN_AND_MEAN
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <iostream>

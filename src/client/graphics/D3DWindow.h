@@ -6,7 +6,8 @@
 #define D3DWINDOW_H_INCLUDED
 
 // Global includes
-#include <windows.h>
+//#include <windows.h>
+#define WIN32_LEAN_AND_MEAN
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <string>
