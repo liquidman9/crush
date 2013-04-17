@@ -13,6 +13,7 @@
 #include <d3dx9.h>
 #include <iostream>
 #include <shared/network/Sendable.h>
+#include <client/graphics/Renderable.h>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ enum Type { ENTITY, SHIP, BASE, ASTEROID};
 
 #define ENUM_TYPE char
 
-class Entity : public Sendable {
+class Entity : public Sendable, public Renderable {
 private:
 	static int s_id_gen;
 	int m_id;
@@ -40,6 +41,7 @@ public:
 	virtual const char* encode() const;
 	virtual void decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
+	virtual void draw();
 
 	friend ostream& operator<<(ostream& os, const Entity& e);
 	

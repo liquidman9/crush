@@ -14,7 +14,7 @@ Mesh Gbls::shipMesh1;
 Mesh Gbls::shipMesh2;
 
 // Should be changed to load in from a config file later
-std::wstring Gbls::shipMeshFilepath_1 = L"tiger.x";
+std::wstring Gbls::shipMeshFilepath_1 = L"player_ship_001.x";
 std::wstring Gbls::shipMeshFilepath_2 = L"tiny.x";
 
 std::wstring Gbls::skyboxTextureFilepath_Front = L"SkyBox_Front.jpg";

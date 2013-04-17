@@ -56,6 +56,10 @@ void Entity::decode(const char * tmp) {
 	m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
 }
 
+void Entity::draw() {
+
+}
+
 Entity::~Entity(){
 
 }
