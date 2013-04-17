@@ -2,6 +2,17 @@
 ## Project-Specific (FOR CRUSH)
 #################
 
+## Images
+.jpg
+.jpeg
+.bmp
+
+## Models
+.x
+.sdkmesh
+.obj
+
+
 #################
 ## Eclipse
 #################
