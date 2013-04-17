@@ -69,7 +69,7 @@ void NetworkClient::updateGameState() {
 		memset(local_buf,'\0', MAX_PACKET_SIZE);
 		int recv_len;
 		try {
-			if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE, 0) == SOCKET_ERROR)) {
+			if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
 				throw runtime_error("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()));
 			}
 		} catch (exception e) {
