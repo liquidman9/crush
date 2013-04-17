@@ -16,3 +16,34 @@ Ship::Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
 	m_tractorBeamOn(tBeamOn)
 {
 }
+
+const char* Ship::encode() const {
+	char *rtn = new char[m_size];
+	const char *tmp = Entity::encode();
+	memcpy(rtn, tmp, Entity::size());
+	*(ENUM_TYPE*) rtn = SHIP;
+	char* tmp_rtn = rtn;
+	tmp_rtn += Entity::size();
+	*(SHIP_PLAYERNUM_TYPE*) (tmp_rtn) = m_playerNum;
+	tmp_rtn += sizeof(SHIP_PLAYERNUM_TYPE);
+	*(bool *) (tmp_rtn) = m_tractorBeamOn;
+	delete tmp;
+	return rtn;
+}
+
+ostream& operator<<(ostream& os, const Ship& e) {
+	os << e.getID() << " " << e.m_pos.x << " " << e.m_pos.y << " " << e.m_pos.z
+		<< " " << e.m_dir.x << " " << e.m_dir.y << " " << e.m_dir.z
+		<< " " << e.m_playerNum << " " << e.m_tractorBeamOn;
+	return os;
+}
+
+void Ship::decode(const char *buff) {
+	Entity e;
+	e.decode(buff);
+	m_type = SHIP;
+	buff += Entity::size();
+	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
+	buff += sizeof(SHIP_PLAYERNUM_TYPE);
+	m_tractorBeamOn = *(bool *) buff;
+}

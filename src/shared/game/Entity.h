@@ -24,6 +24,8 @@ class Entity : public Sendable {
 private:
 	static int s_id_gen;
 	int m_id;
+
+protected:
 	static const unsigned int m_size = sizeof(ENUM_TYPE) + sizeof(int) +  2*sizeof(D3DXVECTOR3);
 
 public:
@@ -41,8 +43,7 @@ public:
 	virtual void decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
 
-	friend ostream& operator<<(ostream& os, const Entity& e);
-	
+	friend ostream& operator<<(ostream& os, const Entity& e);	
 };
 
 
