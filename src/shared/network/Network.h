@@ -7,8 +7,8 @@
 #include <process.h>
 
 // Project includes
-#include <client/game/GameState.h>
-#include <client/game/Entity.h>
+#include <shared/game/GameState.h>
+#include <shared/game/Entity.h>
 
 #pragma comment(lib,"ws2_32.lib")
 

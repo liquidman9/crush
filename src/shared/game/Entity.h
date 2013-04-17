@@ -4,7 +4,9 @@
 
 #ifndef ENTITIY_H_INCLUDED
 #define ENTITIY_H_INCLUDED
+#pragma once
 
+#include <WinSock2.h>
 #include <windows.h>
 #include <d3d9.h>
 #include <d3dx9.h>
