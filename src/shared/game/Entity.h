@@ -12,14 +12,15 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <iostream>
+#include <shared/network/Sendable.h>
 
 using namespace std;
 
 enum Type { ENTITY, SHIP, BASE, ASTEROID};
 
-#define ENUM_TYPE int
+#define ENUM_TYPE char
 
-class Entity {
+class Entity : public Sendable {
 private:
 	static int s_id_gen;
 	int m_id;
@@ -36,9 +37,9 @@ public:
 	Entity(D3DXVECTOR3 pos, D3DXVECTOR3 dir);
 	const int getID() const { return m_id; };
 	virtual ~Entity();
-	virtual const char * encode() const;
+	virtual const char* encode() const;
 	virtual void decode(const char *);
-	virtual unsigned int size() { return m_size; };
+	virtual const unsigned int size() const { return m_size; };
 
 	friend ostream& operator<<(ostream& os, const Entity& e);
 	
