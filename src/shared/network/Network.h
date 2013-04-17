@@ -1,6 +1,8 @@
 #pragma once
 
 // Global includes
+#define WIN32_LEAN_AND_MEAN
+
 #include <WinSock2.h>
 #include <string>
 #include <iostream>
@@ -12,7 +14,7 @@
 
 #pragma comment(lib,"ws2_32.lib")
 
-#define WIN32_LEAN_AND_MEAN
+
 #define DEFAULT_PORT 5555
 #define MAX_PACKET_SIZE 65507
 

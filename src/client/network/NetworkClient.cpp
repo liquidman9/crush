@@ -54,15 +54,9 @@ int NetworkClient::bindToServer(string ip, unsigned short port) {
 }
 
 void NetworkClient::sendToServer(Event* e) {
-	//char local_buf[MAX_PACKET_SIZE];
-	//strcpy(local_buf, e.c_str());
-	//struct sockaddr_in server;
-	//server.sin_family = AF_INET;
-	//server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-	//server.sin_port = htons( 8888 );
-	//m_server = Network("127.0.0.1", 8888);*/
 	const char * encoded = e->encode();
-	if(sendto(m_sock, encoded, e->size(), 0, (sockaddr *) &m_server.getSockAddr(), sizeof(sockaddr_in)) == SOCKET_ERROR) {
+	int s = e->size();
+	if(sendto(m_sock, encoded,s, 0, (sockaddr *) &m_server.getSockAddr(), sizeof(sockaddr_in)) == SOCKET_ERROR) {
 		throw runtime_error("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
 	}
 	delete encoded;

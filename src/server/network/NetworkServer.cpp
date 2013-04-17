@@ -12,11 +12,11 @@ NetworkServer::NetworkServer(void) : Network(), m_eventsAvailable(false) {
 
 	unsigned int threadID;
 	m_hThread = (HANDLE)_beginthreadex( NULL, // security
-                      0,             // stack size
-                      NetworkServer::ThreadStaticEntryPoint,// entry-point-function
-                      this,           // arg list holding the "this" pointer
-                      0,		
-                      &threadID );
+		0,             // stack size
+		NetworkServer::ThreadStaticEntryPoint,// entry-point-function
+		this,           // arg list holding the "this" pointer
+		0,		
+		&threadID );
 }
 
 NetworkServer::NetworkServer(string ip, unsigned short port) : Network(ip, port), m_eventsAvailable(false) {
@@ -30,11 +30,11 @@ NetworkServer::NetworkServer(string ip, unsigned short port) : Network(ip, port)
 
 	unsigned int threadID;
 	m_hThread = (HANDLE)_beginthreadex( NULL, // security
-                      0,             // stack size
-                      NetworkServer::ThreadStaticEntryPoint,// entry-point-function
-                      this,           // arg list holding the "this" pointer
-                      0,		
-                      &threadID );
+		0,             // stack size
+		NetworkServer::ThreadStaticEntryPoint,// entry-point-function
+		this,           // arg list holding the "this" pointer
+		0,		
+		&threadID );
 }
 
 NetworkServer::NetworkServer(unsigned short port) : Network(port), m_eventsAvailable(false) {
@@ -48,11 +48,11 @@ NetworkServer::NetworkServer(unsigned short port) : Network(port), m_eventsAvail
 
 	unsigned int threadID;
 	m_hThread = (HANDLE)_beginthreadex( NULL, // security
-                      0,             // stack size
-                      NetworkServer::ThreadStaticEntryPoint,// entry-point-function
-                      this,           // arg list holding the "this" pointer
-                      0,		
-                      &threadID );
+		0,             // stack size
+		NetworkServer::ThreadStaticEntryPoint,// entry-point-function
+		this,           // arg list holding the "this" pointer
+		0,		
+		&threadID );
 }
 
 void NetworkServer::broadcastGameState(const State_t &g) {
@@ -84,9 +84,11 @@ void NetworkServer::sendToClient(char * const buff, int size, Network &client) {
 EventBuff_t NetworkServer::getEvents() {
 
 	EnterCriticalSection(&m_cs);
+
 	EventBuff_t rtn = m_eventsBuffer;
 	m_eventsAvailable = false;
 	m_eventsBuffer.clear();
+
 	LeaveCriticalSection(&m_cs);
 
 	return rtn;
@@ -104,22 +106,31 @@ void NetworkServer::updateEventsBuffer() {
 	char local_buf[MAX_PACKET_SIZE];
 	struct sockaddr_in recv_addr;
 	int recv_size = sizeof(recv_addr);
+	bool error = false;
 	while(1) {
 		memset(local_buf,'\0', MAX_PACKET_SIZE);
 		int recv_len;
-		if ((recv_len = recvfrom(m_sock, local_buf, MAX_PACKET_SIZE, 0, (sockaddr *) &recv_addr, &recv_size) == SOCKET_ERROR)) {
-			 runtime_error e("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()));
-			 throw e;
+		try {
+			if ((recv_len = recvfrom(m_sock, local_buf, MAX_PACKET_SIZE, 0, (sockaddr *) &recv_addr, &recv_size)) == SOCKET_ERROR) {
+				runtime_error e("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()));
+				throw e;
+			} 
+		} catch (exception &e){
+			cerr << e.what() << endl;
+			error = true;
 		}
-		Network lookUpAddr(recv_addr);
-		NetworkDecoder nd(local_buf, recv_len);
-		//vector<Event*> epv;
-		EnterCriticalSection(&m_cs);
-		nd.decodeEvents(m_eventsBuffer);
-		m_connectedClients[Network(recv_addr)] = lookUpAddr;
-		//m_eventsBuffer.push_back(n.decode(local_buf));
-		m_eventsAvailable = true;
-		LeaveCriticalSection(&m_cs);
+		if(!error) {
+			Network lookUpAddr(recv_addr);
+			NetworkDecoder nd(local_buf, recv_len);
+
+			EnterCriticalSection(&m_cs);
+
+			nd.decodeEvents(m_eventsBuffer);
+			m_connectedClients[Network(recv_addr)] = lookUpAddr;
+			m_eventsAvailable = true;
+
+			LeaveCriticalSection(&m_cs);
+		}
 	}
 }
 

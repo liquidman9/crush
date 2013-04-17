@@ -46,6 +46,7 @@ public:
 
 private:
 	vector<Entity*> m_entities;
+	friend class NetworkingDecoder;
 
 };
 
