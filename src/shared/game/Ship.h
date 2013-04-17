@@ -20,6 +20,7 @@ public:
 	virtual const char* encode() const;
 	virtual void decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
+	virtual void update(Entity * source);
 	friend ostream& operator<<(ostream& os, const Ship&);
 };
 

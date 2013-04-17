@@ -34,7 +34,7 @@ public:
 	int bindToServer(string ip, unsigned short port);
 
 	//get the game state as currently known by the client
-	State_t getGameState();
+	const State_t& getGameState();
 
 	//returns true if there is a new gamestate
 	bool newStateAvailable() { return m_stateAvailable; };

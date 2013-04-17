@@ -12,7 +12,9 @@
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Camera.h>
 #include <client/graphics/Renderable.h>
-#include <client/graphics/entities/R_Ship.h>
+#include <shared/game/Entity.h>
+#include <shared/game/GameState.h>
+//#include <client/graphics/entities/R_Ship.h>
 
 class GameResources {
 public:
@@ -22,7 +24,8 @@ public:
 	static bool debugCamOn;
 	static Camera debugCam;
 	static Camera* curCam;
-	static std::vector<R_Ship*> r_ShipList;
+	static std::vector<Entity*> entityList;
+	//static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;
 
 	static struct KeyboardState{
@@ -54,7 +57,7 @@ public:
 	static HRESULT initLights();
 	static void drawAll();
 	static void updateDebugCamera();
-	static void updateGameState(vector<Entity> & newGameState);
+	static void updateGameState(GameState & newGameState);
 	static void releaseResources();
 
 };

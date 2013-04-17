@@ -89,13 +89,13 @@ void NetworkClient::updateGameState() {
 }
 
 
-State_t NetworkClient::getGameState() {
+const State_t& NetworkClient::getGameState() {
 	EnterCriticalSection(&m_cs);
-	State_t rtn = m_gameState;
+	State_t* rtn = new GameState(m_gameState);
 	m_gameState.clear();
 	m_stateAvailable = false;
 	LeaveCriticalSection(&m_cs);
-	return rtn;
+	return *rtn;
 }
 
 NetworkClient::~NetworkClient(void) {

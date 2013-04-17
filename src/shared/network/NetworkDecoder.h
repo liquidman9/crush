@@ -34,12 +34,12 @@ public:
 			switch(*(ENUM_TYPE*) m_head) {
 			case ENTITY:
 				ep = new Entity();
-				ep->decode(curr_head);
+				ep->decode(curr_head + size);
 				g.push_back(ep);
 				break;
 			case SHIP:
 				ep = new Ship();
-				ep->decode(curr_head);
+				ep->decode(curr_head + size);
 				g.push_back(ep);
 				break;
 			}

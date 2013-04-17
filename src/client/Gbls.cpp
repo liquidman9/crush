@@ -27,3 +27,4 @@ std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
 D3DXCOLOR Gbls::lightDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
 D3DXCOLOR Gbls::lightSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 D3DXVECTOR3 Gbls::lightDirection(1.0f, 0.5f, 1.0f);
+D3DCOLOR Gbls::lightAmbient = D3DCOLOR_XRGB(50, 50, 50);

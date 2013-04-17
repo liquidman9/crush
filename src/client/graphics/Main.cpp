@@ -9,7 +9,7 @@
 
 #pragma comment(lib, "WINMM.LIB")
 
-//#define MYNETWORKON
+#define MYNETWORKON
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
@@ -24,6 +24,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//try {
 			NetworkClient nc(8888);
 			nc.bindToServer("192.168.5.149", 8888);
+			Event * emptyEvent = new Event();
 			//} catch (exception & e) {
 			//	cerr << e.what();
 			//}
@@ -47,10 +48,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 				//	MessageBox( NULL, wsTmp.c_str(), wsTmp.c_str(), MB_OK );
 				//}
 				
-				vector<Entity> newGameState;
+				GameState newGameState;
 
 #ifdef MYNETWORKON
-				nc.sendToServer(Entity());
+				nc.sendToServer(emptyEvent);
 
 
 				// Get game state from network

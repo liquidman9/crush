@@ -12,6 +12,7 @@
 #define WIN32_LEAN_AND_MEAN 
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <d3d9types.h>
 
 // Project includes
 #include <client/graphics/Mesh.h>
@@ -46,6 +47,7 @@ namespace Gbls
 	extern D3DXCOLOR lightDiffuseColor;
 	extern D3DXCOLOR lightSpecularColor;
     extern D3DXVECTOR3 lightDirection;
+	extern D3DCOLOR lightAmbient;
 }
 
 #endif // GBLS_H_INCLUDED

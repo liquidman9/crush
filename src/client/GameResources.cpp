@@ -17,7 +17,8 @@
 bool GameResources::debugCamOn = true;
 Camera GameResources::debugCam;
 Camera* GameResources::curCam = NULL;
-std::vector<R_Ship*> GameResources::r_ShipList;
+//std::vector<R_Ship*> GameResources::r_ShipList;
+std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
 struct GameResources::KeyboardState GameResources::m_ks;
 
@@ -60,7 +61,7 @@ HRESULT GameResources::initState() {
 	bool tBeamOn = false;
 	R_Ship* tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh2, color);
 	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 180.0f, 0.0f);
-	r_ShipList.push_back(tmp);
+	entityList.push_back(tmp);
 
 	//pos.x*=-1; pos.y*=-1; pos.z*=-1;
 	//dir.x*=-1; dir.y*=-1; dir.z*=-1;
@@ -68,7 +69,7 @@ HRESULT GameResources::initState() {
 	pNum = 2;
 	color.r = 0.3f; color.g = 0.3f; color.b = 0.8f;
 	tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh1, color);
-	r_ShipList.push_back(tmp);
+	entityList.push_back(tmp);
 
 	//a bit ugly, probably easier to just loop through all the entity lists (left here in case we want to switch back)
 	//renderList.push_back((std::vector<Renderable*>*)(&r_ShipList));
@@ -99,7 +100,7 @@ HRESULT GameResources::initLights() {
 	Gbls::pd3dDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 
 	// ambient light
-	Gbls::pd3dDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(50, 50, 50));
+	Gbls::pd3dDevice->SetRenderState(D3DRS_AMBIENT, Gbls::lightAmbient);
 
 	// directional light
     D3DLIGHT9 light;    // create the light struct
@@ -127,8 +128,8 @@ void GameResources::drawAll()
 	Skybox::drawSkybox();
 
 	// Loop through all lists. Set up shaders, etc, as needed for each.
-	for (DWORD i = 0; i < r_ShipList.size(); i++) {
-		r_ShipList.at(i)->draw();
+	for (DWORD i = 0; i < entityList.size(); i++) {
+		entityList.at(i)->draw();
 	}
 }
 
@@ -216,16 +217,15 @@ void GameResources::updateDebugCamera() {
 
 }
 
-void GameResources::updateGameState(vector<Entity> & newGameState) {
+void GameResources::updateGameState(GameState & newGameState) {
 	updateDebugCamera();
 	updateKeyboardState();
 
 	//TODO THIS IS N^2. FIX THIS.
 	for (DWORD i = 0; i < newGameState.size(); i++) {
-		for (DWORD j = 0; j < r_ShipList.size(); j++) {
-			if(newGameState.at(i).getID() == r_ShipList.at(j)->getID()) {
-				r_ShipList.at(j)->m_pos = newGameState.at(i).m_pos;
-				r_ShipList.at(j)->m_dir = newGameState.at(i).m_dir;
+		for (DWORD j = 0; j < entityList.size(); j++) {
+			if(newGameState[i]->getID() == entityList.at(j)->getID()) {
+				entityList.at(j)->update(newGameState[i]);
 			}
 		}
 	}

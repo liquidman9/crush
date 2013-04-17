@@ -34,14 +34,19 @@ public:
 	}
 
 	void clear() {
+		m_entities.clear();
+	}
+
+	void erase() {
 		for(unsigned int i = 0; i < m_entities.size(); i++){
 			if(m_entities[i])
 				delete m_entities[i];
 		}
+		m_entities.clear();
 	};
 
 	virtual ~GameState(void) {
-		clear();
+		erase();
 	};
 
 private:

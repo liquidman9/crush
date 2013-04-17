@@ -60,6 +60,10 @@ void Entity::draw() {
 
 }
 
-Entity::~Entity(){
+void Entity::update(Entity* source) {
+	m_pos = source->m_pos;
+	m_dir = source->m_pos;
+}
 
+Entity::~Entity(){
 }
