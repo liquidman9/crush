@@ -2,6 +2,7 @@
 // GameResources.cpp Static container for game resources including meshes, objects, cameras, etc.
 //=================================================================================================
 
+
 // Global includes
 #include <algorithm>
 
@@ -13,11 +14,12 @@
 
 //static member initializations
 //static enum cameras {DEBUG_CAM, PLAYER_CAM};  //better to use boolean with only two cameras, can extend later
+std::map<int, Entity*> GameResources::entityMap;
 bool GameResources::debugCamOn = true;
 Camera GameResources::debugCam;
 Camera* GameResources::curCam = NULL;
 //std::vector<R_Ship*> GameResources::r_ShipList;
-std::vector<Entity*> GameResources::entityList;
+//std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
 struct GameResources::KeyboardState GameResources::m_ks;
 
@@ -63,7 +65,7 @@ HRESULT GameResources::initState() {
 	bool tBeamOn = false;
 	R_Ship* tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh2, color);
 	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 0.0f, 0.0f);
-	entityList.push_back(tmp);
+	entityMap[tmp->getID()] = tmp;
 
 	//pos.x*=-1; pos.y*=-1; pos.z*=-1;
 	//dir.x*=-1; dir.y*=-1; dir.z*=-1;
@@ -72,7 +74,7 @@ HRESULT GameResources::initState() {
 	color.r = 0.3f; color.g = 0.3f; color.b = 0.8f;
 	tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh1, color);
 	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
-	entityList.push_back(tmp);
+	entityMap[tmp->getID()] = tmp;
 
 	//a bit ugly, probably easier to just loop through all the entity lists (left here in case we want to switch back)
 	//renderList.push_back((std::vector<Renderable*>*)(&r_ShipList));
@@ -131,8 +133,9 @@ void GameResources::drawAll()
 	Skybox::drawSkybox();
 
 	// Loop through all lists. Set up shaders, etc, as needed for each.
-	for (DWORD i = 0; i < entityList.size(); i++) {
-		entityList.at(i)->draw();
+	for( map<int,Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+    {
+		(*ii).second->draw();
 	}
 }
 
@@ -159,9 +162,9 @@ void GameResources::updateDebugCamera() {
 	if(!debugCamOn || !updateFwd && !updateStrafe && !updateYaw && !updatePitch)
 		return;
 
-	if(!debugCamOn) {
-		return;
-	}
+	//if(!debugCamOn) {
+	//	return;
+	//}
 	
 	D3DXVECTOR3 fwdVec, rightVec;
 
@@ -220,18 +223,29 @@ void GameResources::updateDebugCamera() {
 
 }
 
+
 void GameResources::updateGameState(GameState & newGameState) {
 	updateDebugCamera();
 	updateKeyboardState();
 
-	//TODO THIS IS N^2. FIX THIS.
+	
 	for (DWORD i = 0; i < newGameState.size(); i++) {
-		for (DWORD j = 0; j < entityList.size(); j++) {
-			if(newGameState[i]->getID() == entityList.at(j)->getID()) {
-				entityList.at(j)->update(newGameState[i]);
-			}
+		int id = newGameState[i]->getID();
+		if(entityMap.find(id) == entityMap.end()) {
+			//create
+		} else {
+			entityMap[id]->update(newGameState[i]);
 		}
 	}
+
+	//TODO THIS IS N^2. FIX THIS.
+	//for (DWORD i = 0; i < newGameState.size(); i++) {
+	//	for (DWORD j = 0; j < entityList.size(); j++) {
+	//		if(newGameState[i]->getID() == entityList.at(j)->getID()) {
+	//			entityList.at(j)->update(newGameState[i]);
+	//		}
+	//	}
+	//}
 	//for (DWORD i = 0; i < r_ShipList.size(); i++) {
 	//	float move = i%2 ? 0.001f : -0.001f;
 	//	r_ShipList.at(i)->m_pos.y += move;

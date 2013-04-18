@@ -5,6 +5,7 @@
 #ifndef SERVERENTITY_H_INCLUDED
 #define SERVERENTITY_H_INCLUDED
 
+
 // Global includes
 #include <d3dx9.h>
 

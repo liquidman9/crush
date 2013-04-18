@@ -6,6 +6,7 @@
 #define S_SHIP_H_INCLUDED
 
 // External includes
+#define WIN32_LEAN_AND_MEAN
 #include <d3dx9.h>
 
 // Project includes

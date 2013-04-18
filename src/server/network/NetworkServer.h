@@ -39,9 +39,8 @@ public:
 	void broadcastGameState(const GameState &);
 
 	
-
-
 	virtual ~NetworkServer(void);
+
 private:
 
 	void sendToClient(char * const buff, int size, Network &client);
