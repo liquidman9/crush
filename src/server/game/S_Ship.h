@@ -13,11 +13,14 @@
 #include <server/game/ServerEntity.h>
 
 
-class S_Ship : public Ship, public ServerEntity {
+
+class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 
 public:
 	// Fields
 	float thrusterForce;
+	bool m_acceleratorOn;
+
 
 	// Constructors
 	S_Ship();

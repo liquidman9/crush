@@ -2,18 +2,26 @@
  * ServerEntity.hpp
  */
 
+#ifndef SERVERENTITY_H_INCLUDED
+#define SERVERENTITY_H_INCLUDED
+#include <shared\game\Entity.h>
 #include <d3dx9.h>
 
-class ServerEntity {
+
+class ServerEntity : public virtual Entity{
 public:
 
 	// Physics
-	float velocity;
+	D3DXVECTOR3 velocity;
 	float maxVelocity;
-	float force;
+	D3DXVECTOR3 force;
 	float mass;
+	float radius;
 
-	virtual void rotate(D3DXVECTOR3) = 0;
-	virtual void calculate(float) = 0;
+	void rotate(D3DXVECTOR3);
+	virtual void calculate(float);
 
 };
+
+
+#endif SERVERENTITY_H_INCLUDED
