@@ -14,7 +14,7 @@ int main(){
 		NetworkServer server(8888);
 		cout << "socket created:" << endl;
 		EventBuff_t eventBuff;
-		State_t gameState;
+		GameState gameState;
 		PhysicsWorld world;
 		int bound = 30;
 		Boundary left = Boundary(D3DXVECTOR3(1,0,0), D3DXVECTOR3(-bound,0,0));
