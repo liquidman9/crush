@@ -73,7 +73,9 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	D3DXVECTOR3 nv2 = v2 + optimizedP * a->mass * n;
 
 	a->velocity = nv1;
+	a->m_pos+= a->velocity;
 	b->velocity = nv2;
+	b->m_pos+=b->velocity;
 }
 
 bool PhysicsWorld::checkCollision(ServerEntity a, Boundary b){
@@ -97,4 +99,5 @@ void PhysicsWorld::respond(ServerEntity * a, Boundary b) {
 
 	D3DXVECTOR3 nv1 = v1 - 2*n*a1;
 	a->velocity = nv1;
+	a->m_pos+= a->velocity;
 }
