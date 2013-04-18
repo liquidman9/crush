@@ -10,7 +10,6 @@
 #define WIN32_LEAN_AND_MEAN
 
 // Global includes
-#include <WinSock2.h>
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <iostream>
