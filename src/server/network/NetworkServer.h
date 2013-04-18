@@ -1,8 +1,10 @@
 #pragma once
 
+// Global includes
 #include <vector>
 #include <map>
 
+// Project includes
 #include <shared/network/Network.h>
 #include <shared/network/NetworkDecoder.h>
 #include <shared/game/Entity.h>

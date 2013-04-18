@@ -4,8 +4,14 @@
 
 #ifndef SHIP_H_INCLUDED
 #define SHIP_H_INCLUDED
-#include<memory>
+
+// Global includes
+#include <memory>
+
+// Project includes
 #include <shared/game/Entity.h>
+ 
+// Defines
 #define SHIP_PLAYERNUM_TYPE char
 
 class Ship : public virtual Entity {

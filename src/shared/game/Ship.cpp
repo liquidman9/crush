@@ -2,6 +2,7 @@
  * Ship.cpp
  */
 
+// Project includes
 #include <shared/game/Ship.h>
 
 Ship::Ship() : 

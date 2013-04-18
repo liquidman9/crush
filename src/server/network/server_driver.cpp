@@ -1,5 +1,9 @@
-#include<iostream>
-#include<server/network/NetworkServer.h>
+
+// Global includes
+#include <iostream>
+
+// Project includes
+#include <server/network/NetworkServer.h>
 #include <shared/InputState.h>
 
 using namespace std;

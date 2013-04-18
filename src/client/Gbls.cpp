@@ -1,3 +1,10 @@
+/*
+ * Gbls.cpp
+ * Provides a set of globals used across the project
+ * This file should be replaced with a config loader (and/or local variables when possible)
+ */
+
+// Project includes
 #include <client/Gbls.h>
 
 LPDIRECT3D9 Gbls::pD3D = NULL;

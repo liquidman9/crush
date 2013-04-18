@@ -2,6 +2,7 @@
 // Camera.h Camera class for storing view/projection matricies and appropriate functions
 //=================================================================================================
 
+// Project includes
 #include <client/graphics/Camera.h>
 #include <client/Gbls.h>
 

@@ -1,12 +1,13 @@
-#include<iostream>
-#include<server/network/NetworkServer.h>
+// Global includes
+#include <iostream>
+
+// Project includes
+#include <server/network/NetworkServer.h>
 #include <shared/InputState.h>
 #include <server/game/S_Ship.h>
 #include <server/game/PhysicsWorld.h>
 
 using namespace std;
-
-
 
 int main(){
 	try{
