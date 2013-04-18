@@ -7,12 +7,13 @@
 
 // Global includes
 #include <vector>
-
+#include <memory>
 // Project includes
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Camera.h>
 #include <client/graphics/Renderable.h>
 #include <shared/game/Entity.h>
+//typedef vector<shared_ptr<Entity>> GameState;
 #include <shared/game/GameState.h>
 //#include <client/graphics/entities/R_Ship.h>
 #include <shared/GameInput.h>

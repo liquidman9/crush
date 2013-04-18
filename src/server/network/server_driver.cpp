@@ -15,7 +15,7 @@ int main(){
 		NetworkServer server(8888);
 		cout << "socket created:" << endl;
 		EventBuff_t eventBuff;
-		State_t gameState;
+		GameState gameState;
 		D3DXVECTOR3 m_pos(2,2,2);
 		D3DXVECTOR3 m_dir(1,1,1);
 		//gameState.push_back(Entity());
@@ -32,7 +32,7 @@ int main(){
 				for(unsigned int i = 0; i < eventBuff.size(); i++) {
 					cout << "Event recieved." << endl;
 					//cout << *eventBuff[i] << endl;
-					gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i])->thrust))/250.0;
+					gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
 				}
 			}
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {

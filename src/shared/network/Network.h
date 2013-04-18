@@ -7,6 +7,7 @@
 #include <string>
 #include <iostream>
 #include <process.h>
+#include <vector>
 
 // Project includes
 #include <shared/game/GameState.h>
@@ -14,6 +15,11 @@
 
 #pragma comment(lib,"ws2_32.lib")
 
+
+
+//typedef vector<shared_ptr<Entity> > GameState;
+typedef Sendable Event;
+typedef vector<shared_ptr<Event>> EventBuff_t;
 
 #define DEFAULT_PORT 5555
 #define MAX_PACKET_SIZE 65507

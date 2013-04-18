@@ -55,7 +55,7 @@ NetworkServer::NetworkServer(unsigned short port) : Network(port), m_eventsAvail
 		&threadID );
 }
 
-void NetworkServer::broadcastGameState(const State_t &state) {
+void NetworkServer::broadcastGameState(const GameState &state) {
 	map<Network,Network>::iterator start = m_connectedClients.begin();
 	map<Network,Network>::iterator end = m_connectedClients.end();
 	char local_buff[MAX_PACKET_SIZE] = { 0 };
@@ -105,20 +105,20 @@ void inline NetworkServer::bindSocket() {
 void NetworkServer::updateEventsBuffer() {
 	char local_buf[MAX_PACKET_SIZE];
 	struct sockaddr_in recv_addr;
-	int recv_size = sizeof(recv_addr);
-	bool error = false;
+	int recv_size = sizeof(recv_addr);	
 	while(1) {
+		bool error = false;
 		memset(local_buf,'\0', MAX_PACKET_SIZE);
 		int recv_len;
-		try {
+		//try {
 			if ((recv_len = recvfrom(m_sock, local_buf, MAX_PACKET_SIZE, 0, (sockaddr *) &recv_addr, &recv_size)) == SOCKET_ERROR) {
-				runtime_error e("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()));
-				throw e;
+				cerr << ("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError())) << endl;
+				error = true;
+				//throw e;
 			} 
-		} catch (exception &e){
-			cerr << e.what() << endl;
-			error = true;
-		}
+		//} catch (exception &e){
+		//	v e.what() << endl;
+		//}
 		if(!error) {
 			Network lookUpAddr(recv_addr);
 			NetworkDecoder nd(local_buf, recv_len);

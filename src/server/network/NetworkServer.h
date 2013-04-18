@@ -7,10 +7,8 @@
 #include <shared/network/NetworkDecoder.h>
 #include <shared/game/Entity.h>
 
-typedef Sendable Event;
-//typedef string Entity;
-typedef vector<Event *> EventBuff_t;
-typedef GameState State_t;
+
+//typedef GameState State_t;
 
 class NetworkServer :
 	public Network
@@ -36,7 +34,7 @@ public:
 	//returns a vector of events received
 	EventBuff_t getEvents();
 
-	void broadcastGameState(const State_t &);
+	void broadcastGameState(const GameState &);
 
 	
 

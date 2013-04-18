@@ -24,7 +24,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//try {
 			NetworkClient nc(8887);
 			nc.bindToServer("127.0.0.1", 8888);
-			GameInput * input = new GameInput();
+			GameInput input;
 			//} catch (exception & e) {
 			//	cerr << e.what();
 			//}
@@ -38,8 +38,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			for(;;) // "forever"
 			{
 
-				input->refreshState();
-				input->vibrate(input->input.thrust*200,input->input.thrust*200);
+				input.refreshState();
+				input.vibrate(input.input.thrust*200,input.input.thrust*200);
 				//for checking fps
 				//count++;
 				//if(!(count%600)) {
@@ -54,12 +54,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 				GameState newGameState;
 
 #ifdef MYNETWORKON
-				nc.sendToServer(&(input->input));
+				nc.sendToServer(&(input.input));
 
 
 				// Get game state from network
 				if(nc.newStateAvailable()) {
-					newGameState = nc.getGameState();
+					newGameState = nc.getGameState();					
 				}
 #endif
 				// Process all pending window messages
@@ -76,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 					break;
 			}
 		}
-	}
+	}	
 	D3DWindow::Destroy();
 
 	// See if there's any error messsage pending

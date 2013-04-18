@@ -26,7 +26,8 @@ public:
 		//m_curr_head = m_head;
 		memcpy(tmp, head, size);
 	};
-
+	
+	//this is where the magic happens
 	void decodeGameState(GameState &g) {
 		Entity* ep = NULL;
 		const char* curr_head = m_head;
@@ -47,7 +48,8 @@ public:
 		}
 	};
 
-	void decodeEvents(vector<Event*> &g) {
+	//this is where the magic happens
+	void decodeEvents(vector<shared_ptr<Event> > &g) {
 		Event* ep = NULL;
 		const char* curr_head = m_head;
 		for(unsigned int size = 0; size < m_size; size += ep->size() ){
@@ -55,11 +57,10 @@ public:
 			case ENTITY:*/
 				ep = new InputState();
 				ep->decode(curr_head);
-				g.push_back(ep);
+				g.push_back(shared_ptr<Event>(ep));
 				break;
 			/*}*/
-		}
-		
+		}	
 	}
 	virtual ~NetworkDecoder(void) {
 		delete m_head;

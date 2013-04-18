@@ -52,6 +52,7 @@ public:
 	};*/
 
 	virtual ~GameState(void) {
+		m_entities.clear();
 	};
 	
 private:

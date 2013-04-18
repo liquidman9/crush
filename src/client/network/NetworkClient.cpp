@@ -68,34 +68,29 @@ void NetworkClient::updateGameState() {
 		bool error = false;
 		memset(local_buf,'\0', MAX_PACKET_SIZE);
 		int recv_len;
-		try {
 			if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
-				throw runtime_error("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()));
+				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+				error = true;
 			}
-		} catch (exception e) {
-			cerr << e.what() << endl;
-			error = true;
-		}
+		
 		if(!error){
 			NetworkDecoder nd(local_buf, recv_len);
 			EnterCriticalSection(&m_cs);
 			nd.decodeGameState(m_gameState);
-			//m_gameState.push_back(n.decode(local_buf));
 			m_stateAvailable = true;
-			//m_gameState.push_back(string(local_buf);
 			LeaveCriticalSection(&m_cs);
 		}
 	}
 }
 
 
-const State_t& NetworkClient::getGameState() {
+const GameState NetworkClient::getGameState() {
 	EnterCriticalSection(&m_cs);
-	State_t* rtn = new GameState(m_gameState);
+	GameState rtn= GameState(m_gameState);
 	m_gameState.clear();
 	m_stateAvailable = false;
 	LeaveCriticalSection(&m_cs);
-	return *rtn;
+	return rtn;
 }
 
 NetworkClient::~NetworkClient(void) {

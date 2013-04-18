@@ -6,10 +6,10 @@
 #include <shared/network/Network.h>
 #include <shared/game/Entity.h>
 #include <shared/network/NetworkDecoder.h>
-#include <shared/game/GameState.h>
+//#include <shared/game/GameState.h>
 
-typedef Sendable Event;
-typedef GameState State_t;
+
+//typedef GameState State_t;
 
 class NetworkClient :
 	public Network
@@ -34,7 +34,7 @@ public:
 	int bindToServer(string ip, unsigned short port);
 
 	//get the game state as currently known by the client
-	const State_t& getGameState();
+	const GameState getGameState();
 
 	//returns true if there is a new gamestate
 	bool newStateAvailable() { return m_stateAvailable; };
@@ -51,7 +51,7 @@ private:
 	WSADATA wsa;
 	Network m_server;
 	bool m_stateAvailable;
-	State_t m_gameState;
+	GameState m_gameState;
 
 
 	//thread stuff
