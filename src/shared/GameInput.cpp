@@ -1,10 +1,11 @@
 #include "GameInput.h"
 
 GameInput::GameInput() {
-	int cont;
+	string cont = "k";
 	ConfigSettings conf = *ConfigSettings::config;
+	//if (!conf.checkIfLoaded()) {conf.loadSettingsFile();}
 	conf.getValue("Controller",cont);
-	switch ((char)cont) {
+	switch (cont[0]) {
 	case 'k':
 		controller = new KeyboardController(&input);
 		break;
