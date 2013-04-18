@@ -7,7 +7,7 @@
 #include <server/game/ServerEntity.h>
 #include <server/game/Boundary.h>
 
-
+#pragma comment(lib,"D3dx9.lib")
 
 using namespace std;
 
