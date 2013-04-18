@@ -39,7 +39,7 @@ R_Ship::R_Ship(Entity * newEnt) {
 		m_dir = srcShip->m_dir;
 		m_tractorBeamOn = srcShip->m_tractorBeamOn;
 		m_playerNum = srcShip -> m_playerNum;
-		m_pMesh = &Gbls::shipMesh[m_playerNum % Gbls::NUM_SHIP_MESHES];
+		m_pMesh = &Gbls::shipMesh[m_playerNum % Gbls::numShipMeshes];
 	}
 }
 

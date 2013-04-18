@@ -95,14 +95,11 @@ HRESULT GameResources::initMeshes()
 {
 	HRESULT hres;
 
-	//TODO fix: hardcoded
 	//do for all needed meshes
-	if(FAILED(hres = Gbls::shipMesh[0].Create(Gbls::shipMeshFilepath_1)))
-		return hres;
-	Gbls::shipMesh[0].setScaleRotate(1.0f, 0.0f, 180.0f, 0.0f);
-	if(FAILED(hres = Gbls::shipMesh[1].Create(Gbls::shipMeshFilepath_2)))
-		return hres;
-	Gbls::shipMesh[1].setScaleRotate( 0.005f, -90.0f, 0.0f, 0.0f);
+	for (int i = 0; i < Gbls::numShipMeshes; i++) {
+		if(FAILED(hres = Gbls::shipMesh[i].Create(Gbls::shipMeshFilepath[i])))
+			return hres;
+	}
 
 	return S_OK;
 }
@@ -274,7 +271,8 @@ Entity * GameResources::createEntity(Entity * newEnt) {
 
 void GameResources::releaseResources() {
 	//TODO fix hardcoded destroys
-	Gbls::shipMesh[0].Destroy();
-	Gbls::shipMesh[1].Destroy();
+	for(int i = 0; i < Gbls::numShipMeshes; i++) {
+		Gbls::shipMesh[0].Destroy();
+	}
 	Skybox::releaseSkybox();
 }

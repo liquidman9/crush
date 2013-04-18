@@ -6,6 +6,7 @@
 #include <client/network/NetworkClient.h>
 #include <client/graphics/D3DWindow.h>
 #include <client/GameResources.h>
+#include <client/Gbls.h>
 
 #pragma comment(lib, "WINMM.LIB")
 
@@ -13,6 +14,9 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
+	// Init globals from config file
+	Gbls::initFromConfig();
+
 	// Create window
 	if(D3DWindow::Create(hInstance))
 	{

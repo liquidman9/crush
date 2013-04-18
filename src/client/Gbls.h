@@ -18,38 +18,42 @@
 #include <client/graphics/Mesh.h>
 
 //Our defines
-namespace Gbls
+class Gbls
 {
-	const int NUM_SHIP_MESHES = 2;
+public:
+	static int numShipMeshes;
 
-	extern LPDIRECT3D9 pD3D;                            // D3D interface pointer
-	extern LPDIRECT3DDEVICE9 pd3dDevice;                   // D3D device pointer
-	extern D3DPRESENT_PARAMETERS thePresentParams;      // Present params used to create the device
+	static LPDIRECT3D9 pD3D;                            // D3D interface pointer
+	static LPDIRECT3DDEVICE9 pd3dDevice;                   // D3D device pointer
+	static D3DPRESENT_PARAMETERS thePresentParams;      // Present params used to create the device
 	
 	// Meshes
-	extern Mesh shipMesh[NUM_SHIP_MESHES];
+	static Mesh * shipMesh;
 
-	extern float debugCamMoveSpeed;		//scales the movement speed of the Debug Cam
-	extern float debugCamTurnSpeed;		//scales the turn speed of the Debug Cam
+	static float debugCamMoveSpeed;		//scales the movement speed of the Debug Cam
+	static float debugCamTurnSpeed;		//scales the turn speed of the Debug Cam
 	
-	extern float debugCamMaxPitch;
-	extern float debugCamMinPitch;
+	static float debugCamMaxPitch;
+	static float debugCamMinPitch;
 	
 	// Should be changed to load in from a config file later
-	extern std::wstring shipMeshFilepath_1;
-	extern std::wstring shipMeshFilepath_2;
+	//static std::wstring shipMeshFilepath_1;
+	//static std::wstring shipMeshFilepath_2;
+	static std::wstring * shipMeshFilepath;
 	
-	extern std::wstring skyboxTextureFilepath_Front;
-	extern std::wstring skyboxTextureFilepath_Back;
-	extern std::wstring skyboxTextureFilepath_Left;
-	extern std::wstring skyboxTextureFilepath_Right;
-	extern std::wstring skyboxTextureFilepath_Top;
-	extern std::wstring skyboxTextureFilepath_Bottom;
+	static std::wstring skyboxTextureFilepath_Front;
+	static std::wstring skyboxTextureFilepath_Back;
+	static std::wstring skyboxTextureFilepath_Left;
+	static std::wstring skyboxTextureFilepath_Right;
+	static std::wstring skyboxTextureFilepath_Top;
+	static std::wstring skyboxTextureFilepath_Bottom;
 
-	extern D3DXCOLOR lightDiffuseColor;
-	extern D3DXCOLOR lightSpecularColor;
-    extern D3DXVECTOR3 lightDirection;
-	extern D3DCOLOR lightAmbient;
-}
+	static D3DXCOLOR lightDiffuseColor;
+	static D3DXCOLOR lightSpecularColor;
+    static D3DXVECTOR3 lightDirection;
+	static D3DCOLOR lightAmbient;
+
+	static void initFromConfig();
+};
 
 #endif // GBLS_H_INCLUDED
