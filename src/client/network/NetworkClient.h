@@ -31,7 +31,7 @@ public:
 
 	//takes server ip and port. This function must be called before 
 	//using NetworkClient
-	int bindToServer(string ip, unsigned short port);
+	void bindToServer(string ip, unsigned short port);
 
 	//get the game state as currently known by the client
 	const GameState getGameState();
@@ -42,11 +42,15 @@ public:
 	//sentds event to server
 	void sendToServer(Event*);
 
+	const unsigned int getClientID() { return m_clientID; };
+
 
 	virtual ~NetworkClient(void);
 
 
 private:
+	unsigned int m_clientID;
+	void initializeSocket();
 	SOCKET m_sock;
 	WSADATA wsa;
 	Network m_server;

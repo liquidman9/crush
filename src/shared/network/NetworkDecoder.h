@@ -49,7 +49,7 @@ public:
 	};
 
 	//this is where the magic happens
-	void decodeEvents(vector<shared_ptr<Event> > &g) {
+	void decodeEvents(map<unsigned int, shared_ptr<Event> > &g, unsigned int client) {
 		Event* ep = NULL;
 		const char* curr_head = m_head;
 		for(unsigned int size = 0; size < m_size; size += ep->size() ){
@@ -57,7 +57,7 @@ public:
 			case ENTITY:*/
 				ep = new InputState();
 				ep->decode(curr_head);
-				g.push_back(shared_ptr<Event>(ep));
+				g[client] = shared_ptr<Event>(ep);
 				break;
 			/*}*/
 		}	

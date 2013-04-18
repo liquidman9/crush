@@ -1,19 +1,21 @@
 /*
- * NetworkServer.cpp
- */
+* NetworkServer.cpp
+*/
 
 // Project includes
 #include <server/network/NetworkServer.h>
 
 
-NetworkServer::NetworkServer(void) : Network(), m_eventsAvailable(false) {
+NetworkServer::NetworkServer(void) : 
+Network(),
+	m_eventsAvailable(false),
+	m_clientCount(0)
+{
 	WSAStartup(MAKEWORD(2,2),&wsa);
 	InitializeCriticalSection(&m_cs);
-	if( (m_sock = socket(AF_INET , SOCK_DGRAM , 0 )) == INVALID_SOCKET )  {
-		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
-		return;
-	}
+	initializeSocket();
 	bindSocket();
+	startListening();
 
 	unsigned int threadID;
 	m_hThread = (HANDLE)_beginthreadex( NULL, // security
@@ -24,14 +26,16 @@ NetworkServer::NetworkServer(void) : Network(), m_eventsAvailable(false) {
 		&threadID );
 }
 
-NetworkServer::NetworkServer(string ip, unsigned short port) : Network(ip, port), m_eventsAvailable(false) {
+NetworkServer::NetworkServer(string ip, unsigned short port) : 
+Network(ip, port),
+	m_eventsAvailable(false),
+	m_clientCount(0) 
+{
 	WSAStartup(MAKEWORD(2,2),&wsa);
 	InitializeCriticalSection(&m_cs);
-	if( (m_sock = socket(AF_INET , SOCK_DGRAM , 0 )) == INVALID_SOCKET )  {
-		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
-		return;
-	}
+	initializeSocket();
 	bindSocket();
+	startListening();
 
 	unsigned int threadID;
 	m_hThread = (HANDLE)_beginthreadex( NULL, // security
@@ -42,14 +46,16 @@ NetworkServer::NetworkServer(string ip, unsigned short port) : Network(ip, port)
 		&threadID );
 }
 
-NetworkServer::NetworkServer(unsigned short port) : Network(port), m_eventsAvailable(false) {
+NetworkServer::NetworkServer(unsigned short port) : 
+Network(port),
+	m_eventsAvailable(false),
+	m_clientCount(0)
+{
 	WSAStartup(MAKEWORD(2,2),&wsa);
-	InitializeCriticalSection(&m_cs);
-	if( (m_sock = socket(AF_INET , SOCK_DGRAM , 0 )) == INVALID_SOCKET )  {
-		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
-
-	}
+	InitializeCriticalSection(&m_cs);	
+	initializeSocket();
 	bindSocket();
+	startListening();
 
 	unsigned int threadID;
 	m_hThread = (HANDLE)_beginthreadex( NULL, // security
@@ -58,11 +64,23 @@ NetworkServer::NetworkServer(unsigned short port) : Network(port), m_eventsAvail
 		this,           // arg list holding the "this" pointer
 		0,		
 		&threadID );
+}
+
+void NetworkServer::startListening(){
+	if(listen(m_incomingSock, SOMAXCONN) == SOCKET_ERROR){
+		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
+	}
+}
+
+void NetworkServer::initializeSocket() {
+	if( (m_incomingSock = socket(AF_INET , SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET )  {
+		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
+	}
 }
 
 void NetworkServer::broadcastGameState(const GameState &state) {
-	map<Network,Network>::iterator start = m_connectedClients.begin();
-	map<Network,Network>::iterator end = m_connectedClients.end();
+	map<unsigned int, SOCKET>::iterator start = m_connectedClients.begin();
+	map<unsigned int,SOCKET>::iterator end = m_connectedClients.end();
 	char local_buff[MAX_PACKET_SIZE] = { 0 };
 	memset(m_packetData,'\0', MAX_PACKET_SIZE);
 	unsigned int total_size = 0;
@@ -75,72 +93,89 @@ void NetworkServer::broadcastGameState(const GameState &state) {
 	}
 	//memcpy(m_packetData
 	//strncpy(this->m_packetData, local_string.c_str(), MAX_PACKET_SIZE);
-	for(map<Network,Network>::iterator it = start; it != end; it++) {
+	EnterCriticalSection(&m_cs);
+	for(map<unsigned int, SOCKET>::iterator it = start; it != end; it++) {
 		sendToClient(local_buff, total_size, it->second);
 	}
+	LeaveCriticalSection(&m_cs);
 }
 
-void NetworkServer::sendToClient(char * const buff, int size, Network &client) {
-	if(sendto(m_sock, buff, size, 0, (sockaddr *) &(client.getSockAddr()), sizeof(sockaddr_in)) == SOCKET_ERROR) {
-		throw runtime_error("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
+void NetworkServer::sendToClient(char * const buff, int size, SOCKET &s) {
+	if(send(s, buff, size, 0) == SOCKET_ERROR) {
+		throw runtime_error("send() failed with error code : " + to_string((long long) WSAGetLastError()));
 	}
 }
 
 EventBuff_t NetworkServer::getEvents() {
+	char local_buf[MAX_PACKET_SIZE];
+	struct sockaddr_in recv_addr;
+	int recv_size = sizeof(recv_addr);
 
-	EnterCriticalSection(&m_cs);
+	bool error = false;
+	memset(local_buf,'\0', MAX_PACKET_SIZE);
+	int recv_len;
+
+	map<unsigned int, SOCKET>::iterator start = m_connectedClients.begin();
+	map<unsigned int,SOCKET>::iterator end = m_connectedClients.end();
+
+	for(map<unsigned int,SOCKET>::iterator it = start; it != end; it++){
+		if ((recv_len = recv(it->second, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
+			cerr << ("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError())) << endl;
+			error = true;		
+		}
+
+		if(!error && recv_len > 0) {
+			NetworkDecoder nd(local_buf, recv_len);
+			nd.decodeEvents(m_eventsBuffer, it->first);
+			m_eventsAvailable = true;
+		}
+	}
 
 	EventBuff_t rtn = m_eventsBuffer;
-	m_eventsAvailable = false;
+	m_eventsAvailable = true;
 	m_eventsBuffer.clear();
-
-	LeaveCriticalSection(&m_cs);
 
 	return rtn;
 }
 
 void inline NetworkServer::bindSocket() {
-	if(bind(m_sock ,(struct sockaddr *)&(this->m_sockaddr),
+	if(bind(m_incomingSock ,(struct sockaddr *)&(this->m_sockaddr),
 		sizeof(m_sockaddr)) == SOCKET_ERROR) {
 			throw runtime_error("Failed to bind socket : " + to_string((long long) WSAGetLastError()));
 	}
 }
 
+void NetworkServer::acceptNewClient()
+{
+	while(1){
+		// if client waiting, accept the connection and save the socket
+		SOCKET ClientSocket = accept(m_incomingSock,NULL,NULL);
 
-void NetworkServer::updateEventsBuffer() {
-	char local_buf[MAX_PACKET_SIZE];
-	struct sockaddr_in recv_addr;
-	int recv_size = sizeof(recv_addr);	
-	while(1) {
-		bool error = false;
-		memset(local_buf,'\0', MAX_PACKET_SIZE);
-		int recv_len;
-		//try {
-			if ((recv_len = recvfrom(m_sock, local_buf, MAX_PACKET_SIZE, 0, (sockaddr *) &recv_addr, &recv_size)) == SOCKET_ERROR) {
-				cerr << ("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError())) << endl;
+		if (ClientSocket != INVALID_SOCKET) 
+		{
+			bool error = false;
+			if(send(ClientSocket, (const char *) &(m_clientCount), sizeof(m_clientCount), 0) == SOCKET_ERROR){
+				cerr << "Error sending client id : " + to_string((long long) WSAGetLastError()) << endl;
 				error = true;
-				//throw e;
-			} 
-		//} catch (exception &e){
-		//	v e.what() << endl;
-		//}
-		if(!error) {
-			Network lookUpAddr(recv_addr);
-			NetworkDecoder nd(local_buf, recv_len);
+			}
 
-			EnterCriticalSection(&m_cs);
+			if(!error) {
+				//disable nagle on the client's socket
+				char value = 1;
+				setsockopt( ClientSocket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
 
-			nd.decodeEvents(m_eventsBuffer);
-			m_connectedClients[Network(recv_addr)] = lookUpAddr;
-			m_eventsAvailable = true;
-
-			LeaveCriticalSection(&m_cs);
+				// insert new client into session id table
+				EnterCriticalSection(&m_cs);
+				m_connectedClients.insert( pair<unsigned int, SOCKET>(m_clientCount++, ClientSocket) );
+				LeaveCriticalSection(&m_cs);
+			}
 		}
 	}
 }
 
+
 NetworkServer::~NetworkServer(void) {
 	CloseHandle(m_hThread);
-	closesocket(m_sock);
+	closesocket(m_incomingSock);
 	WSACleanup();
 }

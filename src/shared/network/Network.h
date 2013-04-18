@@ -8,6 +8,7 @@
 #include <iostream>
 #include <process.h>
 #include <vector>
+#include <map>
 
 // Project includes
 #include <shared/game/GameState.h>
@@ -18,7 +19,7 @@
 
 //typedef vector<shared_ptr<Entity> > GameState;
 typedef Sendable Event;
-typedef vector<shared_ptr<Event>> EventBuff_t;
+typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;
 
 #define DEFAULT_PORT 5555
 #define MAX_PACKET_SIZE 65507

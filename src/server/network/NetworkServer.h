@@ -31,7 +31,7 @@ public:
 	NetworkServer(unsigned short port);
 
 	//returns true if there are new events available
-	bool eventsAvailable() { return m_eventsAvailable; };
+	bool eventsAvailable() { return true; };
 
 	//returns a vector of events received
 	EventBuff_t getEvents();
@@ -42,11 +42,13 @@ public:
 	virtual ~NetworkServer(void);
 
 private:
-
-	void sendToClient(char * const buff, int size, Network &client);
+	unsigned int m_clientCount;
+	void initializeSocket();
+	void startListening();
+	void sendToClient(char * const buff, int size, SOCKET &Client);
 	WSADATA wsa;
-	SOCKET m_sock;
-	map <Network, Network> m_connectedClients;
+	SOCKET m_incomingSock;
+	map <unsigned int, SOCKET> m_connectedClients;
 	EventBuff_t m_eventsBuffer;
 	void bindSocket();
 	bool m_eventsAvailable;
@@ -55,11 +57,12 @@ private:
 	//thread stuff
 	CRITICAL_SECTION m_cs;
 	HANDLE m_hThread;
+	void acceptNewClient();
 	void updateEventsBuffer();
 
 	static unsigned __stdcall ThreadStaticEntryPoint(void * pThis) {
 		NetworkServer * pthX = (NetworkServer*)pThis;
-		pthX->updateEventsBuffer();	
+		pthX->acceptNewClient();	
 		return 1;
 	}
 

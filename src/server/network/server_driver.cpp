@@ -14,7 +14,7 @@ void printEntity(Entity const &e) {
 	}
 
 int main(){
-	try{
+	try {
 		cout << "Server:" << endl;
 		NetworkServer server(8888);
 		cout << "socket created:" << endl;
@@ -31,15 +31,17 @@ int main(){
 		gameState.push_back(test);
 
 		for(;;) {
-			if (server.eventsAvailable()) {
+			server.broadcastGameState(gameState);
+			
 				eventBuff = server.getEvents();
-				for(unsigned int i = 0; i < eventBuff.size(); i++) {
+				if(!eventBuff.empty()) {
 					cout << "Event recieved." << endl;
-					//cout << *eventBuff[i] << endl;
-					gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
+					//cout << (eventBuff[i] << endl;
+					cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;
+					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
 					//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 				}
-			}
+		
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {
 				//gameState[1]->m_pos.z += .025;
 				//gameState[0]->m_pos.z += .05;
