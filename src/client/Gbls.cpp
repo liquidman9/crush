@@ -17,8 +17,7 @@ float Gbls::debugCamTurnSpeed = 2.0f;
 float Gbls::debugCamMaxPitch = D3DXToRadian(89.0f);
 float Gbls::debugCamMinPitch = D3DXToRadian(-89.0f);
 
-Mesh Gbls::shipMesh1;
-Mesh Gbls::shipMesh2;
+Mesh Gbls::shipMesh[NUM_SHIP_MESHES];
 
 // Should be changed to load in from a config file later
 std::wstring Gbls::shipMeshFilepath_1 = L"player_ship_001.x";

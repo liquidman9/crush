@@ -23,7 +23,7 @@ public:
 	void Destroy();
 	void draw();
 
-	static void setScaleRotate(D3DXMATRIX & dest, float scaleFactor, float degX, float degY, float degZ);
+	void setScaleRotate(float scaleFactor, float degX, float degY, float degZ);
 
 
 //private: //maybe need to be public
@@ -31,6 +31,7 @@ public:
 	D3DMATERIAL9*       m_pMeshMaterials; // Materials for our mesh
 	LPDIRECT3DTEXTURE9* m_pMeshTextures; // Textures for our mesh
 	DWORD               m_dwNumMaterials;   // Number of mesh materials
+	D3DXMATRIX m_matInitScaleRot;		// Initial rotate matrix
 
 };
 

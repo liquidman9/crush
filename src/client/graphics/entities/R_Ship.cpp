@@ -12,12 +12,35 @@ R_Ship::R_Ship()
 {
 }
 
-R_Ship::R_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn, Mesh* pMesh, D3DXCOLOR color) :
-	Ship(pos, dir, pNum, tBeamOn),
-	m_pMesh(pMesh),
-	m_color(color)
-{
-	D3DXMatrixIdentity(&m_matInitScaleRot);
+/* This ctor is broken (and others might be too) because ship's base class of entity was inherited from
+ * in Ship.h using the virtual keyword as shown in the code snippet below
+ * "class Ship : public virtual Entity {"
+ * read this link for more info: http://www.parashift.com/c++-faq-lite/virtual-inheritance-ctors.html
+ */
+//R_Ship::R_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn, Mesh* pMesh, D3DXCOLOR color) :
+//	Ship(pos, dir, pNum, tBeamOn),
+//	m_pMesh(pMesh),
+//	m_color(color)
+//{
+//}
+
+
+R_Ship::R_Ship(Entity * newEnt) {
+	Ship * srcShip = dynamic_cast<Ship*>(newEnt);
+	if (srcShip == 0) {
+		//TODO figure out how to handle this case when not in debug
+#ifdef _DEBUG
+//TODO put this back in, make sure it doesn't break anyone's build
+//TODO I don't think this is actually needed anymore
+//		MessageBox( NULL, L"Error converting Entity to Ship", L"CRUSH Game", MB_OK );
+#endif
+	} else {
+		m_pos = srcShip->m_pos;
+		m_dir = srcShip->m_dir;
+		m_tractorBeamOn = srcShip->m_tractorBeamOn;
+		m_playerNum = srcShip -> m_playerNum;
+		m_pMesh = &Gbls::shipMesh[m_playerNum % Gbls::NUM_SHIP_MESHES];
+	}
 }
 
 void R_Ship::draw()
@@ -62,6 +85,6 @@ void R_Ship::draw()
 	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
 
 	// Apply transforms
-	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_matInitScaleRot*matRotate*matTranslate));
+	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));
 	m_pMesh->draw();
 }
