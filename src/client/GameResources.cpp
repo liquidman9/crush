@@ -52,23 +52,27 @@ HRESULT GameResources::initState() {
 	if(FAILED (hres))
 		return hres;
 
+	//set backface cullling off TODO remove after models are fixed
+	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+
 	/*set up temp entities for test rendering TODO remove this and replace with normal object creation from network*/
 	
 	D3DXVECTOR3 pos(0.0f, 1.0f, -1.0f);
-	D3DXVECTOR3 dir(0.0f, 0.0f, 1.0f);
+	D3DXVECTOR3 dir(0.0f, 1.0f, 0.0f);
 	int pNum = 1;
 	D3DXCOLOR color(0.8f, 0.3f, 0.3f, 0.5f);
 	bool tBeamOn = false;
 	R_Ship* tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh2, color);
-	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 180.0f, 0.0f);
+	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 0.0f, 0.0f);
 	entityList.push_back(tmp);
 
 	//pos.x*=-1; pos.y*=-1; pos.z*=-1;
 	//dir.x*=-1; dir.y*=-1; dir.z*=-1;
-	pos.y = 0.3f; pos.z = -0.6f;
+	pos.y = 0.3f; //pos.z = -0.6f;
 	pNum = 2;
 	color.r = 0.3f; color.g = 0.3f; color.b = 0.8f;
 	tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh1, color);
+	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
 	entityList.push_back(tmp);
 
 	//a bit ugly, probably easier to just loop through all the entity lists (left here in case we want to switch back)

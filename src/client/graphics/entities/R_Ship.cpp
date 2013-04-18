@@ -20,21 +20,46 @@ R_Ship::R_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn, Mesh* p
 
 void R_Ship::draw()
 {
-	//this can all probably be a lot faster
+	// Rotate ship to face correct direction
 
-	//D3DXVECTOR3 zaxis; // z axis just direction vector
-	D3DXVECTOR3 xaxis(m_dir.z, 0, -m_dir.x);
-	D3DXVec3Normalize(&xaxis, &xaxis);
-	D3DXVECTOR3 yaxis;
-	D3DXVec3Cross(&yaxis, &m_dir, &xaxis);
+	/* use this code if we want to handle edge case (y = 1 or y = -1) in this function */
+	//D3DXVec3Normalize(&m_dir, &m_dir);
+	//D3DXMATRIX matRotate;
+	//if(m_dir.y > 0.99999f) {
+	//	D3DXMatrixRotationX(&matRotate, D3DXToRadian(-90));
+	//} else if(m_dir.y < -0.99999f) {
+	//	D3DXMatrixRotationX(&matRotate, D3DXToRadian(90));
+	//} else {
+	//	D3DXVECTOR3 right;
+	//	D3DXVECTOR3 up(0,1.0f,0);
+	//	D3DXVec3Cross(&right, &up, &m_dir);
+	//	D3DXVec3Normalize(&right, &right);
+	//	D3DXVec3Cross(&up, &m_dir, &right);
+	//	// TODO waste of copy, fix later
+	//	matRotate = D3DXMATRIX(
+	//		right.x, right.y, right.z, 0,
+	//		up.x, up.y, up.z, 0,
+	//		m_dir.x, m_dir.y, m_dir.z, 0, 
+	//		0, 0, 0, 1);
+	//}
 
+	D3DXVec3Normalize(&m_dir, &m_dir);
+	D3DXVECTOR3 right;
+	D3DXVECTOR3 up(0,1.0f,0);
+	D3DXVec3Cross(&right, &up, &m_dir);
+	D3DXVec3Normalize(&right, &right);
+	D3DXVec3Cross(&up, &m_dir, &right);
 	D3DXMATRIX matRotate(
-		xaxis.x, yaxis.x, m_dir.x, 0,
-		xaxis.y, yaxis.y, m_dir.y, 0,
-		xaxis.z, yaxis.z, m_dir.z, 0,
+		right.x, right.y, right.z, 0,
+		up.x, up.y, up.z, 0,
+		m_dir.x, m_dir.y, m_dir.z, 0, 
 		0, 0, 0, 1);
+
+	// Translate ship to correct possition
 	D3DXMATRIX matTranslate;
 	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
+
+	// Apply transforms
 	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_matInitScaleRot*matRotate*matTranslate));
 	m_pMesh->draw();
 }
