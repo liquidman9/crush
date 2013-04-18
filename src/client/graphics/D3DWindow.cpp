@@ -253,6 +253,10 @@ LRESULT CALLBACK D3DWindow::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 	case WM_KEYDOWN:
 		switch(wParam)
 		{
+		case '0':
+			GameResources::debugCamOn =  !GameResources::debugCamOn;
+			break;
+
 		case VK_UP:
 			GameResources::m_ks.upDown = true;
 			break;

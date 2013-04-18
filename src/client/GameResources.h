@@ -18,16 +18,26 @@
 #include <shared/game/GameState.h>
 //#include <client/graphics/entities/R_Ship.h>
 #include <shared/GameInput.h>
+#include <map>
 
 class GameResources {
 public:
 
 	//static enum cameras {DEBUG_CAM, PLAYER_CAM};  //better to use boolean with only two cameras, can extend later
 
+		//static struct cmp_entity
+	//{
+	//	bool operator()(Entity const *a, Entity const *b)
+	//	{
+	//		return a->m_type < b->m_type;
+	//	}
+	//};
+
+	static std::map<int, Entity*> entityMap;
 	static bool debugCamOn;
 	static Camera debugCam;
 	static Camera* curCam;
-	static std::vector<Entity*> entityList;
+	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;
 
