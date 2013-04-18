@@ -9,7 +9,7 @@ void printEntity(Entity const &e) {
 		<< e.m_dir.x << " " << e.m_dir.y << " " << e.m_dir.z << endl;
 	}
 
-/*int main(){
+int main(){
 	try{
 		cout << "Server:" << endl;
 		NetworkServer server(8888);
@@ -33,6 +33,7 @@ void printEntity(Entity const &e) {
 					cout << "Event recieved." << endl;
 					//cout << *eventBuff[i] << endl;
 					gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
+					//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 				}
 			}
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {
@@ -51,4 +52,4 @@ void printEntity(Entity const &e) {
 		system("pause");
 	}
 
-}*/
+}
