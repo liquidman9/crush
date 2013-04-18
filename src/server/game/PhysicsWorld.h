@@ -1,9 +1,13 @@
 /*
  * PhysicsWorld.h
  */
-#include <shared/game/Entity.h>
+
+// Global includes 
 #include <vector>
 #include <d3dx9.h>
+
+// Project includes
+#include <shared/game/Entity.h>
 #include <server/game/ServerEntity.h>
 #include <server/game/Boundary.h>
 

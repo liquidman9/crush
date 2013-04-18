@@ -5,9 +5,11 @@
 #ifndef BOUNDARY_H_INCLUDED
 #define BOUNDARY_H_INCLUDED
 
-#include <server/game/ServerEntity.h>
+// Global includes
 #include <d3dx9.h>
 
+// Project includes
+#include <server/game/ServerEntity.h>
 
 class Boundary {
 public:

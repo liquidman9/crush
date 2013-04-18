@@ -5,8 +5,10 @@
 #ifndef MESH_H_INCLUDED
 #define MESH_H_INCLUDED
 
-// Global includes
+// Defines
 #define WIN32_LEAN_AND_MEAN
+
+// Global includes
 #include <d3dx9.h>
 #include <string>
 

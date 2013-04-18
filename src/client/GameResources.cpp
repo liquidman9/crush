@@ -2,7 +2,6 @@
 // GameResources.cpp Static container for game resources including meshes, objects, cameras, etc.
 //=================================================================================================
 
-
 // Global includes
 #include <algorithm>
 

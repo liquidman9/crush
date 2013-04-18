@@ -2,8 +2,10 @@
  * R_Ship.cpp
  */
 
+// Project includes
 #include <client/Gbls.h>
 #include <client/graphics/entities/R_Ship.h>
+ 
 //Mesh R_Ship::s_mesh;
 
 R_Ship::R_Ship()

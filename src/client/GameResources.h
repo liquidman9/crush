@@ -8,6 +8,7 @@
 // Global includes
 #include <vector>
 #include <memory>
+
 // Project includes
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Camera.h>

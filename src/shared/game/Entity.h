@@ -6,15 +6,21 @@
 #define ENTITIY_H_INCLUDED
 #pragma once
 
+// Defines
 #define WIN32_LEAN_AND_MEAN
+
+// Global includes
 #include <WinSock2.h>
 //#include <windows.h>
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <iostream>
+#include <memory>
+
+// Project includes
 #include <shared/network/Sendable.h>
 #include <client/graphics/Renderable.h>
-#include <memory>
+
 
 using namespace std;
 
@@ -36,11 +42,15 @@ public:
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_dir;
 
+	// Constructors
 	Entity();
 	Entity(Entity const &e);
 	Entity(D3DXVECTOR3 pos, D3DXVECTOR3 dir);
-	const int getID() const { return m_id; };
+	// Destructor
 	virtual ~Entity();
+
+	// Methods
+	const int getID() const { return m_id; };
 	virtual const char* encode() const;
 	virtual void decode(const char *);
 	virtual const unsigned int size() const { return m_size; };

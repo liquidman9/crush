@@ -5,15 +5,18 @@
 #ifndef D3DWINDOW_H_INCLUDED
 #define D3DWINDOW_H_INCLUDED
 
+// Defines
+#define WIN32_LEAN_AND_MEAN
+
 // Global includes
 //#include <windows.h>
-#define WIN32_LEAN_AND_MEAN
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <string>
 
 // Project includes
 #include <client/Gbls.h>
+
 
 class D3DWindow
 {

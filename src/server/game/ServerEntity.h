@@ -4,8 +4,13 @@
 
 #ifndef SERVERENTITY_H_INCLUDED
 #define SERVERENTITY_H_INCLUDED
-#include <shared\game\Entity.h>
+
+// Global includes
 #include <d3dx9.h>
+
+// Project includes
+#include <shared\game\Entity.h>
+
 
 
 class ServerEntity : public virtual Entity{

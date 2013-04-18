@@ -1,9 +1,13 @@
+/*
+ * GameState.h
+ */
+
 #pragma once
 
 
 // Global includes
 #include <vector>
-#include<memory>
+#include <memory>
 
 // Project includes
 #include <shared/game/Entity.h>

@@ -5,6 +5,7 @@
 #ifndef R_SHIP_H_INCLUDED
 #define R_SHIP_H_INCLUDED
 
+// Project includes
 #include <shared/game/Ship.h>
 #include <client/graphics/Renderable.h>
 

@@ -6,6 +6,8 @@
 #define Camera_H_INCLUDED
 
 #define WIN32_LEAN_AND_MEAN
+
+// Global includes
 #include <d3dx9.h>
 
 class Camera {
