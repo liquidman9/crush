@@ -19,7 +19,7 @@ ConfigSettings::ConfigSettings(string fname, string template_fname) {
 	}
 }
 
-//Reads and loads the settings
+// Reads and loads the settings
 bool ConfigSettings::loadSettingsFile(){
 	
 	ifstream myfile;

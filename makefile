@@ -66,4 +66,4 @@ $(BUILD_DIRS):
 clean:
 	@rm -rf $(BUILD_DIR)
 
-$(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
+$(foreach ofile,$(OBJ_FILES),$(eval $(call make-goal,$(ofile))))

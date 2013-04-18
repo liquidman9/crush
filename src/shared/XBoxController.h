@@ -8,7 +8,7 @@
 
 // We need the Windows Header and the XInput Header
 //#include "GameInput.h"
-#include <windows.h>
+//#include <windows.h>
 #include <XInput.h>
 #include "Controller.h"
 
