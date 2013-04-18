@@ -16,7 +16,20 @@ int main(){
 		EventBuff_t eventBuff;
 		State_t gameState;
 		PhysicsWorld world;
-	
+		int bound = 30;
+		Boundary left = Boundary(D3DXVECTOR3(1,0,0), D3DXVECTOR3(-bound,0,0));
+		Boundary right = Boundary(D3DXVECTOR3(-1,0,0), D3DXVECTOR3(bound,0,0));
+		Boundary top = Boundary(D3DXVECTOR3(0,-1,0), D3DXVECTOR3(0,bound,0));
+		Boundary down = Boundary(D3DXVECTOR3(0,1,0), D3DXVECTOR3(0,-bound,0));
+		Boundary front = Boundary(D3DXVECTOR3(0,0,1), D3DXVECTOR3(0,0,-bound));
+		Boundary back = Boundary(D3DXVECTOR3(0,0,-1), D3DXVECTOR3(0,0,bound));
+		world.boundaries.push_back(left);
+		world.boundaries.push_back(right);
+		world.boundaries.push_back(top);
+		world.boundaries.push_back(down);
+		world.boundaries.push_back(front);
+		world.boundaries.push_back(back);
+
 		D3DXVECTOR3 m_pos(-20,0,50);//(2,2,2);
 		D3DXVECTOR3 m_dir(1,0,0);//(1,1,1);
 		//gameState.push_back(Entity());
@@ -32,6 +45,13 @@ int main(){
 		gameState.push_back(test2);
 	    world.entities.push_back(test2);
 
+		D3DXVECTOR3 m_pos2(0,0,20);//(2,2,2);
+		D3DXVECTOR3 m_dir2(0,0,-1);//(1,1,1);
+		//S_Ship *test3 = new S_Ship(m_pos2, m_dir2, 3, true);
+		//test3->m_acceleratorOn = true;
+		//gameState.push_back(test3);
+	   // world.entities.push_back(test3);
+
 		//ServerEntity *test2 = new S_Ship(m_pos1, m_dir, 2, true);
 		//gameState.push_back(test2);
 	//	world.entities.push_back(test2);
@@ -43,10 +63,11 @@ int main(){
 					
 					//cout << *eventBuff[i] << endl;
 					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i])->thrust))/250.0;
-				
+				if(count < 200) {
 					cout << "Event recieved." << endl;
 					world.update();
-			
+					//count++;
+				}
 					
 				}
 			}
