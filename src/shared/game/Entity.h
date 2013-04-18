@@ -32,7 +32,7 @@ protected:
 
 public:
 	Type m_type;
-	
+
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_dir;
 

@@ -8,7 +8,7 @@
 #include <shared/game/Entity.h>
 #define SHIP_PLAYERNUM_TYPE char
 
-class Ship : public Entity {
+class Ship : public virtual Entity {
 private:
 	static const unsigned int m_size = Entity::m_size + sizeof(SHIP_PLAYERNUM_TYPE) + sizeof(bool);
 

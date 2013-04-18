@@ -1,4 +1,3 @@
-
 /*
 * Entity.cpp
 */
