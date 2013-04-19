@@ -11,14 +11,13 @@
 #include <map>
 
 // Project includes
+#include <shared/game/Entity.h>
+#include <shared/game/GameState.h>
+#include <shared/GameInput.h>
+
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Camera.h>
 #include <client/graphics/Renderable.h>
-#include <shared/game/Entity.h>
-//typedef vector<shared_ptr<Entity>> GameState;
-#include <shared/game/GameState.h>
-//#include <client/graphics/entities/R_Ship.h>
-#include <shared/GameInput.h>
 #include <client/graphics/entities/C_Entity.h>
 
 class GameResources {
@@ -34,6 +33,7 @@ public:
 	//	}
 	//};
 
+	// A map of Client Entities -- this allows entity updating and rendering (C_Entity extends both Entity and Renderable)
 	static std::map<int, C_Entity*> entityMap;
 	static bool debugCamOn;
 	static Camera debugCam;

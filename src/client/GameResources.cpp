@@ -61,36 +61,37 @@ HRESULT GameResources::initState() {
 	//set backface cullling off TODO remove after models are fixed
 	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
-	/*set up temp entities for test rendering TODO remove this and replace with normal object creation from network*/
+/* Set up temp entities for test rendering */
+/* TODO remove this and replace with normal object creation from network */
 	
 	D3DXVECTOR3 pos(0.0f, 1.0f, -1.0f);
 	D3DXVECTOR3 dir(0.0f, 1.0f, 1.0f);
 	int pNum = 1;
 	D3DXCOLOR color(0.8f, 0.3f, 0.3f, 0.5f);
 	bool tBeamOn = false;
-	Ship * stmp = new Ship(pos, dir, pNum, tBeamOn);
-	C_Entity * etmp = createEntity(stmp);
-	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
-	entityMap[etmp->getID()] = etmp;
-	//R_Ship* tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh[1], color);
-	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 0.0f, 0.0f);
-	//entityMap[tmp->getID()] = tmp;
 
-	//pos.x*=-1; pos.y*=-1; pos.z*=-1;
-	//dir.x*=-1; dir.y*=-1; dir.z*=-1;
+	// Create a new Ship Entity
+	Ship * stmp = new Ship(pos, dir, pNum, tBeamOn);
+	// Generate a C_Entity (C_Ship) from the Ship Entity
+	C_Entity * etmp = createEntity(stmp);
+	// Add the C_Entity to the entity map
+	entityMap[etmp->getID()] = etmp;
+
 	pos.y = 0.3f; //pos.z = -0.6f;
 	pNum = 2;
 	color.r = 0.3f; color.g = 0.3f; color.b = 0.8f;
-	//tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh[0], color);
+
+	// Create a new Ship Entity
 	stmp = new Ship(pos, dir, pNum, tBeamOn);
+	// Generate a C_Entity (C_Ship) from the Ship Entity
 	etmp = createEntity(stmp);
-	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
+	// Add the C_Entity to the entity map
 	entityMap[etmp->getID()] = etmp;
 
 	//a bit ugly, probably easier to just loop through all the entity lists (left here in case we want to switch back)
 	//renderList.push_back((std::vector<Renderable*>*)(&r_ShipList));
 
-	/*end TODO remove*/
+/*end TODO remove*/
 
 	return S_OK;
 }
@@ -241,39 +242,32 @@ void GameResources::updateGameState(GameState & newGameState) {
 	updateKeyboardState();
 	
 	for (DWORD i = 0; i < newGameState.size(); i++) {
+		// We have recieved some new game state
 		int id = newGameState[i]->getID();
-		cerr << "Creating entity" << endl;
 		if(entityMap.find(id) == entityMap.end()) {
-			cerr << "Creating entity" << endl;
+			// If the object with the given ID does not exist, we need to create it
 			entityMap[id] = createEntity(newGameState[i].get());
 		} else {
-			cerr << "Updating entity" << endl;
+			// Otherwise, we should update the existing entity with the current one
 			entityMap[id]->update(newGameState[i]);
 		}
-		cerr << "Done" << endl;
 	}
 }
 
+// Generates a Client Entity based on the given Entity (used when recieving input from server)
 C_Entity * GameResources::createEntity(Entity * newEnt) {
 	C_Entity * ret = NULL;
-	/*typeid(*newEnt);
-	if (typeid(*newEnt) == typeid(Ship)) {
-		ret = new C_Ship(newEnt);
-	} else {
-		//Do nothing! We can't instantiate anything but a C_Ship.
-		//ret = new C_Entity(newEnt);
-	}*/
+	// Switch on the entity's type
 	switch (newEnt->m_type) {
-	//case ENTITY :
-	//	ret = new Entity(*newEnt);
-	//	break;
-	case SHIP :
-		ret = new C_Ship(newEnt);
-		break;
-	//case BASE :
-	//	break;
-	//case ASTEROID :
-	//	break;
+		// Removed the ENTITY: case -- we shouldn't use raw entities
+		case SHIP :
+			ret = new C_Ship(newEnt);
+			break;
+		//case BASE :
+		//	break;
+		case ASTEROID :
+			ret = new C_Asteroid(newEnt);
+			break;
 	}
 	return ret;
 }

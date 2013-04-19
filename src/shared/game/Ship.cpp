@@ -9,15 +9,13 @@ Ship::Ship() :
 	Entity(SHIP),
 	m_playerNum(0),
 	m_tractorBeamOn(false)
-{
-}
+{ }
 
 Ship::Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
 	Entity(SHIP, pos, dir),
 	m_playerNum(pNum),
 	m_tractorBeamOn(tBeamOn)
-{
-}
+{ }
 
 const char* Ship::encode() const {
 	char *rtn = new char[m_size];
