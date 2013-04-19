@@ -16,7 +16,6 @@
 
 #pragma comment(lib,"ws2_32.lib")
 
-
 //typedef vector<shared_ptr<Entity> > GameState;
 typedef Sendable Event;
 typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;

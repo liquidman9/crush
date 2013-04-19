@@ -6,17 +6,19 @@
 #include <stdio.h>
 
 // Project includes
+#include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 
 
-S_Ship::S_Ship() {
-	Entity();
-	Ship();
+S_Ship::S_Ship() :
+	Entity(SHIP),
+	Ship()
+{
 	init();
 }
 
 S_Ship::S_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
-	Entity(pos,dir),
+	Entity(SHIP, pos,dir),
 	Ship(pos, dir, pNum, tBeamOn)
 {	
 	init();

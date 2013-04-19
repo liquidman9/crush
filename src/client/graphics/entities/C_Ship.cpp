@@ -4,12 +4,14 @@
 
 // Project includes
 #include <client/Gbls.h>
-#include <client/graphics/entities/R_Ship.h>
+#include <client/graphics/entities/C_Ship.h>
  
-//Mesh R_Ship::s_mesh;
+//Mesh C_Ship::s_mesh;
 
-R_Ship::R_Ship()
-{
+C_Ship::C_Ship() :
+	Entity(SHIP)
+{ 
+	cerr << "Creating C_Ship with default constructor" << endl;
 }
 
 /* This ctor is broken (and others might be too) because ship's base class of entity was inherited from
@@ -25,25 +27,23 @@ R_Ship::R_Ship()
 //}
 
 
-R_Ship::R_Ship(Entity * newEnt) {
+C_Ship::C_Ship(Entity * newEnt) :
+	Entity(SHIP)
+{
+cerr << "Creating C_Ship with Entity * constructor" << endl;
 	Ship * srcShip = dynamic_cast<Ship*>(newEnt);
-	if (srcShip == 0) {
-		//TODO figure out how to handle this case when not in debug
-#ifdef _DEBUG
-//TODO put this back in, make sure it doesn't break anyone's build
-//TODO I don't think this is actually needed anymore
-//		MessageBox( NULL, L"Error converting Entity to Ship", L"CRUSH Game", MB_OK );
-#endif
-	} else {
+	if (srcShip != NULL) {
 		m_pos = srcShip->m_pos;
 		m_dir = srcShip->m_dir;
 		m_tractorBeamOn = srcShip->m_tractorBeamOn;
 		m_playerNum = srcShip -> m_playerNum;
 		m_pMesh = &Gbls::shipMesh[m_playerNum % Gbls::numShipMeshes];
+	} else {
+		cerr << "SEVERE : Unable to create Client Ship!" << endl;
 	}
 }
 
-void R_Ship::draw()
+void C_Ship::draw()
 {
 	// Rotate ship to face correct direction
 

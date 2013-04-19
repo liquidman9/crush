@@ -14,6 +14,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
+	AllocConsole();
 	// Init globals from config file
 	Gbls::initFromConfig();
 

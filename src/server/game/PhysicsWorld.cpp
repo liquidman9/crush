@@ -9,9 +9,9 @@ void PhysicsWorld::update() {
 	//int iterCount = 10;	// Attempt to solve collisions 10 times, to be implemented
 
 
-	for(int i = 0; i < entities.size(); i++)
+	for(unsigned i = 0; i < entities.size(); i++)
 	{	
-		for(int j = i+1; j < entities.size(); j++)
+		for(unsigned j = i+1; j < entities.size(); j++)
 		{
 			//if(i != j)//entities[i].m_id != entities[j].m_id)
 			//{
@@ -23,7 +23,7 @@ void PhysicsWorld::update() {
 			//}
 		}
 
-		for(int k = 0; k < boundaries.size(); k++) {
+		for(unsigned k = 0; k < boundaries.size(); k++) {
 			if(checkCollision(*entities[i], boundaries[k])){
 					printf("Collide %i with Boundary %i\n", i, k);
 					respond(entities[i], boundaries[k]);
@@ -33,9 +33,9 @@ void PhysicsWorld::update() {
 
 
 		
-	for(int i = 0; i < entities.size(); i++)
+	for(unsigned i = 0; i < entities.size(); i++)
 	{
-		entities[i]->calculate(.005);
+		entities[i]->calculate(.005f);
 		printf("Number %i: %f,%f,%f \n", i, entities[i]->m_pos.x,entities[i]->m_pos.y,entities[i]->m_pos.z);
 	}
 }
@@ -67,7 +67,7 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	float a1 = D3DXVec3Dot(&v1,&n);
 	float a2 = D3DXVec3Dot(&v2,&n);
 
-	float optimizedP = (2.0 * (a1 - a2)) / (a->mass + b->mass);
+	float optimizedP = (2.0f * (a1 - a2)) / (a->mass + b->mass);
 
 	D3DXVECTOR3 nv1 = v1 - optimizedP * b->mass * n;
 	D3DXVECTOR3 nv2 = v2 + optimizedP * a->mass * n;

@@ -18,18 +18,26 @@ m_id(s_id_gen++),
 {
 }
 
+Entity::Entity(Type type) :
+	m_id(s_id_gen++),
+	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
+	m_dir(D3DXVECTOR3(0.0, 0.0, 1.0)),
+	m_type(type)
+{
+}
+
 Entity::Entity(Entity const &e)  {
-	m_type = ENTITY;
+	m_type = e.m_type;
 	m_id = e.m_id;
 	memcpy(m_pos, e.m_pos, sizeof(D3DXVECTOR3));
 	memcpy(m_dir, e.m_dir, sizeof(D3DXVECTOR3));
 }
 
-Entity::Entity(D3DXVECTOR3 pos, D3DXVECTOR3 dir) : 
-m_id(s_id_gen++),
+Entity::Entity(Type type, D3DXVECTOR3 pos, D3DXVECTOR3 dir) : 
+	m_id(s_id_gen++),
 	m_pos(pos),
 	m_dir(dir),
-	m_type(ENTITY)
+	m_type(type)
 {
 }
 
@@ -53,10 +61,6 @@ void Entity::decode(const char * tmp) {
 	memcpy(&m_pos,tmp+sizeof(m_id) + sizeof(ENUM_TYPE), sizeof(D3DXVECTOR3));
 	memcpy(&m_dir,tmp+sizeof(m_id)+sizeof(D3DXVECTOR3) + sizeof(ENUM_TYPE), sizeof(D3DXVECTOR3));
 	m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
-}
-
-void Entity::draw() {
-
 }
 
 void Entity::update(shared_ptr<Entity> source) {

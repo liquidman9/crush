@@ -26,13 +26,16 @@ enum Type { ENTITY, SHIP, BASE, ASTEROID};
 
 #define ENUM_TYPE char
 
-class Entity : public Sendable, public Renderable {
+class Entity : public Sendable {
 private:
 	static int s_id_gen;
 	int m_id;
-
+	
 protected:
 	static const unsigned int m_size = sizeof(ENUM_TYPE) + sizeof(int) +  2*sizeof(D3DXVECTOR3);
+	
+	// THIS CONSTRUCTOR SHOULD NEVER BE DIRECTLY CALLED.
+	Entity();
 
 public:
 	Type m_type;
@@ -41,9 +44,9 @@ public:
 	D3DXVECTOR3 m_dir;
 
 	// Constructors
-	Entity();
+	Entity(Type type);
 	Entity(Entity const &e);
-	Entity(D3DXVECTOR3 pos, D3DXVECTOR3 dir);
+	Entity(Type type, D3DXVECTOR3 pos, D3DXVECTOR3 dir);
 	// Destructor
 	virtual ~Entity();
 
@@ -52,7 +55,6 @@ public:
 	virtual const char* encode() const;
 	virtual void decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
-	virtual void draw();
 	virtual void update(shared_ptr<Entity> source);
 	//virtual void update(Entity* source);
 

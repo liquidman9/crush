@@ -8,6 +8,7 @@
 // Global includes
 #include <vector>
 #include <memory>
+#include <map>
 
 // Project includes
 #include <client/graphics/Mesh.h>
@@ -18,7 +19,7 @@
 #include <shared/game/GameState.h>
 //#include <client/graphics/entities/R_Ship.h>
 #include <shared/GameInput.h>
-#include <map>
+#include <client/graphics/entities/C_Entity.h>
 
 class GameResources {
 public:
@@ -33,7 +34,7 @@ public:
 	//	}
 	//};
 
-	static std::map<int, Entity*> entityMap;
+	static std::map<int, C_Entity*> entityMap;
 	static bool debugCamOn;
 	static Camera debugCam;
 	static Camera* curCam;
@@ -71,7 +72,7 @@ public:
 	static void drawAll();
 	static void updateDebugCamera();
 	static void updateGameState(GameState & newGameState);
-	static Entity * createEntity(Entity * newEnt);
+	static C_Entity * createEntity(Entity * newEnt);
 	static void releaseResources();
 
 };
