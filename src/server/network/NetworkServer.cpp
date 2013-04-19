@@ -110,7 +110,6 @@ void NetworkServer::sendToClient(char * const buff, int size, SOCKET &s) {
 EventBuff_t NetworkServer::getEvents() {
 	char local_buf[MAX_PACKET_SIZE];
 	struct sockaddr_in recv_addr;
-	int recv_size = sizeof(recv_addr);
 
 	bool error = false;
 	memset(local_buf,'\0', MAX_PACKET_SIZE);
