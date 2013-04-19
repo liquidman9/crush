@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//networking init
 			//try {
 			NetworkClient nc(8887);
-			nc.bindToServer("127.0.0.1", 8888);
+			nc.bindToServer("192.168.5.149", 8889);
 			GameInput input;
 			//} catch (exception & e) {
 			//	cerr << e.what();
@@ -59,7 +59,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 				GameState newGameState;
 
 #ifdef MYNETWORKON
-				nc.sendToServer(&(input.input));
+				if (!GameResources::debugCamOn) {
+					nc.sendToServer(&(input.input));
+				}
 
 
 				// Get game state from network

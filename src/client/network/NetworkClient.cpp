@@ -95,7 +95,8 @@ void NetworkClient::sendToServer(Event* e) {
 	const char * encoded = e->encode();
 	int s = e->size();
 	if(send(m_sock, encoded,s, 0) == SOCKET_ERROR) {
-		throw runtime_error("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
+		runtime_error e("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
+		throw e;
 	}
 	delete []encoded;
 }
