@@ -22,6 +22,7 @@ typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;
 
 #define DEFAULT_PORT 5555
 #define MAX_PACKET_SIZE 65507
+#define TIMEOUT 5000;
 
 using namespace std;
 

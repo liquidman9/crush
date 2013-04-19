@@ -61,9 +61,21 @@ public:
 	};
 	
 private:
+	const char * getSendBuff() const {
+		char *send_buff = new char[m_sendSize];
+		int total_size = 0;
+		for(unsigned int i = 0; i < m_entities.size(); i++) {
+			const char* tmp = m_entities[i]->encode();
+			memcpy(send_buff + total_size, tmp, m_entities[i]->size());
+			total_size += m_entities[i]->size();
+			delete []tmp;
+		}
+		return send_buff;
+	}
+
 	vector<shared_ptr<Entity> > m_entities;
 	unsigned int m_sendSize;
-	friend class NetworkingDecoder;
+	friend class NetworkServer;
 
 };
 

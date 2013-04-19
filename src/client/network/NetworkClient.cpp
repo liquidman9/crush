@@ -32,11 +32,17 @@ void NetworkClient::initializeSocket() {
 	if( (m_sock = socket(AF_INET , SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET )  {
 		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
 	}
+	int timeout = TIMEOUT;
+	ConfigSettings::config->getValue("network_timeout", timeout);
+	setsockopt( m_sock, IPPROTO_TCP, SO_RCVTIMEO, (const char *) &timeout, sizeof( timeout ) );
 }
 
 void NetworkClient::bindToServer(string ip, unsigned short port) {
+	bindToServer(Network(ip, port));
+}
 
-	m_server = Network(ip, port);
+void NetworkClient::bindToServer(Network const &n) {
+	m_server = n;
 
 	//bind server port to socket
 	if(bind(m_sock ,(struct sockaddr *)&(this->m_sockaddr),
@@ -54,7 +60,7 @@ void NetworkClient::bindToServer(string ip, unsigned short port) {
 	}
 
 	if (recv (m_sock, (char *) &m_clientID, sizeof(m_clientID), 0) == SOCKET_ERROR) {
-		cerr << "connect() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+		cerr << "Failed to get client ID : " + to_string((long long) WSAGetLastError()) << endl;
 		
 		runtime_error e("Failed to get client ID : " + to_string((long long) WSAGetLastError()));
 		throw e;
@@ -67,9 +73,12 @@ void NetworkClient::bindToServer(string ip, unsigned short port) {
 		throw runtime_error("connect() failed with error code : " + to_string((long long) WSAGetLastError()));
 	}*/
 
+	
+
 	//don't collect data and send in a big packet
 	char value = 1;
     setsockopt( m_sock, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
+
 
 
 	//start thread to recv data from server
@@ -100,6 +109,10 @@ void NetworkClient::updateGameState() {
 		if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
 				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 				error = true;
+		}
+
+		if(error && WSAGetLastError() == WSAETIMEDOUT) {
+			cerr << "conntection to the server timedout" << endl;
 		}
 		
 		if(!error) {

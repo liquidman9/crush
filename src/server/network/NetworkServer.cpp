@@ -8,7 +8,6 @@
 
 NetworkServer::NetworkServer(void) : 
 Network(),
-	m_eventsAvailable(false),
 	m_clientCount(0)
 {
 	WSAStartup(MAKEWORD(2,2),&wsa);
@@ -28,7 +27,6 @@ Network(),
 
 NetworkServer::NetworkServer(string ip, unsigned short port) : 
 Network(ip, port),
-	m_eventsAvailable(false),
 	m_clientCount(0) 
 {
 	WSAStartup(MAKEWORD(2,2),&wsa);
@@ -48,7 +46,6 @@ Network(ip, port),
 
 NetworkServer::NetworkServer(unsigned short port) : 
 Network(port),
-	m_eventsAvailable(false),
 	m_clientCount(0)
 {
 	WSAStartup(MAKEWORD(2,2),&wsa);
@@ -82,33 +79,28 @@ void NetworkServer::broadcastGameState(const GameState &state) {
 	map<unsigned int, SOCKET>::iterator start = m_connectedClients.begin();
 	map<unsigned int,SOCKET>::iterator end = m_connectedClients.end();
 
-	char* local_buff = new char[state.sendSize()];
-	unsigned int total_size = 0;
-	//accumulate all data into currect buffer
-	for(unsigned int i = 0; i < state.size(); i++) {
-		const char* tmp = state[i]->encode();
-		memcpy(local_buff + total_size, tmp, state[i]->size());
-		total_size += state[i]->size();
-		delete []tmp;
-	}
+	//accumulate all data into send buffer
+	const char* send_buff = state.getSendBuff();
 	
 	//send to every client currently connected
 	EnterCriticalSection(&m_cs);
 	for(map<unsigned int, SOCKET>::iterator it = start; it != end; it++) {
-		sendToClient(local_buff, total_size, it->second);
+		sendToClient(send_buff, state.sendSize(), it->first, it->second);
 	}
 	LeaveCriticalSection(&m_cs);
-	delete []local_buff;
+	delete []send_buff;
 }
 
-void NetworkServer::sendToClient(char * const buff, int size, SOCKET &s) {
+void NetworkServer::sendToClient(const char * const buff, const int size, const unsigned int client,  SOCKET &s) {
 	if(send(s, buff, size, 0) == SOCKET_ERROR) {
-		throw runtime_error("send() failed with error code : " + to_string((long long) WSAGetLastError()));
+		throw runtime_error("failed to send to client " + to_string((long long)client)
+			+ ". Error code : " + to_string((long long) WSAGetLastError()));
 	}
 }
 
 EventBuff_t NetworkServer::getEvents() {
 	char local_buf[MAX_PACKET_SIZE];
+	EventBuff_t rtn;
 
 	bool error = false;
 	memset(local_buf,'\0', MAX_PACKET_SIZE);
@@ -125,14 +117,11 @@ EventBuff_t NetworkServer::getEvents() {
 
 		if(!error && recv_len > 0) {
 			NetworkDecoder nd(local_buf, recv_len);
-			nd.decodeEvents(m_eventsBuffer, it->first);
-			m_eventsAvailable = true;
+			nd.decodeEvents(rtn, it->first);
 		}
 	}
 
-	EventBuff_t rtn = m_eventsBuffer;
-	m_eventsAvailable = true;
-	m_eventsBuffer.clear();
+	//m_eventsBuffer.clear();
 
 	return rtn;
 }

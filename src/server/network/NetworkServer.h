@@ -45,13 +45,13 @@ private:
 	unsigned int m_clientCount;
 	void initializeSocket();
 	void startListening();
-	void sendToClient(char * const buff, int size, SOCKET &Client);
+	void bindSocket();
+	void sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
 	WSADATA wsa;
 	SOCKET m_incomingSock;
 	map <unsigned int, SOCKET> m_connectedClients;
 	EventBuff_t m_eventsBuffer;
-	void bindSocket();
-	bool m_eventsAvailable;
+
 	char m_packetData[MAX_PACKET_SIZE];
 	
 	//thread stuff
