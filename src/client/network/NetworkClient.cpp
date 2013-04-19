@@ -87,7 +87,7 @@ void NetworkClient::sendToServer(Event* e) {
 	if(send(m_sock, encoded,s, 0) == SOCKET_ERROR) {
 		throw runtime_error("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
 	}
-	delete encoded;
+	delete []encoded;
 }
 
 void NetworkClient::updateGameState() {

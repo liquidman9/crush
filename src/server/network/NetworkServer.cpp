@@ -81,23 +81,24 @@ void NetworkServer::initializeSocket() {
 void NetworkServer::broadcastGameState(const GameState &state) {
 	map<unsigned int, SOCKET>::iterator start = m_connectedClients.begin();
 	map<unsigned int,SOCKET>::iterator end = m_connectedClients.end();
-	char local_buff[MAX_PACKET_SIZE] = { 0 };
-	memset(m_packetData,'\0', MAX_PACKET_SIZE);
+
+	char* local_buff = new char[state.sendSize()];
 	unsigned int total_size = 0;
-	//vector<Entity*> state = g.getEntities();
+	//accumulate all data into currect buffer
 	for(unsigned int i = 0; i < state.size(); i++) {
 		const char* tmp = state[i]->encode();
 		memcpy(local_buff + total_size, tmp, state[i]->size());
 		total_size += state[i]->size();
-		delete tmp;
+		delete []tmp;
 	}
-	//memcpy(m_packetData
-	//strncpy(this->m_packetData, local_string.c_str(), MAX_PACKET_SIZE);
+	
+	//send to every client currently connected
 	EnterCriticalSection(&m_cs);
 	for(map<unsigned int, SOCKET>::iterator it = start; it != end; it++) {
 		sendToClient(local_buff, total_size, it->second);
 	}
 	LeaveCriticalSection(&m_cs);
+	delete []local_buff;
 }
 
 void NetworkServer::sendToClient(char * const buff, int size, SOCKET &s) {
