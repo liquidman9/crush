@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int main(){
+int main2(){
 	try{
 		cout << "Server:" << endl;
 		NetworkServer server(8888);
@@ -17,13 +17,13 @@ int main(){
 		EventBuff_t eventBuff;
 		GameState gameState;
 		PhysicsWorld world;
-		int bound = 30;
-		Boundary left = Boundary(D3DXVECTOR3(1,0,0), D3DXVECTOR3(-bound,0,0));
-		Boundary right = Boundary(D3DXVECTOR3(-1,0,0), D3DXVECTOR3(bound,0,0));
-		Boundary top = Boundary(D3DXVECTOR3(0,-1,0), D3DXVECTOR3(0,bound,0));
-		Boundary down = Boundary(D3DXVECTOR3(0,1,0), D3DXVECTOR3(0,-bound,0));
-		Boundary front = Boundary(D3DXVECTOR3(0,0,1), D3DXVECTOR3(0,0,-bound));
-		Boundary back = Boundary(D3DXVECTOR3(0,0,-1), D3DXVECTOR3(0,0,bound));
+		float bound = 30;
+		Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
+		Boundary right = Boundary(D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DXVECTOR3(bound,0.0f,0.0f));
+		Boundary top = Boundary(D3DXVECTOR3(0.0f,-1.0f,0.0f), D3DXVECTOR3(0.0f,bound,0.0f));
+		Boundary down = Boundary(D3DXVECTOR3(0.0f,1.0f,0.0f), D3DXVECTOR3(0.0f,-bound,0.0f));
+		Boundary front = Boundary(D3DXVECTOR3(0.0f,0.0f,1.0f), D3DXVECTOR3(0.0f,0.0f,-bound));
+		Boundary back = Boundary(D3DXVECTOR3(0.0f,0.0f,-1.0f), D3DXVECTOR3(0.0f,0.0f,bound));
 		world.boundaries.push_back(left);
 		world.boundaries.push_back(right);
 		world.boundaries.push_back(top);
@@ -87,5 +87,5 @@ int main(){
 		cerr << e.what() << endl;
 		system("pause");
 	}
-
+	return 0;
 }

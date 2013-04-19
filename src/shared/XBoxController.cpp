@@ -15,7 +15,7 @@ void XBoxController::getState()
 void XBoxController::mapInputs()
 {
 	inputs->thrust = (char)controllerState.Gamepad.bLeftTrigger;
-	inputs->tractBeam = controllerState.Gamepad.wButtons & XINPUT_GAMEPAD_B;
+	inputs->tractBeam = controllerState.Gamepad.wButtons == XINPUT_GAMEPAD_B;
 	inputs->pitch = (controllerState.Gamepad.sThumbLY>0)?controllerState.Gamepad.sThumbLY-XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE:controllerState.Gamepad.sThumbLY+XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
 	if ((inputs->pitch<0 && controllerState.Gamepad.sThumbLY>0) || (inputs->pitch>0 && controllerState.Gamepad.sThumbLY<0)) { inputs->pitch=0;}
 	inputs->turn = (controllerState.Gamepad.sThumbLX>0)?controllerState.Gamepad.sThumbLX-XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE:controllerState.Gamepad.sThumbLX+XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;

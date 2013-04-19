@@ -15,7 +15,6 @@
 
 #pragma comment(lib,"ws2_32.lib")
 
-
 //typedef vector<shared_ptr<Entity> > GameState;
 typedef Sendable Event;
 typedef vector<shared_ptr<Event>> EventBuff_t;

@@ -8,14 +8,18 @@
 #include <typeinfo>
 
 // Project includes
+#include <shared/game/Entity.h>
+#include <shared/game/Ship.h>
+
 #include <client/GameResources.h>
 #include <client/Gbls.h>
 #include <client/graphics/Skybox.h>
-#include <client/graphics/entities/R_Ship.h>
+#include <client/graphics/entities/C_Ship.h>
+#include <client/graphics/entities/C_Entity.h>
 
 //static member initializations
 //static enum cameras {DEBUG_CAM, PLAYER_CAM};  //better to use boolean with only two cameras, can extend later
-std::map<int, Entity*> GameResources::entityMap;
+std::map<int, C_Entity*> GameResources::entityMap;
 bool GameResources::debugCamOn = true;
 Camera GameResources::debugCam;
 Camera* GameResources::curCam = NULL;
@@ -65,7 +69,7 @@ HRESULT GameResources::initState() {
 	D3DXCOLOR color(0.8f, 0.3f, 0.3f, 0.5f);
 	bool tBeamOn = false;
 	Ship * stmp = new Ship(pos, dir, pNum, tBeamOn);
-	Entity * etmp = createEntity(stmp);
+	C_Entity * etmp = createEntity(stmp);
 	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
 	entityMap[etmp->getID()] = etmp;
 	//R_Ship* tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh[1], color);
@@ -141,7 +145,7 @@ void GameResources::drawAll()
 
 	//TODO this draws objects in no particular order, resulting in many loads and unloads (probably) for textures and models. Should be fixed
 	// Loop through all lists. Set up shaders, etc, as needed for each.
-	for( map<int,Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
     {
 		(*ii).second->draw();
 	}
@@ -238,34 +242,39 @@ void GameResources::updateGameState(GameState & newGameState) {
 	
 	for (DWORD i = 0; i < newGameState.size(); i++) {
 		int id = newGameState[i]->getID();
+		cerr << "Creating entity" << endl;
 		if(entityMap.find(id) == entityMap.end()) {
+			cerr << "Creating entity" << endl;
 			entityMap[id] = createEntity(newGameState[i].get());
 		} else {
+			cerr << "Updating entity" << endl;
 			entityMap[id]->update(newGameState[i]);
 		}
+		cerr << "Done" << endl;
 	}
 }
 
-Entity * GameResources::createEntity(Entity * newEnt) {
-	Entity * ret = NULL;
-	typeid(*newEnt);
+C_Entity * GameResources::createEntity(Entity * newEnt) {
+	C_Entity * ret = NULL;
+	/*typeid(*newEnt);
 	if (typeid(*newEnt) == typeid(Ship)) {
-		ret = new R_Ship(newEnt);
+		ret = new C_Ship(newEnt);
 	} else {
-		ret = new Entity(*newEnt);
-	}
-	//switch (newEnt->m_Type) {
+		//Do nothing! We can't instantiate anything but a C_Ship.
+		//ret = new C_Entity(newEnt);
+	}*/
+	switch (newEnt->m_type) {
 	//case ENTITY :
 	//	ret = new Entity(*newEnt);
 	//	break;
-	//case SHIP :
-	//	ret = new R_Ship(newEnt);
-	//	break;
+	case SHIP :
+		ret = new C_Ship(newEnt);
+		break;
 	//case BASE :
 	//	break;
 	//case ASTEROID :
 	//	break;
-	//}
+	}
 	return ret;
 }
 

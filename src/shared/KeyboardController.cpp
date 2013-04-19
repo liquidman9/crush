@@ -46,7 +46,7 @@ void KeyboardController::getState()
 void KeyboardController::mapInputs()
 {
 	inputs->thrust = (m_keyboardState[DIK_W]&0x80)?255:0;
-	inputs->tractBeam = (m_keyboardState[DIK_SPACE]&0x80);
+	inputs->tractBeam = (m_keyboardState[DIK_SPACE] == 0x80);
 	inputs->pitch = (m_keyboardState[DIK_DOWN]&0x80)?-20000:(m_keyboardState[DIK_UP]&0x80)?20000:0;
 	inputs->turn = (m_keyboardState[DIK_LEFT]&0x80)?-20000:(m_keyboardState[DIK_RIGHT]&0x80)?20000:0;
 	}

@@ -4,7 +4,7 @@
 
 #include "XBoxController.h"
 #include "KeyboardController.h"
-#include "ConfigSettings.h";
+#include "ConfigSettings.h"
 
 class GameInput {
 

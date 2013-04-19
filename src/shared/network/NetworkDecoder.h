@@ -34,11 +34,12 @@ public:
 		for(unsigned int size = 0; size < m_size; size += ep->size() ){
 			ENUM_TYPE a = *(ENUM_TYPE*) m_head;
 			switch(*(ENUM_TYPE*) m_head) {
-			case ENTITY:
+			// We should not be sending any "plain entities".
+			/*case ENTITY:
 				ep = new Entity();
 				ep->decode(curr_head + size);
 				g.push_back(ep);
-				break;
+				break;*/
 			case SHIP:
 				ep = new Ship();
 				ep->decode(curr_head + size);

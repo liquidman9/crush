@@ -36,7 +36,7 @@ int main(){
 				for(unsigned int i = 0; i < eventBuff.size(); i++) {
 					cout << "Event recieved." << endl;
 					//cout << *eventBuff[i] << endl;
-					gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
+					gameState[1]->m_pos.z += (float)(((InputState *)eventBuff[i].get())->thrust)/250.0f;
 					//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 				}
 			}
