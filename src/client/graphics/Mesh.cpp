@@ -9,6 +9,7 @@ Mesh::Mesh() :
 	m_pMeshTextures(NULL),
 	m_dwNumMaterials(0L)
 {
+	D3DXMatrixIdentity(&m_matInitScaleRot);
 }
 
 Mesh::~Mesh()
@@ -131,12 +132,12 @@ void Mesh::draw()
     }
 }
 
-void Mesh::setScaleRotate(D3DXMATRIX & dest, float scaleFactor, float degX, float degY, float degZ)
+void Mesh::setScaleRotate(float scaleFactor, float degX, float degY, float degZ)
 {
 	D3DXMATRIX matScale, matRotX, matRotY, matRotZ;
 	D3DXMatrixScaling(&matScale, scaleFactor, scaleFactor, scaleFactor);
 	D3DXMatrixRotationX(&matRotX, D3DXToRadian(degX));
 	D3DXMatrixRotationY(&matRotY, D3DXToRadian(degY));
 	D3DXMatrixRotationZ(&matRotZ, D3DXToRadian(degZ));
-	dest = matScale * matRotX * matRotY * matRotZ;
+	m_matInitScaleRot = matScale * matRotX * matRotY * matRotZ;
 }

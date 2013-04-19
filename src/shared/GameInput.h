@@ -3,6 +3,8 @@
 #define GAMEINPUT_H
 
 #include "XBoxController.h"
+#include "KeyboardController.h"
+#include "ConfigSettings.h";
 
 class GameInput {
 

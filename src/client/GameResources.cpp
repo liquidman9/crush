@@ -5,6 +5,7 @@
 
 // Global includes
 #include <algorithm>
+#include <typeinfo>
 
 // Project includes
 #include <client/GameResources.h>
@@ -59,22 +60,28 @@ HRESULT GameResources::initState() {
 	/*set up temp entities for test rendering TODO remove this and replace with normal object creation from network*/
 	
 	D3DXVECTOR3 pos(0.0f, 1.0f, -1.0f);
-	D3DXVECTOR3 dir(0.0f, 1.0f, 0.0f);
+	D3DXVECTOR3 dir(0.0f, 1.0f, 1.0f);
 	int pNum = 1;
 	D3DXCOLOR color(0.8f, 0.3f, 0.3f, 0.5f);
 	bool tBeamOn = false;
-	R_Ship* tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh2, color);
-	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 0.0f, 0.0f);
-	entityMap[tmp->getID()] = tmp;
+	Ship * stmp = new Ship(pos, dir, pNum, tBeamOn);
+	Entity * etmp = createEntity(stmp);
+	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
+	entityMap[etmp->getID()] = etmp;
+	//R_Ship* tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh[1], color);
+	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 0.0f, 0.0f);
+	//entityMap[tmp->getID()] = tmp;
 
 	//pos.x*=-1; pos.y*=-1; pos.z*=-1;
 	//dir.x*=-1; dir.y*=-1; dir.z*=-1;
 	pos.y = 0.3f; //pos.z = -0.6f;
 	pNum = 2;
 	color.r = 0.3f; color.g = 0.3f; color.b = 0.8f;
-	tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh1, color);
-	Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
-	entityMap[tmp->getID()] = tmp;
+	//tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh[0], color);
+	stmp = new Ship(pos, dir, pNum, tBeamOn);
+	etmp = createEntity(stmp);
+	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
+	entityMap[etmp->getID()] = etmp;
 
 	//a bit ugly, probably easier to just loop through all the entity lists (left here in case we want to switch back)
 	//renderList.push_back((std::vector<Renderable*>*)(&r_ShipList));
@@ -89,10 +96,10 @@ HRESULT GameResources::initMeshes()
 	HRESULT hres;
 
 	//do for all needed meshes
-	if(FAILED(hres = Gbls::shipMesh1.Create(Gbls::shipMeshFilepath_1)))
-		return hres;
-	if(FAILED(hres = Gbls::shipMesh2.Create(Gbls::shipMeshFilepath_2)))
-		return hres;
+	for (int i = 0; i < Gbls::numShipMeshes; i++) {
+		if(FAILED(hres = Gbls::shipMesh[i].Create(Gbls::shipMeshFilepath[i])))
+			return hres;
+	}
 
 	return S_OK;
 }
@@ -132,6 +139,7 @@ void GameResources::drawAll()
 {
 	Skybox::drawSkybox();
 
+	//TODO this draws objects in no particular order, resulting in many loads and unloads (probably) for textures and models. Should be fixed
 	// Loop through all lists. Set up shaders, etc, as needed for each.
 	for( map<int,Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
     {
@@ -227,33 +235,44 @@ void GameResources::updateDebugCamera() {
 void GameResources::updateGameState(GameState & newGameState) {
 	updateDebugCamera();
 	updateKeyboardState();
-
 	
 	for (DWORD i = 0; i < newGameState.size(); i++) {
 		int id = newGameState[i]->getID();
 		if(entityMap.find(id) == entityMap.end()) {
-			//create
+			entityMap[id] = createEntity(newGameState[i].get());
 		} else {
 			entityMap[id]->update(newGameState[i]);
 		}
 	}
+}
 
-	//TODO THIS IS N^2. FIX THIS.
-	//for (DWORD i = 0; i < newGameState.size(); i++) {
-	//	for (DWORD j = 0; j < entityList.size(); j++) {
-	//		if(newGameState[i]->getID() == entityList.at(j)->getID()) {
-	//			entityList.at(j)->update(newGameState[i]);
-	//		}
-	//	}
+Entity * GameResources::createEntity(Entity * newEnt) {
+	Entity * ret = NULL;
+	typeid(*newEnt);
+	if (typeid(*newEnt) == typeid(Ship)) {
+		ret = new R_Ship(newEnt);
+	} else {
+		ret = new Entity(*newEnt);
+	}
+	//switch (newEnt->m_Type) {
+	//case ENTITY :
+	//	ret = new Entity(*newEnt);
+	//	break;
+	//case SHIP :
+	//	ret = new R_Ship(newEnt);
+	//	break;
+	//case BASE :
+	//	break;
+	//case ASTEROID :
+	//	break;
 	//}
-	//for (DWORD i = 0; i < r_ShipList.size(); i++) {
-	//	float move = i%2 ? 0.001f : -0.001f;
-	//	r_ShipList.at(i)->m_pos.y += move;
-	//}
+	return ret;
 }
 
 void GameResources::releaseResources() {
-	Gbls::shipMesh2.Destroy();
-	Gbls::shipMesh1.Destroy();
+	//TODO fix hardcoded destroys
+	for(int i = 0; i < Gbls::numShipMeshes; i++) {
+		Gbls::shipMesh[0].Destroy();
+	}
 	Skybox::releaseSkybox();
 }

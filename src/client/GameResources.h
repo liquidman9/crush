@@ -71,6 +71,7 @@ public:
 	static void drawAll();
 	static void updateDebugCamera();
 	static void updateGameState(GameState & newGameState);
+	static Entity * createEntity(Entity * newEnt);
 	static void releaseResources();
 
 };

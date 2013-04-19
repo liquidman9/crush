@@ -67,7 +67,9 @@ void Ship::update(shared_ptr<Entity> sp_source) {
 	Entity *source = sp_source.get();
 	Ship * srcShip = dynamic_cast<Ship*>(source);
 	if (srcShip == 0) {
+		//TODO figure out how to handle this case when not in debug
 #ifdef _DEBUG
+//TODO put this back in, make sure it doesn't break anyone's build
 //		MessageBox( NULL, L"Error converting Entity to Ship", L"CRUSH Game", MB_OK );
 #endif
 	} else {

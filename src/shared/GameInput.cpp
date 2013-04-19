@@ -1,8 +1,21 @@
 #include "GameInput.h"
 
-
 GameInput::GameInput() {
-	controller = new XBoxController(&input);
+	string cont = "k";
+	ConfigSettings conf = *ConfigSettings::config;
+	//if (!conf.checkIfLoaded()) {conf.loadSettingsFile();}
+	conf.getValue("Controller",cont);
+	switch (cont[0]) {
+	case 'k':
+		controller = new KeyboardController(&input);
+		break;
+	case 'x':
+		controller = new XBoxController(&input);
+		break;
+	default:
+		controller = new XBoxController(&input);
+		break;
+	}
 }
 
 void GameInput::refreshState() {
