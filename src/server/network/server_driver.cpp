@@ -22,7 +22,6 @@ int main(){
 		GameState gameState;
 		D3DXVECTOR3 m_pos(2,2,2);
 		D3DXVECTOR3 m_dir(1,1,1);
-		//gameState.push_back(Entity());
 		Entity *test = new Ship(m_pos, m_dir, 1, false);
 		gameState.push_back(test);
 		D3DXVECTOR3 m_pos1(1,1,1);

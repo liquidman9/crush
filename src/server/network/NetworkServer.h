@@ -30,7 +30,7 @@ public:
 	//Throws runtime_error exception if socket cannot be opened
 	NetworkServer(unsigned short port);
 
-	//returns true if there are new events available
+	//returns true always. Don't use this function.
 	bool eventsAvailable() { return true; };
 
 	//returns a vector of events received
