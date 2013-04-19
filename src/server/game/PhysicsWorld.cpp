@@ -4,7 +4,7 @@
 
 // Project includes
 #include <server/game/PhysicsWorld.h>
-
+float slowdowntmp = 1;
 void PhysicsWorld::update() {
 	//int iterCount = 10;	// Attempt to solve collisions 10 times, to be implemented
 
@@ -16,16 +16,16 @@ void PhysicsWorld::update() {
 			//if(i != j)//entities[i].m_id != entities[j].m_id)
 			//{
 				if(checkCollision(*entities[i], *entities[j])){
-					printf("Collide %i with %i\n", i, j);
+					//printf("Collide %i with %i\n", i, j);
 					respond(entities[i], entities[j]);
 				}
-				else printf("No Collision\n");
+				//else printf("No Collision\n");
 			//}
 		}
 
 		for(unsigned k = 0; k < boundaries.size(); k++) {
 			if(checkCollision(*entities[i], boundaries[k])){
-					printf("Collide %i with Boundary %i\n", i, k);
+					//printf("Collide %i with Boundary %i\n", i, k);
 					respond(entities[i], boundaries[k]);
 			}
 		}
@@ -36,7 +36,7 @@ void PhysicsWorld::update() {
 	for(unsigned i = 0; i < entities.size(); i++)
 	{
 		entities[i]->calculate(.005f);
-		printf("Number %i: %f,%f,%f \n", i, entities[i]->m_pos.x,entities[i]->m_pos.y,entities[i]->m_pos.z);
+		//printf("Number %i: %f,%f,%f \n", i, entities[i]->m_pos.x,entities[i]->m_pos.y,entities[i]->m_pos.z);
 	}
 }
 
@@ -59,6 +59,9 @@ bool PhysicsWorld::checkCollision(ServerEntity a, ServerEntity b){
 
 
 void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
+	
+
+
 	D3DXVECTOR3 n = a->m_pos - b->m_pos;
 	D3DXVec3Normalize(&n,&n);
 
@@ -69,8 +72,8 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 
 	float optimizedP = (2.0f * (a1 - a2)) / (a->mass + b->mass);
 
-	D3DXVECTOR3 nv1 = v1 - optimizedP * b->mass * n;
-	D3DXVECTOR3 nv2 = v2 + optimizedP * a->mass * n;
+	D3DXVECTOR3 nv1 = v1 - (optimizedP * b->mass * n)/slowdowntmp;
+	D3DXVECTOR3 nv2 = v2 + (optimizedP * a->mass * n)/slowdowntmp;
 
 	a->velocity = nv1;
 	a->m_pos+= a->velocity;
@@ -97,7 +100,7 @@ void PhysicsWorld::respond(ServerEntity * a, Boundary b) {
 	D3DXVECTOR3 v1 = a->velocity;
 	float a1 = D3DXVec3Dot(&v1,&n);
 
-	D3DXVECTOR3 nv1 = v1 - 2*n*a1;
+	D3DXVECTOR3 nv1 = v1 - (2*n*a1)/slowdowntmp;
 	a->velocity = nv1;
 	a->m_pos+= a->velocity;
 }

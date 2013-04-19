@@ -25,8 +25,8 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
 }
 
 void S_Ship::init() {
-	m_acceleratorOn = false;
-	thrusterForce = 100;
+	m_thrust = 0;
+	m_frictionTmp = 255;
 	force = D3DXVECTOR3(0,0,0);
 	mass = 100;
 	velocity = D3DXVECTOR3(0,0,0);
@@ -40,12 +40,28 @@ void S_Ship::init() {
 
 void S_Ship::calculate(float dt){
 	// Calculate applied force
-	
-	if(m_acceleratorOn) force = thrusterForce*m_dir;
-	else if(D3DXVec3Length(&velocity) > 0) force = -thrusterForce*m_dir; // change to apply friction
+	if(m_thrust != 0) force = m_thrust*m_dir;
+	else if(D3DXVec3Length(&velocity) > 0) force = -m_frictionTmp*m_dir; // change to apply friction
 	else force = 0*m_dir;
 	// add brake button
 
 	ServerEntity::calculate(dt);
 }
 
+void S_Ship::addPlayerInput(InputState input) {
+	m_thrust = -input.thrust; //ship are facing in the opposite direction
+	m_tractorBeamOn = input.tractBeam;
+	
+	float conv = 500000;
+	float x = ((float)input.turn)/conv;
+	float y = ((float)input.pitch)/conv;
+	D3DXQUATERNION quat = D3DXQUATERNION ();
+	D3DXQuaternionRotationYawPitchRoll(&quat, x,y,0);
+	D3DXQUATERNION q1, q2,q3;
+    D3DXQuaternionConjugate( &q1, &quat );
+	q3 = D3DXQUATERNION( m_dir.x, m_dir.y, m_dir.z, 1.0f );
+    q2 = q1 * q3 * quat;
+    m_dir = D3DXVECTOR3( q2.x, q2.y, q2.z );
+	D3DXVec3Normalize(&m_dir,&m_dir);
+
+}

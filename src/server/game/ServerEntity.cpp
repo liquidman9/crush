@@ -24,6 +24,7 @@ void ServerEntity::rotate(D3DXVECTOR3 rotation){
 }
 
 void ServerEntity::calculate(float dt) {
+
 	D3DXVECTOR3 dv = ((force / mass ) * dt);
 	if(D3DXVec3Length(&(velocity + dv)) <= maxVelocity)
 		velocity = velocity + dv;

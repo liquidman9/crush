@@ -12,6 +12,7 @@
 // Project includes
 #include <shared/game/Ship.h>
 #include <server/game/ServerEntity.h>
+#include <shared/InputState.h>
 
 
 
@@ -19,9 +20,8 @@ class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 
 public:
 	// Fields
-	float thrusterForce;
-	bool m_acceleratorOn;
-
+	float m_thrust;
+	float m_frictionTmp;
 
 	// Constructors
 	S_Ship();
@@ -31,6 +31,7 @@ public:
 	void init();
 	void rotate(D3DXVECTOR3);
 	void calculate(float);
+	void addPlayerInput(InputState);
 
 };
 

@@ -13,7 +13,7 @@ void printEntity(Entity const &e) {
 		<< e.m_dir.x << " " << e.m_dir.y << " " << e.m_dir.z << endl;
 	}
 
-int main(){
+int main2(){
 	try {
 		cout << "Server:" << endl;
 		NetworkServer server(8888);
@@ -57,5 +57,5 @@ int main(){
 		cerr << e.what() << endl;
 		system("pause");
 	}
-
+	return 0;
 }
