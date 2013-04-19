@@ -28,6 +28,12 @@ int main(){
 		D3DXVECTOR3 m_dir1(0,0,1);
 		test = new Ship(m_pos1, m_dir, 2, true);
 		gameState.push_back(test);
+		m_pos1.x = 10;
+		test = new Ship(m_pos1, m_dir, 3, true);
+		gameState.push_back(test);
+		m_pos1.y = 10;
+		test = new Ship(m_pos1, m_dir, 5, true);
+		gameState.push_back(test);
 
 		for(;;) {
 			server.broadcastGameState(gameState);
