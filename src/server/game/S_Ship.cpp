@@ -42,12 +42,13 @@ void S_Ship::calculate(float dt){
 	// Calculate applied force
 	D3DXVECTOR3 mov = D3DXVECTOR3();
 	D3DXVec3Normalize(&mov, &velocity);
-
 	if(m_thrust != 0) force = m_thrust*m_dir;
-	else if(D3DXVec3Length(&velocity) > 0) force = m_frictionTmp*-mov; // change to apply friction
+	else if(D3DXVec3Length(&velocity) > 0.00) {
+		velocity -= velocity/10; // change to apply friction
+		force = 0*m_dir;
+	}
 	else force = 0*m_dir;
 	// add brake button
-	printf("Thrust: %f, Force: %f,%f,%f\n",m_thrust, force.x,force.y,force.z);
 	ServerEntity::calculate(dt);
 }
 
