@@ -31,12 +31,13 @@ std::wstring Gbls::skyboxTextureFilepath_Left = L"SkyBox_Left.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Right = L"SkyBox_Right.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Top = L"SkyBox_Top.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
-
-/* light defaults here for simplicity */
 D3DXCOLOR Gbls::lightDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
 D3DXCOLOR Gbls::lightSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 D3DXVECTOR3 Gbls::lightDirection(1.0f, 0.5f, 1.0f);
 D3DCOLOR Gbls::lightAmbient = D3DCOLOR_XRGB(50, 50, 50);
+
+int Gbls::windowWidth = 640;
+int Gbls::windowHeight = 480;
 
 void Gbls::initFromConfig() {
 	std::stringstream stream;
@@ -117,5 +118,8 @@ void Gbls::initFromConfig() {
 	conf.getValue("lightAmbient_g", tmp[1]);
 	conf.getValue("lightAmbient_b", tmp[2]);
 	lightAmbient = D3DCOLOR_XRGB(tmp[0], tmp[1], tmp[2]);
+	
+	conf.getValue("windowWidth", windowWidth);
+	conf.getValue("windowHeight", windowHeight);
 
 }

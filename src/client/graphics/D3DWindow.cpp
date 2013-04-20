@@ -33,9 +33,11 @@ DWORD D3DWindow::s_dwStartTime = 0;
 //consts
 static const wchar_t* s_WindowClassname = L"MainWindowClass";
 static const wchar_t* s_WindowTitle = L"Game Window";
-
-static const int s_WindowWidth = 640;
-static const int s_WindowHeight = 480;
+//
+//static const int s_WindowWidth = Gbls::windowWidth;
+//static const int s_WindowHeight = Gbls::windowHeight;
+//static const int s_WindowWidth = 640;
+//static const int s_WindowHeight = 480;
 
 //=================================================================================================
 // D3DX does not currently provide an operator* for aligned matrices, only for unaligned ones.
@@ -99,8 +101,8 @@ bool D3DWindow::Create(HINSTANCE hInstance)
 	SIZE sizeWindow;
 	RECT rc;
 	rc.top = rc.left = 0;
-	rc.right = s_WindowWidth;
-	rc.bottom = s_WindowHeight;
+	rc.right = Gbls::windowWidth;
+	rc.bottom = Gbls::windowHeight;
 	AdjustWindowRect(&rc, dwStyle, FALSE);
 	sizeWindow.cx = rc.right - rc.left;
 	sizeWindow.cy = rc.bottom - rc.top;
@@ -118,8 +120,8 @@ bool D3DWindow::Create(HINSTANCE hInstance)
 
 	// Init D3D device
 	SIZE sizeBackBuffer;
-	sizeBackBuffer.cx = s_WindowWidth;
-	sizeBackBuffer.cy = s_WindowHeight;
+	sizeBackBuffer.cx = Gbls::windowWidth;
+	sizeBackBuffer.cy = Gbls::windowHeight;
 	if(!InitD3DDevice(sizeBackBuffer))
 	{
 		Destroy();
@@ -445,17 +447,19 @@ bool D3DWindow::InitD3DDevice(const SIZE& sizeBackBuffer)
 		}
 	}
 
+
+	//TODO make sure this isn't necessary for fullscrene mode
 	// Did we find the mode?
-	if(!bResolutionFound)
-	{
-		std::wostringstream str;
-		str << L"This graphics card / monitor does not support a resolution of " <<
-			sizeBackBuffer.cx << L"x" << sizeBackBuffer.cy;
-		s_strError = str.str();
-		Gbls::pD3D->Release();
-		Gbls::pD3D = NULL;
-		return false;
-	}
+	//if(!bResolutionFound)
+	//{
+	//	std::wostringstream str;
+	//	str << L"This graphics card / monitor does not support a resolution of " <<
+	//		sizeBackBuffer.cx << L"x" << sizeBackBuffer.cy;
+	//	s_strError = str.str();
+	//	Gbls::pD3D->Release();
+	//	Gbls::pD3D = NULL;
+	//	return false;
+	//}
 
 	// Get capabilities for this device
 	D3DCAPS9 caps;

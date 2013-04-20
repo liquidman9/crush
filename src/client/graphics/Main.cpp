@@ -10,7 +10,7 @@
 
 #pragma comment(lib, "WINMM.LIB")
 
-#define MYNETWORKON
+//#define MYNETWORKON
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
@@ -23,13 +23,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 	{
 		//init space
 		if(SUCCEEDED(GameResources::initState())) {
-
+			
+			GameInput input;
 #ifdef MYNETWORKON
 			//networking init
 			//try {
 			NetworkClient nc(8887);
 			nc.bindToServer("192.168.5.149", 8889);
-			GameInput input;
 			//} catch (exception & e) {
 			//	cerr << e.what();
 			//}
