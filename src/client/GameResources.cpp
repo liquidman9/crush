@@ -33,36 +33,42 @@ HRESULT GameResources::initState() {
 	
 	curCam = &debugCam;
 
-	debugCam.updateProjection();
+	// Init state that must be init every time device is reset
+	reInitState();
 
-	debugCam.updateView();
+	//debugCam.updateProjection();
 
-	// Tell the device to automatically normalize surface normals to keep them normal after scaling
-	Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+	//debugCam.updateView();
+
+	//// Tell the device to automatically normalize surface normals to keep them normal after scaling
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+	
+	////set backface cullling off TODO remove after models are fixed
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	
+	//// Create lights for scene and set light properties
+	//hres = GameResources::initLights();
+	//if(FAILED (hres))
+	//	return hres;
 
 	// Initialize the skybox
 	hres = Skybox::initSkybox();
 	if(FAILED (hres))
 		return hres;
-
-	// Create lights for scene and set light properties
-	hres = GameResources::initLights();
-	if(FAILED (hres))
-		return hres;
-
-	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
-	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
-
+	
 	// create meshes
 	hres = GameResources::initMeshes();
 	if(FAILED (hres))
 		return hres;
 
-	//set backface cullling off TODO remove after models are fixed
-	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+
+
+	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
+	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
 
 	/*set up temp entities for test rendering TODO remove this and replace with normal object creation from network*/
-	
+#ifdef MYNETWORKOFF  //defined in Gbls
+
 	D3DXVECTOR3 pos(0.0f, 1.0f, -1.0f);
 	D3DXVECTOR3 dir(0.0f, 1.0f, 1.0f);
 	int pNum = 1;
@@ -70,28 +76,52 @@ HRESULT GameResources::initState() {
 	bool tBeamOn = false;
 	Ship * stmp = new Ship(pos, dir, pNum, tBeamOn);
 	C_Entity * etmp = createEntity(stmp);
-	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
 	entityMap[etmp->getID()] = etmp;
-	//R_Ship* tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh[1], color);
-	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 0.005f, -90.0f, 0.0f, 0.0f);
-	//entityMap[tmp->getID()] = tmp;
 
-	//pos.x*=-1; pos.y*=-1; pos.z*=-1;
-	//dir.x*=-1; dir.y*=-1; dir.z*=-1;
-	pos.y = 0.3f; //pos.z = -0.6f;
-	pNum = 2;
-	color.r = 0.3f; color.g = 0.3f; color.b = 0.8f;
-	//tmp = new R_Ship(pos, dir, pNum, tBeamOn, &Gbls::shipMesh[0], color);
-	stmp = new Ship(pos, dir, pNum, tBeamOn);
-	etmp = createEntity(stmp);
-	//Mesh::setScaleRotate(tmp->m_matInitScaleRot, 1.0f, 0.0f, 180.0f, 0.0f);
-	entityMap[etmp->getID()] = etmp;
+#endif
+	//pos.y = 0.3f; //pos.z = -0.6f;
+	//pNum = 2;
+	//color.r = 0.3f; color.g = 0.3f; color.b = 0.8f;
+	//stmp = new Ship(pos, dir, pNum, tBeamOn);
+	//etmp = createEntity(stmp);
+	//entityMap[etmp->getID()] = etmp;
 
 	//a bit ugly, probably easier to just loop through all the entity lists (left here in case we want to switch back)
 	//renderList.push_back((std::vector<Renderable*>*)(&r_ShipList));
 
 	/*end TODO remove*/
 
+	return S_OK;
+}
+
+HRESULT GameResources::reInitState() {
+	HRESULT hres;
+	
+	curCam->updateProjection();
+
+	curCam->updateView();
+
+	// Tell the device to automatically normalize surface normals to keep them normal after scaling
+	Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+
+	// Initialize the skybox
+	//hres = Skybox::initSkybox();
+	//if(FAILED (hres))
+	//	return hres;
+
+	// Create lights for scene and set light properties
+	hres = GameResources::initLights();
+	if(FAILED (hres))
+		return hres;
+
+	//// create meshes
+	//hres = GameResources::initMeshes();
+	//if(FAILED (hres))
+	//	return hres;
+
+	//set backface cullling off TODO remove after models are fixed
+	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	
 	return S_OK;
 }
 

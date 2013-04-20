@@ -28,14 +28,12 @@ bool D3DWindow::s_bQuit = false;
 bool D3DWindow::s_bActive = false;
 bool D3DWindow::s_bDeviceLost = false;
 DWORD D3DWindow::s_dwStartTime = 0;
-//POINT s_ptWindowPreFullscreen;
+POINT D3DWindow::s_ptWindowPreFullscreen;
 
 //consts
 static const wchar_t* s_WindowClassname = L"MainWindowClass";
 static const wchar_t* s_WindowTitle = L"Game Window";
-//
-//static const int s_WindowWidth = Gbls::windowWidth;
-//static const int s_WindowHeight = Gbls::windowHeight;
+
 //static const int s_WindowWidth = 640;
 //static const int s_WindowHeight = 480;
 
@@ -255,6 +253,15 @@ LRESULT CALLBACK D3DWindow::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 	case WM_KEYDOWN:
 		switch(wParam)
 		{
+
+		case VK_RETURN:
+			ToggleFullscreen();
+			break;
+
+		//case VK_ESCAPE:
+		//	s_bQuit = true;
+		//	break;
+
 		case '0':
 			GameResources::debugCamOn =  !GameResources::debugCamOn;
 			break;
@@ -422,34 +429,34 @@ bool D3DWindow::InitD3DDevice(const SIZE& sizeBackBuffer)
 		Gbls::pD3D = NULL;
 		return false;
 	}
-
+	
+	// NOTE: THE FOLLOWING IS NOW DONE ONLY WHEN SWITCHING TO FULL SCREEN FOR THE FIRST TIME
 	// Check that this backbuffer size is a supported fullscreen resolution too.
 	// Get the number of display modes supported by this adapter in this bit depth
-	UINT nAdapterModes = Gbls::pD3D->GetAdapterModeCount(D3DADAPTER_DEFAULT, fmtBackbuffer);
+	//UINT nAdapterModes = Gbls::pD3D->GetAdapterModeCount(D3DADAPTER_DEFAULT, fmtBackbuffer);
 
-	// Go through each of the modes and get details about it
-	bool bResolutionFound = false;
-	for(UINT i=0; i<nAdapterModes; ++i)
-	{
-		// Grab this display mode
-		hResult = Gbls::pD3D->EnumAdapterModes(D3DADAPTER_DEFAULT, fmtBackbuffer, i, &mode);
-		if(FAILED(hResult))
-		{
-			// We failed to get this mode. Just continue to the next mode
-			continue;
-		}
+	//// Go through each of the modes and get details about it
+	//bool bResolutionFound = false;
+	//for(UINT i=0; i<nAdapterModes; ++i)
+	//{
+	//	// Grab this display mode
+	//	hResult = Gbls::pD3D->EnumAdapterModes(D3DADAPTER_DEFAULT, fmtBackbuffer, i, &mode);
+	//	if(FAILED(hResult))
+	//	{
+	//		// We failed to get this mode. Just continue to the next mode
+	//		continue;
+	//	}
 
-		// Is is a match?
-		if(mode.Width == (UINT)sizeBackBuffer.cx && mode.Height == (UINT)sizeBackBuffer.cy)
-		{
-			bResolutionFound = true;
-			break;
-		}
-	}
+	//	// Is is a match?
+	//	if(mode.Width == (UINT)sizeBackBuffer.cx && mode.Height == (UINT)sizeBackBuffer.cy)
+	//	{
+	//		bResolutionFound = true;
+	//		break;
+	//	}
+	//}
 
 
-	//TODO make sure this isn't necessary for fullscrene mode
-	// Did we find the mode?
+	// //Did we find the mode?
 	//if(!bResolutionFound)
 	//{
 	//	std::wostringstream str;
@@ -601,12 +608,12 @@ void D3DWindow::ShutdownD3DDevice()
 
 //=================================================================================================
 
-HRESULT D3DWindow::SetupState() //currently does nothing
-{
-	//TODO fix all this nonsense, this function might still be useful though
-
-	return S_OK;
-}
+//HRESULT D3DWindow::SetupState() //currently does nothing
+//{
+//	//TODO fix all this nonsense, this function might still be useful though
+//	GameResources::reInitState();
+//	return S_OK;
+//}
 
 //=================================================================================================
 
@@ -644,57 +651,141 @@ void D3DWindow::DrawFrame()
 }
 
 //=================================================================================================
-//
-//void D3DWindow::ToggleFullscreen()
-//{
-//	// Change the present params windowed flag
-//	Gbls::thePresentParams.Windowed = !Gbls::thePresentParams.Windowed;
-//
-//	// If we're going to fullscreen mode, save the current window position. If not, restore it
-//	if(Gbls::thePresentParams.Windowed)
-//	{
-//		DWORD dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
-//		RECT rc;
-//		rc.top = rc.left = 0;
-//		rc.right = s_nWindowWidth;
-//		rc.bottom = s_nWindowHeight;
-//		AdjustWindowRect(&rc, dwStyle, FALSE);
-//
-//		SetWindowPos(m_hWnd, NULL, m_ptWindowPreFullscreen.x, m_ptWindowPreFullscreen.y,
-//			rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
-//	}
-//	else
-//	{
-//		RECT rcWnd;
-//		GetWindowRect(m_hWnd, &rcWnd);
-//		m_ptWindowPreFullscreen.x = rcWnd.left;
-//		m_ptWindowPreFullscreen.y = rcWnd.top;
-//	}
-//
-//	// Change window style to remove border in fullscreen mode
-//	DWORD dwStyle;
-//	if(Gbls::thePresentParams.Windowed)
-//		dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
-//	else
-//		dwStyle = WS_POPUP;
-//	SetWindowLongPtr(m_hWnd, GWL_STYLE, dwStyle);
-//
-//	// Make sure the changes are flushed
-//	SetWindowPos(m_hWnd, NULL, 0, 0, 0, 0,
-//		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-//
-//	// Reset the device using the new present params
-//	HRESULT hResult = m_pd3dDevice->Reset(&Gbls::thePresentParams);
-//	if(FAILED(hResult))
-//	{
-//		m_strError = L"Reset() failed. Error: " + Util::DXErrorToString(hResult);
-//		m_bQuit = true;
-//		return;
-//	}
-//
-//	// The device has been reset and lost all of it's state. Set the device state up again
-//	SetupState();
-//}
+
+void D3DWindow::ToggleFullscreen()
+{
+	static bool fullScreenTested = false;
+	static bool fullScreenSupported = false;
+
+	if (!fullScreenTested) {
+		if(SUCCEEDED(testFullScreenResolution(Gbls::fullScreenWidth, Gbls::fullScreenHeight))) {
+			fullScreenSupported = true;
+		} else {
+			fullScreenSupported = false;
+		}
+		fullScreenTested = true;
+	}
+
+	if(!fullScreenSupported) {
+		std::wostringstream str;
+		str << L"This graphics card / monitor does not support a resolution of " <<
+		Gbls::fullScreenWidth << L"x" << Gbls::fullScreenHeight;
+        MessageBox( NULL, str.str().c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+
+	// Change the present params windowed flag
+	Gbls::thePresentParams.Windowed = !Gbls::thePresentParams.Windowed;
+
+	// If we're going to fullscreen mode, save the current window position. If not, restore it
+	if(Gbls::thePresentParams.Windowed)
+	{
+		DWORD dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
+		RECT rc;
+		rc.top = rc.left = 0;
+		rc.right = Gbls::windowWidth;
+		rc.bottom = Gbls::windowHeight;
+		AdjustWindowRect(&rc, dwStyle, FALSE);
+
+		SetWindowPos(s_hWnd, NULL, s_ptWindowPreFullscreen.x, s_ptWindowPreFullscreen.y,
+			rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
+		
+		Gbls::thePresentParams.BackBufferWidth = Gbls::windowWidth;
+		Gbls::thePresentParams.BackBufferHeight = Gbls::windowHeight;
+	}
+	else
+	{
+		RECT rcWnd;
+		GetWindowRect(s_hWnd, &rcWnd);
+		s_ptWindowPreFullscreen.x = rcWnd.left;
+		s_ptWindowPreFullscreen.y = rcWnd.top;
+
+		Gbls::thePresentParams.BackBufferWidth = Gbls::fullScreenWidth;
+		Gbls::thePresentParams.BackBufferHeight = Gbls::fullScreenHeight;
+	}
+
+	// Change window style to remove border in fullscreen mode
+	DWORD dwStyle;
+	if(Gbls::thePresentParams.Windowed)
+		dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
+	else
+		dwStyle = WS_POPUP;
+	SetWindowLongPtr(s_hWnd, GWL_STYLE, dwStyle);
+
+	// Make sure the changes are flushed
+	SetWindowPos(s_hWnd, NULL, 0, 0, 0, 0,
+		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+
+	// Reset the device using the new present params
+	HRESULT hResult = Gbls::pd3dDevice->Reset(&Gbls::thePresentParams);
+	if(FAILED(hResult))
+	{
+		s_strError = L"Reset() failed. Error: " + Util::DXErrorToString(hResult);
+		s_bQuit = true;
+		return;
+	}
+
+	// The device has been reset and lost all of it's state. Set the device state up again
+	//SetupState();  //old
+	GameResources::reInitState();
+
+}
+
+HRESULT D3DWindow::testFullScreenResolution(UINT width, UINT height) {
+	// Grab the current desktop format
+	D3DFORMAT fmtBackbuffer;
+	D3DDISPLAYMODE mode;
+	HRESULT hResult = Gbls::pD3D->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &mode);
+	if(FAILED(hResult))
+	{
+		s_strError = L"GetAdapterDisplayMode() failed. Error: " + Util::DXErrorToString(hResult);
+        MessageBox( NULL, s_strError.c_str(), L"CRUSH.exe", MB_OK );
+		return hResult;
+	}
+	fmtBackbuffer = mode.Format;
+
+	// Need to see if this format is ok as a backbuffer format in this adapter mode
+	hResult = Gbls::pD3D->CheckDeviceFormat(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL,
+		mode.Format, D3DUSAGE_RENDERTARGET, D3DRTYPE_SURFACE, fmtBackbuffer);
+	if(FAILED(hResult))
+	{
+		s_strError = L"Unable to choose a display format!";
+        MessageBox( NULL, s_strError.c_str(), L"CRUSH.exe", MB_OK );
+		return hResult;
+	}
+
+	// Check that this backbuffer size is a supported fullscreen resolution too.
+	// Get the number of display modes supported by this adapter in this bit depth
+	UINT nAdapterModes = Gbls::pD3D->GetAdapterModeCount(D3DADAPTER_DEFAULT, fmtBackbuffer);
+
+	// Go through each of the modes and get details about it
+	bool bResolutionFound = false;
+	for(UINT i=0; i<nAdapterModes; ++i)
+	{
+		// Grab this display mode
+		hResult = Gbls::pD3D->EnumAdapterModes(D3DADAPTER_DEFAULT, fmtBackbuffer, i, &mode);
+		if(FAILED(hResult))
+		{
+			// We failed to get this mode. Just continue to the next mode
+			continue;
+		}
+
+		// Is is a match?
+		if(mode.Width == (UINT)width && mode.Height == (UINT)height)
+		{
+			bResolutionFound = true;
+			break;
+		}
+	}
+
+
+	 //Did we find the mode?
+	if(!bResolutionFound)
+	{
+        return E_FAIL;
+	}
+	return S_OK;
+}
 
 //=================================================================================================
 
@@ -727,7 +818,8 @@ HRESULT D3DWindow::HandlePresentRetval(HRESULT hResult)
 		}
 
 		// Reset has succeeded, restore device state and return no error
-		SetupState();
+		//SetupState(); //old
+		GameResources::reInitState();
 		OnResetDevice();
 		s_bDeviceLost = false;
 		return D3D_OK;

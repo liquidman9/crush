@@ -17,6 +17,8 @@
 // Project includes
 #include <client/graphics/Mesh.h>
 
+#define MYNETWORKOFF  //don't use network
+
 //Our defines
 class Gbls
 {
@@ -52,9 +54,11 @@ public:
 	static D3DXCOLOR lightSpecularColor;
     static D3DXVECTOR3 lightDirection;
 	static D3DCOLOR lightAmbient;
-
+	
 	static int windowWidth;
 	static int windowHeight;
+	static int fullScreenWidth;
+	static int fullScreenHeight;
 
 	static void initFromConfig();
 };

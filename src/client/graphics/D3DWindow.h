@@ -33,7 +33,7 @@ public:
 	static const std::wstring& GetError() { return s_strError; }
 
 	
-	static HRESULT SetupState();
+	//static HRESULT SetupState();
 
 private:
 	//TODO remove
@@ -57,7 +57,8 @@ private:
 	static bool InitD3DDevice(const SIZE& sizeBackBuffer);
 	static void ShutdownD3DDevice();
 	static void DrawFrame();
-	//static void ToggleFullscreen();
+	static void ToggleFullscreen();
+	static HRESULT testFullScreenResolution(UINT width, UINT height);
 	static HRESULT HandlePresentRetval(HRESULT hResult);
 	static void OnLostDevice();
 	static void OnResetDevice();
@@ -76,7 +77,7 @@ private:
 	static bool s_bActive;
 	static bool s_bDeviceLost;
 	static DWORD s_dwStartTime;
-	//static POINT m_ptWindowPreFullscreen;
+	static POINT s_ptWindowPreFullscreen;
 };
 
 

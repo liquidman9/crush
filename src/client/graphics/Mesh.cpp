@@ -57,7 +57,7 @@ HRESULT Mesh::Create(std::wstring filepath)
         // Set the ambient color for the material (D3DX does not do this)
         m_pMeshMaterials[i].Ambient = m_pMeshMaterials[i].Diffuse;
 		//TODO get power settings right for each material, no hard coding, remove this line
-        m_pMeshMaterials[i].Power = 15;
+        //m_pMeshMaterials[i].Power = 15;
 
         m_pMeshTextures[i] = NULL;
         if( d3dxMaterials[i].pTextureFilename != NULL &&

@@ -39,6 +39,9 @@ D3DCOLOR Gbls::lightAmbient = D3DCOLOR_XRGB(50, 50, 50);
 int Gbls::windowWidth = 640;
 int Gbls::windowHeight = 480;
 
+int Gbls::fullScreenWidth = 1280;
+int Gbls::fullScreenHeight = 720;
+
 void Gbls::initFromConfig() {
 	std::stringstream stream;
 	string tmpString;
@@ -121,5 +124,8 @@ void Gbls::initFromConfig() {
 	
 	conf.getValue("windowWidth", windowWidth);
 	conf.getValue("windowHeight", windowHeight);
+	
+	conf.getValue("fullScreenWidth", fullScreenWidth);
+	conf.getValue("fullScreenHeight", fullScreenHeight);
 
 }

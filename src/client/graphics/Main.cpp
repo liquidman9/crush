@@ -10,8 +10,6 @@
 
 #pragma comment(lib, "WINMM.LIB")
 
-//#define MYNETWORKON
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
 	AllocConsole();
@@ -25,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 		if(SUCCEEDED(GameResources::initState())) {
 			
 			GameInput input;
-#ifdef MYNETWORKON
+#ifndef MYNETWORKOFF  // defined in Gbls
 			//networking init
 			//try {
 			NetworkClient nc(8887);
@@ -33,6 +31,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//} catch (exception & e) {
 			//	cerr << e.what();
 			//}
+#else
+			MessageBox( NULL, L"Network not enabled.\nRecompile with MYNETWORKOFF undefined to enable.", L"CRUSH.exe", MB_OK );
 #endif
 			// Main loop
 			MSG msg;
@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 				
 				GameState newGameState;
 
-#ifdef MYNETWORKON
+#ifndef MYNETWORKOFF  // defined in Gbls
 				if (!GameResources::debugCamOn) {
 					nc.sendToServer(&(input.input));
 				}

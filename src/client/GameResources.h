@@ -67,6 +67,7 @@ public:
 
 	static void updateKeyboardState();
 	static HRESULT initState();
+	static HRESULT reInitState();
 	static HRESULT initMeshes();
 	static HRESULT initLights();
 	static void drawAll();
