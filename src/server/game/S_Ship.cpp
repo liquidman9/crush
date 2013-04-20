@@ -52,7 +52,7 @@ void S_Ship::calculate(float dt){
 }
 
 void S_Ship::addPlayerInput(InputState input) {
-	m_thrust = -input.thrust; //ship are facing in the opposite direction
+	m_thrust = input.thrust; //ship are facing in the opposite direction
 	m_tractorBeamOn = input.tractBeam;
 
 	float conv = 500000;
