@@ -10,6 +10,7 @@ NetworkServer::NetworkServer(void) :
 Network(),
 	m_clientCount(0)
 {
+	WSADATA wsa;
 	WSAStartup(MAKEWORD(2,2),&wsa);
 	InitializeCriticalSection(&m_cs);
 	initializeSocket();
@@ -29,6 +30,7 @@ NetworkServer::NetworkServer(string ip, unsigned short port) :
 Network(ip, port),
 	m_clientCount(0) 
 {
+	WSADATA wsa;
 	WSAStartup(MAKEWORD(2,2),&wsa);
 	InitializeCriticalSection(&m_cs);
 	initializeSocket();
@@ -48,6 +50,7 @@ NetworkServer::NetworkServer(unsigned short port) :
 Network(port),
 	m_clientCount(0)
 {
+	WSADATA wsa;
 	WSAStartup(MAKEWORD(2,2),&wsa);
 	InitializeCriticalSection(&m_cs);	
 	initializeSocket();
@@ -63,9 +66,9 @@ Network(port),
 		&threadID );
 }
 
-void NetworkServer::startListening(){
+void NetworkServer::startListening() {
 	if(listen(m_incomingSock, SOMAXCONN) == SOCKET_ERROR){
-		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
+		throw runtime_error("Could not start listening socket : " + to_string((long long) WSAGetLastError()));
 	}
 }
 
@@ -76,26 +79,36 @@ void NetworkServer::initializeSocket() {
 }
 
 void NetworkServer::broadcastGameState(const GameState &state) {
-	map<unsigned int, SOCKET>::iterator start = m_connectedClients.begin();
-	map<unsigned int,SOCKET>::iterator end = m_connectedClients.end();
-
 	//accumulate all data into send buffer
 	const char* send_buff = state.getSendBuff();
-	
+
+	vector<map<unsigned int, SOCKET>::iterator> removeList;
+
 	//send to every client currently connected
 	EnterCriticalSection(&m_cs);
-	for(map<unsigned int, SOCKET>::iterator it = start; it != end; it++) {
-		sendToClient(send_buff, state.sendSize(), it->first, it->second);
+	for(auto it = m_connectedClients.begin();
+		it != m_connectedClients.end(); it++) {
+			if(!sendToClient(send_buff, state.sendSize(), it->first, it->second)) {
+				//client can't be reached
+				closesocket(it->second);
+				removeList.push_back(it);
+			}
+	}
+	//remove clients who cannot be reached
+	for(auto it = removeList.begin(); it != removeList.end(); it++) {
+		m_connectedClients.erase(*it);
 	}
 	LeaveCriticalSection(&m_cs);
 	delete []send_buff;
 }
 
-void NetworkServer::sendToClient(const char * const buff, const int size, const unsigned int client,  SOCKET &s) {
-	if(send(s, buff, size, 0) == SOCKET_ERROR) {
-		throw runtime_error("failed to send to client " + to_string((long long)client)
-			+ ". Error code : " + to_string((long long) WSAGetLastError()));
+bool NetworkServer::sendToClient(const char * const buff, const int size, const unsigned int client,  SOCKET &s) {
+	if(send(s, buff, size, 0) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+		cerr << "failed to send to client " + to_string((long long)client)
+			+ ". Error code : " + to_string((long long) WSAGetLastError()) << endl;
+		return false;
 	}
+	return true;
 }
 
 EventBuff_t NetworkServer::getEvents() {
@@ -106,22 +119,31 @@ EventBuff_t NetworkServer::getEvents() {
 	memset(local_buf,'\0', MAX_PACKET_SIZE);
 	int recv_len;
 
-	map<unsigned int, SOCKET>::iterator start = m_connectedClients.begin();
-	map<unsigned int,SOCKET>::iterator end = m_connectedClients.end();
+	vector<map<unsigned int,SOCKET>::iterator> removeList;
+	EnterCriticalSection(&m_cs);
+	for(auto it = m_connectedClients.begin();
+		it != m_connectedClients.end(); it++) {
 
-	for(map<unsigned int,SOCKET>::iterator it = start; it != end; it++){
-		if ((recv_len = recv(it->second, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
-			cerr << ("recvfrom() failed with error code : " + to_string((long long) WSAGetLastError())) << endl;
-			error = true;		
-		}
-
-		if(!error && recv_len > 0) {
-			NetworkDecoder nd(local_buf, recv_len);
-			nd.decodeEvents(rtn, it->first);
-		}
+			if ((recv_len = recv(it->second, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR
+				&& WSAGetLastError() != WSAEWOULDBLOCK) {
+					cerr << "recv() from client " << it->first << " failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+					error = true;		
+			}
+			if(error || recv_len == 0) {
+				//cannot reach client, close the connection
+				cout << "Connection to client " << it->first << " closed" << endl;
+				closesocket(it->second);
+				removeList.push_back(it);
+			} else if (recv_len > 0) {
+				NetworkDecoder nd(local_buf, recv_len);
+				nd.decodeEvents(rtn, it->first);
+			}
 	}
-
-	//m_eventsBuffer.clear();
+	//remove clients that aren't reachable
+	for(auto it = removeList.begin(); it != removeList.end(); it++) {
+		m_connectedClients.erase(*it);
+	}
+	LeaveCriticalSection(&m_cs);
 
 	return rtn;
 }
@@ -135,13 +157,13 @@ void inline NetworkServer::bindSocket() {
 
 void NetworkServer::acceptNewClient()
 {
-	while(1){
+	while(1) {
+		bool error = false;
 		// if client waiting, accept the connection and save the socket
 		SOCKET ClientSocket = accept(m_incomingSock,NULL,NULL);
 
-		if (ClientSocket != INVALID_SOCKET) 
-		{
-			bool error = false;
+		if (ClientSocket != INVALID_SOCKET) {			
+
 			if(send(ClientSocket, (const char *) &(m_clientCount), sizeof(m_clientCount), 0) == SOCKET_ERROR){
 				cerr << "Error sending client id : " + to_string((long long) WSAGetLastError()) << endl;
 				error = true;
@@ -149,6 +171,11 @@ void NetworkServer::acceptNewClient()
 
 			if(!error) {
 				//disable nagle on the client's socket
+				u_long iMode = 1;
+				if(ioctlsocket(ClientSocket, FIONBIO, &iMode) == SOCKET_ERROR){
+					throw runtime_error("connect() failed with error code : " + to_string((long long) WSAGetLastError()));
+				}
+
 				char value = 1;
 				setsockopt( ClientSocket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
 
@@ -159,6 +186,16 @@ void NetworkServer::acceptNewClient()
 			}
 		}
 	}
+}
+
+vector<unsigned int> NetworkServer::getConnectedClientIDs() {
+	vector<unsigned int> rtn;
+	EnterCriticalSection(&m_cs);
+	for(auto it = m_connectedClients.begin(); it != m_connectedClients.end(); it++){
+		rtn.push_back(it->first);
+	}
+	LeaveCriticalSection(&m_cs);
+	return rtn;
 }
 
 

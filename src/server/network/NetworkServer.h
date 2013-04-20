@@ -36,7 +36,11 @@ public:
 	//returns a vector of events received
 	EventBuff_t getEvents();
 
+	//Sends games State to all connected clients
 	void broadcastGameState(const GameState &);
+
+	//returns a vector of connected Client IDs
+	vector<unsigned int> getConnectedClientIDs();
 
 	
 	virtual ~NetworkServer(void);
@@ -46,8 +50,7 @@ private:
 	void initializeSocket();
 	void startListening();
 	void bindSocket();
-	void sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
-	WSADATA wsa;
+	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
 	SOCKET m_incomingSock;
 	map <unsigned int, SOCKET> m_connectedClients;
 	EventBuff_t m_eventsBuffer;

@@ -16,7 +16,7 @@ void printEntity(Entity const &e) {
 int main(){
 	try {
 		cout << "Server:" << endl;
-		NetworkServer server(8888);
+		NetworkServer server(8889);
 		cout << "socket created:" << endl;
 		EventBuff_t eventBuff;
 		GameState gameState;
@@ -41,18 +41,29 @@ int main(){
 				eventBuff = server.getEvents();
 				if(!eventBuff.empty()) {
 					cout << "Event recieved." << endl;
+					EventBuff_t::iterator it = eventBuff.find(0);
+
+					if(it != eventBuff.end()) {
+						gameState[0]->m_pos.z += (float)((((InputState *)eventBuff[0].get())->thrust))/250.0;
+						cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;
+					}
+					
 					//cout << (eventBuff[i] << endl;
-					gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[0].get())->thrust))/250.0;
-					cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;
+					it = eventBuff.find(1);
+					if(it != eventBuff.end()) {
+						gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[1].get())->thrust))/250.0;
+						cout << (float)((((InputState *)eventBuff[1].get())->thrust)) << endl;
+					}					
+					/*cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;*/
 					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
 					//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 				}
 		
-			if(eventBuff.size() < 50 && !eventBuff.empty()) {
+			//if(eventBuff.size() < 50 && !eventBuff.empty()) {
 				//gameState[1]->m_pos.z += .025;
 				//gameState[0]->m_pos.z += .05;
 				server.broadcastGameState(gameState);
-			}
+			//}
 			if(!eventBuff.empty()) {
 				eventBuff.clear();
 			}
