@@ -1,21 +1,24 @@
+
 // Global includes
 #include <iostream>
 
 // Project includes
 #include <server/network/NetworkServer.h>
 #include <shared/InputState.h>
-#include <server/game/S_Ship.h>
+#include <server\game\S_Ship.h>
 #include <server/game/PhysicsWorld.h>
 
 using namespace std;
 
-int main2(){
-	try{
+
+int main(){
+	try {
 		cout << "Server:" << endl;
 		NetworkServer server(8888);
 		cout << "socket created:" << endl;
 		EventBuff_t eventBuff;
 		GameState gameState;
+
 		PhysicsWorld world;
 		float bound = 30;
 		Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
@@ -31,47 +34,34 @@ int main2(){
 		world.boundaries.push_back(front);
 		world.boundaries.push_back(back);
 
-		D3DXVECTOR3 m_pos(-20,0,50);//(2,2,2);
-		D3DXVECTOR3 m_dir(1,0,0);//(1,1,1);
-		//gameState.push_back(Entity());
+		D3DXVECTOR3 m_pos(-10,2,2);
+		D3DXVECTOR3 m_dir(0,0,-1);
 		S_Ship *test = new S_Ship(m_pos, m_dir, 1, false);
-		test->m_acceleratorOn = true;
 		gameState.push_back(test);
 		world.entities.push_back(test);
 
-		D3DXVECTOR3 m_pos1(20,0,50);//(1,1,1);
-		D3DXVECTOR3 m_dir1(-1,0,0);
+		D3DXVECTOR3 m_pos1(10,1,1);
+		D3DXVECTOR3 m_dir1(0,0,1);
 		S_Ship *test2 = new S_Ship(m_pos1, m_dir1, 2, true);
-		test2->m_acceleratorOn = true;
 		gameState.push_back(test2);
-	    world.entities.push_back(test2);
+		world.entities.push_back(test2);
 
-		D3DXVECTOR3 m_pos2(0,0,20);//(2,2,2);
-		D3DXVECTOR3 m_dir2(0,0,-1);//(1,1,1);
-		//S_Ship *test3 = new S_Ship(m_pos2, m_dir2, 3, true);
-		//test3->m_acceleratorOn = true;
-		//gameState.push_back(test3);
-	   // world.entities.push_back(test3);
-
-		//ServerEntity *test2 = new S_Ship(m_pos1, m_dir, 2, true);
-		//gameState.push_back(test2);
-	//	world.entities.push_back(test2);
-		int count = 0;
 		for(;;) {
-			if (server.eventsAvailable()) {
+			server.broadcastGameState(gameState);
+
 				eventBuff = server.getEvents();
-				for(unsigned int i = 0; i < eventBuff.size(); i++) {
-					
-					//cout << *eventBuff[i] << endl;
-					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i])->thrust))/250.0;
-				if(count < 200) {
+				if(!eventBuff.empty()) {
 					cout << "Event recieved." << endl;
+					//(*((S_Ship **)(&gameState[1])))->addPlayerInput(*((InputState *)eventBuff[0].get()));
+					test2->addPlayerInput(*((InputState *)eventBuff[0].get()));
 					world.update();
-					//count++;
+					//cout << (eventBuff[i] << endl;
+					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[0].get())->thrust))/250.0;
+					//cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;
+					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
+					//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 				}
-					
-				}
-			}
+
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {
 				//gameState[1]->m_pos.z += .025;
 				//gameState[0]->m_pos.z += .05;
@@ -87,5 +77,5 @@ int main2(){
 		cerr << e.what() << endl;
 		system("pause");
 	}
-	return 0;
+
 }

@@ -16,16 +16,13 @@ void PhysicsWorld::update() {
 			//if(i != j)//entities[i].m_id != entities[j].m_id)
 			//{
 				if(checkCollision(*entities[i], *entities[j])){
-					printf("Collide %i with %i\n", i, j);
 					respond(entities[i], entities[j]);
 				}
-				else printf("No Collision\n");
 			//}
 		}
 
 		for(unsigned k = 0; k < boundaries.size(); k++) {
 			if(checkCollision(*entities[i], boundaries[k])){
-					printf("Collide %i with Boundary %i\n", i, k);
 					respond(entities[i], boundaries[k]);
 			}
 		}
@@ -36,7 +33,6 @@ void PhysicsWorld::update() {
 	for(unsigned i = 0; i < entities.size(); i++)
 	{
 		entities[i]->calculate(.005f);
-		printf("Number %i: %f,%f,%f \n", i, entities[i]->m_pos.x,entities[i]->m_pos.y,entities[i]->m_pos.z);
 	}
 }
 
