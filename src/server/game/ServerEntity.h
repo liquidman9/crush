@@ -24,7 +24,7 @@ public:
 	ServerEntity(D3DXVECTOR3 velocity, float maxVelocity, D3DXVECTOR3 force, float mass);
 
 	void rotate(D3DXVECTOR3);
-	void calculate(float);
+	virtual void calculate(float);
 
 };
 
