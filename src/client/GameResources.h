@@ -72,7 +72,7 @@ public:
 	static HRESULT initLights();
 	static void drawAll();
 	static void updateDebugCamera();
-	static void updateGameState(GameState & newGameState);
+	static void updateGameState(GameState<Entity> & newGameState);
 	static C_Entity * createEntity(Entity * newEnt);
 	static void releaseResources();
 

@@ -19,17 +19,18 @@
 #include <shared/network/Sendable.h>
 #include <client/graphics/Renderable.h>
 
-
 using namespace std;
 
-enum Type { ENTITY, SHIP, BASE, ASTEROID};
+typedef D3DXQUATERNION Quaternion;
 
 #define ENUM_TYPE char
+enum Type : char { ENTITY, SHIP, BASE, ASTEROID};
+
+
 
 class Entity : public Sendable {
 private:
 	static int s_id_gen;
-	int m_id;
 	
 protected:
 	static const unsigned int m_size = sizeof(ENUM_TYPE) + sizeof(int) +  2*sizeof(D3DXVECTOR3);
@@ -38,15 +39,26 @@ protected:
 	Entity();
 
 public:
+	// ID AND TYPE SHOULD BOTH BE CONST
+	//const int m_id;
+	//const Type m_type;
+	int m_id;
 	Type m_type;
 
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_dir;
+	Quaternion m_orientation;
+
 
 	// Constructors
+	// These two constructors are deprecated
 	Entity(Type type);
-	Entity(Entity const &e);
 	Entity(Type type, D3DXVECTOR3 pos, D3DXVECTOR3 dir);
+
+	Entity(int id, Type type);
+	Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation);
+	// Copy constructor
+	Entity(Entity const &e);
 	// Destructor
 	virtual ~Entity();
 

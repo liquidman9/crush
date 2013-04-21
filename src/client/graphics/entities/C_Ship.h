@@ -10,6 +10,9 @@
 #include <client/graphics/entities/C_Entity.h>
 #include <client/graphics/Renderable.h>
 
+#pragma warning( push )
+#pragma warning( disable : 4250 )
+
 class C_Ship : public Ship, public C_Entity {
 public:
 	Mesh* m_pMesh;
@@ -19,6 +22,8 @@ public:
 	C_Ship(Entity *);
 	void draw();
 };
+
+#pragma warning( pop )
 
 
 #endif

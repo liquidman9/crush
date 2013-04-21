@@ -19,7 +19,7 @@ int main2(){
 		NetworkServer server(8889);
 		cout << "socket created:" << endl;
 		EventBuff_t eventBuff;
-		GameState gameState;
+		GameState<Entity> gameState;
 		D3DXVECTOR3 m_pos(2,2,2);
 		D3DXVECTOR3 m_dir(1,1,1);
 		Entity *test = new Ship(m_pos, m_dir, 1, false);

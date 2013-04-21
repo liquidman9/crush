@@ -37,7 +37,7 @@ public:
 	EventBuff_t getEvents();
 
 	//Sends games State to all connected clients
-	void broadcastGameState(const GameState &);
+	void broadcastGameState(const GameState<Entity> &);
 
 	//returns a vector of connected Client IDs
 	vector<unsigned int> getConnectedClientIDs();

@@ -10,36 +10,50 @@
 
 int Entity::s_id_gen = 0;
 
+// Old constructors
 Entity::Entity() :
-m_id(s_id_gen++),
+	m_id(s_id_gen++),
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
 	m_dir(D3DXVECTOR3(0.0, 0.0, 1.0)),
+	m_orientation(1.0, 0.0, 0.0, 1.0),
 	m_type(ENTITY)
-{
-}
+{ }
 
 Entity::Entity(Type type) :
 	m_id(s_id_gen++),
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
-	m_dir(D3DXVECTOR3(0.0, 0.0, 1.0)),
+	m_orientation(1.0, 0.0, 0.0, 1.0),
 	m_type(type)
-{
-}
-
-Entity::Entity(Entity const &e)  {
-	m_type = e.m_type;
-	m_id = e.m_id;
-	memcpy(m_pos, e.m_pos, sizeof(D3DXVECTOR3));
-	memcpy(m_dir, e.m_dir, sizeof(D3DXVECTOR3));
-}
+{ }
 
 Entity::Entity(Type type, D3DXVECTOR3 pos, D3DXVECTOR3 dir) : 
 	m_id(s_id_gen++),
 	m_pos(pos),
 	m_dir(dir),
 	m_type(type)
-{
-}
+{ }
+// End old constructors
+
+Entity::Entity(int id, Type type) :
+	m_id(id),
+	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
+	m_orientation(1.0, 0.0, 0.0, 1.0),
+	m_type(type)
+{ }
+
+Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation) : 
+	m_id(id),
+	m_pos(pos),
+	m_orientation(orientation),
+	m_type(type)
+{ }
+
+Entity::Entity(Entity const &e) :
+	m_id(e.m_id),
+	m_type(e.m_type),
+	m_pos(e.m_pos),
+	m_dir(e.m_dir)
+{ }
 
 ostream& operator<<(ostream& os, const Entity& e) {
 	os << e.getID() << " " << e.m_pos.x << " " << e.m_pos.y << " " << e.m_pos.z

@@ -266,7 +266,7 @@ void GameResources::updateDebugCamera() {
 }
 
 
-void GameResources::updateGameState(GameState & newGameState) {
+void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	updateDebugCamera();
 	updateKeyboardState();
 	

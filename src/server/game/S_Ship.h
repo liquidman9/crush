@@ -14,7 +14,8 @@
 #include <server/game/ServerEntity.h>
 #include <shared/InputState.h>
 
-
+#pragma warning( push )
+#pragma warning( disable : 4250 )
 
 class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 
@@ -33,5 +34,7 @@ public:
 	void addPlayerInput(InputState);
 
 };
+
+#pragma warning( pop )
 
 #endif S_SHIP_H_INCLUDED
