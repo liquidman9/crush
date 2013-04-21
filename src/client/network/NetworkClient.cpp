@@ -34,7 +34,10 @@ void NetworkClient::initializeSocket() {
 	}
 	int timeout = TIMEOUT;
 	ConfigSettings::config->getValue("network_timeout", timeout);
-	setsockopt( m_sock, IPPROTO_TCP, SO_RCVTIMEO, (const char *) &timeout, sizeof( timeout ) );
+	if(setsockopt( m_sock, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof( timeout )) ) {
+		runtime_error e("Could not set timeout : " + to_string((long long) WSAGetLastError()));
+		throw e;
+	}
 }
 
 void NetworkClient::bindToServer(string ip, unsigned short port) {
@@ -65,15 +68,6 @@ void NetworkClient::bindToServer(Network const &n) {
 		runtime_error e("Failed to get client ID : " + to_string((long long) WSAGetLastError()));
 		throw e;
 	}
-
-
-	//set non_blocking
-	/*u_long iMode = 1;
-	if(ioctlsocket(m_sock, FIONBIO, &iMode) == SOCKET_ERROR){
-		throw runtime_error("connect() failed with error code : " + to_string((long long) WSAGetLastError()));
-	}*/
-
-	
 
 	//don't collect data and send in a big packet
 	char value = 1;
