@@ -52,19 +52,6 @@ void PhysicsWorld::update(float delta_time) {
 		cout << "Orientation Delta: " << e->m_orientation_delta << endl;
 		cout << "Orientation: " << e->m_orientation << endl;
 		*/
-
-
-		/*
-	// Calculated Values
-	D3DXVECTOR3 m_momentum;
-	D3DXVECTOR3 m_angular_momentum;
-	Quaternion m_delta_orientation;
-
-	// Accumulator Values
-	D3DXVECTOR3 t_impulse;
-	D3DXVECTOR3 t_angular_impulse;
-	*/
-
 	}
 }
 
