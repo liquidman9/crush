@@ -263,7 +263,7 @@ LRESULT CALLBACK D3DWindow::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		//	break;
 
 		case '0':
-			GameResources::debugCamOn =  !GameResources::debugCamOn;
+			GameResources::switchCamera();
 			break;
 
 		case VK_UP:

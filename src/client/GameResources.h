@@ -20,6 +20,7 @@
 //#include <client/graphics/entities/R_Ship.h>
 #include <shared/GameInput.h>
 #include <client/graphics/entities/C_Entity.h>
+#include <client/graphics/entities/C_Ship.h>
 
 class GameResources {
 public:
@@ -34,10 +35,16 @@ public:
 	//	}
 	//};
 
+	static vector<C_Ship*> shipList;
+	static const float PLAYER_CAM_DISTANCE;
+	static const float PLAYER_CAM_HEIGHT;
+	static const float PLAYER_CAM_LOOKAT_DISTANCE;
 	static std::map<int, C_Entity*> entityMap;
 	static bool debugCamOn;
 	static Camera debugCam;
-	static Camera* curCam;
+	static Camera playerCam;
+	static Camera * curCam;
+	static C_Ship * playerShip;
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;
@@ -72,6 +79,8 @@ public:
 	static HRESULT initLights();
 	static void drawAll();
 	static void updateDebugCamera();
+	static void updatePlayerCamera();
+	static void switchCamera();
 	static void updateGameState(GameState & newGameState);
 	static C_Entity * createEntity(Entity * newEnt);
 	static void releaseResources();

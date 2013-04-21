@@ -19,10 +19,18 @@
 
 //static member initializations
 //static enum cameras {DEBUG_CAM, PLAYER_CAM};  //better to use boolean with only two cameras, can extend later
+
+const float GameResources::PLAYER_CAM_DISTANCE = 10.0f;
+const float GameResources::PLAYER_CAM_HEIGHT = 3.0f;
+const float GameResources::PLAYER_CAM_LOOKAT_DISTANCE = 10.0f;
+
+vector<C_Ship*> GameResources::shipList;
 std::map<int, C_Entity*> GameResources::entityMap;
 bool GameResources::debugCamOn = true;
 Camera GameResources::debugCam;
-Camera* GameResources::curCam = NULL;
+Camera GameResources::playerCam;
+Camera* GameResources::curCam = &debugCam;
+C_Ship* GameResources::playerShip = NULL;
 //std::vector<R_Ship*> GameResources::r_ShipList;
 //std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
@@ -194,6 +202,20 @@ void GameResources::updateKeyboardState() {
 	m_ks.rightUp = false;
 }
 
+void GameResources::switchCamera() {
+	GameResources::debugCamOn =  !GameResources::debugCamOn;
+}
+
+void GameResources::updatePlayerCamera() {
+	if(playerShip) {
+		//TODO update to work with quaternions
+		playerCam.m_vEye = playerShip->m_pos - (*D3DXVec3Normalize(&playerShip->m_dir, &playerShip->m_dir))*PLAYER_CAM_DISTANCE + D3DXVECTOR3(0.0f, PLAYER_CAM_HEIGHT, 0.0f);
+		//playerCam.m_vUp = playerShip->FIGURE OUT UP VECTOR (once we have quaternions)
+		playerCam.m_vAt = playerShip->m_pos + (*D3DXVec3Normalize(&playerShip->m_dir, &playerShip->m_dir))*PLAYER_CAM_LOOKAT_DISTANCE;
+		playerCam.updateView();
+	}
+}
+
 void GameResources::updateDebugCamera() {
 	
 	INT8	updateFwd = (INT8)(m_ks.wDown || m_ks.wUp) - (INT8)(m_ks.sDown || m_ks.wUp);
@@ -261,15 +283,15 @@ void GameResources::updateDebugCamera() {
 	debugCam.m_vAt = debugCam.m_vEye + fwdVec;
 
 	//update directx camera view
-	GameResources::debugCam.updateView();
-
+	debugCam.updateView();
 }
 
 
 void GameResources::updateGameState(GameState & newGameState) {
-	updateDebugCamera();
-	updateKeyboardState();
 	
+	updateKeyboardState(); // Clear out keyboard state bits
+	
+	// Update state of entitites
 	for (DWORD i = 0; i < newGameState.size(); i++) {
 		int id = newGameState[i]->getID();
 		cerr << "Creating entity" << endl;
@@ -282,6 +304,23 @@ void GameResources::updateGameState(GameState & newGameState) {
 		}
 		cerr << "Done" << endl;
 	}
+	
+	if(!playerShip) {
+		// Get pointer to player ship
+
+		//newGameState.
+		for (int i = 0; i < shipList.size(); i++) {
+			//if
+		}
+	}
+
+	// Update current camera
+	if (debugCamOn) {
+		updateDebugCamera();
+	} else {
+		updatePlayerCamera();
+	}
+
 }
 
 C_Entity * GameResources::createEntity(Entity * newEnt) {
@@ -298,7 +337,9 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	//	ret = new Entity(*newEnt);
 	//	break;
 	case SHIP :
-		ret = new C_Ship(newEnt);
+		C_Ship * tmp = new C_Ship(newEnt);
+		shipList.push_back(tmp);
+		ret = tmp;
 		break;
 	//case BASE :
 	//	break;
