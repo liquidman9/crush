@@ -22,6 +22,8 @@ class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 public:
 	// Fields
 	float m_thrust;
+	D3DXVECTOR3 forward_rot_thruster;
+	D3DXVECTOR3 reverse_rot_thruster;
 
 	// Constructors
 	S_Ship();

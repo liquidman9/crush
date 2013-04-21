@@ -52,7 +52,7 @@ Entity::Entity(Entity const &e) :
 	m_id(e.m_id),
 	m_type(e.m_type),
 	m_pos(e.m_pos),
-	m_dir(e.m_dir)
+	m_orientation(e.m_orientation)
 { }
 
 ostream& operator<<(ostream& os, const Entity& e) {
@@ -67,13 +67,13 @@ const char * Entity::encode() const {
 	*(ENUM_TYPE *) tmp = ENTITY;
 	*(int *) (tmp + sizeof(ENUM_TYPE)) = m_id;
 	*(D3DXVECTOR3 *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_pos;
-	*(D3DXVECTOR3 *) (tmp + sizeof(D3DXVECTOR3) + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_dir;
+	*(Quaternion *) (tmp + sizeof(Quaternion) + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_orientation;
 	return tmp;
 }
 
 void Entity::decode(const char * tmp) {
 	memcpy(&m_pos,tmp+sizeof(m_id) + sizeof(ENUM_TYPE), sizeof(D3DXVECTOR3));
-	memcpy(&m_dir,tmp+sizeof(m_id)+sizeof(D3DXVECTOR3) + sizeof(ENUM_TYPE), sizeof(D3DXVECTOR3));
+	memcpy(&m_dir,tmp+sizeof(m_id)+sizeof(D3DXVECTOR3) + sizeof(ENUM_TYPE), sizeof(Quaternion));
 	m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
 }
 

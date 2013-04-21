@@ -54,14 +54,14 @@ int main(){
 					cout << "Event recieved." << endl;
 					//(*((S_Ship **)(&gameState[1])))->addPlayerInput(*((InputState *)eventBuff[0].get()));
 					test2->addPlayerInput(*((InputState *)eventBuff[0].get()));
-					world.update();
 					//cout << (eventBuff[i] << endl;
 					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[0].get())->thrust))/250.0;
 					//cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;
 					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
 					//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 				}
-
+				
+				world.update(1.0f/1000.0f);
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {
 				//gameState[1]->m_pos.z += .025;
 				//gameState[0]->m_pos.z += .05;
@@ -70,7 +70,7 @@ int main(){
 			if(!eventBuff.empty()) {
 				eventBuff.clear();
 			}
-			Sleep(16);
+			Sleep(200);
 		}
 	} catch (exception &e) {
 		cout << "exception occured!" << endl;
