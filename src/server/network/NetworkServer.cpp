@@ -158,31 +158,63 @@ void inline NetworkServer::bindSocket() {
 void NetworkServer::acceptNewClient()
 {
 	while(1) {
-		bool error = false;
 		// if client waiting, accept the connection and save the socket
 		SOCKET ClientSocket = accept(m_incomingSock,NULL,NULL);
 
-		if (ClientSocket != INVALID_SOCKET) {			
+		if (ClientSocket != INVALID_SOCKET) {
 
-			if(send(ClientSocket, (const char *) &(m_clientCount), sizeof(m_clientCount), 0) == SOCKET_ERROR){
-				cerr << "Error sending client id : " + to_string((long long) WSAGetLastError()) << endl;
-				error = true;
+			//get max clients from config
+			int max_clients_i = 0;
+			ConfigSettings::config->getValue("network_maxClients", max_clients_i);
+			unsigned int max_clients;
+			if(max_clients_i <= 0) {
+				max_clients = NETWORKSERVER_MAX_CLIENTS;
+			} else {
+				max_clients = max_clients_i;
 			}
 
-			if(!error) {
-				//disable nagle on the client's socket
-				u_long iMode = 1;
-				if(ioctlsocket(ClientSocket, FIONBIO, &iMode) == SOCKET_ERROR){
-					throw runtime_error("connect() failed with error code : " + to_string((long long) WSAGetLastError()));
+			unsigned int i = max_clients;
+			// find clientID for new client
+			if (m_clientCount < max_clients - 1) {
+				for (i = 0; i < max_clients; i++) {
+					if(m_connectedClients.find(i) == m_connectedClients.end()) {							
+						++m_clientCount;
+						break;
+					}
+				}
+			}
+
+			//server full;
+			if(i == max_clients) {
+				cout << "client connection rejected" << endl;
+				closesocket(ClientSocket);
+			} else {
+
+				//send clientID
+				if(send(ClientSocket, (const char *) &(m_clientCount), sizeof(m_clientCount), 0) == SOCKET_ERROR){
+					//LOOK HERE IF THERE ARE PROBLEMS CONNECTING
+					cerr << "Error sending client id : " + to_string((long long) WSAGetLastError()) << endl;
+					closesocket(ClientSocket);
+					continue;
 				}
 
+				//set client to non-blocking
+				u_long iMode = 1;
+				if(ioctlsocket(ClientSocket, FIONBIO, &iMode) == SOCKET_ERROR){
+					runtime_error e("Error setting client socket to non-blocking : "
+						+ to_string((long long) WSAGetLastError()));
+					throw e;
+				}
+
+				//disable nagle on the client's socket
 				char value = 1;
 				setsockopt( ClientSocket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
 
-				// insert new client into session id table
+				//insert new client into connected clients
 				EnterCriticalSection(&m_cs);
-				m_connectedClients.insert( pair<unsigned int, SOCKET>(m_clientCount++, ClientSocket) );
+				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				LeaveCriticalSection(&m_cs);
+				cout << "New client " << i << " connected." << endl;
 			}
 		}
 	}

@@ -8,8 +8,9 @@
 #include <shared/network/Network.h>
 #include <shared/network/NetworkDecoder.h>
 #include <shared/game/Entity.h>
+#include <shared/ConfigSettings.h>
 
-
+#define NETWORKSERVER_MAX_CLIENTS 4
 //typedef GameState State_t;
 
 class NetworkServer :

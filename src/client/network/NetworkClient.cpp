@@ -62,12 +62,20 @@ void NetworkClient::bindToServer(Network const &n) {
 		throw e;
 	}
 
-	if (recv (m_sock, (char *) &m_clientID, sizeof(m_clientID), 0) == SOCKET_ERROR) {
+	int clientID;
+	if (recv (m_sock, (char *) &clientID, sizeof(m_clientID), 0) == SOCKET_ERROR) {
 		cerr << "Failed to get client ID : " + to_string((long long) WSAGetLastError()) << endl;
 		
 		runtime_error e("Failed to get client ID : " + to_string((long long) WSAGetLastError()));
 		throw e;
 	}
+
+	if(clientID < 0) {
+		cerr << "Connection to server rejected : Server full" << endl;
+		runtime_error e("Connection to server rejected: Server full.");
+		throw e;
+	}
+	m_clientID = clientID;
 
 	//don't collect data and send in a big packet
 	char value = 1;
