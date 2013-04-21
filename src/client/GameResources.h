@@ -45,6 +45,7 @@ public:
 	static Camera playerCam;
 	static Camera * curCam;
 	static C_Ship * playerShip;
+	static int playerNum;
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;

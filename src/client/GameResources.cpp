@@ -20,10 +20,11 @@
 //static member initializations
 //static enum cameras {DEBUG_CAM, PLAYER_CAM};  //better to use boolean with only two cameras, can extend later
 
-const float GameResources::PLAYER_CAM_DISTANCE = 10.0f;
-const float GameResources::PLAYER_CAM_HEIGHT = 3.0f;
-const float GameResources::PLAYER_CAM_LOOKAT_DISTANCE = 10.0f;
+const float GameResources::PLAYER_CAM_DISTANCE = 15.0f;
+const float GameResources::PLAYER_CAM_HEIGHT = 4.0f;
+const float GameResources::PLAYER_CAM_LOOKAT_DISTANCE = 15.0f;
 
+int GameResources::playerNum = -1;
 vector<C_Ship*> GameResources::shipList;
 std::map<int, C_Entity*> GameResources::entityMap;
 bool GameResources::debugCamOn = true;
@@ -204,6 +205,11 @@ void GameResources::updateKeyboardState() {
 
 void GameResources::switchCamera() {
 	GameResources::debugCamOn =  !GameResources::debugCamOn;
+	if(debugCamOn) {
+		curCam = &debugCam;
+	} else {
+		curCam = &playerCam;
+	}
 }
 
 void GameResources::updatePlayerCamera() {
@@ -304,15 +310,6 @@ void GameResources::updateGameState(GameState & newGameState) {
 		}
 		cerr << "Done" << endl;
 	}
-	
-	if(!playerShip) {
-		// Get pointer to player ship
-
-		//newGameState.
-		for (int i = 0; i < shipList.size(); i++) {
-			//if
-		}
-	}
 
 	// Update current camera
 	if (debugCamOn) {
@@ -339,6 +336,9 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case SHIP :
 		C_Ship * tmp = new C_Ship(newEnt);
 		shipList.push_back(tmp);
+		if (tmp->m_playerNum == playerNum) {
+			playerShip = tmp;
+		}
 		ret = tmp;
 		break;
 	//case BASE :
