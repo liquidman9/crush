@@ -5,7 +5,17 @@
 // Project includes
 #include <server/game/PhysicsWorld.h>
 
-void PhysicsWorld::update() {
+ostream& operator<<(ostream& os, const D3DXVECTOR3 &v) {
+	os << "<" << v.x << ", " << v.y << ", " << v.z << ">";
+	return os;
+}
+
+ostream& operator<<(ostream& os, const D3DXQUATERNION &v) {
+	os << "<" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ">";
+	return os;
+}
+
+void PhysicsWorld::update(float delta_time) {
 	//int iterCount = 10;	// Attempt to solve collisions 10 times, to be implemented
 
 
@@ -29,10 +39,31 @@ void PhysicsWorld::update() {
 	}
 
 
-		
 	for(unsigned i = 0; i < entities.size(); i++)
 	{
-		entities[i]->calculate(.005f);
+		cout << entities[i] << endl;
+		//entities[i]->calculate(.005f);
+		entities[i]->update(delta_time);
+			// Derived Variables
+
+		ServerEntity e = *entities[i];
+		cout << "Entity: " << i << endl;
+		cout << "Velocity: " << e.m_velocity << endl;
+		cout << "Angular Velocity: " << e.m_angular_velocity << endl;
+		cout << "Orientation Delta: " << e.m_orientation_delta << endl;
+
+
+		/*
+	// Calculated Values
+	D3DXVECTOR3 m_momentum;
+	D3DXVECTOR3 m_angular_momentum;
+	Quaternion m_delta_orientation;
+
+	// Accumulator Values
+	D3DXVECTOR3 t_impulse;
+	D3DXVECTOR3 t_angular_impulse;
+	*/
+
 	}
 }
 
@@ -42,7 +73,7 @@ bool PhysicsWorld::checkCollision(ServerEntity a, ServerEntity b){
 	double dy = a.m_pos.y - a.m_pos.y; 
 	dy *= dy; 
 
-	double sum = a.radius + a.radius; 
+	double sum = a.m_radius + a.m_radius; 
 	sum *= sum;
 
 
@@ -58,20 +89,20 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	D3DXVECTOR3 n = a->m_pos - b->m_pos;
 	D3DXVec3Normalize(&n,&n);
 
-	D3DXVECTOR3 v1 = a->velocity;
-	D3DXVECTOR3 v2 = b->velocity;
+	D3DXVECTOR3 v1 = a->m_velocity;
+	D3DXVECTOR3 v2 = b->m_velocity;
 	float a1 = D3DXVec3Dot(&v1,&n);
 	float a2 = D3DXVec3Dot(&v2,&n);
 
-	float optimizedP = (2.0f * (a1 - a2)) / (a->mass + b->mass);
+	float optimizedP = (2.0f * (a1 - a2)) / (a->m_mass + b->m_mass);
 
-	D3DXVECTOR3 nv1 = v1 - optimizedP * b->mass * n;
-	D3DXVECTOR3 nv2 = v2 + optimizedP * a->mass * n;
+	D3DXVECTOR3 nv1 = v1 - optimizedP * b->m_mass * n;
+	D3DXVECTOR3 nv2 = v2 + optimizedP * a->m_mass * n;
 
-	a->velocity = nv1;
-	a->m_pos+= a->velocity;
-	b->velocity = nv2;
-	b->m_pos+=b->velocity;
+	a->m_velocity = nv1;
+	a->m_pos+= a->m_velocity;
+	b->m_velocity = nv2;
+	b->m_pos+=b->m_velocity;
 }
 
 bool PhysicsWorld::checkCollision(ServerEntity a, Boundary b){
@@ -79,7 +110,7 @@ bool PhysicsWorld::checkCollision(ServerEntity a, Boundary b){
     D3DXVECTOR3 v(a.m_pos - b.m_point);
     float dis(D3DXVec3Dot(&v, &b.m_normal));
 
-    if(dis > a.radius)
+    if(dis > a.m_radius)
     {
         return false;
     }
@@ -90,10 +121,10 @@ bool PhysicsWorld::checkCollision(ServerEntity a, Boundary b){
 void PhysicsWorld::respond(ServerEntity * a, Boundary b) {
 	D3DXVECTOR3 n = b.m_normal;
 
-	D3DXVECTOR3 v1 = a->velocity;
+	D3DXVECTOR3 v1 = a->m_velocity;
 	float a1 = D3DXVec3Dot(&v1,&n);
 
 	D3DXVECTOR3 nv1 = v1 - 2*n*a1;
-	a->velocity = nv1;
-	a->m_pos+= a->velocity;
+	a->m_velocity = nv1;
+	a->m_pos+= a->m_velocity;
 }
