@@ -97,6 +97,7 @@ void ServerEntity::update(float delta_time) {
 	m_pos += m_velocity * half_time;
 	m_orientation += (m_orientation_delta * half_time);
 	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
+	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
 }
 
 // Getters/Setters
