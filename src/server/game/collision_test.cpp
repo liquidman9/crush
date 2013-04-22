@@ -20,6 +20,7 @@ int main(){
 		GameState<Entity> gameState;
 
 		PhysicsWorld world;
+		/*
 		float bound = 30;
 		Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
 		Boundary right = Boundary(D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DXVECTOR3(bound,0.0f,0.0f));
@@ -27,21 +28,22 @@ int main(){
 		Boundary down = Boundary(D3DXVECTOR3(0.0f,1.0f,0.0f), D3DXVECTOR3(0.0f,-bound,0.0f));
 		Boundary front = Boundary(D3DXVECTOR3(0.0f,0.0f,1.0f), D3DXVECTOR3(0.0f,0.0f,-bound));
 		Boundary back = Boundary(D3DXVECTOR3(0.0f,0.0f,-1.0f), D3DXVECTOR3(0.0f,0.0f,bound));
+		
 		world.boundaries.push_back(left);
 		world.boundaries.push_back(right);
 		world.boundaries.push_back(top);
 		world.boundaries.push_back(down);
 		world.boundaries.push_back(front);
 		world.boundaries.push_back(back);
-
+		*/
 		D3DXVECTOR3 m_pos(-10,2,2);
-		Quaternion m_dir(0, 0, 1, 0);
+		Quaternion m_dir(0, 0, 0, 1);
 		S_Ship *test = new S_Ship(m_pos, m_dir, 1);
 		gameState.push_back(test);
 		world.entities.push_back(test);
 
 		D3DXVECTOR3 m_pos1(10,1,1);
-		Quaternion m_dir1(1, 0, 0, 0);
+		Quaternion m_dir1(0.25, 0.25, 0.25, 0.25);
 		S_Ship *test2 = new S_Ship(m_pos1, m_dir1, 2);
 		gameState.push_back(test2);
 		world.entities.push_back(test2);
@@ -61,7 +63,7 @@ int main(){
 				//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 			}
 				
-			world.update(1.0f/1000.0f);
+			world.update(1.0f/30.0f);
 
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {
 				//gameState[1]->m_pos.z += .025;
