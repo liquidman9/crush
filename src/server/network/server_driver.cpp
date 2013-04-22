@@ -8,11 +8,6 @@
 
 using namespace std;
 
-void printEntity(Entity const &e) {
-	cout << e.getID() << " " << e.m_pos.x << " " << e.m_pos.y << " " << e.m_pos.z
-		<< e.m_dir.x << " " << e.m_dir.y << " " << e.m_dir.z << endl;
-	}
-
 int main2(){
 	try {
 		cout << "Server:" << endl;

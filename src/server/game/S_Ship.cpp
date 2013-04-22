@@ -9,7 +9,8 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 
-static float ROTATION_SCALE = 720;
+static float ROTATION_SCALE = 1;
+static float THRUST_FACTOR = 1;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),
@@ -65,11 +66,11 @@ void S_Ship::addPlayerInput(InputState input) {
 	D3DXVECTOR3 thrust_force(0, 0, input.thrust);
 
 	// Forward rotation thruster
-	applyImpulse(rot_force, m_pos + forward_rot_thruster, 0.05f);
+	applyImpulse(rot_force, m_pos + forward_rot_thruster, 0.1f);
 	// Rear rotation thruster
-	applyImpulse(-rot_force, m_pos + reverse_rot_thruster, 0.05f);
+	applyImpulse(-rot_force, m_pos + reverse_rot_thruster, 0.1f);
 	// Main thruster
-	applyImpulse(thrust_force, 0.05f);
+	applyImpulse(thrust_force * THRUST_FACTOR, 0.1f);
 
 	/*
 	D3DXQUATERNION quat = D3DXQUATERNION ();

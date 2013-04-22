@@ -13,7 +13,7 @@ Ship::Ship() :
 }
 
 Ship::Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
-	Entity(SHIP, pos, dir),
+	Entity(SHIP),
 	m_playerNum(pNum),
 	m_tractorBeamOn(tBeamOn)
 {
@@ -57,7 +57,7 @@ const char* Ship::encode() const {
 
 ostream& operator<<(ostream& os, const Ship& e) {
 	os << e.getID() << " " << e.m_pos.x << " " << e.m_pos.y << " " << e.m_pos.z
-		<< " " << e.m_dir.x << " " << e.m_dir.y << " " << e.m_dir.z
+		<< " " << e.m_orientation.x << " " << e.m_orientation.y << " " << e.m_orientation.z << " " << e.m_orientation.w
 		<< " " << e.m_playerNum << " " << e.m_tractorBeamOn;
 	return os;
 }
@@ -95,8 +95,7 @@ void Ship::update(shared_ptr<Entity> sp_source) {
 //		MessageBox( NULL, L"Error converting Entity to Ship", L"CRUSH Game", MB_OK );
 #endif
 	} else {
-		m_pos = srcShip->m_pos;
-		m_dir = srcShip->m_dir;
+		Entity::update(sp_source);
 		m_tractorBeamOn = srcShip->m_tractorBeamOn;
 		m_playerNum = srcShip -> m_playerNum;
 	}
