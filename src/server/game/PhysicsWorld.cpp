@@ -41,16 +41,16 @@ void PhysicsWorld::update(float delta_time) {
 
 	for(unsigned i = 0; i < entities.size(); i++)
 	{
-		cout << entities[i] << endl;
 		//entities[i]->calculate(.005f);
 		entities[i]->update(delta_time);
 			// Derived Variables
 
-		ServerEntity e = *entities[i];
+		ServerEntity * e = entities[i];
 		cout << "Entity: " << i << endl;
-		cout << "Velocity: " << e.m_velocity << endl;
-		cout << "Angular Velocity: " << e.m_angular_velocity << endl;
-		cout << "Orientation Delta: " << e.m_orientation_delta << endl;
+		cout << "Velocity: " << e->m_velocity << endl;
+		cout << "Angular Velocity: " << e->m_angular_velocity << endl;
+		cout << "Orientation Delta: " << e->m_orientation_delta << endl;
+		cout << "Orientation: " << e->m_orientation << endl;
 
 
 		/*
@@ -67,7 +67,7 @@ void PhysicsWorld::update(float delta_time) {
 	}
 }
 
-bool PhysicsWorld::checkCollision(ServerEntity a, ServerEntity b){
+bool PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 	double dx = a.m_pos.x - b.m_pos.x; 
 	dx *= dx;
 	double dy = a.m_pos.y - a.m_pos.y; 
@@ -105,7 +105,7 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	b->m_pos+=b->m_velocity;
 }
 
-bool PhysicsWorld::checkCollision(ServerEntity a, Boundary b){
+bool PhysicsWorld::checkCollision(ServerEntity& a, Boundary& b){
 
     D3DXVECTOR3 v(a.m_pos - b.m_point);
     float dis(D3DXVec3Dot(&v, &b.m_normal));

@@ -23,8 +23,8 @@ public:
 	vector<float> forceMags;
 
 	void update(float delta_time);
-	bool checkCollision(ServerEntity,ServerEntity);
-	bool checkCollision(ServerEntity, Boundary);
+	bool checkCollision(ServerEntity&,ServerEntity&);
+	bool checkCollision(ServerEntity&, Boundary&);
 	void respond(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, Boundary);
 

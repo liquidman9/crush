@@ -47,12 +47,11 @@ public:
 	D3DXVECTOR3 m_dir; // DEPRECATED
 	Quaternion m_orientation;
 
-
-	// Constructors
 	// These two constructors are DEPRECATED
 	Entity(Type type);
 	Entity(Type type, D3DXVECTOR3 pos, D3DXVECTOR3 dir);
 
+	// Constructors
 	Entity(int id, Type type);
 	Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation);
 	// Copy constructor

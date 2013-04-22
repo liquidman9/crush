@@ -27,13 +27,15 @@ public:
 
 	// Constructors
 	S_Ship();
-	S_Ship(D3DXVECTOR3, D3DXVECTOR3, int, bool);
+	S_Ship(D3DXVECTOR3, Quaternion, int);
 
 	// Methods
 	void init();
 	void rotate(D3DXVECTOR3);
 	void calculate(float);
 	void addPlayerInput(InputState);
+
+	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
 
 };
 

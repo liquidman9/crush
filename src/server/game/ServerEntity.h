@@ -11,6 +11,9 @@
 #include <shared/game/Entity.h>
 
 class ServerEntity : public virtual Entity {
+private:
+	static int s_id_gen;
+
 protected:
 	/* THESE NEED TO BE PROTECTED
 	float m_max_velocity;
@@ -54,6 +57,9 @@ public:
 	ServerEntity(D3DXVECTOR3 velocity, float max_velocity, float mass);
 	ServerEntity(float max_velocity, float max_angular_velocity, float mass, D3DXVECTOR3 rot_inertia);
 
+	// General Methods
+	int genId();
+
 	// Physics Methods
 
 	/*
@@ -83,6 +89,9 @@ public:
 	virtual void move(D3DXVECTOR3 vector);
 	// Resets values
 	virtual void reset();
+
+	// Forced abstract for rotational inertia calculation
+	virtual D3DXVECTOR3 calculateRotationalInertia(float mass) = 0;
 
 	
 	virtual void calculate(float);
