@@ -82,3 +82,14 @@ void Entity::update(shared_ptr<Entity> source) {
 
 Entity::~Entity(){
 }
+
+// Putting this here until I find a better place for it!
+D3DXVECTOR3 *D3DXVec3Rotate( D3DXVECTOR3 *pOut, const D3DXVECTOR3 *pV, const D3DXQUATERNION *pQ )
+{
+    D3DXQUATERNION q1, q2;
+    D3DXQuaternionConjugate( &q1, pQ );
+    q2 = q1 * D3DXQUATERNION( pV->x, pV->y, pV->z, 1.0f ) * (*pQ);
+
+	*pOut = D3DXVECTOR3( q2.x, q2.y, q2.z );
+    return pOut;
+}

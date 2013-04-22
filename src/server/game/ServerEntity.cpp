@@ -89,7 +89,7 @@ void ServerEntity::update(float delta_time) {
 									 m_angular_momentum.y * m_rot_inertia_inverse.y,
 									 m_angular_momentum.z * m_rot_inertia_inverse.z);
 	if (D3DXVec3LengthSq(&m_angular_velocity) > FP_ZERO) {
-		m_orientation_delta = 0.5 * Quaternion(m_angular_velocity.x, m_angular_velocity.y, m_angular_momentum.z, 0.0f) * m_orientation;
+		m_orientation_delta = 0.5 * Quaternion(m_angular_velocity.x, m_angular_velocity.y, m_angular_velocity.z, 0.0f) * m_orientation;
 	} else {
 		m_orientation_delta = Quaternion(0, 0, 0, 0);
 	}

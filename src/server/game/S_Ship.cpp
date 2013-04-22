@@ -9,8 +9,8 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 
-static float ROTATION_SCALE = 1;
-static float THRUST_FACTOR = 1;
+static float ROTATION_SCALE = 100;
+static float THRUST_FACTOR = 10;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),
@@ -60,17 +60,49 @@ void S_Ship::addPlayerInput(InputState input) {
 	m_thrust = input.thrust;
 	m_tractorBeamOn = input.tractBeam;
 
+	// Rotational thrust calculations
 	float x = ((float)input.turn) / ROTATION_SCALE;
 	float y = ((float)input.pitch) / ROTATION_SCALE;
-	D3DXVECTOR3 rot_force(x, y, 0);
-	D3DXVECTOR3 thrust_force(0, 0, input.thrust);
+	D3DXVECTOR3 fore_rot_force(x, y, 0);
+	D3DXVECTOR3 aft_rot_force(-x, -y, 0);
+
+	D3DXVECTOR3 main_thrust_force(0, 0, m_thrust);
+	
+	D3DXMATRIX mat_rotate;
+	D3DXVECTOR4 temp;
+	D3DXMatrixRotationQuaternion(&mat_rotate, D3DXQuaternionNormalize(&m_orientation, &m_orientation));
+
+	// Fore thrust rocket pos transform
+	D3DXVec3Transform(&temp, &forward_rot_thruster, &mat_rotate);
+	D3DXVECTOR3 fore_thruster_pos_adj(temp.x, temp.y, temp.z);
+
+	// Fore thrust transform
+	D3DXVec3Transform(&temp, &fore_rot_force, &mat_rotate);
+	D3DXVECTOR3 fore_thrust_adj(temp.x, temp.y, temp.z);
+
+	// Aft thrust rocket pos transform
+	D3DXVec3Transform(&temp, &reverse_rot_thruster, &mat_rotate);
+	D3DXVECTOR3 aft_thruster_pos_adj(temp.x, temp.y, temp.z);
+
+	// Aft thrust transform
+	D3DXVec3Transform(&temp, &aft_rot_force, &mat_rotate);
+	D3DXVECTOR3 aft_thrust_adj(temp.x, temp.y, temp.z);
+
+	// Main rocket force transform
+	D3DXVec3Transform(&temp, &main_thrust_force, &mat_rotate);
+	D3DXVECTOR3 main_thrust_adj(temp.x, temp.y, temp.z);
+
+	// Forward thrust calculations
+	D3DXVECTOR3 thrust_force(0, 0, input.thrust * THRUST_FACTOR);
+	D3DXVec3Rotate(&main_thrust_adj, &thrust_force, &m_orientation);
+
 
 	// Forward rotation thruster
-	applyImpulse(rot_force, m_pos + forward_rot_thruster, 0.1f);
+	applyImpulse(fore_thrust_adj, m_pos + fore_thruster_pos_adj, 0.1f);
 	// Rear rotation thruster
-	applyImpulse(-rot_force, m_pos + reverse_rot_thruster, 0.1f);
+	applyImpulse(aft_thrust_adj, m_pos + aft_thruster_pos_adj, 0.1f);
 	// Main thruster
-	applyImpulse(thrust_force * THRUST_FACTOR, 0.1f);
+	applyImpulse(main_thrust_adj, 0.1f);
 
 	/*
 	D3DXQUATERNION quat = D3DXQUATERNION ();
