@@ -12,6 +12,12 @@
 .sdkmesh
 .obj
 
+## Project files
+*.sln
+
+## Executable
+*.exe
+
 
 #################
 ## Eclipse
