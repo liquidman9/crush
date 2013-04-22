@@ -34,7 +34,7 @@ cerr << "Creating C_Ship with Entity * constructor" << endl;
 	Ship * srcShip = dynamic_cast<Ship*>(newEnt);
 	if (srcShip != NULL) {
 		m_pos = srcShip->m_pos;
-		m_dir = srcShip->m_dir;
+		m_orientation = srcShip->m_orientation;
 		m_tractorBeamOn = srcShip->m_tractorBeamOn;
 		m_playerNum = srcShip -> m_playerNum;
 		m_pMesh = &Gbls::shipMesh[m_playerNum % Gbls::numShipMeshes];
@@ -87,7 +87,8 @@ void C_Ship::draw()
 
 	// Rotation with quaternion
 	D3DXMATRIX matRotate;
-	D3DXMatrixRotationQuaternion(&matRotate, &m_orientation);
+	D3DXQUATERNION temp_q;
+	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
 
 	// Apply transforms
 	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));

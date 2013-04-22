@@ -71,7 +71,7 @@ int main(){
 			if(!eventBuff.empty()) {
 				eventBuff.clear();
 			}
-			Sleep(200);
+			Sleep(100);
 		}
 	} catch (exception &e) {
 		cout << "exception occured!" << endl;

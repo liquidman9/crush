@@ -26,12 +26,9 @@ typedef D3DXQUATERNION Quaternion;
 #define ENUM_TYPE char
 enum Type : char { ENTITY, SHIP, BASE, ASTEROID};
 
-class Entity : public Sendable {
-private:
-	static int s_id_gen;
-	
+class Entity : public Sendable {	
 protected:
-	static const unsigned int m_size = sizeof(ENUM_TYPE) + sizeof(int) +  2*sizeof(D3DXVECTOR3);
+	static const unsigned int m_size = sizeof(ENUM_TYPE) + sizeof(int) + sizeof(D3DXVECTOR3) + sizeof(Quaternion);
 	
 	// THIS CONSTRUCTOR SHOULD NEVER BE DIRECTLY CALLED.
 	Entity();
@@ -44,12 +41,10 @@ public:
 	Type m_type;
 
 	D3DXVECTOR3 m_pos;
-	D3DXVECTOR3 m_dir; // DEPRECATED
 	Quaternion m_orientation;
 
 	// These two constructors are DEPRECATED
 	Entity(Type type);
-	Entity(Type type, D3DXVECTOR3 pos, D3DXVECTOR3 dir);
 
 	// Constructors
 	Entity(int id, Type type);

@@ -300,15 +300,11 @@ void GameResources::updateGameState(GameState & newGameState) {
 	// Update state of entitites
 	for (DWORD i = 0; i < newGameState.size(); i++) {
 		int id = newGameState[i]->getID();
-		cerr << "Creating entity" << endl;
 		if(entityMap.find(id) == entityMap.end()) {
-			cerr << "Creating entity" << endl;
 			entityMap[id] = createEntity(newGameState[i].get());
 		} else {
-			cerr << "Updating entity" << endl;
 			entityMap[id]->update(newGameState[i]);
 		}
-		cerr << "Done" << endl;
 	}
 
 	// Update current camera

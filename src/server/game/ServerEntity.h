@@ -65,7 +65,8 @@ public:
 	/*
 	 * PHYSICS NOTES:
 	 *
-	 * Impulse is a force applied over time.
+	 * Impulse is a force applied over time. As we use timesteps and not 
+	 * integration methods, we need to have a duration for each force.
 	 *
 	 */
 
