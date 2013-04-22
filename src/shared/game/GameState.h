@@ -25,7 +25,7 @@ public:
 
 	void push_back(E *e) {
 		m_sendSize += e->size();
-		m_entities.push_back(shared_ptr<Entity>(e));
+		m_entities.push_back(shared_ptr<E>(e));
 	};
 
 	unsigned int size() const {
