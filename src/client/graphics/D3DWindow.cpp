@@ -95,7 +95,7 @@ bool D3DWindow::Create(HINSTANCE hInstance)
 	}
 
 	// Get the window size for the requested client area size
-	DWORD dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
+	DWORD dwStyle = (WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE) & ~WS_THICKFRAME;
 	SIZE sizeWindow;
 	RECT rc;
 	rc.top = rc.left = 0;

@@ -16,7 +16,6 @@
 class C_Ship : public Ship, public C_Entity {
 public:
 	Mesh* m_pMesh;
-	D3DXCOLOR m_color;
 
 	C_Ship();
 	C_Ship(Entity *);

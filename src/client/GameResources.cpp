@@ -78,12 +78,15 @@ HRESULT GameResources::initState() {
 	/*set up temp entities for test rendering TODO remove this and replace with normal object creation from network*/
 #ifdef MYNETWORKOFF  //defined in Gbls
 
-	D3DXVECTOR3 pos(0.0f, 1.0f, -1.0f);
-	D3DXVECTOR3 dir(0.0f, 1.0f, 1.0f);
+	D3DXVECTOR3 pos(0.0f, -1.0f, 10.0f);
+	//D3DXVECTOR3 dir(0.0f, 1.0f, 1.0f);
 	int pNum = 1;
-	D3DXCOLOR color(0.8f, 0.3f, 0.3f, 0.5f);
+	playerNum = pNum; // used for testing player cam
 	bool tBeamOn = false;
-	Ship * stmp = new Ship(pos, dir, pNum, tBeamOn);
+	Ship * stmp = new Ship(pNum);
+	stmp->m_pos = pos;
+	D3DXQuaternionRotationAxis(&stmp->m_orientation, &D3DXVECTOR3(0, 1, 1), D3DXToRadian(45));
+	//Ship * stmp = new Ship(pos, dir, pNum, tBeamOn);
 	C_Entity * etmp = createEntity(stmp);
 	entityMap[etmp->getID()] = etmp;
 
@@ -220,7 +223,22 @@ void GameResources::updatePlayerCamera() {
 		//playerCam.m_vUp = playerShip->FIGURE OUT UP VECTOR (once we have quaternions)
 		playerCam.m_vAt = playerShip->m_pos + (*D3DXVec3Normalize(&playerShip->m_dir, &playerShip->m_dir))*PLAYER_CAM_LOOKAT_DISTANCE;
 		*/
-		playerCam.setOrientation(*D3DXQuaternionNormalize(&(playerShip->m_orientation), &(playerShip->m_orientation)));
+
+		D3DXMATRIX matRotate;
+		D3DXQUATERNION temp_q;
+		D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &(playerShip->m_orientation)));
+		
+		D3DXVECTOR3 dir(0,0,1);
+		D3DXVec3TransformCoord(&dir, &dir, &matRotate);
+
+		D3DXVECTOR3 up(0,1,0);
+		D3DXVec3TransformCoord(&up, &up, &matRotate);
+		
+		playerCam.m_vUp = up;
+		playerCam.m_vEye = playerShip->m_pos - (*D3DXVec3Normalize(&dir, &dir))*PLAYER_CAM_DISTANCE + (PLAYER_CAM_HEIGHT * playerCam.m_vUp);
+		playerCam.m_vAt = playerShip->m_pos + (*D3DXVec3Normalize(&dir, &dir))*PLAYER_CAM_LOOKAT_DISTANCE;
+
+		//playerCam.setOrientation(*D3DXQuaternionNormalize(&(playerShip->m_orientation), &(playerShip->m_orientation)));
 		playerCam.updateView();
 	}
 }
