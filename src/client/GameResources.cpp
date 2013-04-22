@@ -215,9 +215,12 @@ void GameResources::switchCamera() {
 void GameResources::updatePlayerCamera() {
 	if(playerShip) {
 		//TODO update to work with quaternions
+		/*
 		playerCam.m_vEye = playerShip->m_pos - (*D3DXVec3Normalize(&playerShip->m_dir, &playerShip->m_dir))*PLAYER_CAM_DISTANCE + D3DXVECTOR3(0.0f, PLAYER_CAM_HEIGHT, 0.0f);
 		//playerCam.m_vUp = playerShip->FIGURE OUT UP VECTOR (once we have quaternions)
 		playerCam.m_vAt = playerShip->m_pos + (*D3DXVec3Normalize(&playerShip->m_dir, &playerShip->m_dir))*PLAYER_CAM_LOOKAT_DISTANCE;
+		*/
+		playerCam.setOrientation(*D3DXQuaternionNormalize(&(playerShip->m_orientation), &(playerShip->m_orientation)));
 		playerCam.updateView();
 	}
 }
@@ -293,7 +296,7 @@ void GameResources::updateDebugCamera() {
 }
 
 
-void GameResources::updateGameState(GameState & newGameState) {
+void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	
 	updateKeyboardState(); // Clear out keyboard state bits
 	

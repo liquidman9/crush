@@ -80,7 +80,6 @@ public:
 	static HRESULT initLights();
 	static void drawAll();
 	static void updateDebugCamera();
-	static void updateGameState(GameState & newGameState);
 	static void updatePlayerCamera();
 	static void switchCamera();
 	static void updateGameState(GameState<Entity> & newGameState);

@@ -55,7 +55,7 @@ int main(){
 			if(!eventBuff.empty()) {
 				cout << "Event recieved." << endl;
 				//(*((S_Ship **)(&gameState[1])))->addPlayerInput(*((InputState *)eventBuff[0].get()));
-				test2->addPlayerInput(*((InputState *)eventBuff[0].get()));
+				test->addPlayerInput(*((InputState *)eventBuff[0].get()));
 				//cout << (eventBuff[i] << endl;
 				//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[0].get())->thrust))/250.0;
 				//cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;
