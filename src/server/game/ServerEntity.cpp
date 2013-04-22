@@ -89,13 +89,13 @@ void ServerEntity::update(float delta_time) {
 									 m_angular_momentum.y * m_rot_inertia_inverse.y,
 									 m_angular_momentum.z * m_rot_inertia_inverse.z);
 	if (D3DXVec3LengthSq(&m_angular_velocity) > FP_ZERO) {
-		m_orientation_delta = 0.5 * Quaternion(m_angular_velocity.x, m_angular_velocity.y, m_angular_velocity.z, 0.0f) * m_orientation;
+		m_orientation_delta = 0.5 *(m_orientation * Quaternion(m_angular_velocity.x, m_angular_velocity.y, m_angular_velocity.z, 0.0f));
 	} else {
-		m_orientation_delta = Quaternion(0, 0, 0, 0);
+		D3DXQuaternionIdentity(&m_orientation_delta);
 	}
 
 	m_pos += m_velocity * half_time;
-	m_orientation += m_orientation_delta * half_time;
+	m_orientation += (m_orientation_delta * half_time);
 	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
 }
 

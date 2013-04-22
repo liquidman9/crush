@@ -96,6 +96,7 @@ void S_Ship::addPlayerInput(InputState input) {
 	D3DXVECTOR3 thrust_force(0, 0, input.thrust * THRUST_FACTOR);
 	D3DXVec3Rotate(&main_thrust_adj, &thrust_force, &m_orientation);
 
+	cout << "Aft thrust vectors: " << aft_thrust_adj.x << ", " << aft_thrust_adj.y << ", " << aft_thrust_adj.z << endl;
 
 	// Forward rotation thruster
 	applyImpulse(fore_thrust_adj, m_pos + fore_thruster_pos_adj, 0.1f);

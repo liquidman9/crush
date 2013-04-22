@@ -44,13 +44,14 @@ void PhysicsWorld::update(float delta_time) {
 		//entities[i]->calculate(.005f);
 		entities[i]->update(delta_time);
 			// Derived Variables
-
+		/*
 		ServerEntity * e = entities[i];
 		cout << "Entity: " << i << endl;
 		cout << "Velocity: " << e->m_velocity << endl;
 		cout << "Angular Velocity: " << e->m_angular_velocity << endl;
 		cout << "Orientation Delta: " << e->m_orientation_delta << endl;
 		cout << "Orientation: " << e->m_orientation << endl;
+		*/
 
 
 		/*
