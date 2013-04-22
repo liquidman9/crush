@@ -35,33 +35,34 @@ int main(){
 		world.boundaries.push_back(back);
 
 		D3DXVECTOR3 m_pos(-10,2,2);
-		D3DXVECTOR3 m_dir(0,0,-1);
-		S_Ship *test = new S_Ship(m_pos, m_dir, 1, false);
+		Quaternion m_dir(0, 0, 0, 1);
+		S_Ship *test = new S_Ship(m_pos, m_dir, 1);
 		gameState.push_back(test);
 		world.entities.push_back(test);
 
 		D3DXVECTOR3 m_pos1(10,1,1);
-		D3DXVECTOR3 m_dir1(0,0,1);
-		S_Ship *test2 = new S_Ship(m_pos1, m_dir1, 2, true);
+		Quaternion m_dir1(0, 0, 0, 1);
+		S_Ship *test2 = new S_Ship(m_pos1, m_dir1, 2);
 		gameState.push_back(test2);
 		world.entities.push_back(test2);
 
 		for(;;) {
 			server.broadcastGameState(gameState);
 
-				eventBuff = server.getEvents();
-				if(!eventBuff.empty()) {
-					cout << "Event recieved." << endl;
-					//(*((S_Ship **)(&gameState[1])))->addPlayerInput(*((InputState *)eventBuff[0].get()));
-					test2->addPlayerInput(*((InputState *)eventBuff[0].get()));
-					//cout << (eventBuff[i] << endl;
-					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[0].get())->thrust))/250.0;
-					//cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;
-					//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
-					//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
-				}
+			eventBuff = server.getEvents();
+			if(!eventBuff.empty()) {
+				cout << "Event recieved." << endl;
+				//(*((S_Ship **)(&gameState[1])))->addPlayerInput(*((InputState *)eventBuff[0].get()));
+				test2->addPlayerInput(*((InputState *)eventBuff[0].get()));
+				//cout << (eventBuff[i] << endl;
+				//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[0].get())->thrust))/250.0;
+				//cout << (float)((((InputState *)eventBuff[0].get())->thrust)) << endl;
+				//gameState[1]->m_pos.z += (float)((((InputState *)eventBuff[i].get())->thrust))/250.0;
+				//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
+			}
 				
-				world.update(1.0f/1000.0f);
+			world.update(1.0f/1000.0f);
+
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {
 				//gameState[1]->m_pos.z += .025;
 				//gameState[0]->m_pos.z += .05;

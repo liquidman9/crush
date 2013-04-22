@@ -1,7 +1,10 @@
 #include <shared/game/Entity.h>
 #include <server/game/ServerEntity.h>
 
+float FP_ZERO = 0.000001f;
 D3DXVECTOR3 zero_vec(0.0f, 0.0f, 0.0f);
+
+int ServerEntity::s_id_gen = 0;
 
 ServerEntity::ServerEntity() :
 	m_velocity(0.0f, 0.0f, 0.0f),
@@ -31,13 +34,20 @@ ServerEntity::ServerEntity(float max_velocity, float max_angular_velocity, float
 	m_mass_inverse(1/mass),
 	m_rot_inertia(rot_inertia),
 	m_rot_inertia_inverse(1/rot_inertia.x, 1/rot_inertia.y, 1/rot_inertia.z),
-	m_radius(1)
-{ 
-	reset();
+	m_radius(1),
+	// zeroing values
+	m_velocity(zero_vec),
+	m_angular_velocity(zero_vec),
+	m_orientation_delta(0.0f, 0.0f, 0.0f, 0.0f),
+	m_momentum(zero_vec),
+	m_angular_momentum(zero_vec),
+	t_impulse(zero_vec),
+	t_angular_impulse(zero_vec)
+{ }
+
+int ServerEntity::genId() {
+	return s_id_gen++;
 }
-
-
-
 
 // Physics Methods
 // Applies a force to this entity's center of mass for the given amount of time(will not cause rotation)
@@ -63,6 +73,7 @@ void ServerEntity::update(float delta_time) {
 	float half_time = (delta_time / 2);
 	m_pos += m_velocity * half_time;
 	m_orientation += m_orientation_delta * half_time;
+	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
 
 	// Apply impulse
 	m_momentum += t_impulse;
@@ -77,10 +88,18 @@ void ServerEntity::update(float delta_time) {
 	m_angular_velocity = D3DXVECTOR3(m_angular_momentum.x * m_rot_inertia_inverse.x, 
 									 m_angular_momentum.y * m_rot_inertia_inverse.y,
 									 m_angular_momentum.z * m_rot_inertia_inverse.z);
-	m_orientation_delta = 0.5 * Quaternion(m_angular_velocity.x, m_angular_velocity.y, m_angular_momentum.z, 0.0f) * m_orientation;
+	if (D3DXVec3LengthSq(&m_angular_velocity) > FP_ZERO) {
+		m_orientation_delta = 0.5 * Quaternion(m_angular_velocity.x, m_angular_velocity.y, m_angular_momentum.z, 0.0f) * m_orientation;
+		Quaternion temp;
+		D3DXQuaternionNormalize(&temp, &m_orientation_delta);
+		m_orientation_delta = temp;
+	} else {
+		m_orientation_delta = Quaternion(0, 0, 0, 0);
+	}
 
 	m_pos += m_velocity * half_time;
 	m_orientation += m_orientation_delta * half_time;
+	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
 }
 
 // Getters/Setters

@@ -19,17 +19,39 @@ Ship::Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
 {
 }
 
+Ship::Ship(int pNum) :
+	Entity(SHIP),
+	m_playerNum(pNum),
+	m_tractorBeamOn(false)
+{}
+
+
 const char* Ship::encode() const {
+	// Declare ret
 	char *rtn = new char[m_size];
+
+	// Get entity encode
 	const char *tmp = Entity::encode();
+
+	// Copy entity encode into this ret
 	memcpy(rtn, tmp, Entity::size());
-	*(ENUM_TYPE*) rtn = SHIP;
+
+	//*(ENUM_TYPE*) rtn = SHIP; THIS SHOULD BE SET IN ENTITY
+
+	// Set up temp buffer at the end of entity encoding
 	char* tmp_rtn = rtn;
 	tmp_rtn += Entity::size();
+
+	// Encode playernum
 	*(SHIP_PLAYERNUM_TYPE*) (tmp_rtn) = m_playerNum;
 	tmp_rtn += sizeof(SHIP_PLAYERNUM_TYPE);
+	
+	// Encode tractor beam
 	*(bool *) (tmp_rtn) = m_tractorBeamOn;
-	delete tmp;
+
+	// Delete temp pointer whuut don't need -- tmp points to rtn which is what we are returning.
+	//delete tmp;
+
 	return rtn;
 }
 
@@ -41,7 +63,6 @@ ostream& operator<<(ostream& os, const Ship& e) {
 }
 
 void Ship::decode(const char *buff) {
-//	Entity e;
 	Entity::decode(buff);
 	m_type = SHIP;
 	buff += Entity::size();

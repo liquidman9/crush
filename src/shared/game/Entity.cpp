@@ -15,14 +15,14 @@ Entity::Entity() :
 	m_id(s_id_gen++),
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
 	m_dir(D3DXVECTOR3(0.0, 0.0, 1.0)),
-	m_orientation(1.0, 0.0, 0.0, 1.0),
+	m_orientation(0.0, 0.0, 0.0, 1.0),
 	m_type(ENTITY)
 { }
 
 Entity::Entity(Type type) :
 	m_id(s_id_gen++),
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
-	m_orientation(1.0, 0.0, 0.0, 1.0),
+	m_orientation(0.0, 0.0, 0.0, 1.0),
 	m_type(type)
 { }
 
@@ -37,7 +37,7 @@ Entity::Entity(Type type, D3DXVECTOR3 pos, D3DXVECTOR3 dir) :
 Entity::Entity(int id, Type type) :
 	m_id(id),
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
-	m_orientation(1.0, 0.0, 0.0, 1.0),
+	m_orientation(0.0, 0.0, 0.0, 1.0),
 	m_type(type)
 { }
 
@@ -64,22 +64,29 @@ ostream& operator<<(ostream& os, const Entity& e) {
 
 const char * Entity::encode() const {
 	char * tmp = new char[sizeof(Entity)];
-	*(ENUM_TYPE *) tmp = ENTITY;
+	// Encode type
+	*(ENUM_TYPE *) tmp = m_type;
+	// Encode id
 	*(int *) (tmp + sizeof(ENUM_TYPE)) = m_id;
+	// Encode pos
 	*(D3DXVECTOR3 *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_pos;
+	// Encode orientation
 	*(Quaternion *) (tmp + sizeof(Quaternion) + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_orientation;
+
 	return tmp;
 }
 
 void Entity::decode(const char * tmp) {
+	// Decode Position
 	memcpy(&m_pos,tmp+sizeof(m_id) + sizeof(ENUM_TYPE), sizeof(D3DXVECTOR3));
-	memcpy(&m_dir,tmp+sizeof(m_id)+sizeof(D3DXVECTOR3) + sizeof(ENUM_TYPE), sizeof(Quaternion));
+	memcpy(&m_orientation, tmp + sizeof(m_id)+ sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3) , sizeof(Quaternion));
 	m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
 }
 
 void Entity::update(shared_ptr<Entity> source) {
 	m_pos = source->m_pos;
 	m_dir = source->m_pos;
+	m_orientation = source->m_orientation;
 }
 
 Entity::~Entity(){

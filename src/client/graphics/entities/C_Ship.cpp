@@ -67,7 +67,8 @@ void C_Ship::draw()
 	//		m_dir.x, m_dir.y, m_dir.z, 0, 
 	//		0, 0, 0, 1);
 	//}
-
+	// Matrix rotation with direction code
+	/*
 	D3DXVec3Normalize(&m_dir, &m_dir);
 	D3DXVECTOR3 right;
 	D3DXVECTOR3 up(0,1.0f,0);
@@ -79,10 +80,14 @@ void C_Ship::draw()
 		up.x, up.y, up.z, 0,
 		m_dir.x, m_dir.y, m_dir.z, 0, 
 		0, 0, 0, 1);
-
+	*/
 	// Translate ship to correct possition
 	D3DXMATRIX matTranslate;
 	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
+
+	// Rotation with quaternion
+	D3DXMATRIX matRotate;
+	D3DXMatrixRotationQuaternion(&matRotate, &m_orientation);
 
 	// Apply transforms
 	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));

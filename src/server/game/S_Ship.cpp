@@ -9,7 +9,7 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 
-static float ROTATION_SCALE = 500000;
+static float ROTATION_SCALE = 720;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),
@@ -18,9 +18,10 @@ S_Ship::S_Ship() :
 	init();
 }
 
-S_Ship::S_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
-	Entity(SHIP, pos,dir),
-	Ship(pos, dir, pNum, tBeamOn)
+S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
+	Entity(genId(), SHIP, pos, orientation),
+	Ship(pNum),
+	ServerEntity(100, 1, 100, calculateRotationalInertia(100))
 {	
 	init();
 }
@@ -28,8 +29,6 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
 void S_Ship::init() {
 	m_thrust = 0;
 	m_mass = 100;
-	m_velocity = D3DXVECTOR3(0,0,0);
-	m_max_velocity = 100;
 	m_radius = 2.5;
 	//p1 = m_pos + D3DXVECTOR3(5.0, 0, 0);  // m_pos is center of ship, p1 and p2 are the ends minus radius
 	//p2 = m_pos - D3DXVECTOR3(5.0, 0, 0);
@@ -70,7 +69,7 @@ void S_Ship::addPlayerInput(InputState input) {
 	// Rear rotation thruster
 	applyImpulse(-rot_force, m_pos + reverse_rot_thruster, 0.05f);
 	// Main thruster
-	applyImpulse(thrust_force, 0.1f);
+	applyImpulse(thrust_force, 0.05f);
 
 	/*
 	D3DXQUATERNION quat = D3DXQUATERNION ();
@@ -84,3 +83,11 @@ void S_Ship::addPlayerInput(InputState input) {
 	*/
 
 }
+
+D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){
+	float radius_squared = 25;
+	float height_squared = 100;
+	return D3DXVECTOR3( (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
+						(0.5f) * mass * radius_squared,
+						(1.0f / 12.0f) * mass * (3 * radius_squared + height_squared));
+};
