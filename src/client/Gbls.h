@@ -17,7 +17,7 @@
 // Project includes
 #include <client/graphics/Mesh.h>
 
-//#define MYNETWORKOFF  //don't use network
+#define MYNETWORKOFF  //don't use network
 
 //Our defines
 class Gbls
