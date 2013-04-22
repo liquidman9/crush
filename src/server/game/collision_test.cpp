@@ -37,7 +37,7 @@ int main(){
 		world.boundaries.push_back(back);
 		*/
 		D3DXVECTOR3 m_pos(-10,2,2);
-		Quaternion m_dir(0, 0, 1, 0);
+		Quaternion m_dir(0, 0, 0, 1);
 		S_Ship *test = new S_Ship(m_pos, m_dir, 1);
 		gameState.push_back(test);
 		world.entities.push_back(test);
