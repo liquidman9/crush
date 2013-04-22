@@ -17,7 +17,7 @@ int main(){
 		NetworkServer server(8888);
 		cout << "socket created:" << endl;
 		EventBuff_t eventBuff;
-		GameState gameState;
+		GameState<Entity> gameState;
 
 		PhysicsWorld world;
 		float bound = 30;

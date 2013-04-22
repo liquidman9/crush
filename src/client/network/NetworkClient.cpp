@@ -130,9 +130,9 @@ void NetworkClient::updateGameState() {
 }
 
 
-const GameState NetworkClient::getGameState() {
+const GameState<Entity> NetworkClient::getGameState() {
 	EnterCriticalSection(&m_cs);
-	GameState rtn= GameState(m_gameState);
+	GameState<Entity> rtn= GameState<Entity>(m_gameState);
 	m_gameState.clear();
 	m_stateAvailable = false;
 	LeaveCriticalSection(&m_cs);

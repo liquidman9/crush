@@ -35,7 +35,7 @@ public:
 	void bindToServer(string ip, unsigned short port);
 
 	//get the game state as currently known by the client
-	const GameState getGameState();
+	const GameState<Entity> getGameState();
 
 	//returns true if there is a new gamestate
 	bool newStateAvailable() { return m_stateAvailable; };
@@ -56,7 +56,7 @@ private:
 	WSADATA wsa;
 	Network m_server;
 	bool m_stateAvailable;
-	GameState m_gameState;
+	GameState<Entity> m_gameState;
 	void bindToServer(Network const &);
 
 

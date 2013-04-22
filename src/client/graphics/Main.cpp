@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 				//	MessageBox( NULL, wsTmp.c_str(), wsTmp.c_str(), MB_OK );
 				//}
 				
-				GameState newGameState;
+				GameState<Entity> newGameState;
 
 #ifndef MYNETWORKOFF  // defined in Gbls
 				if (!GameResources::debugCamOn) {

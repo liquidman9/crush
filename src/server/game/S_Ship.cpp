@@ -9,6 +9,7 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 
+static float ROTATION_SCALE = 500000;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),
@@ -55,9 +56,8 @@ void S_Ship::addPlayerInput(InputState input) {
 	m_thrust = input.thrust; //ship are facing in the opposite direction
 	m_tractorBeamOn = input.tractBeam;
 
-	float conv = 500000;
-	float x = ((float)input.turn)/conv;
-	float y = ((float)input.pitch)/conv;
+	float x = ((float)input.turn) / ROTATION_SCALE;
+	float y = ((float)input.pitch) / ROTATION_SCALE;
 	D3DXQUATERNION quat = D3DXQUATERNION ();
 	D3DXQuaternionRotationYawPitchRoll(&quat, x,y,0);
 	D3DXQUATERNION q1, q2,q3;

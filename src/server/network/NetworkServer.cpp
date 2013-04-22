@@ -78,7 +78,7 @@ void NetworkServer::initializeSocket() {
 	}
 }
 
-void NetworkServer::broadcastGameState(const GameState &state) {
+void NetworkServer::broadcastGameState(const GameState<Entity> &state) {
 	//accumulate all data into send buffer
 	const char* send_buff = state.getSendBuff();
 

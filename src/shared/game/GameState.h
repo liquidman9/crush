@@ -12,7 +12,7 @@
 // Project includes
 #include <shared/game/Entity.h>
 
-//#include"Network.h"
+template <class E>
 class GameState
 {
 public:
@@ -23,7 +23,7 @@ public:
 	GameState(GameState const & g): m_entities(g.m_entities), m_sendSize(0) {
 	};
 
-	void push_back(Entity *e) {
+	void push_back(E *e) {
 		m_sendSize += e->size();
 		m_entities.push_back(shared_ptr<Entity>(e));
 	};
@@ -36,11 +36,11 @@ public:
 		return m_sendSize;
 	}
 
-	shared_ptr<Entity> operator[](unsigned int i) {
+	shared_ptr<E> operator[](unsigned int i) {
 		return m_entities[i];
 	}
 
-	shared_ptr<const Entity> operator[](unsigned int i) const {
+	shared_ptr<const E> operator[](unsigned int i) const {
 		return m_entities[i];
 	}
 
@@ -73,7 +73,7 @@ private:
 		return send_buff;
 	}
 
-	vector<shared_ptr<Entity> > m_entities;
+	vector<shared_ptr<E> > m_entities;
 	unsigned int m_sendSize;
 	friend class NetworkServer;
 

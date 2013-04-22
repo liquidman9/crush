@@ -28,7 +28,7 @@ public:
 	};
 	
 	//this is where the magic happens
-	void decodeGameState(GameState &g) {
+	void decodeGameState(GameState<Entity> &g) {
 		Entity* ep = NULL;
 		const char* curr_head = m_head;
 		for(unsigned int size = 0; size < m_size; size += ep->size() ){
