@@ -6,6 +6,7 @@
 // Project includes
 #include <shared/game/Entity.h>
 #include <shared/game/Ship.h>
+#include <shared/game/Asteroid.h>
 #include <shared/network/Network.h>
 #include <shared/InputState.h>
 
@@ -41,10 +42,19 @@ public:
 				g.push_back(ep);
 				break;*/
 			case SHIP:
+				{
 				ep = new Ship();
 				ep->decode(curr_head + size);
 				g.push_back(ep);
 				break;
+				}
+			case ASTEROID:
+				{
+				ep = new Asteroid();
+				ep->decode(curr_head + size);
+				g.push_back(ep);
+				break;
+				}
 			}
 		}
 	};

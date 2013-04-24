@@ -23,6 +23,8 @@ float Gbls::debugCamMinPitch = D3DXToRadian(-89.0f);
 int Gbls::numShipMeshes = 4;
 std::wstring * Gbls::shipMeshFilepath;
 Mesh * Gbls::shipMesh;
+std::wstring Gbls::asteroidMeshFilepath;
+Mesh Gbls::asteroidMesh;
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;
 std::wstring Gbls::skyboxTextureFilepath_Front = L"SkyBox_Front.jpg";
@@ -74,6 +76,14 @@ void Gbls::initFromConfig() {
 		conf.getValue("shipMeshDefaultDirDegZ_" + stream.str(),tmpF[3]);
 		shipMesh[i].setScaleRotate(tmpF[0], tmpF[1], tmpF[2], tmpF[3]);
 	}
+
+	/* Asteroid */
+	if(!conf.getValue("asteroidMeshFilepath", tmpString)) {  //default
+			asteroidMeshFilepath = L"player_ship_001.x";
+	} else {  //assign to wstring
+			asteroidMeshFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	asteroidMesh.setScaleRotate(1, 0, 0, 0);
 
 	/* Debug Cam */
 	conf.getValue("debugCamMoveSpeed", debugCamMoveSpeed);

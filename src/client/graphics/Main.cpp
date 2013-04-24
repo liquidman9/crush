@@ -43,7 +43,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//DWORD count = 0;
 			for(;;) // "forever"
 			{
-
+				 
 				input.refreshState();
 				input.vibrate(input.input.thrust*200,input.input.thrust*200);
 				//for checking fps

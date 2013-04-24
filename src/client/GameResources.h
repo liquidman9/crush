@@ -21,6 +21,7 @@
 #include <shared/GameInput.h>
 #include <client/graphics/entities/C_Entity.h>
 #include <client/graphics/entities/C_Ship.h>
+#include <client/graphics/entities/C_Asteroid.h>
 
 class GameResources {
 public:
@@ -36,6 +37,7 @@ public:
 	//};
 
 	static vector<C_Ship*> shipList;
+	static vector<C_Asteroid*> asteroidList;
 	static const float PLAYER_CAM_DISTANCE;
 	static const float PLAYER_CAM_HEIGHT;
 	static const float PLAYER_CAM_LOOKAT_DISTANCE;
