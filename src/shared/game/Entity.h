@@ -26,7 +26,7 @@ typedef D3DXQUATERNION Quaternion;
 D3DXVECTOR3 *D3DXVec3Rotate( D3DXVECTOR3 *pOut, const D3DXVECTOR3 *pV, const D3DXQUATERNION *pQ );
 
 #define ENUM_TYPE char
-enum Type : char { ENTITY, SHIP, BASE, ASTEROID};
+enum Type : char { ENTITY, SHIP, MOTHERSHIP, ASTEROID, RESOURCE, TRACTORBEAM};
 
 class Entity : public Sendable {	
 protected:

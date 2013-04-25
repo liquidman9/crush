@@ -1,5 +1,5 @@
 /*
- * S_Ship.cpp
+ * S_Asteroid.cpp
  */
 
 // External includes
