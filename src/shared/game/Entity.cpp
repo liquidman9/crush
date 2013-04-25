@@ -53,25 +53,39 @@ ostream& operator<<(ostream& os, const Entity& e) {
 
 
 const char * Entity::encode() const {
-	char * tmp = new char[sizeof(Entity)];
-	// Encode type
-	*(ENUM_TYPE *) tmp = m_type;
-	// Encode id
-	*(int *) (tmp + sizeof(ENUM_TYPE)) = m_id;
-	// Encode pos
-	*(D3DXVECTOR3 *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_pos;
-	// Encode orientation
-	*(Quaternion *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3)) = m_orientation;
+	send_struct s;
+	s.type = m_type;
+	s.id = m_id;
+	s.pos = m_pos;
+	s.orientation = m_orientation;
 
+	//char * tmp = new char[sizeof(Entity)];
+	//// Encode type
+	//*(ENUM_TYPE *) tmp = m_type;
+	//// Encode id
+	//*(int *) (tmp + sizeof(ENUM_TYPE)) = m_id;
+	//// Encode pos
+	//*(D3DXVECTOR3 *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_pos;
+	//// Encode orientation
+	//*(Quaternion *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3)) = m_orientation;
+
+	char* tmp = new char[sizeof(send_struct)];
+	memcpy(tmp, (const char *) &s, sizeof(send_struct));
 
 	return tmp;
 }
 
 void Entity::decode(const char * tmp) {
+	send_struct s;
+	memcpy((char *) &s, tmp, sizeof(send_struct));
+	m_id = s.id;
+	m_pos = s.pos;
+	m_orientation = s.orientation;
+
 	// Decode Position
-	m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
+	/*m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
 	m_pos = *(D3DXVECTOR3*)(tmp + sizeof(m_id) + sizeof(ENUM_TYPE));
-	m_orientation = *(Quaternion*)(tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3));
+	m_orientation = *(Quaternion*)(tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3));*/
 	/*memcpy(&m_pos,tmp + sizeof(m_id) + sizeof(ENUM_TYPE), sizeof(D3DXVECTOR3));
 	memcpy(&m_orientation, tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3), sizeof(Quaternion));*/
 }

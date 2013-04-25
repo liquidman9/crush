@@ -24,6 +24,9 @@ const char* Mothership::encode() const {
 	// Copy entity encode into this ret
 	memcpy(rtn, tmp, Entity::size());
 
+	//always delete the encode buffer
+	delete []tmp;
+
 	// Set up temp buffer at the end of entity encoding
 	char* tmp_rtn = rtn;
 	tmp_rtn += Entity::size();

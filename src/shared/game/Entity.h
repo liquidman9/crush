@@ -28,9 +28,17 @@ D3DXVECTOR3 *D3DXVec3Rotate( D3DXVECTOR3 *pOut, const D3DXVECTOR3 *pV, const D3D
 #define ENUM_TYPE char
 enum Type : char { ENTITY, SHIP, MOTHERSHIP, ASTEROID, RESOURCE, TRACTORBEAM};
 
-class Entity : public Sendable {	
+class Entity : public Sendable {
+private:
+	struct send_struct {
+		ENUM_TYPE type;
+		int id;
+		D3DXVECTOR3 pos;
+		Quaternion orientation;
+	};
+
 protected:
-	static const unsigned int m_size = sizeof(ENUM_TYPE) + sizeof(int) + sizeof(D3DXVECTOR3) + sizeof(Quaternion);
+	static const unsigned int m_size = sizeof(send_struct); //sizeof(ENUM_TYPE) + sizeof(int) + sizeof(D3DXVECTOR3) + sizeof(Quaternion);
 	
 	// THIS CONSTRUCTOR SHOULD NEVER BE DIRECTLY CALLED.
 	Entity();

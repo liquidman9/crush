@@ -49,8 +49,9 @@ const char* Ship::encode() const {
 	// Encode tractor beam
 	*(bool *) (tmp_rtn) = m_tractorBeamOn;
 
-	// Delete temp pointer whuut don't need -- tmp points to rtn which is what we are returning.
-	//delete tmp;
+	// Delete temp pointer whuut don't need -- tmp points to rtn which is what we are returning. <-- wrong
+	// tmp points to the buffer returned from encode, that is a new buffer YOU NEED TO DELETE IT...
+	delete []tmp;
 
 	return rtn;
 }
