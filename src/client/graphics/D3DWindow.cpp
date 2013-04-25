@@ -680,7 +680,7 @@ void D3DWindow::ToggleFullscreen()
 	// If we're going to fullscreen mode, save the current window position. If not, restore it
 	if(Gbls::thePresentParams.Windowed)
 	{
-		DWORD dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
+		DWORD dwStyle = (WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE) & ~WS_THICKFRAME;
 		RECT rc;
 		rc.top = rc.left = 0;
 		rc.right = Gbls::windowWidth;

@@ -31,6 +31,7 @@ std::wstring Gbls::skyboxTextureFilepath_Left = L"SkyBox_Left.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Right = L"SkyBox_Right.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Top = L"SkyBox_Top.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
+std::wstring Gbls::shipEIDTextureFilepath = L"Sprite.png";
 D3DXCOLOR Gbls::lightDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
 D3DXCOLOR Gbls::lightSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 D3DXVECTOR3 Gbls::lightDirection(1.0f, 0.5f, 1.0f);
@@ -97,6 +98,9 @@ void Gbls::initFromConfig() {
 	}
 	if(conf.getValue("skyboxTextureFilepath_Bottom", tmpString)) {
 		skyboxTextureFilepath_Bottom = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("shipEIDTextureFilepath", tmpString)) {
+		shipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 
 
