@@ -140,10 +140,8 @@ const GameState<Entity> NetworkClient::getGameState() {
 }
 
 NetworkClient::~NetworkClient(void) {
+	TerminateThread(m_hThread, 0);
 	CloseHandle(m_hThread);
-	if(shutdown(m_sock, SD_SEND) == SOCKET_ERROR){
-		cerr << "shutdown() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
-	}
 	closesocket(m_sock);	
 	WSACleanup();
 }

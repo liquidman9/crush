@@ -62,13 +62,13 @@ private:
 	map <unsigned int, unsigned int> m_newClients;
 	EventBuff_t m_eventsBuffer;
 
-	char m_packetData[MAX_PACKET_SIZE];
 	
 	//thread stuff
 	CRITICAL_SECTION m_cs;
 	HANDLE m_hThread;
 	void acceptNewClient();
 	void updateEventsBuffer();
+	
 
 
 	static unsigned __stdcall ThreadStaticEntryPoint(void * pThis) {

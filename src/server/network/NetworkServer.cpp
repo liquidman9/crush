@@ -144,7 +144,9 @@ EventBuff_t NetworkServer::getEvents() {
 void NetworkServer::removeClients(const vector<map<unsigned int, SOCKET>::iterator> &removeList){
 	for(auto it = removeList.begin(); it != removeList.end(); it++) {
 		cout << "Connection to client " << (*it)->first << " closed" << endl;
-		closesocket((*it)->second);
+		if(closesocket((*it)->second) == SOCKET_ERROR){
+			cerr << "closesocket() for client " << (*it)->first << " failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+		}
 		auto nci = m_newClients.find((*it)->first);
 		if(nci != m_newClients.end()) {
 			m_newClients.erase(nci);
@@ -251,6 +253,7 @@ vector<unsigned int> NetworkServer::getNewClientIDs(){
 
 
 NetworkServer::~NetworkServer(void) {
+	TerminateThread(m_hThread, 0);
 	CloseHandle(m_hThread);
 	closesocket(m_incomingSock);
 	WSACleanup();
