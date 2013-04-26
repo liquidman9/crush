@@ -237,11 +237,15 @@ HRESULT GameResources::initLights() {
 //}
 
 void GameResources::drawAllEID() {
-	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);    // turn off the z-buffer
-	for (UINT i = 0; i < eIDList.size(); i++) {
-		eIDList[i]->draw(curCam, pd3dSprite);
+
+	HRESULT hResult = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND);
+	if(SUCCEEDED(hResult)) {
+		for (UINT i = 0; i < eIDList.size(); i++) {
+			eIDList[i]->draw(curCam, pd3dSprite);
+		}
+		pd3dSprite->End();
 	}
-	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);    // turn on the z-buffer
+
 }
 
 void GameResources::drawAll()
@@ -425,16 +429,16 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		EntityIdentifier * shipEID = new EntityIdentifier();
 		shipEID->targetEntity = tmp;
 		shipEID->m_sprite.setTexture(shipEIDTexture);
-		//shipEID->m_sprite.setCenterToTextureMidpoint();
-		if (shipEID->m_sprite.m_pTexture) {
-			D3DSURFACE_DESC desc;
-			HRESULT hResult = shipEID->m_sprite.m_pTexture->GetLevelDesc(0, &desc);
-			if(SUCCEEDED(hResult))
-			{
-				shipEID->m_sprite.m_vCenter.x = (desc.Width / 2);
-				shipEID->m_sprite.m_vCenter.y =  (desc.Height*2);
-			}
-		}
+		shipEID->m_sprite.setCenterToTextureMidpoint();
+		//if (shipEID->m_sprite.m_pTexture) {
+		//	D3DSURFACE_DESC desc;
+		//	HRESULT hResult = shipEID->m_sprite.m_pTexture->GetLevelDesc(0, &desc);
+		//	if(SUCCEEDED(hResult))
+		//	{
+		//		shipEID->m_sprite.m_vCenter.x = (desc.Width / 2);
+		//		shipEID->m_sprite.m_vCenter.y =  (desc.Height*2);
+		//	}
+		//}
 		shipEID->setScaleOffset(0.012f, 0.0f, 0.0f, 0.0f);
 		eIDList.push_back(shipEID);
 		ret = tmp;

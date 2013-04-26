@@ -17,18 +17,12 @@ EntityIdentifier::~EntityIdentifier()
 void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 {
 	if (targetEntity) {
-		D3DXMATRIX entityTranslate, viewMatrix;
-		D3DXMatrixTranslation(&entityTranslate, targetEntity->m_pos.x, targetEntity->m_pos.y, targetEntity->m_pos.z);
-		pSpriteRenderer->SetWorldViewLH(&(m_scaleOffsetMatrix*entityTranslate), cam->getViewMatrix(viewMatrix));
-		HRESULT hResult = pSpriteRenderer->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_BILLBOARD);
-		if(SUCCEEDED(hResult)) {
-			m_sprite.draw(pSpriteRenderer);
-			pSpriteRenderer->End();
-		}
+		//D3DXMATRIX entityTranslate, viewMatrix;
+		//D3DXMatrixTranslation(&entityTranslate, targetEntity->m_pos.x, targetEntity->m_pos.y, targetEntity->m_pos.z);
+		//pSpriteRenderer->SetWorldViewLH(&(m_scaleOffsetMatrix*entityTranslate), cam->getViewMatrix(viewMatrix));
+		//HRESULT hResult = pSpriteRenderer->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_BILLBOARD);
+		//if(SUCCEEDED(hResult)) {
 
-
-		//test
-		static int y = 0;
 		D3DXVECTOR3 out;
 		D3DXMATRIX mat, tmp;
 		D3DXMatrixIdentity(&mat);
@@ -38,7 +32,20 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 		D3DXVec3TransformCoord(&out, &targetEntity->m_pos, &mat);
 		int pixel_x = ((out.x + 1.0f)/2.0f)*Gbls::windowWidth;
 		int pixel_y = (-(out.y - 1.0f)/2.0f)*Gbls::windowHeight;
-		y++;
+
+		D3DXMATRIX scaleMat;
+		D3DXMatrixScaling(&scaleMat, 1.0f, 1.0f, 1.0f);
+			pSpriteRenderer->SetTransform(&scaleMat);
+			m_sprite.m_vPos.x = pixel_x;
+			m_sprite.m_vPos.y = pixel_y;
+			m_sprite.draw(pSpriteRenderer);
+			//pSpriteRenderer->End();
+		//}
+
+
+		//test
+
+
 	}
 }
 

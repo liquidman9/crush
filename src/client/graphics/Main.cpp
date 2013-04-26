@@ -26,8 +26,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//networking init
 			//try {
 			NetworkClient nc(8887);
-			//nc.bindToServer("192.168.5.149", 8889);
-			nc.bindToServer("127.0.0.1", 8888);
+			nc.bindToServer("192.168.5.149", 8889);
+			//nc.bindToServer("127.0.0.1", 8888);
 			GameResources::playerNum = nc.getClientID();
 			//} catch (exception & e) {
 			//	cerr << e.what();
