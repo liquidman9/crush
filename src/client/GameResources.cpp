@@ -14,6 +14,7 @@
 #include <client/GameResources.h>
 #include <client/Gbls.h>
 #include <client/graphics/Skybox.h>
+#include <client/graphics/entities/C_Asteroid.h>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_Entity.h>
 
@@ -26,6 +27,7 @@ const float GameResources::PLAYER_CAM_LOOKAT_DISTANCE = 15.0f;
 
 int GameResources::playerNum = -1;
 vector<C_Ship*> GameResources::shipList;
+vector<C_Asteroid*> GameResources::asteroidList;
 std::map<int, C_Entity*> GameResources::entityMap;
 bool GameResources::debugCamOn = true;
 Camera GameResources::debugCam;
@@ -143,6 +145,9 @@ HRESULT GameResources::initMeshes()
 		if(FAILED(hres = Gbls::shipMesh[i].Create(Gbls::shipMeshFilepath[i])))
 			return hres;
 	}
+
+	if(FAILED(hres = Gbls::asteroidMesh.Create(Gbls::asteroidMeshFilepath)))
+			return hres;
 
 	return S_OK;
 }
@@ -421,6 +426,7 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	//	ret = new Entity(*newEnt);
 	//	break;
 	case SHIP :
+		{
 		C_Ship * tmp = new C_Ship(newEnt);
 		shipList.push_back(tmp);
 		if (tmp->m_playerNum == playerNum) {
@@ -442,11 +448,17 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		shipEID->setScaleOffset(0.012f, 0.0f, 0.0f, 0.0f);
 		eIDList.push_back(shipEID);
 		ret = tmp;
+		}
 		break;
 	//case BASE :
 	//	break;
-	//case ASTEROID :
-	//	break;
+	case ASTEROID :
+		{
+		C_Asteroid * tmp = new C_Asteroid(newEnt);
+		asteroidList.push_back(tmp);
+		ret = tmp;
+		}
+		break;
 	}
 	return ret;
 }

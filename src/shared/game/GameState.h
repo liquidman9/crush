@@ -46,6 +46,7 @@ public:
 
 	void clear() {
 		m_entities.clear();
+		m_sendSize = 0;
 	}
 
 	/*void clear() {

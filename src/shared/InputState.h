@@ -11,6 +11,18 @@ class InputState : public Sendable {
 	short turn;
 	short pitch;
 
+	double getThrust() {
+		return thrust/255.0;
+	}
+
+	double getTurn() {
+		return turn/32768.0;
+	}
+
+	double getPitch() {
+		return pitch/32768.0;
+	}
+
 	static const unsigned int m_size = sizeof(bool)+sizeof(char)+sizeof(short)*2;
 
 	virtual const char* encode() const {

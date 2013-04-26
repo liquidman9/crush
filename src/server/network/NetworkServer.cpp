@@ -90,14 +90,11 @@ void NetworkServer::broadcastGameState(const GameState<Entity> &state) {
 		it != m_connectedClients.end(); it++) {
 			if(!sendToClient(send_buff, state.sendSize(), it->first, it->second)) {
 				//client can't be reached
-				closesocket(it->second);
 				removeList.push_back(it);
 			}
 	}
 	//remove clients who cannot be reached
-	for(auto it = removeList.begin(); it != removeList.end(); it++) {
-		m_connectedClients.erase(*it);
-	}
+	removeClients(removeList);
 	LeaveCriticalSection(&m_cs);
 	delete []send_buff;
 }
@@ -131,8 +128,6 @@ EventBuff_t NetworkServer::getEvents() {
 			}
 			if(error || recv_len == 0) {
 				//cannot reach client, close the connection
-				cout << "Connection to client " << it->first << " closed" << endl;
-				closesocket(it->second);
 				removeList.push_back(it);
 			} else if (recv_len > 0) {
 				NetworkDecoder nd(local_buf, recv_len);
@@ -140,12 +135,23 @@ EventBuff_t NetworkServer::getEvents() {
 			}
 	}
 	//remove clients that aren't reachable
-	for(auto it = removeList.begin(); it != removeList.end(); it++) {
-		m_connectedClients.erase(*it);
-	}
+	removeClients(removeList);
 	LeaveCriticalSection(&m_cs);
 
 	return rtn;
+}
+
+void NetworkServer::removeClients(const vector<map<unsigned int, SOCKET>::iterator> &removeList){
+	for(auto it = removeList.begin(); it != removeList.end(); it++) {
+		cout << "Connection to client " << (*it)->first << " closed" << endl;
+		closesocket((*it)->second);
+		auto nci = m_newClients.find((*it)->first);
+		if(nci != m_newClients.end()) {
+			m_newClients.erase(nci);
+		}
+		m_clientCount--;
+		m_connectedClients.erase(*it);
+	}
 }
 
 void inline NetworkServer::bindSocket() {
@@ -191,7 +197,8 @@ void NetworkServer::acceptNewClient()
 			} else {
 
 				//send clientID
-				if(send(ClientSocket, (const char *) &(m_clientCount), sizeof(m_clientCount), 0) == SOCKET_ERROR){
+				int clientID = m_clientCount - 1;
+				if(send(ClientSocket, (const char *) &(clientID), sizeof(m_clientCount), 0) == SOCKET_ERROR){
 					//LOOK HERE IF THERE ARE PROBLEMS CONNECTING
 					cerr << "Error sending client id : " + to_string((long long) WSAGetLastError()) << endl;
 					closesocket(ClientSocket);
@@ -212,6 +219,7 @@ void NetworkServer::acceptNewClient()
 
 				//insert new client into connected clients
 				EnterCriticalSection(&m_cs);
+				m_newClients.insert(pair<unsigned int, unsigned int>(i,i));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				LeaveCriticalSection(&m_cs);
 				cout << "New client " << i << " connected." << endl;
@@ -226,6 +234,17 @@ vector<unsigned int> NetworkServer::getConnectedClientIDs() {
 	for(auto it = m_connectedClients.begin(); it != m_connectedClients.end(); it++){
 		rtn.push_back(it->first);
 	}
+	LeaveCriticalSection(&m_cs);
+	return rtn;
+}
+
+vector<unsigned int> NetworkServer::getNewClientIDs(){
+	vector<unsigned int> rtn;
+	EnterCriticalSection(&m_cs);
+	for(auto it = m_newClients.begin(); it != m_newClients.end(); it++){
+		rtn.push_back(it->first);
+	}
+	m_newClients.clear();
 	LeaveCriticalSection(&m_cs);
 	return rtn;
 }

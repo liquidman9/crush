@@ -5,13 +5,14 @@
 // Project includes
 #include <server/network/NetworkServer.h>
 #include <shared/InputState.h>
-#include <server\game\S_Ship.h>
+#include <server/game/S_Ship.h>
+#include <server/game/S_Asteroid.h>
 #include <server/game/PhysicsWorld.h>
 
 using namespace std;
 
 
-int main(){
+int main9(){
 	try {
 		cout << "Server:" << endl;
 		NetworkServer server(8888);
@@ -48,6 +49,31 @@ int main(){
 		gameState.push_back(test2);
 		world.entities.push_back(test2);
 
+
+		D3DXVECTOR3 m_pos2(0,0,0);
+		Quaternion m_dir2(0, 0, 0, 0);
+		S_Asteroid *test3 = new S_Asteroid(m_pos2, m_dir2);
+		gameState.push_back(test3);
+		world.entities.push_back(test3);
+
+		
+		D3DXVECTOR3 m_pos3(0,0,15);
+		Quaternion m_dir3(0, 0, 0, 0);
+		S_Asteroid *test4 = new S_Asteroid(m_pos3, m_dir3);
+		gameState.push_back(test4);
+		world.entities.push_back(test4);
+
+		
+		D3DXVECTOR3 m_pos4(0,0,-15);
+		S_Asteroid *test5 = new S_Asteroid(m_pos4, m_dir3);
+		gameState.push_back(test5);
+		world.entities.push_back(test5);
+
+		D3DXVECTOR3 m_pos5(0,0,-35);
+		S_Asteroid *test6 = new S_Asteroid(m_pos5, m_dir3);
+		gameState.push_back(test6);
+		world.entities.push_back(test6);
+
 		for(;;) {
 			server.broadcastGameState(gameState);
 
@@ -63,8 +89,7 @@ int main(){
 				//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 			}
 				
-			world.update(1.0f/30.0f);
-
+			world.update(1.0f/60.0f);
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {
 				//gameState[1]->m_pos.z += .025;
 				//gameState[0]->m_pos.z += .05;
@@ -73,12 +98,12 @@ int main(){
 			if(!eventBuff.empty()) {
 				eventBuff.clear();
 			}
-			Sleep(1000/30);
+			Sleep(1000/60);
 		}
 	} catch (exception &e) {
 		cout << "exception occured!" << endl;
 		cerr << e.what() << endl;
 		system("pause");
 	}
-
+	return 0;
 }
