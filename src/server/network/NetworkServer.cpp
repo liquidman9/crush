@@ -255,6 +255,9 @@ vector<unsigned int> NetworkServer::getNewClientIDs(){
 NetworkServer::~NetworkServer(void) {
 	TerminateThread(m_hThread, 0);
 	CloseHandle(m_hThread);
+	for(auto it = m_connectedClients.begin(); it != m_connectedClients.end(); it++){
+		closesocket(it->second);
+	}
 	closesocket(m_incomingSock);
 	WSACleanup();
 }
