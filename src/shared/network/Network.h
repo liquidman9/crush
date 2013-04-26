@@ -13,14 +13,15 @@
 // Project includes
 #include <shared/game/GameState.h>
 #include <shared/game/Entity.h>
+#include <shared/GameInput.h>
 
 #pragma comment(lib,"ws2_32.lib")
 
 //typedef vector<shared_ptr<Entity> > GameState;
-typedef Sendable Event;
+typedef InputState Event;
 typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;
 
-#define DEFAULT_PORT 5555
+#define DEFAULT_PORT 8889
 #define MAX_PACKET_SIZE 65507
 #define TIMEOUT 5000;
 
