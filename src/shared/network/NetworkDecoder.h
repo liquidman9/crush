@@ -10,7 +10,7 @@
 #include <shared/network/Network.h>
 #include <shared/InputState.h>
 
-typedef Sendable Event;
+//typedef Sendable Event;
 
 class NetworkDecoder
 {

@@ -43,6 +43,10 @@ public:
 	//returns a vector of connected Client IDs
 	vector<unsigned int> getConnectedClientIDs();
 
+	//returns a vector of that have connected since the last call to
+	//getNewClientIDs;
+	vector<unsigned int> getNewClientIDs();
+
 	
 	virtual ~NetworkServer(void);
 
@@ -51,9 +55,11 @@ private:
 	void initializeSocket();
 	void startListening();
 	void bindSocket();
+	void removeClients(const vector<map<unsigned int, SOCKET>::iterator> &removeList);
 	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
 	SOCKET m_incomingSock;
 	map <unsigned int, SOCKET> m_connectedClients;
+	map <unsigned int, unsigned int> m_newClients;
 	EventBuff_t m_eventsBuffer;
 
 	char m_packetData[MAX_PACKET_SIZE];
@@ -63,6 +69,7 @@ private:
 	HANDLE m_hThread;
 	void acceptNewClient();
 	void updateEventsBuffer();
+
 
 	static unsigned __stdcall ThreadStaticEntryPoint(void * pThis) {
 		NetworkServer * pthX = (NetworkServer*)pThis;

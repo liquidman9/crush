@@ -12,7 +12,7 @@
 using namespace std;
 
 
-int main(){
+int main9(){
 	try {
 		cout << "Server:" << endl;
 		NetworkServer server(8888);
@@ -89,7 +89,7 @@ int main(){
 				//gameState[1]->m_dir.z += (float)((((InputState *)eventBuff[i].get())->pitch))/2500.0;
 			}
 				
-			world.update(1.0f/30.0f);
+			world.update(1.0f/60.0f);
 			if(eventBuff.size() < 50 && !eventBuff.empty()) {
 				//gameState[1]->m_pos.z += .025;
 				//gameState[0]->m_pos.z += .05;
@@ -98,12 +98,12 @@ int main(){
 			if(!eventBuff.empty()) {
 				eventBuff.clear();
 			}
-			Sleep(1000/30);
+			Sleep(1000/60);
 		}
 	} catch (exception &e) {
 		cout << "exception occured!" << endl;
 		cerr << e.what() << endl;
 		system("pause");
 	}
-
+	return 0;
 }
