@@ -26,6 +26,9 @@ public:
 	// Constructors
 	S_Mothership(int);
 	S_Mothership(D3DXVECTOR3, Quaternion, int);
+
+	// Methods
+	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
 };
 
 #pragma warning( pop )

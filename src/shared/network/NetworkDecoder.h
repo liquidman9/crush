@@ -28,7 +28,7 @@ public:
 		memcpy(tmp, head, size);
 	};
 	
-	//this is where the magic happens
+	//this is where the magic happens - apparently not being used
 	void decodeGameState(GameState<Entity> &g) {
 		Entity* ep = NULL;
 		const char* curr_head = m_head;

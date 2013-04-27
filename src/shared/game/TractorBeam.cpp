@@ -5,9 +5,20 @@
 // Project includes
 #include <shared/game/TractorBeam.h>
 
+TractorBeam::TractorBeam() :
+	Entity(TRACTORBEAM),
+	m_playerNum(0),
+	m_mode(false),
+	m_strength(10.0)
+
+{
+}
+
 TractorBeam::TractorBeam(int pNum) :
 	Entity(TRACTORBEAM),
-	m_playerNum(pNum)
+	m_playerNum(pNum),
+	m_mode(false),
+	m_strength(10.0)
 {
 }
 
@@ -36,7 +47,7 @@ const char* TractorBeam::encode() const {
 	*(bool *) (tmp_rtn) = m_mode;
 	tmp_rtn += sizeof(bool);
 
-	*(int *) (tmp_rtn) = m_strength;
+	*(float *) (tmp_rtn) = m_strength;
 
 	return rtn;
 }
@@ -50,13 +61,13 @@ ostream& operator<<(ostream& os, const TractorBeam& e) {
 
 void TractorBeam::decode(const char *buff) {
 	Entity::decode(buff);
-	m_type = ASTEROID;
+	m_type = TRACTORBEAM;
 	buff += Entity::size();
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
 	buff += sizeof(SHIP_PLAYERNUM_TYPE);
 	m_mode = *(bool*) buff;
 	buff += sizeof(bool);
-	m_strength = *(int*) buff;
+	m_strength = *(float*) buff;
 }
 
 

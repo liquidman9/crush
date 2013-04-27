@@ -5,6 +5,12 @@
 // Project includes
 #include <shared/game/Mothership.h>
 
+Mothership::Mothership() :
+	Entity(MOTHERSHIP),
+	m_playerNum(0),
+	m_resources(0)
+{
+}
 
 Mothership::Mothership(int pNum) :
 	Entity(MOTHERSHIP),

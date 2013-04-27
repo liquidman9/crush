@@ -1,44 +1,42 @@
 /*
- * C_Asteroid.cpp
+ * C_TractorBeam.cpp
  */
 
 // Project includes
 #include <client/Gbls.h>
-#include <client/graphics/entities/C_Asteroid.h>
+#include <client/graphics/entities/C_TractorBeam.h>
  
 //Mesh C_Ship::s_mesh;
 
-C_Asteroid::C_Asteroid() :
-	Entity(ASTEROID)
+C_TractorBeam::C_TractorBeam() :
+	Entity(TRACTORBEAM)
 { 
-	cerr << "Creating C_Asteroid with default constructor" << endl;
+	cerr << "Creating C_TractorBeam with default constructor" << endl;
 }
 
 
-C_Asteroid::C_Asteroid(Entity * newEnt) :
-	Entity(ASTEROID)
+C_TractorBeam::C_TractorBeam(Entity * newEnt) :
+	Entity(TRACTORBEAM)
 {
-cerr << "Creating C_Asteroid with Entity * constructor" << endl;
-	Asteroid * srcAsteroid = dynamic_cast<Asteroid*>(newEnt);
-	if (srcAsteroid != NULL) {
-		m_pos = srcAsteroid->m_pos;
-		m_orientation = srcAsteroid->m_orientation;
-		m_scale = srcAsteroid->m_scale;
-		m_pMesh = &Gbls::asteroidMesh;
+cerr << "Creating C_TractorBeam with Entity * constructor" << endl;
+	TractorBeam * srcTractorBeam = dynamic_cast<TractorBeam*>(newEnt);
+	if (srcTractorBeam != NULL) {
+		m_pos = srcTractorBeam->m_pos;
+		m_orientation = srcTractorBeam->m_orientation;
+		m_playerNum = srcTractorBeam->m_playerNum;
+		m_mode = srcTractorBeam->m_mode;
+		m_strength = srcTractorBeam->m_strength;
+
+		m_pMesh = &Gbls::tractorBeamMesh;
 	} else {
-		cerr << "SEVERE : Unable to create Client Asteroid!" << endl;
+		cerr << "SEVERE : Unable to create Client TractorBeam!" << endl;
 	}
 }
 
-void C_Asteroid::draw()
+void C_TractorBeam::draw()
 {
-
-	// Scale Asteroid 
-	float conv = 120*100;
-	D3DXMATRIX matScale;
-	D3DXMatrixScaling(&matScale, m_scale/conv, m_scale/conv, m_scale/conv);
 	
-	// Translate Asteroid to correct possition
+	// Translate TractorBeam to correct possition
 	D3DXMATRIX matTranslate;
 	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
 
@@ -48,6 +46,6 @@ void C_Asteroid::draw()
 	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
 
 	// Apply transforms
-	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matScale*matRotate*matTranslate));
+	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));
 	m_pMesh->draw();
 }

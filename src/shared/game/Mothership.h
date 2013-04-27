@@ -24,6 +24,7 @@ public:
 	int m_resources;
 
 	// Constructors
+	Mothership();
 	Mothership(int pNum);
 
 	// Methods

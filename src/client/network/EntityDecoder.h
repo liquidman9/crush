@@ -5,6 +5,9 @@
 #include <shared/game/Ship.h>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_Asteroid.h>
+#include <client/graphics/entities/C_Mothership.h>
+#include <client/graphics/entities/C_TractorBeam.h>
+#include <client/graphics/entities/C_Resource.h>
 
 namespace client{
 	namespace network {
@@ -21,6 +24,21 @@ namespace client{
 						break;
 					case ASTEROID:
 						ep = new C_Asteroid();
+						ep->decode(cur_head + cur_size);
+						g.push_back(ep);
+						break;
+					case TRACTORBEAM:
+						ep = new C_TractorBeam();
+						ep->decode(cur_head + cur_size);
+						g.push_back(ep);
+						break;
+					case MOTHERSHIP:
+						ep = new C_Mothership();
+						ep->decode(cur_head + cur_size);
+						g.push_back(ep);
+						break;
+					case RESOURCE:
+						ep = new C_Resource();
 						ep->decode(cur_head + cur_size);
 						g.push_back(ep);
 						break;

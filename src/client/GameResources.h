@@ -19,9 +19,12 @@
 #include <shared/game/GameState.h>
 //#include <client/graphics/entities/R_Ship.h>
 #include <shared/GameInput.h>
-#include <client/graphics/entities/C_Entity.h>
-#include <client/graphics/entities/C_Ship.h>
+#include <client/graphics/entities/C_Resource.h>
+#include <client/graphics/entities/C_TractorBeam.h>
+#include <client/graphics/entities/C_Mothership.h>
 #include <client/graphics/entities/C_Asteroid.h>
+#include <client/graphics/entities/C_Ship.h>
+#include <client/graphics/entities/C_Entity.h>
 
 class GameResources {
 public:
@@ -38,6 +41,9 @@ public:
 
 	static vector<C_Ship*> shipList;
 	static vector<C_Asteroid*> asteroidList;
+	static vector<C_Mothership*> mothershipList;
+	static vector<C_TractorBeam*> tractorBeamList;
+	static vector<C_Resource*> resourceList;
 	static const float PLAYER_CAM_DISTANCE;
 	static const float PLAYER_CAM_HEIGHT;
 	static const float PLAYER_CAM_LOOKAT_DISTANCE;

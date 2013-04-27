@@ -84,6 +84,21 @@ void Server::initializeGameState() {
 	S_Asteroid *test6 = new S_Asteroid(m_pos5, m_dir3);
 	m_gameState.push_back(test6);
 	m_world.entities.push_back(test6);
+
+	D3DXVECTOR3 m_pos6(0,0,25);
+	S_Resource *test7 = new S_Resource(m_pos6, m_dir3);
+	m_gameState.push_back(test7);
+	m_world.entities.push_back(test7);
+
+	D3DXVECTOR3 m_pos7(10,1,10);
+	S_TractorBeam *test8 = new S_TractorBeam(m_pos7, m_dir3, 0);
+	m_gameState.push_back(test8);
+	m_world.entities.push_back(test8);
+	
+	D3DXVECTOR3 m_pos8(0,0,35);
+	S_Mothership *test9 = new S_Mothership(m_pos8, m_dir3, 0);
+	m_gameState.push_back(test9);
+	m_world.entities.push_back(test9);
 }
 
 

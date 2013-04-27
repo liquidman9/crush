@@ -23,8 +23,14 @@ float Gbls::debugCamMinPitch = D3DXToRadian(-89.0f);
 int Gbls::numShipMeshes = 4;
 std::wstring * Gbls::shipMeshFilepath;
 Mesh * Gbls::shipMesh;
+std::wstring * Gbls::mothershipMeshFilepath;
+Mesh * Gbls::mothershipMesh;
 std::wstring Gbls::asteroidMeshFilepath;
 Mesh Gbls::asteroidMesh;
+std::wstring Gbls::tractorBeamMeshFilepath;
+Mesh Gbls::tractorBeamMesh;
+std::wstring Gbls::resourceMeshFilepath;
+Mesh Gbls::resourceMesh;
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;
 std::wstring Gbls::skyboxTextureFilepath_Front = L"SkyBox_Front.jpg";
@@ -77,6 +83,33 @@ void Gbls::initFromConfig() {
 		shipMesh[i].setScaleRotate(tmpF[0], tmpF[1], tmpF[2], tmpF[3]);
 	}
 
+	/* Mothership Mesh Info */
+
+	conf.getValue("numShipMeshes",numShipMeshes);
+	mothershipMeshFilepath = new wstring[numShipMeshes];
+	mothershipMesh = new Mesh[numShipMeshes];
+	for (int i = 0; i < numShipMeshes; i++) {
+		stream.str(string());
+		stream.clear();
+		stream << i;
+		if(!conf.getValue("mothershipMeshFilepath_"+stream.str(),tmpString)) {  //default
+			mothershipMeshFilepath[i] = L"player_ship_001.x";
+		} else {  //assign to wstring
+			mothershipMeshFilepath[i] = wstring(tmpString.begin(), tmpString.end());
+		}
+	}
+	for (int i = 0; i < numShipMeshes; i++) {
+		float tmpF[4] = {1.0f, 0.0f, 0.0f, 0.0f};
+		stream.str(string());
+		stream.clear();
+		stream << i;
+		conf.getValue("mothershipMeshDefaultScale_" + stream.str(), tmpF[0]);
+		conf.getValue("mothershipMeshDefaultDirDegX_" + stream.str(),tmpF[1]);
+		conf.getValue("mothershipMeshDefaultDirDegY_" + stream.str(),tmpF[2]);
+		conf.getValue("mothershipMeshDefaultDirDegZ_" + stream.str(),tmpF[3]);
+		mothershipMesh[i].setScaleRotate(tmpF[0], tmpF[1], tmpF[2], tmpF[3]);
+	}
+
 	/* Asteroid */
 	if(!conf.getValue("asteroidMeshFilepath", tmpString)) {  //default
 			asteroidMeshFilepath = L"player_ship_001.x";
@@ -84,6 +117,22 @@ void Gbls::initFromConfig() {
 			asteroidMeshFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 	asteroidMesh.setScaleRotate(1, 0, 0, 0);
+
+	/* TractorBeam */
+	if(!conf.getValue("tractorBeamMeshFilepath", tmpString)) {  //default
+			tractorBeamMeshFilepath = L"player_ship_001.x";
+	} else {  //assign to wstring
+			tractorBeamMeshFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	tractorBeamMesh.setScaleRotate(1, 0, 0, 0);
+
+	/* Resource */
+	if(!conf.getValue("resourceMeshFilepath", tmpString)) {  //default
+			resourceMeshFilepath = L"player_ship_001.x";
+	} else {  //assign to wstring
+			resourceMeshFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	resourceMesh.setScaleRotate(1, 0, 0, 0);
 
 	/* Debug Cam */
 	conf.getValue("debugCamMoveSpeed", debugCamMoveSpeed);

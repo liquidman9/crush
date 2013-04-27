@@ -25,6 +25,10 @@ public:
 
 	// Constructors
 	S_TractorBeam(int);
+	S_TractorBeam(D3DXVECTOR3, Quaternion,int); 
+
+	// Methods
+	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
 };
 
 #pragma warning( pop )
