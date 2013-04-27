@@ -167,14 +167,18 @@ HRESULT GameResources::initMeshes()
 	return S_OK;
 }
 
+HRESULT GameResources::loadTexture(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath) {
+	return D3DXCreateTextureFromFileEx(Gbls::pd3dDevice, filepath.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
+		D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_DEFAULT,
+		0, NULL, NULL, pTextureOut);
+}
+
 HRESULT GameResources::initAdditionalTextures()
 {
 	HRESULT hres;
 
-	// Hardcoded loading of textures. Yay.
-	hres = D3DXCreateTextureFromFileEx(Gbls::pd3dDevice, Gbls::shipEIDTextureFilepath.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
-		D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_DEFAULT,
-		0, NULL, NULL, &shipEIDTexture);
+	// load arrow spirte
+	hres = loadTexture(&shipEIDTexture, Gbls::shipEIDTextureFilepath);
 	if (FAILED(hres)) {
 		return hres;
 	}

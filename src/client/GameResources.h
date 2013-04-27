@@ -90,6 +90,7 @@ public:
 	static HRESULT initState();
 	static HRESULT reInitState();
 	static HRESULT initMeshes();
+	static HRESULT loadTexture(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath);
 	static HRESULT initAdditionalTextures();
 	static void releaseAdditionalTextures();
 	static HRESULT initLights();
