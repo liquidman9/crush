@@ -24,8 +24,8 @@
 class Gbls
 {
 public:
-	static int numShipMeshes;
 
+	// Not loaded in from config
 	static LPDIRECT3D9 pD3D;                            // D3D interface pointer
 	static LPDIRECT3DDEVICE9 pd3dDevice;                   // D3D device pointer
 	static D3DPRESENT_PARAMETERS thePresentParams;      // Present params used to create the device
@@ -36,16 +36,18 @@ public:
 	static Mesh asteroidMesh;
 	static Mesh tractorBeamMesh;
 	static Mesh resourceMesh;
-
-	static float debugCamMoveSpeed;		//scales the movement speed of the Debug Cam
-	static float debugCamTurnSpeed;		//scales the turn speed of the Debug Cam
 	
 	static float debugCamMaxPitch;
 	static float debugCamMinPitch;
+
+	static int fontHeight;
 	
-	// Should be changed to load in from a config file later
-	//static std::wstring shipMeshFilepath_1;
-	//static std::wstring shipMeshFilepath_2;
+	// Loaded in from config file
+	static float debugCamMoveSpeed;		//scales the movement speed of the Debug Cam
+	static float debugCamTurnSpeed;		//scales the turn speed of the Debug Cam
+
+	static int numShipMeshes;
+
 	static std::wstring * shipMeshFilepath;
 	static std::wstring * mothershipMeshFilepath;
 	static std::wstring asteroidMeshFilepath;
@@ -60,6 +62,8 @@ public:
 	static std::wstring skyboxTextureFilepath_Bottom;
 
 	static std::wstring shipEIDTextureFilepath;
+	static std::wstring fontStyle;
+	static int fontSize;
 
 	static D3DXCOLOR lightDiffuseColor;
 	static D3DXCOLOR lightSpecularColor;
@@ -71,6 +75,7 @@ public:
 	static int fullScreenWidth;
 	static int fullScreenHeight;
 
+	// Does not actually do loading from config, only sets variables from already-loaded Settings class
 	static void initFromConfig();
 };
 

@@ -62,6 +62,7 @@ private:
 	static HRESULT HandlePresentRetval(HRESULT hResult);
 	static void OnLostDevice();
 	static void OnResetDevice();
+	static void setFontHeight(int desiredSize);
 
 	static HINSTANCE s_hInstance;                         // Instance handle used to create the window
 	static HWND s_hWnd;                                   // Window handle

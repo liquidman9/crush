@@ -126,6 +126,9 @@ bool D3DWindow::Create(HINSTANCE hInstance)
 		return false;
 	}
 
+	// Init font size
+	setFontHeight(Gbls::fontHeight);
+
 	// Done - copy HINSTANCE variable and record current time
 	s_hInstance = hInstance;
 	s_dwStartTime = GetTickCount();
@@ -830,15 +833,25 @@ HRESULT D3DWindow::HandlePresentRetval(HRESULT hResult)
 	return hResult;
 }
 
+void D3DWindow::setFontHeight(int desiredSize) {
+	HDC hDC = GetDC(s_hWnd);
+
+	Gbls::fontHeight = -MulDiv(Gbls::fontSize, GetDeviceCaps(hDC, LOGPIXELSY), 72);
+	ReleaseDC(s_hWnd, hDC);
+}
+
 //=================================================================================================
 
 void D3DWindow::OnLostDevice()
 {
+	GameResources::pd3dFont->OnLostDevice();
 	GameResources::pd3dSprite->OnLostDevice();
 }
 
 void D3DWindow::OnResetDevice()
 {
+	GameResources::pd3dFont->OnResetDevice();
+	GameResources::pd3dSprite->OnResetDevice();
 }
 
 //=================================================================================================

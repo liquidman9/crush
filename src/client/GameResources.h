@@ -56,6 +56,7 @@ public:
 	static C_Ship * playerShip;
 	static int playerNum;
 	static LPD3DXSPRITE pd3dSprite;
+	static LPD3DXFONT GameResources::pd3dFont;
 	static vector<EntityIdentifier*> eIDList;
 	static LPDIRECT3DTEXTURE9 shipEIDTexture;
 	//static vector<Sprite*> spriteList;
@@ -92,11 +93,13 @@ public:
 	static HRESULT initMeshes();
 	static HRESULT loadTexture(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath);
 	static HRESULT initAdditionalTextures();
+	static HRESULT loadFont(LPD3DXFONT * pFont, int height, std::wstring fontStyle);
 	static void releaseAdditionalTextures();
 	static HRESULT initLights();
 	//static HRESULT initSprites();
 	static void drawAll();
 	static void drawAllEID();
+	static void drawStaticHudElements();
 	//static void drawAllSprites();
 	static void updateDebugCamera();
 	static void updatePlayerCamera();

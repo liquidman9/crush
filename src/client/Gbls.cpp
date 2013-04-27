@@ -12,6 +12,7 @@
 LPDIRECT3D9 Gbls::pD3D = NULL;
 LPDIRECT3DDEVICE9 Gbls::pd3dDevice = NULL;
 D3DPRESENT_PARAMETERS Gbls::thePresentParams;
+int Gbls::fontHeight; // calculated
 
 // Still hardcoded:
 
@@ -39,7 +40,9 @@ std::wstring Gbls::skyboxTextureFilepath_Left = L"SkyBox_Left.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Right = L"SkyBox_Right.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Top = L"SkyBox_Top.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
-std::wstring Gbls::shipEIDTextureFilepath = L"Sprite.png";
+std::wstring Gbls::shipEIDTextureFilepath = L"Arrow.png";
+std::wstring Gbls::fontStyle = L"Ariel";
+int Gbls::fontSize = 48;
 D3DXCOLOR Gbls::lightDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
 D3DXCOLOR Gbls::lightSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 D3DXVECTOR3 Gbls::lightDirection(1.0f, 0.5f, 1.0f);
@@ -161,7 +164,10 @@ void Gbls::initFromConfig() {
 	if(conf.getValue("shipEIDTextureFilepath", tmpString)) {
 		shipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
-
+	if(conf.getValue("fontStyle", tmpString)) {
+		fontStyle = wstring(tmpString.begin(), tmpString.end());
+	}
+	conf.getValue("fontSize", fontSize);
 
 	/* Light info */
 
@@ -187,7 +193,7 @@ void Gbls::initFromConfig() {
 	
 	conf.getValue("windowWidth", windowWidth);
 	conf.getValue("windowHeight", windowHeight);
-	
+
 	conf.getValue("fullScreenWidth", fullScreenWidth);
 	conf.getValue("fullScreenHeight", fullScreenHeight);
 

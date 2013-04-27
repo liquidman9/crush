@@ -41,6 +41,7 @@ Camera GameResources::playerCam;
 Camera* GameResources::curCam = &debugCam;
 C_Ship* GameResources::playerShip = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
+LPD3DXFONT GameResources::pd3dFont = NULL;
 vector<EntityIdentifier*> GameResources::eIDList;
 LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture = NULL;
 //std::vector<R_Ship*> GameResources::r_ShipList;
@@ -89,6 +90,14 @@ HRESULT GameResources::initState() {
 	// create sprite renderer
 	hres = D3DXCreateSprite(Gbls::pd3dDevice, &pd3dSprite);
 	if (FAILED(hres)) {
+		MessageBox( NULL, L"Sprite Renderer Creation Failed", L"CRUSH.exe", MB_OK );
+		return hres;
+	}
+
+	// create font(s)
+	hres = loadFont(&pd3dFont, Gbls::fontHeight, Gbls::fontStyle);
+	if (FAILED(hres)) {
+		MessageBox( NULL, L"Sprite Renderer Creation Failed", L"CRUSH.exe", MB_OK );
 		return hres;
 	}
 
@@ -229,48 +238,16 @@ HRESULT GameResources::initLights() {
 	return S_OK;
 }
 
-//HRESULT GameResources::initSprites() {
-//	HRESULT hres = D3DXCreateSprite(Gbls::pd3dDevice, &pd3dSprite);
-//	if (FAILED(hres)) {
-//		return hres;
-//	}
-//	
-//	/* tmp sprite creation, remove */
-//	static LPDIRECT3DTEXTURE9 pSpriteTexture;
-//	hres = D3DXCreateTextureFromFileEx(Gbls::pd3dDevice, L"Sprite.png", D3DX_DEFAULT, D3DX_DEFAULT,
-//		D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_DEFAULT,
-//		0, NULL, NULL, &pSpriteTexture);
-//	if (FAILED(hres)) {
-//		return hres;
-//	}
-//	Sprite * tmp = new Sprite();
-//	tmp->setTexture(pSpriteTexture);
-//	tmp->setCenterToTextureMidpoint();
-//	spriteList.push_back(tmp);
-//	pSpriteTexture->Release();
-//	/* tmp sprite creation, remove */
-//
-//	return hres;
-//
-//}
-
-//void GameResources::drawAllSprites() {
-//	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);    // turn off the z-buffer
-//	D3DXMATRIX matScale, matTranslate, viewMatrix;
-//	D3DXMatrixScaling(&matScale, 0.01f, 0.01f, 0.01f);
-//	D3DXMatrixTranslation(&matTranslate, 0.0f, 0.0f, 15.0f);
-//	//Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(matScale*matTranslate));
-//	pd3dSprite->SetWorldViewLH(&(matScale), curCam->getViewMatrix(viewMatrix));
-//	HRESULT hResult = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_BILLBOARD);
-//	if(SUCCEEDED(hResult)) {
-//		for (UINT i = 0; i < spriteList.size(); i++) {
-//			spriteList[i]->draw(pd3dSprite);
-//		}
-//		pd3dSprite->End();
-//	}
-//
-//	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);    // turn on the z-buffer
-//}
+HRESULT GameResources::loadFont(LPD3DXFONT * pFont, int height, std::wstring fontStyle) {
+	HRESULT hres = D3DXCreateFont(Gbls::pd3dDevice, height, 0, FW_NORMAL, 0, FALSE, DEFAULT_CHARSET,
+		OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, fontStyle.c_str(),
+		pFont);
+	if(FAILED(hres)) {
+		MessageBox( NULL, (L"Could not load font: " + fontStyle).c_str(), L"CRUSH.exe", MB_OK );
+		return hres;
+	}
+	return S_OK;
+}
 
 void GameResources::drawAllEID() {
 
@@ -282,6 +259,34 @@ void GameResources::drawAllEID() {
 		pd3dSprite->End();
 	}
 
+}
+
+void GameResources::drawStaticHudElements() {
+	HRESULT hres = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
+	if(SUCCEEDED(hres))
+	{
+		D3DXMATRIX mat;
+		D3DXMatrixIdentity(&mat);
+		
+		// Draw Time (note, very rough right now)
+		std::wstring timeStr = L"Time goes here!!!";
+		int pixel_x = Gbls::thePresentParams.BackBufferWidth/2;
+		//int pixel_y = 0;
+		pd3dSprite->SetTransform(&mat);
+		RECT rect = {0, 0, 0, 0};
+		pd3dFont->DrawText(pd3dSprite, timeStr.c_str(), -1, &rect, DT_CALCRECT,
+			NULL);
+		//rect.top += pixel_y - (rect.bottom/2);
+		//rect.bottom += pixel_y - (rect.bottom/2);
+		rect.left += pixel_x - (rect.right/2);
+		rect.right += pixel_x - (rect.right/2);
+		pd3dFont->DrawText(pd3dSprite, timeStr.c_str(), -1, &rect, DT_CENTER | DT_WORDBREAK,
+			D3DCOLOR_XRGB(255, 255, 255));
+
+	
+		// End sprite rendering
+		pd3dSprite->End();
+	}
 }
 
 void GameResources::drawAll()
@@ -296,7 +301,8 @@ void GameResources::drawAll()
 	}
 
 	drawAllEID();
-	//drawAllSprites();
+
+	drawStaticHudElements();
 }
 
 // called each frame after processing keyboard state from that frame
@@ -512,6 +518,11 @@ void GameResources::releaseResources() {
 	//for(UINT i = 0; i < spriteList.size(); i++) {
 	//	delete spriteList[i];
 	//}
+
+	if(pd3dFont) {
+		pd3dFont->Release();
+		pd3dFont = NULL;
+	}
 
 	if(pd3dSprite) {
 		pd3dSprite->Release();
