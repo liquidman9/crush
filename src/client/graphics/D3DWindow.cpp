@@ -680,7 +680,7 @@ void D3DWindow::ToggleFullscreen()
 	// If we're going to fullscreen mode, save the current window position. If not, restore it
 	if(Gbls::thePresentParams.Windowed)
 	{
-		DWORD dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
+		DWORD dwStyle = (WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE) & ~WS_THICKFRAME;
 		RECT rc;
 		rc.top = rc.left = 0;
 		rc.right = Gbls::windowWidth;
@@ -717,6 +717,7 @@ void D3DWindow::ToggleFullscreen()
 		SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
 	// Reset the device using the new present params
+	OnLostDevice();
 	HRESULT hResult = Gbls::pd3dDevice->Reset(&Gbls::thePresentParams);
 	if(FAILED(hResult))
 	{
@@ -833,6 +834,7 @@ HRESULT D3DWindow::HandlePresentRetval(HRESULT hResult)
 
 void D3DWindow::OnLostDevice()
 {
+	GameResources::pd3dSprite->OnLostDevice();
 }
 
 void D3DWindow::OnResetDevice()

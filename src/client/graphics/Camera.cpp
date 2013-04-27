@@ -38,6 +38,16 @@ void Camera::updateView() {
 	Gbls::pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
 }
 
+D3DXMATRIX * Camera::getViewMatrix(D3DXMATRIX & matView) {
+	return D3DXMatrixLookAtLH(&matView, &m_vEye, &m_vAt, &m_vUp);
+}
+
+D3DXMATRIX * Camera::getProjMatrix(D3DXMATRIX & matView) {
+	float fAspect = (float)Gbls::thePresentParams.BackBufferWidth /
+		(float)Gbls::thePresentParams.BackBufferHeight;
+	return D3DXMatrixPerspectiveFovLH(&matView, D3DXToRadian(m_fov), fAspect, m_nearPlane, m_farPlane);
+}
+
 void Camera::setSkyboxView() {
 	D3DXMATRIXA16 matView;
 	D3DXVECTOR3 vZeroEye(0.0f, 0.0f, 0.0f);

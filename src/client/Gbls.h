@@ -16,8 +16,9 @@
 
 // Project includes
 #include <client/graphics/Mesh.h>
+#include <client/graphics/Sprite.h>
 
-//#define MYNETWORKOFF  //don't use network
+#define MYNETWORKOFF  //don't use network
 
 //Our defines
 class Gbls
@@ -57,6 +58,8 @@ public:
 	static std::wstring skyboxTextureFilepath_Right;
 	static std::wstring skyboxTextureFilepath_Top;
 	static std::wstring skyboxTextureFilepath_Bottom;
+
+	static std::wstring shipEIDTextureFilepath;
 
 	static D3DXCOLOR lightDiffuseColor;
 	static D3DXCOLOR lightSpecularColor;

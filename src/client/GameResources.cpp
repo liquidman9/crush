@@ -40,6 +40,9 @@ Camera GameResources::debugCam;
 Camera GameResources::playerCam;
 Camera* GameResources::curCam = &debugCam;
 C_Ship* GameResources::playerShip = NULL;
+LPD3DXSPRITE GameResources::pd3dSprite = NULL;
+vector<EntityIdentifier*> GameResources::eIDList;
+LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture = NULL;
 //std::vector<R_Ship*> GameResources::r_ShipList;
 //std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
@@ -74,11 +77,25 @@ HRESULT GameResources::initState() {
 		return hres;
 	
 	// create meshes
-	hres = GameResources::initMeshes();
+	hres = initMeshes();
 	if(FAILED (hres))
 		return hres;
 
+	// load in extra textures
+	hres = initAdditionalTextures();
+	if(FAILED (hres))
+		return hres;
 
+	// create sprite renderer
+	hres = D3DXCreateSprite(Gbls::pd3dDevice, &pd3dSprite);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+	//// create sprites
+	//hres = initSprites();
+	//if(FAILED (hres))
+	//	return hres;
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
@@ -99,16 +116,6 @@ HRESULT GameResources::initState() {
 	entityMap[etmp->getID()] = etmp;
 
 #endif
-	//pos.y = 0.3f; //pos.z = -0.6f;
-	//pNum = 2;
-	//color.r = 0.3f; color.g = 0.3f; color.b = 0.8f;
-	//stmp = new Ship(pos, dir, pNum, tBeamOn);
-	//etmp = createEntity(stmp);
-	//entityMap[etmp->getID()] = etmp;
-
-	//a bit ugly, probably easier to just loop through all the entity lists (left here in case we want to switch back)
-	//renderList.push_back((std::vector<Renderable*>*)(&r_ShipList));
-
 	/*end TODO remove*/
 
 	return S_OK;
@@ -124,20 +131,10 @@ HRESULT GameResources::reInitState() {
 	// Tell the device to automatically normalize surface normals to keep them normal after scaling
 	Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 
-	// Initialize the skybox
-	//hres = Skybox::initSkybox();
-	//if(FAILED (hres))
-	//	return hres;
-
 	// Create lights for scene and set light properties
 	hres = GameResources::initLights();
 	if(FAILED (hres))
 		return hres;
-
-	//// create meshes
-	//hres = GameResources::initMeshes();
-	//if(FAILED (hres))
-	//	return hres;
 
 	//set backface cullling off TODO remove after models are fixed
 	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
@@ -168,6 +165,25 @@ HRESULT GameResources::initMeshes()
 			return hres;
 
 	return S_OK;
+}
+
+HRESULT GameResources::initAdditionalTextures()
+{
+	HRESULT hres;
+
+	// Hardcoded loading of textures. Yay.
+	hres = D3DXCreateTextureFromFileEx(Gbls::pd3dDevice, Gbls::shipEIDTextureFilepath.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
+		D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_DEFAULT,
+		0, NULL, NULL, &shipEIDTexture);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+	return S_OK;
+}
+
+void GameResources::releaseAdditionalTextures() {
+	shipEIDTexture->Release();
 }
 
 HRESULT GameResources::initLights() {
@@ -201,16 +217,74 @@ HRESULT GameResources::initLights() {
 	return S_OK;
 }
 
+//HRESULT GameResources::initSprites() {
+//	HRESULT hres = D3DXCreateSprite(Gbls::pd3dDevice, &pd3dSprite);
+//	if (FAILED(hres)) {
+//		return hres;
+//	}
+//	
+//	/* tmp sprite creation, remove */
+//	static LPDIRECT3DTEXTURE9 pSpriteTexture;
+//	hres = D3DXCreateTextureFromFileEx(Gbls::pd3dDevice, L"Sprite.png", D3DX_DEFAULT, D3DX_DEFAULT,
+//		D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_DEFAULT,
+//		0, NULL, NULL, &pSpriteTexture);
+//	if (FAILED(hres)) {
+//		return hres;
+//	}
+//	Sprite * tmp = new Sprite();
+//	tmp->setTexture(pSpriteTexture);
+//	tmp->setCenterToTextureMidpoint();
+//	spriteList.push_back(tmp);
+//	pSpriteTexture->Release();
+//	/* tmp sprite creation, remove */
+//
+//	return hres;
+//
+//}
+
+//void GameResources::drawAllSprites() {
+//	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);    // turn off the z-buffer
+//	D3DXMATRIX matScale, matTranslate, viewMatrix;
+//	D3DXMatrixScaling(&matScale, 0.01f, 0.01f, 0.01f);
+//	D3DXMatrixTranslation(&matTranslate, 0.0f, 0.0f, 15.0f);
+//	//Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(matScale*matTranslate));
+//	pd3dSprite->SetWorldViewLH(&(matScale), curCam->getViewMatrix(viewMatrix));
+//	HRESULT hResult = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_BILLBOARD);
+//	if(SUCCEEDED(hResult)) {
+//		for (UINT i = 0; i < spriteList.size(); i++) {
+//			spriteList[i]->draw(pd3dSprite);
+//		}
+//		pd3dSprite->End();
+//	}
+//
+//	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);    // turn on the z-buffer
+//}
+
+void GameResources::drawAllEID() {
+
+	HRESULT hResult = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND);
+	if(SUCCEEDED(hResult)) {
+		for (UINT i = 0; i < eIDList.size(); i++) {
+			eIDList[i]->draw(curCam, pd3dSprite);
+		}
+		pd3dSprite->End();
+	}
+
+}
+
 void GameResources::drawAll()
 {
 	Skybox::drawSkybox();
 
-	//TODO this draws objects in no particular order, resulting in many loads and unloads (probably) for textures and models. Should be fixed
+	// TODO this draws objects in no particular order, resulting in many loads and unloads (probably) for textures and models. Should be fixed if performance becomes an issue.
 	// Loop through all lists. Set up shaders, etc, as needed for each.
 	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
     {
 		(*ii).second->draw();
 	}
+
+	drawAllEID();
+	//drawAllSprites();
 }
 
 // called each frame after processing keyboard state from that frame
@@ -377,6 +451,13 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		if (tmp->m_playerNum == playerNum) {
 			playerShip = tmp;
 		}
+		EntityIdentifier * shipEID = new EntityIdentifier();
+		shipEID->targetEntity = tmp;
+		shipEID->m_onScreenSprite.setTexture(shipEIDTexture);
+		shipEID->m_onScreenSprite.setCenterToTextureMidpoint();
+		shipEID->m_offScreenSprite.setTexture(shipEIDTexture);
+		shipEID->m_offScreenSprite.setCenterToTextureMidpoint();
+		eIDList.push_back(shipEID);
 		ret = tmp;
 		}
 		break;
@@ -415,7 +496,14 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 }
 
 void GameResources::releaseResources() {
-	//TODO fix hardcoded destroys
+	
+	//for(UINT i = 0; i < spriteList.size(); i++) {
+	//	delete spriteList[i];
+	//}
+	pd3dSprite->Release();
+
+	releaseAdditionalTextures();
+	
 	for(int i = 0; i < Gbls::numShipMeshes; i++) {
 		Gbls::shipMesh[0].Destroy();
 	}

@@ -37,6 +37,9 @@ public:
 
 	// Set a location 0 view matrix with correct direction for use with skybox
 	void Camera::setSkyboxView();
+	
+	D3DXMATRIX * Camera::getViewMatrix(D3DXMATRIX & matView);
+	D3DXMATRIX * Camera::getProjMatrix(D3DXMATRIX & matProj);
 };
 
 

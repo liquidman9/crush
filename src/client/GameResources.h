@@ -19,6 +19,7 @@
 #include <shared/game/GameState.h>
 //#include <client/graphics/entities/R_Ship.h>
 #include <shared/GameInput.h>
+#include <client/graphics/EntityIdentifier.h>
 #include <client/graphics/entities/C_Resource.h>
 #include <client/graphics/entities/C_TractorBeam.h>
 #include <client/graphics/entities/C_Mothership.h>
@@ -54,6 +55,10 @@ public:
 	static Camera * curCam;
 	static C_Ship * playerShip;
 	static int playerNum;
+	static LPD3DXSPRITE pd3dSprite;
+	static vector<EntityIdentifier*> eIDList;
+	static LPDIRECT3DTEXTURE9 shipEIDTexture;
+	//static vector<Sprite*> spriteList;
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;
@@ -85,8 +90,13 @@ public:
 	static HRESULT initState();
 	static HRESULT reInitState();
 	static HRESULT initMeshes();
+	static HRESULT initAdditionalTextures();
+	static void releaseAdditionalTextures();
 	static HRESULT initLights();
+	//static HRESULT initSprites();
 	static void drawAll();
+	static void drawAllEID();
+	//static void drawAllSprites();
 	static void updateDebugCamera();
 	static void updatePlayerCamera();
 	static void switchCamera();
