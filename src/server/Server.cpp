@@ -62,14 +62,14 @@ void Server::initializeGameState() {
 
 
 	D3DXVECTOR3 m_pos2(0,0,0);
-	Quaternion m_dir2(0, 0, 0, 0);
+	Quaternion m_dir2(0, 0, 0, 1);
 	S_Asteroid *test3 = new S_Asteroid(m_pos2, m_dir2);
 	m_gameState.push_back(test3);
 	m_world.entities.push_back(test3);
 
 
 	D3DXVECTOR3 m_pos3(0,0,15);
-	Quaternion m_dir3(0, 0, 0, 0);
+	Quaternion m_dir3(0, 0, 0, 1);
 	S_Asteroid *test4 = new S_Asteroid(m_pos3, m_dir3);
 	m_gameState.push_back(test4);
 	m_world.entities.push_back(test4);
