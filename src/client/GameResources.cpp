@@ -167,6 +167,10 @@ HRESULT GameResources::initAdditionalTextures()
 	return S_OK;
 }
 
+void GameResources::releaseAdditionalTextures() {
+	shipEIDTexture->Release();
+}
+
 HRESULT GameResources::initLights() {
 	// Tell the device not to do any dynamic lighting
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -436,8 +440,8 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		shipEID->targetEntity = tmp;
 		shipEID->m_onScreenSprite.setTexture(shipEIDTexture);
 		shipEID->m_onScreenSprite.setCenterToTextureMidpoint();
-		//shipEID->m_offScreenSprite.setTexture(shipEIDTexture);
-		//shipEID->m_offScreenSprite.setCenterToTextureMidpoint();
+		shipEID->m_offScreenSprite.setTexture(shipEIDTexture);
+		shipEID->m_offScreenSprite.setCenterToTextureMidpoint();
 		eIDList.push_back(shipEID);
 		ret = tmp;
 		}
@@ -460,6 +464,9 @@ void GameResources::releaseResources() {
 	//for(UINT i = 0; i < spriteList.size(); i++) {
 	//	delete spriteList[i];
 	//}
+	pd3dSprite->Release();
+
+	releaseAdditionalTextures();
 	
 	for(int i = 0; i < Gbls::numShipMeshes; i++) {
 		Gbls::shipMesh[0].Destroy();

@@ -22,8 +22,7 @@ public:
 	EntityIdentifier();
 	~EntityIdentifier();
 	Sprite m_onScreenSprite;
-	Sprite m_edgeScreenSprite;
-	Sprite m_cornerScreenSprite;
+	Sprite m_offScreenSprite;
 	//void setScaleOffset(float scaleFactor, float x, float y, float z);
 	void draw(Camera * cam, ID3DXSprite* pSpriteRenderer);
 };

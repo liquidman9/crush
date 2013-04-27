@@ -85,6 +85,7 @@ public:
 	static HRESULT reInitState();
 	static HRESULT initMeshes();
 	static HRESULT initAdditionalTextures();
+	static void releaseAdditionalTextures();
 	static HRESULT initLights();
 	//static HRESULT initSprites();
 	static void drawAll();

@@ -20,10 +20,10 @@ void Sprite::setTexture(LPDIRECT3DTEXTURE9 pTexture) {
 	
 	if(pTexture) {
 		// Release any existing texture
-		if(m_pTexture)
-			m_pTexture->Release();
+		//if(m_pTexture)
+		//	m_pTexture->Release();
 		m_pTexture = pTexture;
-		pTexture->AddRef();
+		//pTexture->AddRef();
 	}
 }
 
