@@ -9,6 +9,9 @@ Server::Server(unsigned int port):m_server(port)
 	string error_file = SERVER_ERROR_FILE;
 	ConfigSettings::config->getValue("server_errorLogFile", error_file);
 	m_f_error = ofstream(error_file);
+	if(!m_f_error) {
+		cerr << "error opening log file: " << error_file << endl;
+	}
 }
 
 
@@ -84,6 +87,19 @@ void Server::initializeGameState() {
 }
 
 
+void Server::removeDisconClients() {
+	vector<unsigned int> disconClients = m_server.getDisconClients();
+	for (auto it = disconClients.begin(); it != disconClients.end(); it++){
+		auto player = m_playerMap.find(*it);
+		if(player != m_playerMap.end()) {
+			player->second->m_playerName = "";
+			//would normally remove here, but no good way of removing yet
+			//may not even implement this
+		}
+	}
+}
+
+
 void Server::loop() {
 	for(;;) {
 		if(m_start) {			
@@ -97,6 +113,10 @@ void Server::loop() {
 			m_reload = false;
 		}		
 		startTick();
+
+		//(optional) currently just removes the name from a player's
+		//ship who has disconnected
+		removeDisconClients();
 
 		addNewClients();
 
@@ -113,12 +133,12 @@ void Server::loop() {
 }
 
 void Server::addNewClients() {
-	vector<unsigned int> cc = m_server.getNewClientIDs();
+	vector<pair<unsigned int, string>> cc = m_server.getNewClientIDs();
 	//get new client ids and if they aren't in the playerMap add them
 	for(auto it= cc.begin(); it != cc.end(); it++) {
-		auto player = m_playerMap.find(*it);
+		auto player = m_playerMap.find(it->first);
 		if(player == m_playerMap.end()) {
-			spawnShip(*it);
+			spawnShip(it->first);
 		}
 	}
 }
@@ -133,7 +153,7 @@ void Server::spawnShip(unsigned int client_id) {
 }
 
 void Server::moveClients() {
-	//add client inputs to every player that we have
+	//add client inputs to every player that we have input for
 	for(auto it = m_clientInput.begin(); it != m_clientInput.end(); it++) {
 		auto player = m_playerMap.find(it->first);
 		if(player != m_playerMap.end()) {

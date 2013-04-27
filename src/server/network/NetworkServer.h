@@ -45,7 +45,11 @@ public:
 
 	//returns a vector of that have connected since the last call to
 	//getNewClientIDs;
-	vector<unsigned int> getNewClientIDs();
+	vector<pair<unsigned int, string>> getNewClientIDs();
+
+	//returns a vector of ids of clients who have disconnected since the last call
+	// to getDisconClients();
+	vector<unsigned int> getDisconClients();
 
 	
 	virtual ~NetworkServer(void);
@@ -59,8 +63,8 @@ private:
 	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
 	SOCKET m_incomingSock;
 	map <unsigned int, SOCKET> m_connectedClients;
-	map <unsigned int, unsigned int> m_newClients;
-	EventBuff_t m_eventsBuffer;
+	map <unsigned int, string> m_newClients;
+	vector<unsigned int> m_disconClients;
 
 	
 	//thread stuff

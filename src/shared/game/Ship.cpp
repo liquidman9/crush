@@ -22,8 +22,14 @@ Ship::Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
 Ship::Ship(int pNum) :
 	Entity(SHIP),
 	m_playerNum(pNum),
-	m_tractorBeamOn(false)
+	m_tractorBeamOn(false),
+	m_playerName("Player " + to_string((long long) pNum))
 {}
+
+void Ship::setPlayerName(const string &s) {
+	m_playerName = s;
+	m_playerName.resize(MAX_PLAYERNAME_SIZE);
+}
 
 
 const char* Ship::encode() const {
@@ -48,6 +54,9 @@ const char* Ship::encode() const {
 	
 	// Encode tractor beam
 	*(bool *) (tmp_rtn) = m_tractorBeamOn;
+	tmp_rtn += sizeof(bool);
+
+	memcpy(tmp_rtn, m_playerName.c_str(), MAX_PLAYERNAME_SIZE);
 
 	// Delete temp pointer whuut don't need -- tmp points to rtn which is what we are returning. <-- wrong
 	// tmp points to the buffer returned from encode, that is a new buffer YOU NEED TO DELETE IT...
@@ -70,6 +79,8 @@ void Ship::decode(const char *buff) {
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
 	buff += sizeof(SHIP_PLAYERNUM_TYPE);
 	m_tractorBeamOn = *(bool *) buff;
+	buff += sizeof(bool);
+	m_playerName = string(buff, MAX_PLAYERNAME_SIZE);
 }
 
 //void Ship::update(Entity * source) {

@@ -34,6 +34,10 @@ public:
 	//using NetworkClient
 	void bindToServer(string ip, unsigned short port);
 
+	//takes server ip and port and string. This function must be called before 
+	//using NetworkClient. Client name will be the name of this client's ship.
+	void bindToServer(string ip, unsigned short port, const string &client_name);
+
 	//get the game state as currently known by the client
 	const GameState<Entity> getGameState();
 
@@ -57,7 +61,7 @@ private:
 	Network m_server;
 	bool m_stateAvailable;
 	GameState<Entity> m_gameState;
-	void bindToServer(Network const &);
+	void bindToServer(Network const &, const string &);
 
 
 	//thread stuff

@@ -66,6 +66,8 @@ private:
 	//sleep for the remaining of the tick
 	inline void endOfTick();
 
+	void removeDisconClients();
+
 
 	//variables
 	NetworkServer m_server;

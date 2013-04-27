@@ -40,11 +40,15 @@ void NetworkClient::initializeSocket() {
 	}
 }
 
-void NetworkClient::bindToServer(string ip, unsigned short port) {
-	bindToServer(Network(ip, port));
+void NetworkClient::bindToServer(string ip, unsigned short port, const string &client_name) {
+	bindToServer(Network(ip, port), client_name);
 }
 
-void NetworkClient::bindToServer(Network const &n) {
+void NetworkClient::bindToServer(string ip, unsigned short port) {
+	bindToServer(Network(ip, port), "");
+}
+
+void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 	m_server = n;
 
 	//bind server port to socket
@@ -62,6 +66,7 @@ void NetworkClient::bindToServer(Network const &n) {
 		throw e;
 	}
 
+	//get client ID
 	int clientID;
 	if (recv (m_sock, (char *) &clientID, sizeof(m_clientID), 0) == SOCKET_ERROR) {
 		cerr << "Failed to get client ID : " + to_string((long long) WSAGetLastError()) << endl;
@@ -76,6 +81,20 @@ void NetworkClient::bindToServer(Network const &n) {
 		throw e;
 	}
 	m_clientID = clientID;
+
+	//send player name
+	string send_name = client_name;
+	if(send_name == "") {
+		send_name = "Player " + to_string((long long) clientID);
+	}
+	send_name.resize(MAX_PLAYERNAME_SIZE);
+
+	if (send (m_sock, send_name.c_str(), MAX_PLAYERNAME_SIZE, 0) == SOCKET_ERROR) {
+		cerr << "Failed to send player name : " + to_string((long long) WSAGetLastError()) << endl;
+		
+		runtime_error e("Failed to send player name : " + to_string((long long) WSAGetLastError()));
+		throw e;
+	}
 
 	//don't collect data and send in a big packet
 	char value = 1;

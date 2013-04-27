@@ -207,6 +207,14 @@ void NetworkServer::acceptNewClient()
 					continue;
 				}
 
+				char client_name[MAX_PLAYERNAME_SIZE];
+				if(recv(ClientSocket, client_name, MAX_PLAYERNAME_SIZE,0) == SOCKET_ERROR) {
+					cerr << "Error recving player name from client " << clientID << " error :" << WSAGetLastError() << endl;
+					cerr << "Closing connection to client " << clientID << endl;
+					closesocket(ClientSocket);
+					continue;
+				}
+
 				//set client to non-blocking
 				u_long iMode = 1;
 				if(ioctlsocket(ClientSocket, FIONBIO, &iMode) == SOCKET_ERROR){
@@ -221,7 +229,7 @@ void NetworkServer::acceptNewClient()
 
 				//insert new client into connected clients
 				EnterCriticalSection(&m_cs);
-				m_newClients.insert(pair<unsigned int, unsigned int>(i,i));
+				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				LeaveCriticalSection(&m_cs);
 				cout << "New client " << i << " connected." << endl;
@@ -240,13 +248,22 @@ vector<unsigned int> NetworkServer::getConnectedClientIDs() {
 	return rtn;
 }
 
-vector<unsigned int> NetworkServer::getNewClientIDs(){
-	vector<unsigned int> rtn;
+vector<pair<unsigned int, string>> NetworkServer::getNewClientIDs(){
+	vector<pair<unsigned int, string>> rtn;
 	EnterCriticalSection(&m_cs);
 	for(auto it = m_newClients.begin(); it != m_newClients.end(); it++){
-		rtn.push_back(it->first);
+		rtn.push_back(*it);
 	}
 	m_newClients.clear();
+	LeaveCriticalSection(&m_cs);
+	return rtn;
+}
+
+vector<unsigned int> NetworkServer::getDisconClients() {
+	vector<unsigned int> rtn;
+	EnterCriticalSection(&m_cs);
+	rtn = m_disconClients;
+	m_disconClients.clear();
 	LeaveCriticalSection(&m_cs);
 	return rtn;
 }
