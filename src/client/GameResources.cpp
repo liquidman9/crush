@@ -183,7 +183,10 @@ HRESULT GameResources::initAdditionalTextures()
 }
 
 void GameResources::releaseAdditionalTextures() {
-	shipEIDTexture->Release();
+	if (shipEIDTexture) {
+		shipEIDTexture->Release();
+		shipEIDTexture = NULL;
+	}
 }
 
 HRESULT GameResources::initLights() {
@@ -500,7 +503,11 @@ void GameResources::releaseResources() {
 	//for(UINT i = 0; i < spriteList.size(); i++) {
 	//	delete spriteList[i];
 	//}
-	pd3dSprite->Release();
+
+	if(pd3dSprite) {
+		pd3dSprite->Release();
+		pd3dSprite = NULL;
+	}
 
 	releaseAdditionalTextures();
 	
