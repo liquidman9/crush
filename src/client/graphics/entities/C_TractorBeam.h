@@ -1,24 +1,24 @@
 /*
- * C_Asteroid.h
+ * C_TractorBeam.h
  */
 
-#ifndef C_ASTEROID_H_INCLUDED
-#define C_ASTEROID_H_INCLUDED
+#ifndef C_TRACTORBEAM_H_INCLUDED
+#define C_TRACTORBEAM_H_INCLUDED
 
 // Project includes
-#include <shared/game/Asteroid.h>
+#include <shared/game/TractorBeam.h>
 #include <client/graphics/entities/C_Entity.h>
 #include <client/graphics/Renderable.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
-class C_Asteroid : public Asteroid, public C_Entity {
+class C_TractorBeam : public TractorBeam, public C_Entity {
 public:
 	Mesh* m_pMesh;
 
-	C_Asteroid();
-	C_Asteroid(Entity *);
+	C_TractorBeam();
+	C_TractorBeam(Entity *);
 	void draw();
 };
 

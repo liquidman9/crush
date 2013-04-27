@@ -1,44 +1,40 @@
 /*
- * C_Asteroid.cpp
+ * C_Mothership.cpp
  */
 
 // Project includes
 #include <client/Gbls.h>
-#include <client/graphics/entities/C_Asteroid.h>
+#include <client/graphics/entities/C_Mothership.h>
  
 //Mesh C_Ship::s_mesh;
 
-C_Asteroid::C_Asteroid() :
-	Entity(ASTEROID)
+C_Mothership::C_Mothership() :
+	Entity(MOTHERSHIP)
 { 
 	cerr << "Creating C_Asteroid with default constructor" << endl;
 }
 
 
-C_Asteroid::C_Asteroid(Entity * newEnt) :
-	Entity(ASTEROID)
+C_Mothership::C_Mothership(Entity * newEnt) :
+	Entity(MOTHERSHIP)
 {
-cerr << "Creating C_Asteroid with Entity * constructor" << endl;
-	Asteroid * srcAsteroid = dynamic_cast<Asteroid*>(newEnt);
-	if (srcAsteroid != NULL) {
-		m_pos = srcAsteroid->m_pos;
-		m_orientation = srcAsteroid->m_orientation;
-		m_scale = srcAsteroid->m_scale;
-		m_pMesh = &Gbls::asteroidMesh;
+cerr << "Creating C_Mothership with Entity * constructor" << endl;
+	Mothership * srcMothership = dynamic_cast<Mothership*>(newEnt);
+	if (srcMothership != NULL) {
+		m_pos = srcMothership->m_pos;
+		m_orientation = srcMothership->m_orientation;
+		m_playerNum = srcMothership->m_playerNum;
+	    m_resources = srcMothership->m_resources;
+		m_pMesh = &Gbls::mothershipMesh[m_playerNum % Gbls::numShipMeshes];
 	} else {
 		cerr << "SEVERE : Unable to create Client Asteroid!" << endl;
 	}
 }
 
-void C_Asteroid::draw()
+void C_Mothership::draw()
 {
 
-	// Scale Asteroid 
-	float conv = 120*100;
-	D3DXMATRIX matScale;
-	D3DXMatrixScaling(&matScale, m_scale/conv, m_scale/conv, m_scale/conv);
-	
-	// Translate Asteroid to correct possition
+	// Translate Mothership to correct possition
 	D3DXMATRIX matTranslate;
 	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
 
@@ -48,6 +44,6 @@ void C_Asteroid::draw()
 	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
 
 	// Apply transforms
-	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matScale*matRotate*matTranslate));
+	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));
 	m_pMesh->draw();
 }

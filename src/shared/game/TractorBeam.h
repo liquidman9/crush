@@ -25,6 +25,7 @@ public:
 	float m_strength;
 
 	// Constructors
+	TractorBeam();
 	TractorBeam(int pNum);
 
 	// Methods

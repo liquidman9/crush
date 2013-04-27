@@ -26,3 +26,13 @@ S_Mothership::S_Mothership(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 
 }
 
+
+	
+D3DXVECTOR3 S_Mothership::calculateRotationalInertia(float mass){
+	float radius_squared = 50;
+	float height_squared = 50;
+	return D3DXVECTOR3( (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
+						(0.5f) * mass * radius_squared,
+						(1.0f / 12.0f) * mass * (3 * radius_squared + height_squared));
+};
+

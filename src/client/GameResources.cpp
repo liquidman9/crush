@@ -14,6 +14,9 @@
 #include <client/GameResources.h>
 #include <client/Gbls.h>
 #include <client/graphics/Skybox.h>
+#include <client/graphics/entities/C_Resource.h>
+#include <client/graphics/entities/C_TractorBeam.h>
+#include <client/graphics/entities/C_Mothership.h>
 #include <client/graphics/entities/C_Asteroid.h>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_Entity.h>
@@ -27,6 +30,9 @@ const float GameResources::PLAYER_CAM_LOOKAT_DISTANCE = 15.0f;
 
 int GameResources::playerNum = -1;
 vector<C_Ship*> GameResources::shipList;
+vector<C_Mothership*> GameResources::mothershipList;
+vector<C_TractorBeam*> GameResources::tractorBeamList;
+vector<C_Resource*> GameResources::resourceList;
 vector<C_Asteroid*> GameResources::asteroidList;
 std::map<int, C_Entity*> GameResources::entityMap;
 bool GameResources::debugCamOn = true;
@@ -149,7 +155,16 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	}
 
+	for (int i = 0; i < Gbls::numShipMeshes; i++) {
+		if(FAILED(hres = Gbls::mothershipMesh[i].Create(Gbls::mothershipMeshFilepath[i])))
+			return hres;
+	}
+
 	if(FAILED(hres = Gbls::asteroidMesh.Create(Gbls::asteroidMeshFilepath)))
+			return hres;
+	if(FAILED(hres = Gbls::resourceMesh.Create(Gbls::resourceMeshFilepath)))
+			return hres;
+	if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
 			return hres;
 
 	return S_OK;
@@ -374,6 +389,27 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		ret = tmp;
 		}
 		break;
+	case TRACTORBEAM :
+		{
+		C_TractorBeam * tmp = new C_TractorBeam(newEnt);
+		tractorBeamList.push_back(tmp);
+		ret = tmp;
+		}
+		break;
+	case MOTHERSHIP :
+		{
+		C_Mothership * tmp = new C_Mothership(newEnt);
+		mothershipList.push_back(tmp);
+		ret = tmp;
+		}
+		break;
+	case RESOURCE :
+		{
+		C_Resource * tmp = new C_Resource(newEnt);
+		resourceList.push_back(tmp);
+		ret = tmp;
+		}
+		break;
 	}
 	return ret;
 }
@@ -383,5 +419,13 @@ void GameResources::releaseResources() {
 	for(int i = 0; i < Gbls::numShipMeshes; i++) {
 		Gbls::shipMesh[0].Destroy();
 	}
+	for(int i = 0; i < Gbls::numShipMeshes; i++) {
+		Gbls::mothershipMesh[0].Destroy();
+	}
+
+	Gbls::asteroidMesh.Destroy();
+	Gbls::resourceMesh.Destroy();
+	Gbls::tractorBeamMesh.Destroy();
+
 	Skybox::releaseSkybox();
 }

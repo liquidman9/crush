@@ -10,6 +10,9 @@
 #include <shared/InputState.h>
 #include <server/game/S_Ship.h>
 #include <server/game/S_Asteroid.h>
+#include <server/game/S_Resource.h>
+#include <server/game/S_TractorBeam.h>
+#include <server/game/S_Mothership.h>
 #include <server/game/PhysicsWorld.h>
 #include <shared/ConfigSettings.h>
 

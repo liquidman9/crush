@@ -31,7 +31,10 @@ public:
 	
 	// Meshes
 	static Mesh * shipMesh;
+	static Mesh * mothershipMesh;
 	static Mesh asteroidMesh;
+	static Mesh tractorBeamMesh;
+	static Mesh resourceMesh;
 
 	static float debugCamMoveSpeed;		//scales the movement speed of the Debug Cam
 	static float debugCamTurnSpeed;		//scales the turn speed of the Debug Cam
@@ -43,7 +46,10 @@ public:
 	//static std::wstring shipMeshFilepath_1;
 	//static std::wstring shipMeshFilepath_2;
 	static std::wstring * shipMeshFilepath;
+	static std::wstring * mothershipMeshFilepath;
 	static std::wstring asteroidMeshFilepath;
+	static std::wstring tractorBeamMeshFilepath;
+	static std::wstring resourceMeshFilepath;
 	
 	static std::wstring skyboxTextureFilepath_Front;
 	static std::wstring skyboxTextureFilepath_Back;
