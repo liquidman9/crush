@@ -23,17 +23,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			
 			GameInput input;
 #ifndef MYNETWORKOFF  // defined in Gbls
-			//networking init
-			//try {
-			NetworkClient nc(8887);
 
-			//nc.bindToServer("192.168.5.149", 8889);
-			nc.bindToServer("127.0.0.1", 8889);
+			//networking init
+			int c_port = DEFAULT_PORT-1;
+			ConfigSettings::config->getValue("network_clientPort", c_port);
+			NetworkClient nc(c_port);
+			
+			
+			int s_port = DEFAULT_PORT;
+			ConfigSettings::config->getValue("network_serverPort", s_port);
+			
+			string server_ip = "127.0.0.1";
+			ConfigSettings::config->getValue("network_serverIP", server_ip);
+
+			
+			nc.bindToServer(server_ip, (unsigned short) s_port);
 
 			GameResources::playerNum = nc.getClientID();
-			//} catch (exception & e) {
-			//	cerr << e.what();
-			//}
+
 #else
 			MessageBox( NULL, L"Network not enabled.\nRecompile with MYNETWORKOFF undefined to enable.", L"CRUSH.exe", MB_OK );
 #endif
