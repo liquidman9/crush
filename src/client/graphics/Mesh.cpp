@@ -34,7 +34,7 @@ HRESULT Mesh::Create(std::wstring filepath)
                                        &pD3DXMtrlBuffer, NULL, &m_dwNumMaterials,
                                        &m_pMesh ) ) )
         {
-            MessageBox( NULL, (L"Could not find "+filepath).c_str(), L"Meshes.exe", MB_OK );
+            MessageBox( NULL, (L"Could not find "+filepath).c_str(), L"CRUSH.exe", MB_OK );
             return E_FAIL;
         }
     }
@@ -78,7 +78,7 @@ HRESULT Mesh::Create(std::wstring filepath)
                                                         strTexture,
                                                         &m_pMeshTextures[i] ) ) )
                 {
-                    MessageBox( NULL, L"Could not find texture map", L"Meshes.exe", MB_OK );
+                    MessageBox( NULL, L"Could not find texture map", L"CRUSH.exe", MB_OK );
                 }
             }
         }
