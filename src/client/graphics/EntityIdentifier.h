@@ -17,12 +17,14 @@
 class EntityIdentifier
 {
 public:
-	D3DXMATRIX m_scaleOffsetMatrix;
+	//D3DXMATRIX m_scaleOffsetMatrix;
 	C_Entity * targetEntity;
 	EntityIdentifier();
 	~EntityIdentifier();
-	Sprite m_sprite;
-	void setScaleOffset(float scaleFactor, float x, float y, float z);
+	Sprite m_onScreenSprite;
+	Sprite m_edgeScreenSprite;
+	Sprite m_cornerScreenSprite;
+	//void setScaleOffset(float scaleFactor, float x, float y, float z);
 	void draw(Camera * cam, ID3DXSprite* pSpriteRenderer);
 };
 

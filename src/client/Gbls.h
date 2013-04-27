@@ -18,7 +18,7 @@
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Sprite.h>
 
-//#define MYNETWORKOFF  //don't use network
+#define MYNETWORKOFF  //don't use network
 
 //Our defines
 class Gbls

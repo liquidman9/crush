@@ -15,14 +15,14 @@
 class Sprite
 {
 public:
-	D3DXVECTOR3 m_vPos, m_vCenter;
+	D3DXVECTOR3 /*m_vPos,*/ m_vCenter;
 	LPDIRECT3DTEXTURE9 m_pTexture;
 
 	Sprite();
 	~Sprite();
 	void setTexture(LPDIRECT3DTEXTURE9 pTexture);
 	void setCenterToTextureMidpoint();
-	void Sprite::draw(ID3DXSprite* pRenderer);
+	//void Sprite::draw(ID3DXSprite* pRenderer);
 };
 
 

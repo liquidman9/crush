@@ -434,18 +434,10 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		}
 		EntityIdentifier * shipEID = new EntityIdentifier();
 		shipEID->targetEntity = tmp;
-		shipEID->m_sprite.setTexture(shipEIDTexture);
-		shipEID->m_sprite.setCenterToTextureMidpoint();
-		//if (shipEID->m_sprite.m_pTexture) {
-		//	D3DSURFACE_DESC desc;
-		//	HRESULT hResult = shipEID->m_sprite.m_pTexture->GetLevelDesc(0, &desc);
-		//	if(SUCCEEDED(hResult))
-		//	{
-		//		shipEID->m_sprite.m_vCenter.x = (desc.Width / 2);
-		//		shipEID->m_sprite.m_vCenter.y =  (desc.Height*2);
-		//	}
-		//}
-		shipEID->setScaleOffset(0.012f, 0.0f, 0.0f, 0.0f);
+		shipEID->m_onScreenSprite.setTexture(shipEIDTexture);
+		shipEID->m_onScreenSprite.setCenterToTextureMidpoint();
+		//shipEID->m_offScreenSprite.setTexture(shipEIDTexture);
+		//shipEID->m_offScreenSprite.setCenterToTextureMidpoint();
 		eIDList.push_back(shipEID);
 		ret = tmp;
 		}
