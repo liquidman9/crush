@@ -63,7 +63,7 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 			if(arrowV.x < 0) // second and third quadrent
 				angle = D3DX_PI + angle;
 
-			D3DXVECTOR2 centerV(m_onScreenSprite.m_vCenter.x, m_onScreenSprite.m_vCenter.y);
+			D3DXVECTOR2 centerV(m_offScreenSprite.m_vCenter.x, m_onScreenSprite.m_vCenter.y);
 			
 			arrowV *= 1.25f;
 			pixel_x = (int)(((arrowV.x + 1.0f)/2.0f)*screenWidth);
@@ -75,7 +75,7 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 			mat._41 = (float)pixel_x;
 			mat._42 = (float)pixel_y;
 			pSpriteRenderer->SetTransform(&mat);
-			pSpriteRenderer->Draw(m_onScreenSprite.m_pTexture, NULL, &D3DXVECTOR3(centerV.x, centerV.y, 0), NULL, 0XFFFFFFFF);
+			pSpriteRenderer->Draw(m_offScreenSprite.m_pTexture, NULL, &D3DXVECTOR3(centerV.x, centerV.y, 0), NULL, 0XFFFFFFFF);
 		}
 	}
 }
