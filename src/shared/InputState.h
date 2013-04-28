@@ -6,7 +6,7 @@
 
 class InputState : public Sendable {
 	public:
-	bool tractBeam;
+	unsigned char tractBeam;
 	unsigned char thrust;
 	short turn;
 	short pitch;
@@ -23,22 +23,26 @@ class InputState : public Sendable {
 		return pitch/32768.0;
 	}
 
-	static const unsigned int m_size = sizeof(bool)+sizeof(char)+sizeof(short)*2;
+	double getTractorBeam() {
+		return tractBeam/255.0;
+	}
+
+	static const unsigned int m_size = sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short)*2;
 
 	virtual const char* encode() const {
 		char * tmp = new char[m_size];
-		*(bool *) tmp = tractBeam;
-		*(char *) (tmp+sizeof(bool)) = thrust;
-		*(short *) (tmp+sizeof(bool)+sizeof(char)) = turn;
-		*(short *) (tmp+sizeof(bool)+sizeof(char)+sizeof(short)) = pitch;
+		*(unsigned char *) tmp = tractBeam;
+		*(unsigned char *) (tmp+sizeof(unsigned char)) = thrust;
+		*(short *) (tmp+sizeof(unsigned char)+sizeof(char)) = turn;
+		*(short *) (tmp+sizeof(unsigned char)+sizeof(char)+sizeof(short)) = pitch;
 		return tmp;
 	};
 
 	virtual void decode(const char * tmp) {
-		tractBeam = *(bool *)tmp;
-		thrust = *(char *)(tmp+sizeof(bool));
-		turn = *(short *) (tmp+sizeof(bool)+sizeof(char));
-		pitch = *(short *) (tmp+sizeof(bool)+sizeof(char)+sizeof(short));
+		tractBeam = *(unsigned char *)tmp;
+		thrust = *(unsigned char *)(tmp+sizeof(unsigned char));
+		turn = *(short *) (tmp+sizeof(unsigned char)+sizeof(unsigned char));
+		pitch = *(short *) (tmp+sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short));
 	};
 	virtual const unsigned int size() const { return m_size; };
 };
