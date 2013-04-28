@@ -59,6 +59,7 @@ public:
 	static LPD3DXFONT GameResources::pd3dFont;
 	static vector<EntityIdentifier*> eIDList;
 	static LPDIRECT3DTEXTURE9 shipEIDTexture;
+	static bool drawRed;
 	//static vector<Sprite*> spriteList;
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;

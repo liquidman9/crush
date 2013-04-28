@@ -261,6 +261,10 @@ LRESULT CALLBACK D3DWindow::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			ToggleFullscreen();
 			break;
 
+		case 'R':
+			GameResources::drawRed = !GameResources::drawRed;
+			break;
+
 		//case VK_ESCAPE:
 		//	s_bQuit = true;
 		//	break;

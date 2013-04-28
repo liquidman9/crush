@@ -27,6 +27,7 @@
 const float GameResources::PLAYER_CAM_DISTANCE = 15.0f;
 const float GameResources::PLAYER_CAM_HEIGHT = 4.0f;
 const float GameResources::PLAYER_CAM_LOOKAT_DISTANCE = 15.0f;
+bool GameResources::drawRed = true;
 
 int GameResources::playerNum = -1;
 vector<C_Ship*> GameResources::shipList;
@@ -146,7 +147,7 @@ HRESULT GameResources::reInitState() {
 		return hres;
 
 	//set backface cullling off TODO remove after models are fixed
-	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	
 	return S_OK;
 }
@@ -222,8 +223,8 @@ HRESULT GameResources::initLights() {
 
     ZeroMemory(&light, sizeof(light));         // clear out the light struct for use
     light.Type = D3DLIGHT_DIRECTIONAL;         // make the light type 'directional light'
-    light.Diffuse = Gbls::lightDiffuseColor;   // set the light's diffuse color
-	light.Specular = Gbls::lightSpecularColor; // set the light's specular color
+    light.Diffuse = D3DXCOLOR(0.0f);   // set the light's diffuse color
+	light.Specular = D3DXCOLOR(0.0f); // set the light's specular color
     light.Direction = Gbls::lightDirection;    // set the light's direction
     //D3DXVec3Normalize((D3DXVECTOR3*) &light.Direction, &D3DXVECTOR3(-1.0f, -0.3f, -1.0f));
 	light.Range = 1000;
@@ -293,6 +294,9 @@ void GameResources::drawAll()
 {
 	Skybox::drawSkybox();
 
+	
+	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(255, 255, 255));
 	// TODO this draws objects in no particular order, resulting in many loads and unloads (probably) for textures and models. Should be fixed if performance becomes an issue.
 	// Loop through all lists. Set up shaders, etc, as needed for each.
 	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
@@ -300,9 +304,20 @@ void GameResources::drawAll()
 		(*ii).second->draw();
 	}
 
-	drawAllEID();
+	if(drawRed) {
+		Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+		Gbls::pd3dDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(255, 20, 20));
+		for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+		{
+			(*ii).second->draw();
+		}
+	}
+	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(255, 255, 255));
 
-	drawStaticHudElements();
+	//drawAllEID();
+
+	//drawStaticHudElements();
 }
 
 // called each frame after processing keyboard state from that frame
