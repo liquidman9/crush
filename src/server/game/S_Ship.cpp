@@ -9,8 +9,8 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 
-static float ROTATION_SCALE = 100;
-static float THRUST_FACTOR = 10;
+static float ROTATION_SCALE = 50;
+static float THRUST_FACTOR = 1;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),
@@ -56,17 +56,20 @@ void S_Ship::calculate(float dt){
 	*/
 }
 
+// This method needs to be extracted to the server/physics engine.
 void S_Ship::addPlayerInput(InputState input) {
 	m_thrust = input.thrust;
 	m_tractorBeamOn = input.tractBeam;
 
 	// Rotational thrust calculations
-	float x = ((float)input.turn) / ROTATION_SCALE;
-	float y = ((float)input.pitch) / ROTATION_SCALE;
+	float x = -input.getTurn() * ROTATION_SCALE;
+	float y = -input.getPitch() * ROTATION_SCALE;
 	D3DXVECTOR3 fore_rot_force(x, y, 0);
 	D3DXVECTOR3 aft_rot_force(-x, -y, 0);
+	
+	//D3DXVECTOR3 stabilizer_force(-m_angular_momentum.x / 10, -m_angular_momentum.y / 10, -m_angular_momentum.z / 10); To be implemented
 
-	D3DXVECTOR3 main_thrust_force(0, 0, m_thrust);
+	D3DXVECTOR3 main_thrust_force(0, 0, input.getThrust() * THRUST_FACTOR);
 	
 	D3DXMATRIX mat_rotate;
 	D3DXVECTOR4 temp;
