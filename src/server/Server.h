@@ -13,6 +13,7 @@
 #include <server/game/S_Resource.h>
 #include <server/game/S_TractorBeam.h>
 #include <server/game/S_Mothership.h>
+#include <server/game/Mine.h>
 #include <server/game/PhysicsWorld.h>
 #include <shared/ConfigSettings.h>
 
@@ -20,6 +21,7 @@
 
 
 typedef map<unsigned int, S_Ship*> PlayerMap_t;
+typedef map<unsigned int, S_Mothership*> MothershipMap_t;
 
 
 class Server
@@ -51,11 +53,20 @@ private:
 	//initialize the gameState
 	void initializeGameState();
 
+	// add initial resources and the mine
+	void setUpResourceMine();
+
+	// add initial asteroids to the map
+	void setUpAsteroids();
+
 	//add any new clients that have conntected
 	void addNewClients();
 	
 	//spawn a new ship for client_id
 	void spawnShip(unsigned int client_id);
+
+	//spawn a new mothership for client_id
+	void spawnMothership(unsigned int client_id);
 
 	//move clients that are currently known
 	void moveClients();
@@ -78,6 +89,8 @@ private:
 	GameState<Entity> m_gameState;
 	EventBuff_t m_clientInput;
 	PlayerMap_t m_playerMap;
+	MothershipMap_t m_mothershipMap;
+	Mine * m_resourceMine;
 	long long m_startTick;
 	ofstream m_f_error;
 	bool m_start;

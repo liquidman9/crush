@@ -5,6 +5,7 @@
 // Project includes
 #include <server/game/PhysicsWorld.h>
 
+
 ostream& operator<<(ostream& os, const D3DXVECTOR3 &v) {
 	os << "<" << v.x << ", " << v.y << ", " << v.z << ">";
 	return os;
@@ -71,26 +72,70 @@ bool PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 	return false;
 }
 
+bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
+	ServerEntity * one, * two;
+	bool rtn = true;
 
+	// Ships & Resources
+	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == SHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == SHIP)){
+		S_Ship * ship = (S_Ship *)two;
+		S_Resource * res = (S_Resource *) one;
+		ship->gatherResource(res);
+		rtn = false;
+	}
+
+	// Give/Take Resource to Mothership
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == SHIP && (two = a)->m_type == MOTHERSHIP)){
+		S_Mothership * mothership = (S_Mothership *)two;
+		S_Ship * ship = (S_Ship *) one;
+
+		mothership->interact(ship);
+		rtn = false; //tmp
+	}
+
+	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == MOTHERSHIP)){
+		rtn = false;
+	}
+
+	// Tractorbeam doesn't do anything right now
+	if(((one = a)->m_type == TRACTORBEAM) || ((one = b)->m_type == TRACTORBEAM)){
+		rtn = false; //tmp
+	}
+
+	if(((one = a)->m_type == RESOURCE) && ((one = b)->m_type == RESOURCE)){
+		rtn = false;
+	}
+
+	return rtn;
+
+}
 
 void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
-	D3DXVECTOR3 n = a->m_pos - b->m_pos;
-	D3DXVec3Normalize(&n,&n);
 
-	D3DXVECTOR3 v1 = a->m_velocity;
-	D3DXVECTOR3 v2 = b->m_velocity;
-	float a1 = D3DXVec3Dot(&v1,&n);
-	float a2 = D3DXVec3Dot(&v2,&n);
+	if(typeResponse(a, b)) {
+		D3DXVECTOR3 n = a->m_pos - b->m_pos;
+		D3DXVec3Normalize(&n,&n);
 
-	float optimizedP = (2.0f * (a1 - a2)) / (a->m_mass + b->m_mass);
+		D3DXVECTOR3 v1 = a->m_velocity;
+		D3DXVECTOR3 v2 = b->m_velocity;
+		float a1 = D3DXVec3Dot(&v1,&n);
+		float a2 = D3DXVec3Dot(&v2,&n);
 
-	D3DXVECTOR3 nv1 = v1 - optimizedP * b->m_mass * n;
-	D3DXVECTOR3 nv2 = v2 + optimizedP * a->m_mass * n;
+		float optimizedP = (2.0f * (a1 - a2)) / (a->m_mass + b->m_mass);
 
-	a->m_velocity = nv1;
-	a->m_pos+= a->m_velocity;
-	b->m_velocity = nv2;
-	b->m_pos+=b->m_velocity;
+		D3DXVECTOR3 nv1 = v1 - optimizedP * b->m_mass * n;
+		D3DXVECTOR3 nv2 = v2 + optimizedP * a->m_mass * n;
+
+		if(!a->m_immovable){
+			a->m_velocity = nv1;
+			a->m_pos+= a->m_velocity;
+		}
+
+		if(!b->m_immovable){
+			b->m_velocity = nv2;
+			b->m_pos+=b->m_velocity;
+		}
+	}
 }
 
 bool PhysicsWorld::checkCollision(ServerEntity& a, Boundary& b){

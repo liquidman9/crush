@@ -9,8 +9,11 @@
 #include <d3dx9.h>
 
 // Project includes
-#include <shared/game/Entity.h>
-#include <server/game/ServerEntity.h>
+#include <server/game/S_Ship.h>
+#include <server/game/S_Asteroid.h>
+#include <server/game/S_Resource.h>
+#include <server/game/S_TractorBeam.h>
+#include <server/game/S_Mothership.h>
 #include <server/game/Boundary.h>
 
 #pragma comment(lib,"D3dx9.lib")
@@ -27,6 +30,7 @@ public:
 	void update(float delta_time);
 	bool checkCollision(ServerEntity&,ServerEntity&);
 	bool checkCollision(ServerEntity&, Boundary&);
+	bool typeResponse(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, Boundary);
 

@@ -11,7 +11,8 @@ ServerEntity::ServerEntity() :
 	m_max_velocity(1),
 	m_mass(1),
 	m_mass_inverse(1),
-	m_radius(1)
+	m_radius(1),
+	m_immovable(false)
 { 
 	reset();
 }
@@ -21,7 +22,8 @@ ServerEntity::ServerEntity(D3DXVECTOR3 velocity, float max_velocity, float mass)
 	m_max_velocity(max_velocity),
 	m_mass(mass),
 	m_mass_inverse(1/mass),
-	m_radius(1)
+	m_radius(1),
+	m_immovable(false)
 { 
 	reset();
 }
@@ -42,7 +44,8 @@ ServerEntity::ServerEntity(float max_velocity, float max_angular_velocity, float
 	m_momentum(zero_vec),
 	m_angular_momentum(zero_vec),
 	t_impulse(zero_vec),
-	t_angular_impulse(zero_vec)
+	t_angular_impulse(zero_vec),
+	m_immovable(false)
 { }
 
 int ServerEntity::genId() {

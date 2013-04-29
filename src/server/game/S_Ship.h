@@ -11,6 +11,7 @@
 
 // Project includes
 #include <shared/game/Ship.h>
+#include <server/game/S_Resource.h>
 #include <server/game/ServerEntity.h>
 #include <shared/InputState.h>
 
@@ -24,6 +25,7 @@ public:
 	float m_thrust;
 	D3DXVECTOR3 forward_rot_thruster;
 	D3DXVECTOR3 reverse_rot_thruster;
+	S_Resource * m_resource;
 
 	// Constructors
 	S_Ship();
@@ -36,6 +38,7 @@ public:
 	void addPlayerInput(InputState);
 
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	bool gatherResource(S_Resource *);
 
 };
 

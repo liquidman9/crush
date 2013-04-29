@@ -51,6 +51,8 @@ public:
 	D3DXVECTOR3 t_impulse;
 	D3DXVECTOR3 t_angular_impulse;
 
+	bool m_immovable;
+
 
 	ServerEntity();
 	ServerEntity(float mass);

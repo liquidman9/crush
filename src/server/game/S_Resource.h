@@ -22,6 +22,7 @@ class S_Resource : public Resource, public ServerEntity{ //switch back to capsul
 
 public:
 	// Fields
+	ServerEntity * m_carrier;
 
 	// Constructors
 	S_Resource();
@@ -29,6 +30,7 @@ public:
 
 	// Methods
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	void update(float delta_time);
 };
 
 #pragma warning( pop )

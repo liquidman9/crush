@@ -42,33 +42,26 @@ void Server::reloadConfig() {
 	//add variables to update here
 }
 
-void Server::initializeGameState() {
-	m_gameState.clear();
-	m_playerMap.clear();
-	m_world.entities.clear();
-	D3DXVECTOR3 m_pos(-10,2,2);
-	Quaternion m_dir(0, 0, 0, 1);
-	S_Ship *test = new S_Ship(m_pos, m_dir, 0);
-	m_playerMap.insert(pair<unsigned int, S_Ship*>(0,test));
-	m_gameState.push_back(test);
-	m_world.entities.push_back(test);
+void Server::setUpResourceMine() {
+	D3DXVECTOR3 m_pos1(0,0,0);
+	Quaternion m_dir1(0.0, 0.0, 0.0, 1.0);
+	m_resourceMine = new Mine();
+	S_Resource *res = m_resourceMine->respawn();
+	m_gameState.push_back(res);
+	m_world.entities.push_back(res);
 
-	D3DXVECTOR3 m_pos1(10,1,1);
-	Quaternion m_dir1(0.25, 0.25, 0.25, 0.25);
-	S_Ship *test2 = new S_Ship(m_pos1, m_dir1, 1);
-	m_playerMap.insert(pair<unsigned int, S_Ship*>(1,test2));
-	m_gameState.push_back(test2);
-	m_world.entities.push_back(test2);
+	m_resourceMine->setStart(milliseconds_now());
+}
 
-
-	D3DXVECTOR3 m_pos2(0,0,0);
+void Server::setUpAsteroids() {
+	D3DXVECTOR3 m_pos2(0,10,0);
 	Quaternion m_dir2(0, 0, 0, 1);
 	S_Asteroid *test3 = new S_Asteroid(m_pos2, m_dir2);
 	m_gameState.push_back(test3);
 	m_world.entities.push_back(test3);
 
 
-	D3DXVECTOR3 m_pos3(0,0,15);
+	D3DXVECTOR3 m_pos3(0,-10,15);
 	Quaternion m_dir3(0, 0, 0, 1);
 	S_Asteroid *test4 = new S_Asteroid(m_pos3, m_dir3);
 	m_gameState.push_back(test4);
@@ -80,25 +73,23 @@ void Server::initializeGameState() {
 	m_gameState.push_back(test5);
 	m_world.entities.push_back(test5);
 
-	D3DXVECTOR3 m_pos5(0,0,-35);
+	D3DXVECTOR3 m_pos5(0,0,15);
 	S_Asteroid *test6 = new S_Asteroid(m_pos5, m_dir3);
 	m_gameState.push_back(test6);
 	m_world.entities.push_back(test6);
 
-	D3DXVECTOR3 m_pos6(0,0,25);
-	S_Resource *test7 = new S_Resource(m_pos6, m_dir3);
-	m_gameState.push_back(test7);
-	m_world.entities.push_back(test7);
+}
 
-	D3DXVECTOR3 m_pos7(10,1,10);
-	S_TractorBeam *test8 = new S_TractorBeam(m_pos7, m_dir3, 0);
-	m_gameState.push_back(test8);
-	m_world.entities.push_back(test8);
-	
-	D3DXVECTOR3 m_pos8(0,0,35);
-	S_Mothership *test9 = new S_Mothership(m_pos8, m_dir3, 0);
-	m_gameState.push_back(test9);
-	m_world.entities.push_back(test9);
+void Server::initializeGameState() {
+	m_gameState.clear();
+	m_playerMap.clear();
+	m_world.entities.clear();
+
+	setUpResourceMine();
+
+
+	//setUpAsteroids();
+
 }
 
 
@@ -140,6 +131,11 @@ void Server::loop() {
 			moveClients();
 		}
 
+		if(m_resourceMine->checkRespawn(milliseconds_now())) {
+			S_Resource * res = m_resourceMine->respawn();
+			m_gameState.push_back(res);
+			m_world.entities.push_back(res);
+		}
 		m_world.update(1.0f/60.0f);
 		m_server.broadcastGameState(m_gameState);
 	
@@ -154,18 +150,36 @@ void Server::addNewClients() {
 		auto player = m_playerMap.find(it->first);
 		if(player == m_playerMap.end()) {
 			spawnShip(it->first);
+			spawnMothership(it->first);
 		}
 	}
 }
 
 void Server::spawnShip(unsigned int client_id) {
-	D3DXVECTOR3 m_pos((FLOAT)-10*client_id,2,2);
+	// Temp
+	/*Quaternion m_dir3(0, 0, 0, 1);
+	D3DXVECTOR3 m_pos7((FLOAT)-10*(client_id+1),2,12);
+	S_TractorBeam *test8 = new S_TractorBeam(m_pos7, m_dir3, 0);
+	m_gameState.push_back(test8);
+	m_world.entities.push_back(test8);*/
+
+	D3DXVECTOR3 m_pos((FLOAT)-30*(client_id+1),2,2);
 	Quaternion m_dir(0, 0, 0, 1);
 	S_Ship *tmp = new S_Ship(m_pos, m_dir, client_id);
 	m_playerMap.insert(pair<unsigned int, S_Ship*>(client_id,tmp));
 	m_gameState.push_back(tmp);
 	m_world.entities.push_back(tmp);
 }
+
+void Server::spawnMothership(unsigned int client_id) {
+	D3DXVECTOR3 m_pos((FLOAT)-50*(client_id+1),2,-8.0);
+	Quaternion m_dir(0, 0, 0, 1);
+	S_Mothership *tmp = new S_Mothership(m_pos, m_dir, client_id);
+	m_mothershipMap.insert(pair<unsigned int, S_Mothership*>(client_id,tmp));
+	m_gameState.push_back(tmp);
+	m_world.entities.push_back(tmp);
+}
+
 
 void Server::moveClients() {
 	//add client inputs to every player that we have input for
