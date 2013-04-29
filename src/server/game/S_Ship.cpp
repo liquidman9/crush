@@ -6,15 +6,22 @@
 #include <stdio.h>
 
 // Project includes
+#include <shared/ConfigSettings.h>
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 
-static float ROTATION_SCALE = 50;
-static float THRUST_FACTOR = 1;
+
+static string CONFIG_PREFIX = "ship_";
+static float DEF_ROTATION_THRUST_FORCE = 50;
+static float DEF_FORWARD_THRUST_FORCE = 500;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),
-	Ship()
+	Ship(),
+	ServerEntity(),
+	m_forward_thrust_force(DEF_FORWARD_THRUST_FORCE),
+	m_rotation_thrust_force(DEF_ROTATION_THRUST_FORCE),
+	m_resource(NULL)
 {
 	init();
 }
@@ -22,105 +29,63 @@ S_Ship::S_Ship() :
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation),
 	Ship(pNum),
-	ServerEntity(100, 1, 100, calculateRotationalInertia(100))
+	ServerEntity(100, 1, 100, calculateRotationalInertia(100)),
+	m_forward_thrust_force(DEF_FORWARD_THRUST_FORCE),
+	m_rotation_thrust_force(DEF_ROTATION_THRUST_FORCE),
+	m_resource(NULL)
 {	
 	init();
 }
 
 void S_Ship::init() {
-	m_thrust = 0;
-	m_mass = 100;
-	m_radius = 2.5;
-	//p1 = m_pos + D3DXVECTOR3(5.0, 0, 0);  // m_pos is center of ship, p1 and p2 are the ends minus radius
-	//p2 = m_pos - D3DXVECTOR3(5.0, 0, 0);
-	// In the future, this method will load from a config file.
-
 	forward_rot_thruster = D3DXVECTOR3(0, 0, 5);
 	reverse_rot_thruster = D3DXVECTOR3(0, 0, -5);
 
-	m_resource = NULL;
+	ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_thrust_force", m_forward_thrust_force);
+	ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_thrust_force", m_rotation_thrust_force);
 }
 
-
-void S_Ship::calculate(float dt){
-	// Calculate applied force
-	/*
-	D3DXVECTOR3 mov = D3DXVECTOR3();
-	D3DXVec3Normalize(&mov, &m_velocity);
-	if(m_thrust != 0) force = m_thrust*m_dir;
-	else if(D3DXVec3Length(&velocity) > 0.00) {
-		velocity -= velocity/10; // change to apply friction
-		force = 0*m_dir;
-	}
-	else force = 0*m_dir;
-	// add brake button
-	ServerEntity::calculate(dt);
-	*/
-}
-
+// TODO!!!:
 // This method needs to be extracted to the server/physics engine.
 void S_Ship::addPlayerInput(InputState input) {
-	m_thrust = input.thrust;
 	m_tractorBeamOn = input.tractBeam;
 
+	// Linear thrust calculations
+	D3DXVECTOR3 main_thrust_force(0, 0, (float)(input.getThrust() * m_forward_thrust_force));
+
 	// Rotational thrust calculations
-	float x = -input.getTurn() * ROTATION_SCALE;
-	float y = -input.getPitch() * ROTATION_SCALE;
-	D3DXVECTOR3 fore_rot_force(x, y, 0);
-	D3DXVECTOR3 aft_rot_force(-x, -y, 0);
+	D3DXVECTOR3 fore_rot_force((float)(-input.getTurn() * m_rotation_thrust_force), (float)(-input.getPitch() * m_rotation_thrust_force), 0);
+	D3DXVECTOR3 aft_rot_force(-fore_rot_force);
 	
-	//D3DXVECTOR3 stabilizer_force(-m_angular_momentum.x / 10, -m_angular_momentum.y / 10, -m_angular_momentum.z / 10); To be implemented
+	// Stabilizing thrust calculations
+	D3DXVECTOR3 stabilizer_force(-m_angular_momentum.x / 10, -m_angular_momentum.y / 10, -m_angular_momentum.z / 10);
 
-	D3DXVECTOR3 main_thrust_force(0, 0, input.getThrust() * THRUST_FACTOR);
+	// Thruster positions
+	D3DXVECTOR3 fore_thruster_pos_adj, aft_thruster_pos_adj;
+	D3DXVECTOR3 main_thrust_adj, fore_thrust_adj, aft_thrust_adj;
 	
-	D3DXMATRIX mat_rotate;
-	D3DXVECTOR4 temp;
-	D3DXMatrixRotationQuaternion(&mat_rotate, D3DXQuaternionNormalize(&m_orientation, &m_orientation));
+	// Pos transforms
+	D3DXVec3Rotate(&fore_thruster_pos_adj, &forward_rot_thruster, &m_orientation);
+	D3DXVec3Rotate(&aft_thruster_pos_adj, &reverse_rot_thruster, &m_orientation);
 
-	// Fore thrust rocket pos transform
-	D3DXVec3Transform(&temp, &forward_rot_thruster, &mat_rotate);
-	D3DXVECTOR3 fore_thruster_pos_adj(temp.x, temp.y, temp.z);
+	// Thrust transforms
+	D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
+	D3DXVec3Rotate(&fore_thrust_adj, &fore_rot_force, &m_orientation);
+	D3DXVec3Rotate(&aft_thrust_adj, &aft_rot_force, &m_orientation);
 
-	// Fore thrust transform
-	D3DXVec3Transform(&temp, &fore_rot_force, &mat_rotate);
-	D3DXVECTOR3 fore_thrust_adj(temp.x, temp.y, temp.z);
+	// MOVEMENT
+	// Main thruster
+	applyLinearImpulse(main_thrust_adj, 0.1f);
 
-	// Aft thrust rocket pos transform
-	D3DXVec3Transform(&temp, &reverse_rot_thruster, &mat_rotate);
-	D3DXVECTOR3 aft_thruster_pos_adj(temp.x, temp.y, temp.z);
-
-	// Aft thrust transform
-	D3DXVec3Transform(&temp, &aft_rot_force, &mat_rotate);
-	D3DXVECTOR3 aft_thrust_adj(temp.x, temp.y, temp.z);
-
-	// Main rocket force transform
-	D3DXVec3Transform(&temp, &main_thrust_force, &mat_rotate);
-	D3DXVECTOR3 main_thrust_adj(temp.x, temp.y, temp.z);
-
-	// Forward thrust calculations
-	D3DXVECTOR3 thrust_force(0, 0, input.thrust * THRUST_FACTOR);
-	D3DXVec3Rotate(&main_thrust_adj, &thrust_force, &m_orientation);
-
-	//cout << "Aft thrust vectors: " << aft_thrust_adj.x << ", " << aft_thrust_adj.y << ", " << aft_thrust_adj.z << endl;
-
+	// ROTATION
 	// Forward rotation thruster
 	applyImpulse(fore_thrust_adj, m_pos + fore_thruster_pos_adj, 0.1f);
 	// Rear rotation thruster
 	applyImpulse(aft_thrust_adj, m_pos + aft_thruster_pos_adj, 0.1f);
-	// Main thruster
-	applyImpulse(main_thrust_adj, 0.1f);
-
-	/*
-	D3DXQUATERNION quat = D3DXQUATERNION ();
-	D3DXQuaternionRotationYawPitchRoll(&quat, x,y,0);
-	D3DXQUATERNION q1, q2,q3;
-    D3DXQuaternionConjugate( &q1, &quat );
-	q3 = D3DXQUATERNION( m_dir.x, m_dir.y, m_dir.z, 1.0f );
-    q2 = q1 * q3 * quat;
-    m_dir = D3DXVECTOR3( q2.x, q2.y, q2.z );
-	D3DXVec3Normalize(&m_dir,&m_dir);
-	*/
-
+	
+	// DAMPING
+	// Rotation damping
+	applyAngularImpulse(stabilizer_force, 0.1f);
 }
 
 D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){

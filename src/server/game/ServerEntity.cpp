@@ -38,13 +38,13 @@ ServerEntity::ServerEntity(float max_velocity, float max_angular_velocity, float
 	m_rot_inertia_inverse(1/rot_inertia.x, 1/rot_inertia.y, 1/rot_inertia.z),
 	m_radius(1),
 	// zeroing values
-	m_velocity(zero_vec),
-	m_angular_velocity(zero_vec),
+	m_velocity(shared::utils::VEC3_ZERO),
+	m_angular_velocity(shared::utils::VEC3_ZERO),
 	m_orientation_delta(0.0f, 0.0f, 0.0f, 0.0f),
-	m_momentum(zero_vec),
-	m_angular_momentum(zero_vec),
-	t_impulse(zero_vec),
-	t_angular_impulse(zero_vec),
+	m_momentum(shared::utils::VEC3_ZERO),
+	m_angular_momentum(shared::utils::VEC3_ZERO),
+	t_impulse(shared::utils::VEC3_ZERO),
+	t_angular_impulse(shared::utils::VEC3_ZERO),
 	m_immovable(false)
 { }
 
@@ -54,9 +54,15 @@ int ServerEntity::genId() {
 
 // Physics Methods
 // Applies a force to this entity's center of mass for the given amount of time(will not cause rotation)
-void ServerEntity::applyImpulse(D3DXVECTOR3 force, float duration) {
+void ServerEntity::applyLinearImpulse(D3DXVECTOR3 force, float duration) {
 	// Linear calculation
 	t_impulse += force * duration;
+}
+
+// Applies a rotational force to this entity (will not cause linear motion)
+void ServerEntity::applyAngularImpulse(D3DXVECTOR3 torque, float duration) {
+	// Linear calculation
+	t_angular_impulse += torque * duration;
 }
 
 // Applies a force to this entity at the given point for the given amount of time

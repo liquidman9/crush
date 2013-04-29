@@ -19,10 +19,12 @@
 #pragma warning( disable : 4250 )
 
 class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
+private:
+	float m_forward_thrust_force;
+	float m_rotation_thrust_force;
 
 public:
 	// Fields
-	float m_thrust;
 	D3DXVECTOR3 forward_rot_thruster;
 	D3DXVECTOR3 reverse_rot_thruster;
 	S_Resource * m_resource;
@@ -33,8 +35,6 @@ public:
 
 	// Methods
 	void init();
-	void rotate(D3DXVECTOR3);
-	void calculate(float);
 	void addPlayerInput(InputState);
 
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
