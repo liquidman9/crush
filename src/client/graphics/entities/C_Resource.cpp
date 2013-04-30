@@ -11,14 +11,14 @@
 C_Resource::C_Resource() :
 	Entity(RESOURCE)
 { 
-	cerr << "Creating C_Resource with default constructor" << endl;
+	//cerr << "Creating C_Resource with default constructor" << endl;
 }
 
 
 C_Resource::C_Resource(Entity * newEnt) :
 	Entity(RESOURCE)
 {
-cerr << "Creating C_Resource with Entity * constructor" << endl;
+//cerr << "Creating C_Resource with Entity * constructor" << endl;
 	Resource * srcResource = dynamic_cast<Resource*>(newEnt);
 	if (srcResource != NULL) {
 		m_pos = srcResource->m_pos;

@@ -11,7 +11,7 @@
 C_Ship::C_Ship() :
 	Entity(SHIP)
 { 
-	cerr << "Creating C_Ship with default constructor" << endl;
+	//cerr << "Creating C_Ship with default constructor" << endl;
 }
 
 /* This ctor is broken (and others might be too) because ship's base class of entity was inherited from
@@ -30,7 +30,7 @@ C_Ship::C_Ship() :
 C_Ship::C_Ship(Entity * newEnt) :
 	Entity(SHIP)
 {
-cerr << "Creating C_Ship with Entity * constructor" << endl;
+//cerr << "Creating C_Ship with Entity * constructor" << endl;
 	Ship * srcShip = dynamic_cast<Ship*>(newEnt);
 	if (srcShip != NULL) {
 		m_pos = srcShip->m_pos;

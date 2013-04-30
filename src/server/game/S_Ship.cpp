@@ -27,7 +27,7 @@ S_Ship::S_Ship() :
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation),
 	Ship(pNum),
-	ServerEntity(server::entities::ship::mass, calculateRotationalInertia(mass)),
+	ServerEntity(server::entities::ship::mass, calculateRotationalInertia(mass), 5.0, 1.0),
 	m_forward_thrust_force(forward_thrust_force),
 	m_rotation_thrust_force(rotation_thrust_force),
 	m_stabilizer_thrust_force(stabilizer_thrust_force),
