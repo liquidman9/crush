@@ -43,6 +43,8 @@ void S_Ship::init() {
 
 	ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_thrust_force", m_forward_thrust_force);
 	ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_thrust_force", m_rotation_thrust_force);
+
+	m_radius = 5.0;
 }
 
 // TODO!!!:

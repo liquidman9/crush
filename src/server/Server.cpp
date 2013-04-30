@@ -54,18 +54,10 @@ void Server::setUpResourceMine() {
 }
 
 void Server::setUpAsteroids() {
-	D3DXVECTOR3 m_pos2(0,10,0);
-	Quaternion m_dir2(0, 0, 0, 1);
-	S_Asteroid *test3 = new S_Asteroid(m_pos2, m_dir2);
-	m_gameState.push_back(test3);
-	m_world.entities.push_back(test3);
 
 
-	D3DXVECTOR3 m_pos3(0,-10,15);
+
 	Quaternion m_dir3(0, 0, 0, 1);
-	S_Asteroid *test4 = new S_Asteroid(m_pos3, m_dir3);
-	m_gameState.push_back(test4);
-	m_world.entities.push_back(test4);
 
 
 	D3DXVECTOR3 m_pos4(0,0,-15);
@@ -80,6 +72,25 @@ void Server::setUpAsteroids() {
 
 }
 
+void Server::setUpBoundaries() {
+		
+	float bound = 200;
+	Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
+	Boundary right = Boundary(D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DXVECTOR3(bound,0.0f,0.0f));
+	Boundary top = Boundary(D3DXVECTOR3(0.0f,-1.0f,0.0f), D3DXVECTOR3(0.0f,bound,0.0f));
+	Boundary down = Boundary(D3DXVECTOR3(0.0f,1.0f,0.0f), D3DXVECTOR3(0.0f,-bound,0.0f));
+	Boundary front = Boundary(D3DXVECTOR3(0.0f,0.0f,1.0f), D3DXVECTOR3(0.0f,0.0f,-bound));
+	Boundary back = Boundary(D3DXVECTOR3(0.0f,0.0f,-1.0f), D3DXVECTOR3(0.0f,0.0f,bound));
+		
+	m_world.boundaries.push_back(left);
+	m_world.boundaries.push_back(right);
+	m_world.boundaries.push_back(top);
+	m_world.boundaries.push_back(down);
+	m_world.boundaries.push_back(front);
+	m_world.boundaries.push_back(back);
+		
+}
+
 void Server::initializeGameState() {
 	m_gameState.clear();
 	m_playerMap.clear();
@@ -88,7 +99,9 @@ void Server::initializeGameState() {
 	setUpResourceMine();
 
 
-	//setUpAsteroids();
+	setUpAsteroids();
+
+	setUpBoundaries();
 
 }
 

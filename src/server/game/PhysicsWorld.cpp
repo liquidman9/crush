@@ -57,16 +57,14 @@ void PhysicsWorld::update(float delta_time) {
 }
 
 bool PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
-	double dx = a.m_pos.x - b.m_pos.x; 
-	dx *= dx;
-	double dy = a.m_pos.y - a.m_pos.y; 
-	dy *= dy; 
+	double dx = abs(a.m_pos.x - b.m_pos.x); 
+	double dy = abs(a.m_pos.y - b.m_pos.y); 
+	double dz = abs(a.m_pos.z - b.m_pos.z); 
 
-	double sum = a.m_radius + a.m_radius; 
-	sum *= sum;
+	double sum = a.m_radius + b.m_radius; 
 
+	if(dx <= sum && dy <= sum && dz <= sum){
 
-	if(dx + dy <= sum){
 		return true;
 	}
 	return false;
@@ -88,7 +86,6 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 	if(((one = a)->m_type == SHIP && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == SHIP && (two = a)->m_type == MOTHERSHIP)){
 		S_Mothership * mothership = (S_Mothership *)two;
 		S_Ship * ship = (S_Ship *) one;
-
 		mothership->interact(ship);
 		rtn = false; //tmp
 	}
@@ -109,10 +106,11 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 	return rtn;
 
 }
-
+float lower = 1.0;
 void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
-
+	//cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
 	if(typeResponse(a, b)) {
+		cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
 		D3DXVECTOR3 n = a->m_pos - b->m_pos;
 		D3DXVec3Normalize(&n,&n);
 
@@ -127,12 +125,12 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 		D3DXVECTOR3 nv2 = v2 + optimizedP * a->m_mass * n;
 
 		if(!a->m_immovable){
-			a->m_velocity = nv1;
+			a->m_velocity = nv1/lower;
 			a->m_pos+= a->m_velocity;
 		}
 
 		if(!b->m_immovable){
-			b->m_velocity = nv2;
+			b->m_velocity = nv2/lower;
 			b->m_pos+=b->m_velocity;
 		}
 	}
@@ -158,6 +156,6 @@ void PhysicsWorld::respond(ServerEntity * a, Boundary b) {
 	float a1 = D3DXVec3Dot(&v1,&n);
 
 	D3DXVECTOR3 nv1 = v1 - 2*n*a1;
-	a->m_velocity = nv1;
+	a->m_velocity = nv1/lower;
 	a->m_pos+= a->m_velocity;
 }

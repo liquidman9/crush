@@ -36,7 +36,7 @@ ServerEntity::ServerEntity(float max_velocity, float max_angular_velocity, float
 	m_mass_inverse(1/mass),
 	m_rot_inertia(rot_inertia),
 	m_rot_inertia_inverse(1/rot_inertia.x, 1/rot_inertia.y, 1/rot_inertia.z),
-	m_radius(1),
+	m_radius(2),
 	// zeroing values
 	m_velocity(shared::utils::VEC3_ZERO),
 	m_angular_velocity(shared::utils::VEC3_ZERO),

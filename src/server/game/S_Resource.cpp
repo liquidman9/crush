@@ -15,7 +15,6 @@ S_Resource::S_Resource() :
 	ServerEntity(100, 1, 10, calculateRotationalInertia(10)),
 	m_carrier(NULL)
 {
-
 }
 
 S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
@@ -24,7 +23,6 @@ S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 	ServerEntity(100, 1, 10, calculateRotationalInertia(10)),
 	m_carrier(NULL)
 {	
-
 }
 
 

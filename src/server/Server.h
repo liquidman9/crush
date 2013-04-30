@@ -59,6 +59,8 @@ private:
 	// add initial asteroids to the map
 	void setUpAsteroids();
 
+	void setUpBoundaries();
+
 	//add any new clients that have conntected
 	void addNewClients();
 	
