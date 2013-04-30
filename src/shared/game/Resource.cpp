@@ -21,6 +21,8 @@ const char* Resource::encode() const {
 	// Copy entity encode into this ret
 	memcpy(rtn, tmp, Entity::size());
 
+	delete []tmp;
+
 	// Set up temp buffer at the end of entity encoding
 	char* tmp_rtn = rtn;
 	tmp_rtn += Entity::size();
