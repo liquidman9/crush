@@ -49,7 +49,7 @@ int main9(){
 		gameState.push_back(test2);
 		world.entities.push_back(test2);
 
-
+		/*
 		D3DXVECTOR3 m_pos2(0,0,0);
 		Quaternion m_dir2(0, 0, 0, 0);
 		S_Asteroid *test3 = new S_Asteroid(m_pos2, m_dir2);
@@ -73,6 +73,8 @@ int main9(){
 		S_Asteroid *test6 = new S_Asteroid(m_pos5, m_dir3);
 		gameState.push_back(test6);
 		world.entities.push_back(test6);
+
+		*/
 
 		for(;;) {
 			server.broadcastGameState(gameState);

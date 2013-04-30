@@ -16,12 +16,24 @@ ServerEntity::ServerEntity() :
 	reset();
 }
 
+
 ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia) :
+	m_mass(mass),
+	m_mass_inverse(1/mass),
+	m_radius(1),
+	m_immovable(false)
+{ 
+	reset();
+}
+
+
+ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, float elastic) :
 	m_mass(mass),
 	m_mass_inverse(1/mass),
 	m_rot_inertia(rot_inertia),
 	m_rot_inertia_inverse(1/rot_inertia.x, 1/rot_inertia.y, 1/rot_inertia.z),
-	m_radius(2),
+	m_radius(3),
+	m_length(length),
 	// zeroing values
 	m_velocity(shared::utils::VEC3_ZERO),
 	m_angular_velocity(shared::utils::VEC3_ZERO),
@@ -30,6 +42,9 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia) :
 	m_angular_momentum(shared::utils::VEC3_ZERO),
 	t_impulse(shared::utils::VEC3_ZERO),
 	t_angular_impulse(shared::utils::VEC3_ZERO),
+	m_pFront(m_pos.x, m_pos.y, m_pos.z + length),
+	m_pBack(m_pos.x, m_pos.y, m_pos.z - length),
+	m_elastic(elastic),
 	m_immovable(false)
 { }
 
@@ -92,6 +107,20 @@ void ServerEntity::update(float delta_time) {
 	m_orientation += (m_orientation_delta * half_time);
 	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
 	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
+
+	D3DXMATRIX mat_rotate;
+	D3DXVECTOR4 temp;
+	D3DXVECTOR3 front(0.0f, 0.0f, m_length), back(0.0f, 0.0f, -m_length);
+	D3DXMatrixRotationQuaternion(&mat_rotate, D3DXQuaternionNormalize(&m_orientation, &m_orientation));
+
+	// calculate front/back points
+	D3DXVec3Transform(&temp, &front, &mat_rotate);
+	m_pFront = D3DXVECTOR3(temp.x, temp.y, temp.z);
+	m_pFront += m_pos;
+
+	D3DXVec3Transform(&temp, &back, &mat_rotate);
+	m_pBack = D3DXVECTOR3(temp.x, temp.y, temp.z);
+	m_pBack += m_pos;
 }
 
 // Getters/Setters
