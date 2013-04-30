@@ -11,14 +11,14 @@
 C_TractorBeam::C_TractorBeam() :
 	Entity(TRACTORBEAM)
 { 
-	cerr << "Creating C_TractorBeam with default constructor" << endl;
+	//cerr << "Creating C_TractorBeam with default constructor" << endl;
 }
 
 
 C_TractorBeam::C_TractorBeam(Entity * newEnt) :
 	Entity(TRACTORBEAM)
 {
-cerr << "Creating C_TractorBeam with Entity * constructor" << endl;
+//cerr << "Creating C_TractorBeam with Entity * constructor" << endl;
 	TractorBeam * srcTractorBeam = dynamic_cast<TractorBeam*>(newEnt);
 	if (srcTractorBeam != NULL) {
 		m_pos = srcTractorBeam->m_pos;

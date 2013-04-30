@@ -11,14 +11,14 @@
 C_Mothership::C_Mothership() :
 	Entity(MOTHERSHIP)
 { 
-	cerr << "Creating C_Asteroid with default constructor" << endl;
+	//cerr << "Creating C_Asteroid with default constructor" << endl;
 }
 
 
 C_Mothership::C_Mothership(Entity * newEnt) :
 	Entity(MOTHERSHIP)
 {
-cerr << "Creating C_Mothership with Entity * constructor" << endl;
+//cerr << "Creating C_Mothership with Entity * constructor" << endl;
 	Mothership * srcMothership = dynamic_cast<Mothership*>(newEnt);
 	if (srcMothership != NULL) {
 		m_pos = srcMothership->m_pos;
