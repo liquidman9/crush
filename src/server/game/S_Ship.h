@@ -27,13 +27,13 @@ namespace server {
 			static float mass = 1000;
 			static float forward_thrust_force = 5000.0f;
 			static float rotation_thrust_force = 1000.0f;
-			static float stabilizer_ratio = 0.3f;
+			static float stabilizer_thrust_force = 0.3f;
 
 			inline void initFromConfig() {
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "mass", mass);
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_thrust_force", rotation_thrust_force);
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_thrust_force", forward_thrust_force);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "stabilizer_ratio", stabilizer_ratio);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "stabilizer_ratio", stabilizer_thrust_force);
 			}
 		}
 	}
@@ -44,7 +44,7 @@ class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 private:
 	float m_forward_thrust_force;
 	float m_rotation_thrust_force;
-	float m_stabilizer_ratio;
+	float m_stabilizer_thrust_force;
 
 	// Fields
 	D3DXVECTOR3 forward_rot_thruster;
