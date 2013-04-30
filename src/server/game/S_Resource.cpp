@@ -12,7 +12,7 @@
 S_Resource::S_Resource() :
 	Entity(RESOURCE),
 	Resource(),
-	ServerEntity(100, 1, 10, calculateRotationalInertia(10)),
+	ServerEntity(100, 1, 10, calculateRotationalInertia(10), 1.0, 1.0),
 	m_carrier(NULL)
 {
 
@@ -21,7 +21,7 @@ S_Resource::S_Resource() :
 S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), RESOURCE, pos, orientation),
 	Resource(),
-	ServerEntity(100, 1, 10, calculateRotationalInertia(10)),
+	ServerEntity(100, 1, 10, calculateRotationalInertia(10), 1.0, 1.0),
 	m_carrier(NULL)
 {	
 

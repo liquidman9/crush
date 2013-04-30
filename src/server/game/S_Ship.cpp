@@ -22,7 +22,7 @@ S_Ship::S_Ship() :
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation),
 	Ship(pNum),
-	ServerEntity(100, 1, 100, calculateRotationalInertia(100))
+	ServerEntity(100, 1, 100, calculateRotationalInertia(100), 5.0, 1.0)
 {	
 	init();
 }

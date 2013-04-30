@@ -5,6 +5,8 @@
 // Project includes
 #include <server/game/PhysicsWorld.h>
 
+// defines
+#define NEAR_ZERO 0.00001
 
 ostream& operator<<(ostream& os, const D3DXVECTOR3 &v) {
 	os << "<" << v.x << ", " << v.y << ", " << v.z << ">";
@@ -24,12 +26,11 @@ void PhysicsWorld::update(float delta_time) {
 	{	
 		for(unsigned j = i+1; j < entities.size(); j++)
 		{
-			//if(i != j)//entities[i].m_id != entities[j].m_id)
-			//{
-				if(checkCollision(*entities[i], *entities[j])){
-					respond(entities[i], entities[j]);
-				}
-			//}
+			Collision * c;
+				if ((c = checkCollision(*entities[i], *entities[j])) != NULL)
+					c->resolve();
+
+			delete(c);
 		}
 
 		for(unsigned k = 0; k < boundaries.size(); k++) {
@@ -56,20 +57,101 @@ void PhysicsWorld::update(float delta_time) {
 	}
 }
 
-bool PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
-	double dx = a.m_pos.x - b.m_pos.x; 
-	dx *= dx;
-	double dy = a.m_pos.y - a.m_pos.y; 
-	dy *= dy; 
+Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
+	D3DXVECTOR3 lengthA = (a.m_pFront - a.m_pBack); 
+	D3DXVECTOR3 lengthB = (b.m_pFront - b.m_pBack); 
+	D3DXVECTOR3 lengthBs = (a.m_pBack - b.m_pBack); 
 
-	double sum = a.m_radius + a.m_radius; 
-	sum *= sum;
+	float dotA = D3DXVec3Dot(&lengthA, &lengthA);
+	float dotB = D3DXVec3Dot(&lengthA, &lengthB);
+	float dotC = D3DXVec3Dot(&lengthB, &lengthB);
+	float dotD = D3DXVec3Dot(&lengthA, &lengthBs);
+	float dotE = D3DXVec3Dot(&lengthB, &lengthBs);
 
+	float D = dotA * dotC - dotB * dotB;
 
-	if(dx + dy <= sum){
-		return true;
+	float sc, sN, sD = D;
+	float tc, tN, tD = D;
+
+	// Compute line params of two closest points
+	if(D < NEAR_ZERO)
+	{
+		sN = 0.0;	// force using end point on line a
+		sD = 1.0;
+		tN = dotE;
+		tD = dotC;
+		cout << "D is 0" << endl;
 	}
-	return false;
+
+	else
+	{
+		sN = (dotB * dotE - dotC * dotD);
+		tN = (dotA * dotE - dotB * dotD);
+
+		if(sN < 0.0)
+		{
+			sN = 0.0;
+			tN = dotE;
+			tD = dotC;
+		}
+
+		else if(sN > sD)
+		{
+			sN = sD;
+			tN = dotE + dotB;
+			tD = dotC;
+		}
+	}
+
+	if(tN < 0.0)
+	{
+		tN = 0.0;
+
+		if(-dotD < 0.0)
+			sN = 0.0;
+
+		else if(-dotD > dotA)
+			sN = sD;
+
+		else
+		{
+			sN = -dotD;
+			sD = dotA;
+		}
+	}
+
+	else if(tN > tD)
+	{
+		tN = tD;
+
+		if((-dotD + dotB) < 0.0)
+			sN = 0;
+		
+		else if((-dotD + dotB) > dotA)
+			sN = sD;
+
+		else
+		{
+			sN = (-dotD + dotB);
+			sD = dotA;
+		}
+	}
+
+	sc = (abs(sN) < NEAR_ZERO ? 0.0 : sN / sD);
+	tc = (abs(tN) < NEAR_ZERO ? 0.0 : tN / sD);
+
+	D3DXVECTOR3 dP = lengthBs + (sc * lengthA) - (tc * lengthB);	// a(sc) - b(tc) 
+
+	printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
+
+	if(D3DXVec3Length(&dP) < a.m_radius + b.m_radius)
+	{
+		cout << "Not null" << endl;
+		return Collision::generateCollision(&a, &b, (a.m_pBack + sc * lengthA), (b.m_pBack + tc * lengthB));
+	}
+
+	cout << "null" << endl;
+	return (Collision *)NULL;
 }
 
 bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
