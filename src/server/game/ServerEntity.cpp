@@ -8,7 +8,6 @@ int ServerEntity::s_id_gen = 0;
 
 ServerEntity::ServerEntity() :
 	m_velocity(0.0f, 0.0f, 0.0f),
-	m_max_velocity(1),
 	m_mass(1),
 	m_mass_inverse(1),
 	m_radius(1),
@@ -17,21 +16,7 @@ ServerEntity::ServerEntity() :
 	reset();
 }
 
-ServerEntity::ServerEntity(D3DXVECTOR3 velocity, float max_velocity, float mass) :
-	m_velocity(velocity),
-	m_max_velocity(max_velocity),
-	m_mass(mass),
-	m_mass_inverse(1/mass),
-	m_radius(1),
-	m_immovable(false)
-{ 
-	reset();
-}
-
-
-ServerEntity::ServerEntity(float max_velocity, float max_angular_velocity, float mass, D3DXVECTOR3 rot_inertia) :
-	m_max_velocity(max_velocity),
-	m_max_angular_velocity(max_angular_velocity),
+ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia) :
 	m_mass(mass),
 	m_mass_inverse(1/mass),
 	m_rot_inertia(rot_inertia),
@@ -100,7 +85,7 @@ void ServerEntity::update(float delta_time) {
 	if (D3DXVec3LengthSq(&m_angular_velocity) > FP_ZERO) {
 		m_orientation_delta = 0.5 *(m_orientation * Quaternion(m_angular_velocity.x, m_angular_velocity.y, m_angular_velocity.z, 0.0f));
 	} else {
-		D3DXQuaternionIdentity(&m_orientation_delta);
+		m_orientation_delta = Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 	m_pos += m_velocity * half_time;
@@ -143,13 +128,3 @@ void ServerEntity::reset() {
 	t_impulse = zero_vec;
 	t_angular_impulse = zero_vec;
 }
-
-void ServerEntity::calculate(float dt) {
-	/*
-	D3DXVECTOR3 dv = ((force / mass ) * dt);
-	if(D3DXVec3Length(&(velocity + dv)) <= maxVelocity)
-		velocity = velocity + dv;
-	m_pos = m_pos + velocity;
-	*/
-}
-

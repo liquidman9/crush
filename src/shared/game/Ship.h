@@ -26,9 +26,8 @@ public:
 	bool m_tractorBeamOn;
 	std::string m_playerName;
 
-	// These constructors are deprecated
+	// This constructors are deprecated
 	Ship();
-	Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn);
 
 	// Constructors
 	Ship(int pNum);

@@ -12,13 +12,6 @@ Ship::Ship() :
 {
 }
 
-Ship::Ship(D3DXVECTOR3 pos, D3DXVECTOR3 dir, int pNum, bool tBeamOn) :
-	Entity(SHIP),
-	m_playerNum(pNum),
-	m_tractorBeamOn(tBeamOn)
-{
-}
-
 Ship::Ship(int pNum) :
 	Entity(SHIP),
 	m_playerNum(pNum),
@@ -58,8 +51,7 @@ const char* Ship::encode() const {
 
 	memcpy(tmp_rtn, m_playerName.c_str(), MAX_PLAYERNAME_SIZE);
 
-	// Delete temp pointer whuut don't need -- tmp points to rtn which is what we are returning. <-- wrong
-	// tmp points to the buffer returned from encode, that is a new buffer YOU NEED TO DELETE IT...
+	// Delete temp pointer
 	delete []tmp;
 
 	return rtn;

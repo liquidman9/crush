@@ -9,9 +9,7 @@
 #include <d3dx9.h>
 
 // Project includes
-#include <server/game/S_Resource.h>
-
-static 
+#include <server/game/S_Resource.h> 
 
 class Mine {
 public:
