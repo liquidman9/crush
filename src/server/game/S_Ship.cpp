@@ -18,7 +18,7 @@ S_Ship::S_Ship() :
 	ServerEntity(),
 	m_forward_thrust_force(forward_thrust_force),
 	m_rotation_thrust_force(rotation_thrust_force),
-	m_stabilizer_ratio(stabilizer_ratio),
+	m_stabilizer_thrust_force(stabilizer_thrust_force),
 	m_resource(NULL)
 {
 	init();
@@ -27,10 +27,10 @@ S_Ship::S_Ship() :
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation),
 	Ship(pNum),
-	ServerEntity(server::entities::ship::mass, calculateRotationalInertia(server::entities::ship::mass)),
+	ServerEntity(server::entities::ship::mass, calculateRotationalInertia(mass)),
 	m_forward_thrust_force(forward_thrust_force),
 	m_rotation_thrust_force(rotation_thrust_force),
-	m_stabilizer_ratio(stabilizer_ratio),
+	m_stabilizer_thrust_force(stabilizer_thrust_force),
 	m_resource(NULL)
 {	
 	init();
@@ -54,7 +54,10 @@ void S_Ship::addPlayerInput(InputState input) {
 	D3DXVECTOR3 aft_rot_force(-fore_rot_force);
 	
 	// Stabilizing thrust calculations
-	D3DXVECTOR3 stabilizer_force(-m_angular_momentum.x * m_stabilizer_ratio, -m_angular_momentum.y * m_stabilizer_ratio, -m_angular_momentum.z * m_stabilizer_ratio);
+	//D3DXVECTOR3 stabilizer_force(-m_angular_momentum.x * m_stabilizer_ratio, -m_angular_momentum.y * m_stabilizer_ratio, -m_angular_momentum.z * m_stabilizer_ratio);
+	D3DXVECTOR3 stabilizer_force(-m_angular_momentum);
+	D3DXVec3Normalize(&stabilizer_force, &stabilizer_force);
+	stabilizer_force *= m_stabilizer_thrust_force;
 
 	// Thruster positions
 	D3DXVECTOR3 fore_thruster_pos_adj, aft_thruster_pos_adj;
