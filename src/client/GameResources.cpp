@@ -44,6 +44,7 @@ LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
 vector<EntityIdentifier*> GameResources::eIDList;
 LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 //std::vector<R_Ship*> GameResources::r_ShipList;
 //std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
@@ -193,6 +194,12 @@ HRESULT GameResources::initAdditionalTextures()
 
 	// load arrow spirte
 	hres = loadTexture(&shipEIDTexture, Gbls::shipEIDTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+		// load arrow spirte
+	hres = loadTexture(&tBeamPartTexture, Gbls::tBeamPartTexFilepath);
 	if (FAILED(hres)) {
 		return hres;
 	}
