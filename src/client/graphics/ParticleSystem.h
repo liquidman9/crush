@@ -35,10 +35,7 @@ public:
     ParticleSystem(void);
    ~ParticleSystem(void);
 
-    void SetMaxParticles( DWORD dwMaxParticles ) { m_dwMaxParticles = dwMaxParticles; }
-	DWORD GetMaxParticles( void ) { return m_dwMaxParticles; }
-
-    HRESULT Render(LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pGroup);
+    HRESULT render(LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pGroup);
 
     HRESULT RestoreDeviceObjects(LPDIRECT3DDEVICE9 pd3dDevice);
     HRESULT InvalidateDeviceObjects(void);
@@ -56,16 +53,11 @@ private:
     DWORD       m_dwVBOffset;
     DWORD       m_dwFlush;
     DWORD       m_dwDiscard;
-    Particle   *m_pActiveList;
     Particle   *m_pFreeList;
-	DWORD       m_dwActiveCount;
 
     //float       m_fMaxPointSize;
 
     LPDIRECT3DVERTEXBUFFER9 m_pVB;          // Vertex buffer for point sprites
-    
-    // Particle Attributes
-    DWORD       m_dwMaxParticles;
 };
 
 

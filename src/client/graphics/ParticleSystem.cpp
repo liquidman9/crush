@@ -49,11 +49,8 @@ ParticleSystem::ParticleSystem()
     m_dwVBOffset       = 0;    // Gives the offset of the vertex buffer chunk that's currently being filled
     m_dwFlush          = 512;  // Number of point sprites to load before sending them to hardware(512 = 2048 divided into 4 chunks)
     m_dwDiscard        = 2048; // Max number of point sprites the vertex buffer can load until we are forced to discard and start over
-    m_pActiveList      = NULL; // Head node of point sprites that are active
     m_pFreeList        = NULL; // Head node of point sprites that are inactive and waiting to be recycled.
-	m_dwActiveCount    = 0;
     m_pVB              = NULL; // The vertex buffer where point sprites are to be stored
-    m_dwMaxParticles   = 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -63,14 +60,6 @@ ParticleSystem::ParticleSystem()
 ParticleSystem::~ParticleSystem()
 {
     InvalidateDeviceObjects();
-
-    while( m_pActiveList )
-    {
-        Particle* pParticle = m_pActiveList;
-        m_pActiveList = pParticle->m_pNext;
-        delete pParticle;
-    }
-    m_pActiveList = NULL;
 
     while( m_pFreeList )
     {
@@ -373,7 +362,7 @@ HRESULT ParticleSystem::update(ParticleGroup * pGroup, float newTime) {
 //       be modified during the lock. This can enable optimizations when the 
 //       application is appending data only to the vertex buffer. 
 //-----------------------------------------------------------------------------
-HRESULT ParticleSystem::Render( LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pGroup)
+HRESULT ParticleSystem::render( LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pGroup)
 {
     HRESULT hr;
 
@@ -390,7 +379,7 @@ HRESULT ParticleSystem::Render( LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pG
     pd3dDevice->SetRenderState( D3DRS_POINTSCALE_C,  FtoDW(1.0f) );    // Default 0.0
 	pd3dDevice->SetTransform( D3DTS_WORLD, &pGroup->m_worldTransformMat ); // Set world transform matrix for this particle 
 
-    Particle    *pParticle = m_pActiveList;
+	Particle    *pParticle = pGroup->m_partList;
     PointVertex *pVertices;
     DWORD        dwNumParticlesToRender = 0;
 

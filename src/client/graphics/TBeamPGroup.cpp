@@ -27,7 +27,14 @@ TBeamPGroup::TBeamPGroup(LPDIRECT3DTEXTURE9 * pptexParticle, D3DXCOLOR color, fl
 }
 
 TBeamPGroup::~TBeamPGroup() {
-
+	while( m_partList )
+    {
+        Particle *pParticle = m_partList;
+        m_partList = pParticle->m_pNext;
+        delete pParticle;
+    }
+    m_partList = NULL;
+	beamEnt = NULL; // not mine to delete though
 }
 
 void TBeamPGroup::updateGroup() {

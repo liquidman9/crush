@@ -17,7 +17,7 @@
 #include <client/graphics/ParticleSystem.h> // for static functions
 
 class TBeamPGroup : public ParticleGroup {
-	
+public:
 	TBeamPGroup(LPDIRECT3DTEXTURE9 * pptexParticle, D3DXCOLOR color, float partSize);
 	~TBeamPGroup();
 

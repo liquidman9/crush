@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <mmsystem.h>
 
 // Project includes
 #include <client/graphics/Mesh.h>
@@ -26,6 +27,8 @@
 #include <client/graphics/entities/C_Asteroid.h>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_Entity.h>
+#include <client/graphics/ParticleSystem.h>
+#include <client/graphics/TBeamPGroup.h>
 
 class GameResources {
 public:
@@ -60,6 +63,8 @@ public:
 	static vector<EntityIdentifier*> eIDList;
 	static LPDIRECT3DTEXTURE9 shipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
+	static ParticleSystem * partSystem;
+	static TBeamPGroup * tBeamPGroup;
 	//static vector<Sprite*> spriteList;
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
