@@ -10,23 +10,47 @@
 #include <d3dx9.h>
 
 // Project includes
+#include <shared/InputState.h>
+#include <shared/ConfigSettings.h>
 #include <shared/game/Ship.h>
 #include <server/game/S_Resource.h>
 #include <server/game/ServerEntity.h>
-#include <shared/InputState.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
+
+namespace server {
+	namespace entities {
+		namespace ship {
+			static const string CONFIG_PREFIX = "ship_";
+
+			static float mass = 1000;
+			static float forward_thrust_force = 5000.0f;
+			static float rotation_thrust_force = 1000.0f;
+			static float stabilizer_ratio = 0.3f;
+
+			inline void initFromConfig() {
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "mass", mass);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_thrust_force", rotation_thrust_force);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_thrust_force", forward_thrust_force);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "stabilizer_ratio", stabilizer_ratio);
+			}
+		}
+	}
+}
+
 
 class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 private:
 	float m_forward_thrust_force;
 	float m_rotation_thrust_force;
+	float m_stabilizer_ratio;
 
-public:
 	// Fields
 	D3DXVECTOR3 forward_rot_thruster;
 	D3DXVECTOR3 reverse_rot_thruster;
+
+public:
 	S_Resource * m_resource;
 
 	// Constructors

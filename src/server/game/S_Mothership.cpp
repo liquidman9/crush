@@ -13,7 +13,7 @@
 S_Mothership::S_Mothership(int pNum) :
 	Entity(MOTHERSHIP),
 	Mothership(pNum),
-	ServerEntity(D3DXVECTOR3(0,0,0), 0, 1000)
+	ServerEntity(100000, D3DXVECTOR3(1, 1, 1))
 {
 	m_immovable = true;
 	m_radius = 15.0;
@@ -22,7 +22,7 @@ S_Mothership::S_Mothership(int pNum) :
 S_Mothership::S_Mothership(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), MOTHERSHIP, pos, orientation),
 	Mothership(pNum),
-	ServerEntity(D3DXVECTOR3(0,0,0), 0, 1000)
+	ServerEntity(100000, D3DXVECTOR3(1, 1, 1))
 {	
 	m_immovable = true;
 	m_radius = 10.0;

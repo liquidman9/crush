@@ -11,14 +11,14 @@
 C_Asteroid::C_Asteroid() :
 	Entity(ASTEROID)
 { 
-	cerr << "Creating C_Asteroid with default constructor" << endl;
+	//cerr << "Creating C_Asteroid with default constructor" << endl;
 }
 
 
 C_Asteroid::C_Asteroid(Entity * newEnt) :
 	Entity(ASTEROID)
 {
-cerr << "Creating C_Asteroid with Entity * constructor" << endl;
+//cerr << "Creating C_Asteroid with Entity * constructor" << endl;
 	Asteroid * srcAsteroid = dynamic_cast<Asteroid*>(newEnt);
 	if (srcAsteroid != NULL) {
 		m_pos = srcAsteroid->m_pos;

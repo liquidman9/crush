@@ -31,13 +31,16 @@ protected:
 public:
 	// Effective constants
 	// THESE NEED TO BE PROTECTED
-	float m_max_velocity;
-	float m_max_angular_velocity;
 
 	float m_mass; float m_mass_inverse;
 	D3DXVECTOR3 m_rot_inertia, m_rot_inertia_inverse;
 
+	// Collision
 	float m_radius;
+	float m_length;
+	float m_elastic;
+	D3DXVECTOR3 m_pFront;
+	D3DXVECTOR3 m_pBack;
 
 	// Derived Variables
 	D3DXVECTOR3 m_velocity;
@@ -57,8 +60,10 @@ public:
 
 	ServerEntity();
 	ServerEntity(float mass);
-	ServerEntity(D3DXVECTOR3 velocity, float max_velocity, float mass);
-	ServerEntity(float max_velocity, float max_angular_velocity, float mass, D3DXVECTOR3 rot_inertia);
+
+	ServerEntity(float mass, D3DXVECTOR3 rot_inertia);
+
+	ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, float elastic);
 
 	// General Methods
 	int genId();
@@ -99,10 +104,6 @@ public:
 
 	// Forced abstract for rotational inertia calculation
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass) = 0;
-
-	
-	virtual void calculate(float);
-
 };
 
 

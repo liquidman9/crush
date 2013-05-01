@@ -15,6 +15,8 @@
 #include <server/game/S_TractorBeam.h>
 #include <server/game/S_Mothership.h>
 #include <server/game/Boundary.h>
+#include <server/game/Collision.h>
+
 
 #pragma comment(lib,"D3dx9.lib")
 
@@ -28,8 +30,7 @@ public:
 	vector<float> forceMags;
 
 	void update(float delta_time);
-	bool checkCollision(ServerEntity&,ServerEntity&);
-	bool checkCollision(ServerEntity&, Boundary&);
+	Collision * checkCollision(ServerEntity&,ServerEntity&);	bool checkCollision(ServerEntity&, Boundary&);
 	bool typeResponse(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, Boundary);

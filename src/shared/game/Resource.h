@@ -18,7 +18,6 @@ private:
 	static const unsigned int m_size = Entity::m_size;
 
 public:
-
 	// Constructors
 	Resource();
 
@@ -27,7 +26,6 @@ public:
 	virtual void decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
 
-	//virtual void update(Entity * source);
 	friend ostream& operator<<(ostream& os, const Resource&);
 	virtual void update(shared_ptr<Entity> source);
 };

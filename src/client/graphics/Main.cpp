@@ -20,7 +20,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 	{
 		//init space
 		if(SUCCEEDED(GameResources::initState())) {
-			
+			ofstream error_f("client_error.log");
+			cerr.rdbuf(error_f.rdbuf());
+
 			GameInput input;
 #ifndef MYNETWORKOFF  // defined in Gbls
 
@@ -28,18 +30,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			int c_port = DEFAULT_PORT-1;
 			ConfigSettings::config->getValue("network_clientPort", c_port);
 			NetworkClient nc(c_port);
-			
-			
+
+
 			int s_port = DEFAULT_PORT;
 			ConfigSettings::config->getValue("network_serverPort", s_port);
-			
+
 			string server_ip = "127.0.0.1";
 			ConfigSettings::config->getValue("network_serverIP", server_ip);
 
-			
-			nc.bindToServer(server_ip, (unsigned short) s_port);
 
-			GameResources::playerNum = nc.getClientID();
+			try {
+				nc.bindToServer(server_ip, (unsigned short) s_port);
+				GameResources::playerNum = nc.getClientID();
+			} catch (runtime_error &e) {
+				cerr << e.what() << endl;
+				bool exception_occured_check_error_log = false;
+				assert(exception_occured_check_error_log);
+			}
+
+
 
 #else
 			MessageBox( NULL, L"Network not enabled.\nRecompile with MYNETWORKOFF undefined to enable.", L"CRUSH.exe", MB_OK );
@@ -52,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//DWORD count = 0;
 			for(;;) // "forever"
 			{
-				 
+
 				input.refreshState();
 				input.vibrate(input.input.thrust*200,input.input.thrust*200);
 				//for checking fps
@@ -65,7 +74,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 				//	std::wstring wsTmp(s.begin(), s.end());
 				//	MessageBox( NULL, wsTmp.c_str(), wsTmp.c_str(), MB_OK );
 				//}
-				
+
 				GameState<Entity> newGameState;
 
 #ifndef MYNETWORKOFF  // defined in Gbls
@@ -76,7 +85,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
 				// Get game state from network
 				if(nc.newStateAvailable()) {
-					newGameState = nc.getGameState();					
+					try{
+						newGameState = nc.getGameState();	
+					}  catch (runtime_error &e) {
+						cerr << e.what() << endl;
+						bool exception_occured_check_error_log = false;
+						assert(exception_occured_check_error_log);
+					}
 				}
 #endif
 				// Process all pending window messages

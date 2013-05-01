@@ -52,10 +52,10 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 	m_server = n;
 
 	//bind server port to socket
-	if(bind(m_sock ,(struct sockaddr *)&(this->m_sockaddr),
+	/*if(bind(m_sock ,(struct sockaddr *)&(this->m_sockaddr),
 		sizeof(m_sockaddr)) == SOCKET_ERROR) {
 			throw runtime_error("bind() failed with error code : " + to_string((long long) WSAGetLastError()));
-	}
+	}*/
 
 	
 	//connect to server

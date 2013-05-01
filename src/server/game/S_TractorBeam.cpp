@@ -13,7 +13,7 @@
 S_TractorBeam::S_TractorBeam(int pNum) :
 	Entity(TRACTORBEAM),
 	TractorBeam(pNum),
-	ServerEntity(D3DXVECTOR3(0,0,0), 0, 1000)
+	ServerEntity(1000, D3DXVECTOR3(1, 1, 1))
 {
 
 }
@@ -22,7 +22,7 @@ S_TractorBeam::S_TractorBeam(int pNum) :
 S_TractorBeam::S_TractorBeam(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), TRACTORBEAM, pos, orientation),
 	TractorBeam(pNum),
-	ServerEntity(D3DXVECTOR3(0,0,0), 0, 1000)
+	ServerEntity(1000, D3DXVECTOR3(1, 1, 1))
 {	
 
 }

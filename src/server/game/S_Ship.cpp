@@ -10,17 +10,15 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 
-
-static string CONFIG_PREFIX = "ship_";
-static float DEF_ROTATION_THRUST_FORCE = 50;
-static float DEF_FORWARD_THRUST_FORCE = 500;
+using namespace server::entities::ship;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),
 	Ship(),
 	ServerEntity(),
-	m_forward_thrust_force(DEF_FORWARD_THRUST_FORCE),
-	m_rotation_thrust_force(DEF_ROTATION_THRUST_FORCE),
+	m_forward_thrust_force(forward_thrust_force),
+	m_rotation_thrust_force(rotation_thrust_force),
+	m_stabilizer_ratio(stabilizer_ratio),
 	m_resource(NULL)
 {
 	init();
@@ -29,9 +27,10 @@ S_Ship::S_Ship() :
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation),
 	Ship(pNum),
-	ServerEntity(100, 1, 100, calculateRotationalInertia(100)),
-	m_forward_thrust_force(DEF_FORWARD_THRUST_FORCE),
-	m_rotation_thrust_force(DEF_ROTATION_THRUST_FORCE),
+	ServerEntity(server::entities::ship::mass, calculateRotationalInertia(server::entities::ship::mass), 5.0, 1.0),
+	m_forward_thrust_force(forward_thrust_force),
+	m_rotation_thrust_force(rotation_thrust_force),
+	m_stabilizer_ratio(stabilizer_ratio),
 	m_resource(NULL)
 {	
 	init();
@@ -40,17 +39,12 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 void S_Ship::init() {
 	forward_rot_thruster = D3DXVECTOR3(0, 0, 5);
 	reverse_rot_thruster = D3DXVECTOR3(0, 0, -5);
-
-	ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_thrust_force", m_forward_thrust_force);
-	ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_thrust_force", m_rotation_thrust_force);
-
-	m_radius = 5.0;
 }
 
 // TODO!!!:
 // This method needs to be extracted to the server/physics engine.
 void S_Ship::addPlayerInput(InputState input) {
-	m_tractorBeamOn = input.tractBeam;
+	m_tractorBeamOn = (float) input.getTractorBeam();
 
 	// Linear thrust calculations
 	D3DXVECTOR3 main_thrust_force(0, 0, (float)(input.getThrust() * m_forward_thrust_force));
@@ -60,7 +54,7 @@ void S_Ship::addPlayerInput(InputState input) {
 	D3DXVECTOR3 aft_rot_force(-fore_rot_force);
 	
 	// Stabilizing thrust calculations
-	D3DXVECTOR3 stabilizer_force(-m_angular_momentum.x / 10, -m_angular_momentum.y / 10, -m_angular_momentum.z / 10);
+	D3DXVECTOR3 stabilizer_force(-m_angular_momentum.x * m_stabilizer_ratio, -m_angular_momentum.y * m_stabilizer_ratio, -m_angular_momentum.z * m_stabilizer_ratio);
 
 	// Thruster positions
 	D3DXVECTOR3 fore_thruster_pos_adj, aft_thruster_pos_adj;
