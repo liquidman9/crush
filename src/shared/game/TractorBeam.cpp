@@ -8,8 +8,9 @@
 TractorBeam::TractorBeam() :
 	Entity(TRACTORBEAM),
 	m_playerNum(0),
-	m_mode(false),
-	m_strength(10.0)
+	m_isOn(false),
+	m_isPulling(true),
+	m_fieldLength(100000.0)
 
 {
 }
@@ -17,8 +18,9 @@ TractorBeam::TractorBeam() :
 TractorBeam::TractorBeam(int pNum) :
 	Entity(TRACTORBEAM),
 	m_playerNum(pNum),
-	m_mode(false),
-	m_strength(10.0)
+	m_isOn(false),
+	m_isPulling(true),
+	m_fieldLength(100000.0)
 {
 }
 
@@ -44,10 +46,13 @@ const char* TractorBeam::encode() const {
 	*(SHIP_PLAYERNUM_TYPE *) (tmp_rtn) = m_playerNum;
 	tmp_rtn += sizeof(SHIP_PLAYERNUM_TYPE);
 
-	*(bool *) (tmp_rtn) = m_mode;
+	*(bool *) (tmp_rtn) = m_isOn;
 	tmp_rtn += sizeof(bool);
 
-	*(float *) (tmp_rtn) = m_strength;
+	*(bool *) (tmp_rtn) = m_isPulling;
+	tmp_rtn += sizeof(bool);
+
+	*(float *) (tmp_rtn) = m_fieldLength;
 
 	return rtn;
 }
@@ -55,7 +60,7 @@ const char* TractorBeam::encode() const {
 ostream& operator<<(ostream& os, const TractorBeam& e) {
 	os << e.getID() << " " << e.m_pos.x << " " << e.m_pos.y << " " << e.m_pos.z
 		<< " " << e.m_orientation.x << " " << e.m_orientation.y << " " << e.m_orientation.z << " " << e.m_orientation.w
-		<< " " << e.m_playerNum << " " << e.m_mode << " " << e.m_strength;
+		<< " " << e.m_playerNum << " " << e.m_isPulling << " " << e.m_isOn << " " << e.m_fieldLength;
 	return os;
 }
 
@@ -65,9 +70,11 @@ void TractorBeam::decode(const char *buff) {
 	buff += Entity::size();
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
 	buff += sizeof(SHIP_PLAYERNUM_TYPE);
-	m_mode = *(bool*) buff;
+	m_isOn = *(bool*) buff;
 	buff += sizeof(bool);
-	m_strength = *(float*) buff;
+	m_isPulling = *(bool*) buff;
+	buff += sizeof(bool);
+	m_fieldLength = *(float*) buff;
 }
 
 
@@ -83,7 +90,8 @@ void TractorBeam::update(shared_ptr<Entity> sp_source) {
 	} else {
 		Entity::update(sp_source);
 		m_playerNum = srcTractorBeam->m_playerNum;
-		m_mode = srcTractorBeam->m_mode;
-		m_strength = srcTractorBeam->m_strength;
+		m_isOn = srcTractorBeam->m_isOn;
+		m_isPulling = srcTractorBeam->m_isPulling;
+		m_fieldLength = srcTractorBeam->m_fieldLength;
 	}
 }

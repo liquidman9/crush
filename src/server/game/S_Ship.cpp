@@ -9,6 +9,7 @@
 #include <shared/ConfigSettings.h>
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
+//#include <server/game/S_TractorBeam.h>
 
 using namespace server::entities::ship;
 
@@ -45,6 +46,7 @@ void S_Ship::init() {
 // This method needs to be extracted to the server/physics engine.
 void S_Ship::addPlayerInput(InputState input) {
 	m_tractorBeamOn = (float) input.getTractorBeam();
+	m_tractorBeam->m_isOn = input.getTractorBeam() == 1.0; //tmp
 
 	// Linear thrust calculations
 	D3DXVECTOR3 main_thrust_force(0, 0, (float)(input.getThrust() * m_forward_thrust_force));
@@ -82,6 +84,23 @@ void S_Ship::addPlayerInput(InputState input) {
 	// DAMPING
 	// Rotation damping
 	applyAngularImpulse(stabilizer_force, 0.1f);
+}
+
+void S_Ship::calcTractorBeam() {
+
+	if(m_tractorBeam->m_isOn){
+		m_tractorBeam->calculateForce();
+		m_tractorBeam->m_pos = m_pos;
+		m_tractorBeam->m_length = m_tractorBeam->getCurrentDistance();
+		if(!m_tractorBeam->isLocked()) {
+			m_tractorBeam->m_orientation = m_orientation;
+		}
+	}
+	else {
+		m_tractorBeam->m_object = NULL;
+		m_tractorBeam->m_orientation = m_orientation;
+		m_tractorBeam->m_pos = m_pos;
+	}
 }
 
 D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){

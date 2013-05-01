@@ -18,29 +18,36 @@ ostream& operator<<(ostream& os, const D3DXQUATERNION &v) {
 	return os;
 }
 
-void PhysicsWorld::update(float delta_time) {
+void PhysicsWorld::collision(float delta_time) {
 	//int iterCount = 10;	// Attempt to solve collisions 10 times, to be implemented
 
 
 	for(unsigned i = 0; i < entities.size(); i++)
 	{	
+		// Collsions between objects
 		for(unsigned j = i+1; j < entities.size(); j++)
 		{
 			Collision * c;
 				if ((c = checkCollision(*entities[i], *entities[j])) != NULL)
-					c->resolve();
+					// Object Specific Logic
+					if(typeResponse(entities[i], entities[j]))
+						c->resolve();
 
 			delete(c);
 		}
 
+		// Boundary Collisions
 		for(unsigned k = 0; k < boundaries.size(); k++) {
 			if(checkCollision(*entities[i], boundaries[k])){
 					respond(entities[i], boundaries[k]);
 			}
 		}
 	}
+}
 
 
+void PhysicsWorld::update(float delta_time) {
+	// Updating Positions
 	for(unsigned i = 0; i < entities.size(); i++)
 	{
 		//entities[i]->calculate(.005f);
@@ -81,7 +88,7 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 		sD = 1.0;
 		tN = dotE;
 		tD = dotC;
-		cout << "D is 0" << endl;
+		//cout << "D is 0" << endl;
 	}
 
 	else
@@ -143,15 +150,15 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 
 	D3DXVECTOR3 dP = lengthBs + (sc * lengthA) - (tc * lengthB);	// a(sc) - b(tc) 
 
-	printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
+	//printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
 
 	if(D3DXVec3Length(&dP) < a.m_radius + b.m_radius)
 	{
-		cout << "Not null" << endl;
+		//cout << "Not null" << endl;
 		return Collision::generateCollision(&a, &b, (a.m_pBack + sc * lengthA), (b.m_pBack + tc * lengthB));
 	}
 
-	cout << "null" << endl;
+	//cout << "null" << endl;
 	return (Collision *)NULL;
 }
 
@@ -172,20 +179,37 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		S_Mothership * mothership = (S_Mothership *)two;
 		S_Ship * ship = (S_Ship *) one;
 		mothership->interact(ship);
-		rtn = false; //tmp
+		rtn = true; 
 	}
 
 	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == MOTHERSHIP)){
 		rtn = false;
 	}
 
-	// Tractorbeam doesn't do anything right now
-	if(((one = a)->m_type == TRACTORBEAM) || ((one = b)->m_type == TRACTORBEAM)){
+
+	if(((one = a)->m_type == TRACTORBEAM && (two = b)->m_type) || ((one = b)->m_type == TRACTORBEAM && (two = a)->m_type)){
+		S_TractorBeam * beam = (S_TractorBeam *)one;
+		ServerEntity * entity = two;
+
+		if(beam->m_isOn){
+		
+			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP) rtn = false;
+			else if(beam->isLocked()) {	cout<<"Tractor with Entity"<<endl;
+				if(beam->getCurrentDistance() > D3DXVec3Length(&beam->getDistanceVectorOf(entity->m_pos))){
+					beam->lockOn(entity);
+				}
+				else {
+				}
+			}
+			else {	cout<<"Tractor with Entity"<<endl;
+				beam->lockOn(entity);
+			}
+		}
 		rtn = false; //tmp
 	}
 
 	if(((one = a)->m_type == RESOURCE) && ((one = b)->m_type == RESOURCE)){
-		rtn = false;
+		//rtn = false;
 	}
 
 	return rtn;

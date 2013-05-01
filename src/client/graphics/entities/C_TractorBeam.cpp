@@ -24,8 +24,9 @@ C_TractorBeam::C_TractorBeam(Entity * newEnt) :
 		m_pos = srcTractorBeam->m_pos;
 		m_orientation = srcTractorBeam->m_orientation;
 		m_playerNum = srcTractorBeam->m_playerNum;
-		m_mode = srcTractorBeam->m_mode;
-		m_strength = srcTractorBeam->m_strength;
+		m_isOn= srcTractorBeam->m_isOn;
+	    m_isPulling= srcTractorBeam->m_isPulling;
+		m_fieldLength = srcTractorBeam->m_fieldLength;
 
 		m_pMesh = &Gbls::tractorBeamMesh;
 	} else {
@@ -35,7 +36,11 @@ C_TractorBeam::C_TractorBeam(Entity * newEnt) :
 
 void C_TractorBeam::draw()
 {
-	
+	// Scale Asteroid 
+	float conv = 3.5;
+	D3DXMATRIX matScale;
+	D3DXMatrixScaling(&matScale, conv, conv, conv);
+
 	// Translate TractorBeam to correct possition
 	D3DXMATRIX matTranslate;
 	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
@@ -46,6 +51,8 @@ void C_TractorBeam::draw()
 	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
 
 	// Apply transforms
-	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));
-	m_pMesh->draw();
+	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matScale*matRotate*matTranslate));
+	
+	if(m_isOn) 
+		m_pMesh->draw(); //tmp
 }

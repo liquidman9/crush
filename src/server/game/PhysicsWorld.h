@@ -29,6 +29,7 @@ public:
 	vector<D3DXVECTOR3> forceVectors;
 	vector<float> forceMags;
 
+	void collision(float delta_time);
 	void update(float delta_time);
 	Collision * checkCollision(ServerEntity&,ServerEntity&);	bool checkCollision(ServerEntity&, Boundary&);
 	bool typeResponse(ServerEntity *, ServerEntity *);

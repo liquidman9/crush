@@ -16,13 +16,14 @@
 
 class TractorBeam : public virtual Entity {
 private:
-	static const unsigned int m_size = Entity::m_size + sizeof(SHIP_PLAYERNUM_TYPE) + sizeof(bool) + sizeof(float);
+	static const unsigned int m_size = Entity::m_size + sizeof(SHIP_PLAYERNUM_TYPE) + sizeof(bool) + sizeof(bool) + sizeof(float);
 
 public:
 	// Fields
 	SHIP_PLAYERNUM_TYPE m_playerNum;
-	bool m_mode;
-	float m_strength;
+	bool m_isOn;
+	bool m_isPulling;
+	float m_fieldLength;
 
 	// Constructors
 	TractorBeam();

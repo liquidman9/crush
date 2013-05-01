@@ -118,7 +118,7 @@ void Server::removeDisconClients() {
 	}
 }
 
-
+float loopCycle = 1.0/60.0f;
 void Server::loop() {
 	for(;;) {
 		if(m_start) {			
@@ -149,7 +149,9 @@ void Server::loop() {
 			m_gameState.push_back(res);
 			m_world.entities.push_back(res);
 		}
-		m_world.update(1.0f/60.0f);
+		m_world.collision(loopCycle);
+		for(int i = 0; i < m_playerMap.size(); i++) m_playerMap.at(i)->calcTractorBeam();
+		m_world.update(loopCycle);
 		m_server.broadcastGameState(m_gameState);
 	
 		endOfTick();
@@ -170,15 +172,16 @@ void Server::addNewClients() {
 
 void Server::spawnShip(unsigned int client_id) {
 	// Temp
-	/*Quaternion m_dir3(0, 0, 0, 1);
-	D3DXVECTOR3 m_pos7((FLOAT)-10*(client_id+1),2,12);
-	S_TractorBeam *test8 = new S_TractorBeam(m_pos7, m_dir3, 0);
-	m_gameState.push_back(test8);
-	m_world.entities.push_back(test8);*/
-
 	D3DXVECTOR3 m_pos((FLOAT)-30*(client_id+1),2,2);
 	Quaternion m_dir(0, 0, 0, 1);
+
+	S_TractorBeam *beam = new S_TractorBeam(m_pos, m_dir, client_id);
+	m_gameState.push_back(beam);
+	m_world.entities.push_back(beam);
+
 	S_Ship *tmp = new S_Ship(m_pos, m_dir, client_id);
+	tmp->m_tractorBeam = beam;
+	beam->m_ship = tmp;
 	m_playerMap.insert(pair<unsigned int, S_Ship*>(client_id,tmp));
 	m_gameState.push_back(tmp);
 	m_world.entities.push_back(tmp);
