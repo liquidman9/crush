@@ -44,6 +44,9 @@ LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
 vector<EntityIdentifier*> GameResources::eIDList;
 LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
+ParticleSystem * GameResources::partSystem = NULL;
+TBeamPGroup * GameResources::tBeamPGroup = NULL;
 //std::vector<R_Ship*> GameResources::r_ShipList;
 //std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
@@ -56,21 +59,6 @@ HRESULT GameResources::initState() {
 
 	// Init state that must be init every time device is reset
 	reInitState();
-
-	//debugCam.updateProjection();
-
-	//debugCam.updateView();
-
-	//// Tell the device to automatically normalize surface normals to keep them normal after scaling
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
-	
-	////set backface cullling off TODO remove after models are fixed
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	
-	//// Create lights for scene and set light properties
-	//hres = GameResources::initLights();
-	//if(FAILED (hres))
-	//	return hres;
 
 	// Initialize the skybox
 	hres = Skybox::initSkybox();
@@ -101,10 +89,11 @@ HRESULT GameResources::initState() {
 		return hres;
 	}
 
-	//// create sprites
-	//hres = initSprites();
-	//if(FAILED (hres))
-	//	return hres;
+	// create particle system
+	partSystem = new ParticleSystem();
+	partSystem->init(Gbls::pd3dDevice);
+	tBeamPGroup = new TBeamPGroup(tBeamPartTexture, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+	tBeamPGroup->initBeamToFull();
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
@@ -128,6 +117,44 @@ HRESULT GameResources::initState() {
 	/*end TODO remove*/
 
 	return S_OK;
+}
+
+void GameResources::releaseResources() {
+	
+	if(tBeamPGroup) {
+		delete tBeamPGroup;
+		tBeamPGroup = NULL;
+	}
+
+	if(partSystem) {
+		delete partSystem;
+		partSystem = NULL;
+	}
+
+	if(pd3dFont) {
+		pd3dFont->Release();
+		pd3dFont = NULL;
+	}
+
+	if(pd3dSprite) {
+		pd3dSprite->Release();
+		pd3dSprite = NULL;
+	}
+
+	releaseAdditionalTextures();
+	
+	for(int i = 0; i < Gbls::numShipMeshes; i++) {
+		Gbls::shipMesh[0].Destroy();
+	}
+	for(int i = 0; i < Gbls::numShipMeshes; i++) {
+		Gbls::mothershipMesh[0].Destroy();
+	}
+
+	Gbls::asteroidMesh.Destroy();
+	Gbls::resourceMesh.Destroy();
+	Gbls::tractorBeamMesh.Destroy();
+
+	Skybox::releaseSkybox();
 }
 
 HRESULT GameResources::reInitState() {
@@ -197,10 +224,20 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 
+	// load particle spirte
+	hres = loadTexture(&tBeamPartTexture, Gbls::tBeamPartTexFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
 	return S_OK;
 }
 
 void GameResources::releaseAdditionalTextures() {
+	if (tBeamPartTexture) {
+		tBeamPartTexture->Release();
+		tBeamPartTexture = NULL;
+	}
 	if (shipEIDTexture) {
 		shipEIDTexture->Release();
 		shipEIDTexture = NULL;
@@ -247,6 +284,26 @@ HRESULT GameResources::loadFont(LPD3DXFONT * pFont, int height, std::wstring fon
 		return hres;
 	}
 	return S_OK;
+}
+
+void GameResources::drawAllTractorBeams() {
+		// Set state for particle rendering
+	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
+	// tractorBeamList
+	// render particles
+		//TODO remove this line, only for testing purposes until tBeams properly implemented from server
+		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
+	for (UINT i = 0; i < tractorBeamList.size(); i++) {
+		tBeamPGroup->beamEnt = tractorBeamList[i];
+		tBeamPGroup->updateGroup();
+		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
+	}
+
+	// Reset state after particle rendering
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 }
 
 void GameResources::drawAllEID() {
@@ -299,9 +356,14 @@ void GameResources::drawAll()
     {
 		(*ii).second->draw();
 	}
+	
+	// Render tractor beams
+	drawAllTractorBeams();
 
+	// Render entity indicators
 	drawAllEID();
 
+	// Render static hud elements
 	drawStaticHudElements();
 }
 
@@ -425,9 +487,13 @@ void GameResources::updateDebugCamera() {
 	debugCam.updateView();
 }
 
-
 void GameResources::updateGameState(GameState<Entity> & newGameState) {
-	
+
+	double curTime = timeGetTime();
+	static double s_lastTime = curTime; // first time initialization, static otherwise
+	float elpasedTime = (float)((curTime - s_lastTime) * 0.001);
+	s_lastTime = curTime;
+
 	updateKeyboardState(); // Clear out keyboard state bits
 	
 	// Update state of entitites
@@ -446,6 +512,9 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	} else {
 		updatePlayerCamera();
 	}
+
+	// Update particle system
+	partSystem->update(tBeamPGroup, elpasedTime);
 
 }
 
@@ -511,36 +580,4 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		break;
 	}
 	return ret;
-}
-
-void GameResources::releaseResources() {
-	
-	//for(UINT i = 0; i < spriteList.size(); i++) {
-	//	delete spriteList[i];
-	//}
-
-	if(pd3dFont) {
-		pd3dFont->Release();
-		pd3dFont = NULL;
-	}
-
-	if(pd3dSprite) {
-		pd3dSprite->Release();
-		pd3dSprite = NULL;
-	}
-
-	releaseAdditionalTextures();
-	
-	for(int i = 0; i < Gbls::numShipMeshes; i++) {
-		Gbls::shipMesh[0].Destroy();
-	}
-	for(int i = 0; i < Gbls::numShipMeshes; i++) {
-		Gbls::mothershipMesh[0].Destroy();
-	}
-
-	Gbls::asteroidMesh.Destroy();
-	Gbls::resourceMesh.Destroy();
-	Gbls::tractorBeamMesh.Destroy();
-
-	Skybox::releaseSkybox();
 }
