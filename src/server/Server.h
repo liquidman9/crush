@@ -19,6 +19,9 @@
 
 #define SERVER_ERROR_FILE "server_error.log"
 
+#define MS_DIST_FROM_MINE 300
+#define SHIP_DIST_FROM_MINE 200
+
 
 typedef map<unsigned int, S_Ship*> PlayerMap_t;
 typedef map<unsigned int, S_Mothership*> MothershipMap_t;
@@ -39,6 +42,10 @@ public:
 	//variable updates need to be implemented still.
 	//Please add any variables you feel would be good to change on the fly.
 	void reload();
+
+	//pauses/unpauses gamestate from being updated
+	//first call pauses server, second call unpauses, etc
+	void pause();
 
 	virtual ~Server(void);
 
@@ -84,6 +91,10 @@ private:
 
 	void removeDisconClients();
 
+	D3DXVECTOR3 genSpawnPos(unsigned int client_id, unsigned int distance);
+
+	Quaternion genSpawnDir(unsigned int client_id);
+
 
 	//variables
 	NetworkServer m_server;
@@ -97,6 +108,7 @@ private:
 	ofstream m_f_error;
 	bool m_start;
 	bool m_reload;
+	bool m_pause;
 
 	//threadStuff
 	CRITICAL_SECTION m_cs;

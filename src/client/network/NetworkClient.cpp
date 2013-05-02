@@ -1,5 +1,4 @@
 #include <client/network/NetworkClient.h>
-#include <client/network/EntityDecoder.h>
 
 NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false) {
 
@@ -138,10 +137,8 @@ void NetworkClient::updateGameState() {
 		}
 		
 		if(!error) {
-			//NetworkDecoder nd(local_buf, recv_len);
 			EnterCriticalSection(&m_cs);
-			//nd.decodeGameState(m_gameState);
-			client::network::decodeGameState(local_buf, recv_len, m_gameState);
+			m_gameState.decode(local_buf, recv_len);
 			m_stateAvailable = true;
 			LeaveCriticalSection(&m_cs);
 		}

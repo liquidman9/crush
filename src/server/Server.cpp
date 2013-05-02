@@ -3,6 +3,7 @@
 
 Server::Server(unsigned int port):m_server(port)
 {
+	m_pause = false;
 	m_start = false;
 	m_reload = false;
 	m_hThread = NULL;
@@ -16,6 +17,7 @@ Server::Server(unsigned int port):m_server(port)
 
 
 void Server::start() {
+	m_pause = false;
 	m_start = true;
 	if(m_hThread == NULL) {
 		unsigned int threadID;
@@ -29,11 +31,16 @@ void Server::start() {
 }
 
 void Server::restart() {
+	m_pause = false;
 	m_start = true;
 }
 
 void Server::reload() {
 	m_reload = true;
+}
+
+void Server::pause() {
+	m_pause = !m_pause;
 }
 
 void Server::reloadConfig() {
@@ -56,7 +63,6 @@ void Server::setUpResourceMine() {
 void Server::setUpAsteroids() {
 
 
-
 	Quaternion m_dir3(0, 0, 0, 1);
 
 
@@ -74,7 +80,7 @@ void Server::setUpAsteroids() {
 
 void Server::setUpBoundaries() {
 		
-	float bound = 200;
+	float bound = 500;
 	Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
 	Boundary right = Boundary(D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DXVECTOR3(bound,0.0f,0.0f));
 	Boundary top = Boundary(D3DXVECTOR3(0.0f,-1.0f,0.0f), D3DXVECTOR3(0.0f,bound,0.0f));
@@ -98,7 +104,6 @@ void Server::initializeGameState() {
 
 	setUpResourceMine();
 
-
 	setUpAsteroids();
 
 	setUpBoundaries();
@@ -118,8 +123,9 @@ void Server::removeDisconClients() {
 	}
 }
 
-float loopCycle = 1.0/60.0f;
+
 void Server::loop() {
+	float loopCycle = (float) 1.0/60.0f;
 	for(;;) {
 		if(m_start) {			
 			initializeGameState();
@@ -132,6 +138,11 @@ void Server::loop() {
 			m_reload = false;
 		}		
 		startTick();
+		if(m_pause) {
+			m_server.broadcastGameState(m_gameState);
+			endOfTick();
+			continue;
+		}
 
 		//(optional) currently just removes the name from a player's
 		//ship who has disconnected
@@ -149,8 +160,12 @@ void Server::loop() {
 			m_gameState.push_back(res);
 			m_world.entities.push_back(res);
 		}
+
 		m_world.collision(loopCycle);
-		for(int i = 0; i < m_playerMap.size(); i++) m_playerMap.at(i)->calcTractorBeam();
+
+		//old way would not iterate over a player map containing clients 0, 2 (size would be 2)
+		//i would be 0, 1 (but no client 1).
+		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) i->second->calcTractorBeam();
 		m_world.update(loopCycle);
 		m_server.broadcastGameState(m_gameState);
 	
@@ -179,7 +194,7 @@ void Server::spawnShip(unsigned int client_id) {
 	m_gameState.push_back(beam);
 	m_world.entities.push_back(beam);
 
-	S_Ship *tmp = new S_Ship(m_pos, m_dir, client_id);
+	S_Ship *tmp = new S_Ship(genSpawnPos(client_id, SHIP_DIST_FROM_MINE), m_dir, client_id);
 	tmp->m_tractorBeam = beam;
 	beam->m_ship = tmp;
 	m_playerMap.insert(pair<unsigned int, S_Ship*>(client_id,tmp));
@@ -188,12 +203,31 @@ void Server::spawnShip(unsigned int client_id) {
 }
 
 void Server::spawnMothership(unsigned int client_id) {
-	D3DXVECTOR3 m_pos((FLOAT)-50*(client_id+1),2,-8.0);
-	Quaternion m_dir(0, 0, 0, 1);
-	S_Mothership *tmp = new S_Mothership(m_pos, m_dir, client_id);
+	Quaternion m_dir(0,0,0,1);
+	S_Mothership *tmp = new S_Mothership(genSpawnPos(client_id, MS_DIST_FROM_MINE), m_dir, client_id);
 	m_mothershipMap.insert(pair<unsigned int, S_Mothership*>(client_id,tmp));
 	m_gameState.push_back(tmp);
 	m_world.entities.push_back(tmp);
+}
+
+D3DXVECTOR3 Server::genSpawnPos(unsigned int client_id, unsigned int distance) {
+	D3DXVECTOR3 rtn;
+	if (client_id % 2 == 0){
+		rtn = D3DXVECTOR3((float)(-1.0+client_id)*distance, 0, 0);
+	} else {
+		rtn = D3DXVECTOR3(0, 0, (float)(-2.0+client_id)*distance);
+	}
+	return rtn;
+}
+
+Quaternion genSpawnDir(unsigned int client_id) {
+	Quaternion rtn;
+	if (client_id % 2 == 0){
+		rtn = Quaternion(0, 0, 0, 1);
+	} else {
+		rtn = Quaternion(0, 0, 0, 1);
+	}
+	return rtn;
 }
 
 

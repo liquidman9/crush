@@ -6,7 +6,6 @@
 
 // Project includes
 #include <shared/network/Network.h>
-#include <shared/network/NetworkDecoder.h>
 #include <shared/game/Entity.h>
 #include <shared/ConfigSettings.h>
 
@@ -50,6 +49,8 @@ public:
 	//returns a vector of ids of clients who have disconnected since the last call
 	// to getDisconClients();
 	vector<unsigned int> getDisconClients();
+
+	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
 
 	
 	virtual ~NetworkServer(void);

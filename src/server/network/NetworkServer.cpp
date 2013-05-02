@@ -130,8 +130,9 @@ EventBuff_t NetworkServer::getEvents() {
 				//cannot reach client, close the connection
 				removeList.push_back(it);
 			} else if (recv_len > 0) {
-				NetworkDecoder nd(local_buf, recv_len);
-				nd.decodeEvents(rtn, it->first);
+				/*NetworkDecoder nd(local_buf, recv_len);
+				nd.decodeEvents(rtn, it->first);*/
+				decodeEvents(local_buf, recv_len, rtn, it->first);
 			}
 	}
 	//remove clients that aren't reachable
@@ -237,6 +238,18 @@ void NetworkServer::acceptNewClient()
 		}
 	}
 }
+
+void NetworkServer::decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client) {
+		Event* ep = NULL;
+		const char* curr_head = head;
+		for(unsigned int cur_size = 0; cur_size < size; cur_size += ep->size() ){
+				ep = new InputState();
+				ep->decode(curr_head);
+				g[client] = shared_ptr<Event>(ep);
+				break;
+	}	
+}
+
 
 vector<unsigned int> NetworkServer::getConnectedClientIDs() {
 	vector<unsigned int> rtn;

@@ -66,7 +66,7 @@ ostream& operator<<(ostream& os, const Ship& e) {
 
 void Ship::decode(const char *buff) {
 	Entity::decode(buff);
-	m_type = SHIP;
+	//m_type = SHIP;
 	buff += Entity::size();
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
 	buff += sizeof(SHIP_PLAYERNUM_TYPE);
