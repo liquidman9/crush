@@ -38,9 +38,9 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 		scaleMod = ((scaleMod - 1)/2)+1; // SO MANY MAGIC NUMBERS
 		int pixel_x = (int)(((out.x + 1.0f)/2.0f)*screenWidth);
 		int pixel_y = (int)((-(out.y - 1.0f)/2.0f)*screenHeight);
-		bool infront = out.z > 0.0f /* && out.z < 1.0f*/;
 		bool inside = out.x > -1.0f && out.x < 1.0f && out.y > -1.0f && out.y < 1.0f;
 		D3DXVec3TransformCoord(&out, &targetEntity->m_pos, &tmp); //out now has view coords
+		bool infront = out.z > 0.0f /* && out.z < 1.0f*/;
 		if (infront && inside) { // infront && inside fov
 			float length = D3DXVec3Length(&out);
 			float scale = (30.0f/length)*scaleMod;
