@@ -10,6 +10,8 @@ class InputState : public Sendable {
 	unsigned char thrust;
 	short turn;
 	short pitch;
+	bool brake;
+	short roll;
 
 	double getThrust() {
 		return thrust/255.0;
@@ -27,7 +29,15 @@ class InputState : public Sendable {
 		return tractBeam/255.0;
 	}
 
-	static const unsigned int m_size = sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short)*2;
+	bool getBrake() {
+		return brake;
+	}
+
+	double getRoll() {
+		return roll/32768.0;
+	}
+
+	static const unsigned int m_size = sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short)*3+sizeof(bool);
 
 	virtual const char* encode() const {
 		char * tmp = new char[m_size];
@@ -35,6 +45,8 @@ class InputState : public Sendable {
 		*(unsigned char *) (tmp+sizeof(unsigned char)) = thrust;
 		*(short *) (tmp+sizeof(unsigned char)+sizeof(char)) = turn;
 		*(short *) (tmp+sizeof(unsigned char)+sizeof(char)+sizeof(short)) = pitch;
+		*(short *) (tmp+sizeof(unsigned char)+sizeof(char)+sizeof(short)+sizeof(short)) = roll;
+		*(bool *) (tmp+sizeof(unsigned char)+sizeof(char)+sizeof(short)+sizeof(short)+sizeof(short)) = brake;
 		return tmp;
 	};
 
@@ -43,6 +55,8 @@ class InputState : public Sendable {
 		thrust = *(unsigned char *)(tmp+sizeof(unsigned char));
 		turn = *(short *) (tmp+sizeof(unsigned char)+sizeof(unsigned char));
 		pitch = *(short *) (tmp+sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short));
+		roll = *(short *) (tmp+sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short)+sizeof(short));
+		brake = *(bool *) (tmp+sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short)+sizeof(short)+sizeof(short));
 	};
 	virtual const unsigned int size() const { return m_size; };
 };

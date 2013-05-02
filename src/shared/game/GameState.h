@@ -68,9 +68,9 @@ private:
 		const char* cur_head = head + sizeof(m_meta);
 		for(unsigned int cur_size = 0; cur_size < size; cur_size += m_meta.size){
 			memcpy((char* ) &m_meta, head, sizeof(m_meta));
-			unsigned int size = m_meta.size;
+			unsigned int size1 = m_meta.size;
 			clear();
-			for(unsigned int cur_size = 0; cur_size < size - sizeof(m_meta); cur_size += ep->size() ){
+			for(unsigned int cur_size = 0; cur_size < size1 - sizeof(m_meta); cur_size += ep->size() ){
 				ep = NULL;
 				Type a = *(Type*) (cur_head + cur_size);
 				switch(a) {
