@@ -194,14 +194,14 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		if(beam->m_isOn){
 		
 			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP) rtn = false;
-			else if(beam->isLocked()) {	cout<<"Tractor with Entity"<<endl;
+			else if(beam->isLocked()) {	//cout<<"Tractor with Entity"<<endl;
 				if(beam->getCurrentDistance() > D3DXVec3Length(&beam->getDistanceVectorOf(entity->m_pos))){
 					beam->lockOn(entity);
 				}
 				else {
 				}
 			}
-			else {	cout<<"Tractor with Entity"<<endl;
+			else {	//cout<<"Tractor with Entity"<<endl;
 				beam->lockOn(entity);
 			}
 		}

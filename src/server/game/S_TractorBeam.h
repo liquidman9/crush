@@ -27,6 +27,7 @@ public:
 	// Fields
 	ServerEntity * m_object;
 	S_Ship * m_ship; 
+	float m_strength;
 
 	// Constructors
 	S_TractorBeam(int);
