@@ -14,7 +14,8 @@ static float s_gravitationalConstant =  0.01f;
 S_TractorBeam::S_TractorBeam(int pNum) :
 	Entity(TRACTORBEAM),
 	TractorBeam(pNum),
-	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), 100000.0f, 1.0)// infinity
+	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), 100000.0f, 1.0),// infinity
+	m_strength(0)
 {
 	m_radius = 2.0;
 	m_object = NULL;
@@ -27,7 +28,8 @@ S_TractorBeam::S_TractorBeam(int pNum) :
 S_TractorBeam::S_TractorBeam(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), TRACTORBEAM, pos, orientation),
 	TractorBeam(pNum),
-	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), 100000.0f, 1.0)
+	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), 100000.0f, 1.0),
+	m_strength(0)
 {	
 	m_radius = 2.0;
 	m_object = NULL;
@@ -78,9 +80,9 @@ void S_TractorBeam::calculateForce() {
 		D3DXVECTOR3 disV = getCurrentDistanceVector();
 		float disL = D3DXVec3Length(&disV);
 		disV = getCurrentDirection();
-		D3DXVECTOR3 force = (s_gravitationalConstant*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
+		D3DXVECTOR3 force = m_strength*(s_gravitationalConstant*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
 
-		//cout << "Type: "<<(int)m_object->m_type<<" Dis: "<<getCurrentDistance()<<" Force: "<<force.x <<" "<< force.y << " "<<force.z<< endl;
+		cout << "Type: "<<(int)m_object->m_type<<" Dis: "<<getCurrentDistance()<<" Force: "<<force.x <<" "<< force.y << " "<<force.z<< endl;
 		
 		if(m_isPulling) {
 			m_ship->applyLinearImpulse(force, .01f);

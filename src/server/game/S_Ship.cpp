@@ -45,8 +45,9 @@ void S_Ship::init() {
 // TODO!!!:
 // This method needs to be extracted to the server/physics engine.
 void S_Ship::addPlayerInput(InputState input) {
-	m_tractorBeamOn = (float) input.getTractorBeam();
-	m_tractorBeam->m_isOn = input.getTractorBeam() == 1.0; //tmp
+	m_tractorBeam->m_strength = (float) input.getTractorBeam();
+	//m_tractorBeamOn = (float) input.getTractorBeam();
+	m_tractorBeam->m_isOn = input.getTractorBeam() != 0; //tmp
 
 	// Linear thrust calculations
 	D3DXVECTOR3 main_thrust_force(0, 0, (float)(input.getThrust() * m_forward_thrust_force));
