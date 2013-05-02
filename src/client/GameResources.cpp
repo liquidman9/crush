@@ -91,7 +91,9 @@ HRESULT GameResources::initState() {
 
 	// create particle system
 	partSystem = new ParticleSystem();
-	tBeamPGroup = new TBeamPGroup(&tBeamPartTexture, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+	partSystem->init(Gbls::pd3dDevice);
+	tBeamPGroup = new TBeamPGroup(tBeamPartTexture, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+	tBeamPGroup->initBeamToFull();
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
@@ -222,7 +224,7 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 
-		// load arrow spirte
+	// load particle spirte
 	hres = loadTexture(&tBeamPartTexture, Gbls::tBeamPartTexFilepath);
 	if (FAILED(hres)) {
 		return hres;
@@ -233,8 +235,8 @@ HRESULT GameResources::initAdditionalTextures()
 
 void GameResources::releaseAdditionalTextures() {
 	if (tBeamPartTexture) {
-		shipEIDTexture->Release();
-		shipEIDTexture = NULL;
+		tBeamPartTexture->Release();
+		tBeamPartTexture = NULL;
 	}
 	if (shipEIDTexture) {
 		shipEIDTexture->Release();
@@ -282,6 +284,26 @@ HRESULT GameResources::loadFont(LPD3DXFONT * pFont, int height, std::wstring fon
 		return hres;
 	}
 	return S_OK;
+}
+
+void GameResources::drawAllTractorBeams() {
+		// Set state for particle rendering
+	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
+	// tractorBeamList
+	// render particles
+		//TODO remove this line, only for testing purposes until tBeams properly implemented from server
+		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
+	for (UINT i = 0; i < tractorBeamList.size(); i++) {
+		tBeamPGroup->beamEnt = tractorBeamList[i];
+		tBeamPGroup->updateGroup();
+		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
+	}
+
+	// Reset state after particle rendering
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 }
 
 void GameResources::drawAllEID() {
@@ -334,11 +356,14 @@ void GameResources::drawAll()
     {
 		(*ii).second->draw();
 	}
+	
+	// Render tractor beams
+	drawAllTractorBeams();
 
-	partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
-
+	// Render entity indicators
 	drawAllEID();
 
+	// Render static hud elements
 	drawStaticHudElements();
 }
 

@@ -35,6 +35,8 @@ public:
     ParticleSystem(void);
    ~ParticleSystem(void);
 
+	HRESULT init( LPDIRECT3DDEVICE9 pd3dDevice );
+
     HRESULT render(LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pGroup);
 
     HRESULT RestoreDeviceObjects(LPDIRECT3DDEVICE9 pd3dDevice);

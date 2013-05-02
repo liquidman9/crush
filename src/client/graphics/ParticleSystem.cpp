@@ -70,15 +70,25 @@ ParticleSystem::~ParticleSystem()
     m_pFreeList = NULL;
 }
 
-HRESULT ParticleSystem::update(ParticleGroup * pGroup, float newTime) {
+HRESULT ParticleSystem::init( LPDIRECT3DDEVICE9 pd3dDevice )
+{
+    HRESULT hr;
 
-	pGroup->updateGroup();
+    // Initialize the particle system
+    if( FAILED( hr = RestoreDeviceObjects( pd3dDevice ) ) )
+        return hr;
+    return S_OK;
+}
+
+HRESULT ParticleSystem::update(ParticleGroup * pGroup, float elapsedTime) {
 
     Particle  *pParticle;
     Particle **ppParticle;
 
-	float elapsedTime = newTime - pGroup->m_currentTime;
-    pGroup->m_currentTime += newTime;  // Update our particle system timer
+	pGroup->m_currentTime += elapsedTime;
+
+	//float elapsedTime = newTime - pGroup->m_currentTime;
+ //   pGroup->m_currentTime = newTime;  // Update our particle system timer
 
     ppParticle = &pGroup->m_partList; // Start at the head of the active list
 
@@ -141,208 +151,6 @@ HRESULT ParticleSystem::update(ParticleGroup * pGroup, float newTime) {
     return S_OK;
 }
 
-////-----------------------------------------------------------------------------
-//// Name: Update()
-//// Desc:
-////-----------------------------------------------------------------------------
-//HRESULT ParticleSystem::Update( FLOAT fElpasedTime )
-//{
-//    Particle  *pParticle;
-//    Particle **ppParticle;
-//    Plane     *pPlane;
-//    Plane    **ppPlane;
-//    D3DXVECTOR3 vOldPosition;
-//
-//    m_fCurrentTime += fElpasedTime;     // Update our particle system timer...
-//
-//    ppParticle = &m_pActiveList; // Start at the head of the active list
-//
-//    while( *ppParticle )
-//    {
-//        pParticle = *ppParticle; // Set a pointer to the head
-//
-//        // Calculate new position
-//        float fTimePassed  = m_fCurrentTime - pParticle->m_fInitTime;
-//
-//        if( fTimePassed >= m_fLifeCycle )
-//        {
-//            // Time is up, put the particle back on the free list...
-//            *ppParticle = pParticle->m_pNext;
-//            pParticle->m_pNext = m_pFreeList;
-//            m_pFreeList = pParticle;
-//
-//            --m_dwActiveCount;
-//        }
-//        else
-//        {
-//            // Update particle position and velocity
-//
-//            // Update velocity with respect to Gravity (Constant Acceleration)
-//            pParticle->m_vCurVel += m_vGravity * fElpasedTime;
-//
-//            // Update velocity with respect to Wind (Acceleration based on 
-//            // difference of vectors)
-//            if( m_bAirResistence == true )
-//                pParticle->m_vCurVel += (m_vWind - pParticle->m_vCurVel) * fElpasedTime;
-//
-//            // Finally, update position with respect to velocity
-//            vOldPosition = pParticle->m_vCurPos;
-//            pParticle->m_vCurPos += pParticle->m_vCurVel * fElpasedTime;
-//
-//            //-----------------------------------------------------------------
-//            // BEGIN Checking the particle against each plane that was set up
-//
-//            ppPlane = &m_pPlanes; // Set a pointer to the head
-//
-//            while( *ppPlane )
-//            {
-//                pPlane = *ppPlane;
-//                int result = classifyPoint( &pParticle->m_vCurPos, pPlane );
-//
-//                if( result == CP_BACK /*|| result == CP_ONPLANE */ )
-//                {
-//                    if( pPlane->m_nCollisionResult == CR_BOUNCE )
-//                    {
-//                        pParticle->m_vCurPos = vOldPosition;
-//
-//            //-----------------------------------------------------------------
-//            //
-//            // The new velocity vector of a particle that is bouncing off
-//            // a plane is computed as follows:
-//            //
-//            // Vn = (N.V) * N
-//            // Vt = V - Vn
-//            // Vp = Vt - Kr * Vn
-//            //
-//            // Where:
-//            // 
-//            // .  = Dot product operation
-//            // N  = The normal of the plane from which we bounced
-//            // V  = Velocity vector prior to bounce
-//            // Vn = Normal force
-//            // Kr = The coefficient of restitution ( Ex. 1 = Full Bounce, 
-//            //      0 = Particle Sticks )
-//            // Vp = New velocity vector after bounce
-//            //
-//            //-----------------------------------------------------------------
-//
-//                        float Kr = pPlane->m_fBounceFactor;
-//
-//                        D3DXVECTOR3 Vn = D3DXVec3Dot( &pPlane->m_vNormal, 
-//                                                      &pParticle->m_vCurVel ) * 
-//                                                      pPlane->m_vNormal;
-//                        D3DXVECTOR3 Vt = pParticle->m_vCurVel - Vn;
-//                        D3DXVECTOR3 Vp = Vt - Kr * Vn;
-//
-//                        pParticle->m_vCurVel = Vp;
-//                    }
-//                    else if( pPlane->m_nCollisionResult == CR_RECYCLE )
-//                    {
-//                        pParticle->m_fInitTime -= m_fLifeCycle;
-//                    }
-//
-//                    else if( pPlane->m_nCollisionResult == CR_STICK )
-//                    {
-//                        pParticle->m_vCurPos = vOldPosition;
-//                        pParticle->m_vCurVel = D3DXVECTOR3(0.0f,0.0f,0.0f);
-//                    }
-//                }
-//
-//                ppPlane = &pPlane->m_pNext;
-//            }
-//
-//            // END Plane Checking
-//            //-----------------------------------------------------------------
-//
-//            ppParticle = &pParticle->m_pNext;
-//        }
-//    }
-//
-//    //-------------------------------------------------------------------------
-//    // Emit new particles in accordance to the flow rate...
-//    // 
-//    // NOTE: The system operates with a finite number of particles.
-//    //       New particles will be created until the max amount has
-//    //       been reached, after that, only old particles that have
-//    //       been recycled can be reintialized and used again.
-//    //-------------------------------------------------------------------------
-//
-//    if( m_fCurrentTime - m_fLastUpdate > m_fReleaseInterval )
-//    {
-//        // Reset update timing...
-//        m_fLastUpdate = m_fCurrentTime;
-//    
-//        // Emit new particles at specified flow rate...
-//        for( DWORD i = 0; i < m_dwNumToRelease; ++i )
-//        {
-//            // Do we have any free particles to put back to work?
-//            if( m_pFreeList )
-//            {
-//                // If so, hand over the first free one to be reused.
-//                pParticle = m_pFreeList;
-//                // Then make the next free particle in the list next to go!
-//                m_pFreeList = pParticle->m_pNext;
-//            }
-//            else
-//            {
-//                // There are no free particles to recycle...
-//                // We'll have to create a new one from scratch!
-//                if( m_dwActiveCount < m_dwMaxParticles )
-//                {
-//                    if( NULL == ( pParticle = new Particle ) )
-//                        return E_OUTOFMEMORY;
-//                }
-//            }
-//
-//            if( m_dwActiveCount < m_dwMaxParticles )
-//            {
-//                pParticle->m_pNext = m_pActiveList; // Make it the new head...
-//                m_pActiveList = pParticle;
-//                
-//                // Set the attributes for our new particle...
-//                pParticle->m_vCurVel = m_vVelocity;
-//
-//                if( m_fVelocityVar != 0.0f )
-//                {
-//                    D3DXVECTOR3 vRandomVec = getRandomVector();
-//                    pParticle->m_vCurVel += vRandomVec * m_fVelocityVar;
-//                }
-//
-//                pParticle->m_fInitTime  = m_fCurrentTime;
-//                pParticle->m_vCurPos    = m_vPosition;
-//                
-//                ++m_dwActiveCount;
-//            }
-//        }
-//    }
-//
-//    return S_OK;
-//}
-
-////-----------------------------------------------------------------------------
-//// Name: RestartParticleSystem()
-//// Desc:
-////-----------------------------------------------------------------------------
-//void ParticleSystem::RestartParticleSystem( void )
-//{
-//	Particle  *pParticle;
-//	Particle **ppParticle;
-//
-//	ppParticle = &m_pActiveList; // Start at the head of the active list
-//
-//	while( *ppParticle )
-//	{
-//		pParticle = *ppParticle; // Set a pointer to the head
-//
-//		// Put the particle back on the free list...
-//		*ppParticle = pParticle->m_pNext;
-//		pParticle->m_pNext = m_pFreeList;
-//		m_pFreeList = pParticle;
-//
-//		--m_dwActiveCount;
-//	}
-//}
-
 //-----------------------------------------------------------------------------
 // Name: Render()
 // Desc: Renders the particle system using pointsprites loaded in a vertex 
@@ -369,7 +177,7 @@ HRESULT ParticleSystem::render( LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pG
 	//
     // Set the render states for using point sprites..
 	//
-	
+	pd3dDevice->SetTexture(0, pGroup->m_ptexParticle);
     pd3dDevice->SetRenderState( D3DRS_POINTSPRITEENABLE, TRUE );       // Turn on point sprites
     pd3dDevice->SetRenderState( D3DRS_POINTSCALEENABLE,  TRUE );       // Allow sprites to be scaled with distance
 	pd3dDevice->SetRenderState( D3DRS_POINTSIZE,     FtoDW(pGroup->m_size) ); // Float value that specifies the size to use for point size computation in cases where point size is not specified for each vertex.

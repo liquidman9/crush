@@ -104,6 +104,7 @@ public:
 	static HRESULT initLights();
 	//static HRESULT initSprites();
 	static void drawAll();
+	static void drawAllTractorBeams();
 	static void drawAllEID();
 	static void drawStaticHudElements();
 	//static void drawAllSprites();

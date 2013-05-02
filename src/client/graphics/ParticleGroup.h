@@ -25,7 +25,7 @@ public:
     float       m_releaseInterval;
 	float       m_lastUpdate;
 	float		m_currentTime;
-    LPDIRECT3DTEXTURE9 * m_pptexParticle; // Particle's texture
+    LPDIRECT3DTEXTURE9 m_ptexParticle; // Particle's texture
 	
 	virtual void updateGroup() = 0;
 	virtual void initNewParticle(Particle * pParticle) = 0;

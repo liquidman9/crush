@@ -18,9 +18,10 @@
 
 class TBeamPGroup : public ParticleGroup {
 public:
-	TBeamPGroup(LPDIRECT3DTEXTURE9 * pptexParticle, D3DXCOLOR color, float partSize);
+	TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle, D3DXCOLOR color, float partSize);
 	~TBeamPGroup();
 
+	static const float defaultLength;
 	static const float speed;
 	static const float rotSpeed;
 
@@ -31,6 +32,7 @@ public:
 	virtual void updateGroup();
 	virtual void initNewParticle(Particle * pParticle);
 	virtual bool updateParticle(Particle * pParticle, float elapsedTime);
+	virtual void initBeamToFull();
 
 };
 
