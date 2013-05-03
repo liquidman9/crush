@@ -21,6 +21,24 @@ class S_Ship;
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
+
+namespace server {
+	namespace entities {
+		namespace tractorbeam {
+			static const string CONFIG_PREFIX = "tractorbeam_";
+
+			static float gravity = 10.0f;
+			static float length = 250.0f;
+
+			inline void initFromConfig() {
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "gravity", gravity);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "length", length);
+			}
+		}
+	}
+}
+
+
 class S_TractorBeam : public TractorBeam, public ServerEntity{ 
 
 public:
