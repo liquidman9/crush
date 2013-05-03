@@ -3,9 +3,11 @@
 
 Server::Server(unsigned int port):m_server(port)
 {
+	m_timeLimit = TIME_LIMIT;
 	m_pause = false;
 	m_start = false;
 	m_reload = false;
+	m_endClock = 0;
 	m_hThread = NULL;
 	string error_file = SERVER_ERROR_FILE;
 	ConfigSettings::config->getValue("server_errorLogFile", error_file);
@@ -22,11 +24,11 @@ void Server::start() {
 	if(m_hThread == NULL) {
 		unsigned int threadID;
 		m_hThread = (HANDLE)_beginthreadex( NULL, // security
-		0,             // stack size
-		Server::StaticLoopEntry,// entry-point-function
-		this,           // arg list holding the "this" pointer
-		0,		
-		&threadID );
+			0,             // stack size
+			Server::StaticLoopEntry,// entry-point-function
+			this,           // arg list holding the "this" pointer
+			0,		
+			&threadID );
 	}
 }
 
@@ -43,9 +45,14 @@ void Server::pause() {
 	m_pause = !m_pause;
 }
 
+void Server::startGame() {
+	m_startGame = true;
+}
+
 void Server::reloadConfig() {
 	ConfigSettings::config->reloadSettingsFile();
 
+	ConfigSettings::config->getValue("gp_timeLimit", m_timeLimit); 
 	//add variables to update here
 }
 
@@ -79,7 +86,7 @@ void Server::setUpAsteroids() {
 }
 
 void Server::setUpBoundaries() {
-		
+
 	float bound = 500;
 	Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
 	Boundary right = Boundary(D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DXVECTOR3(bound,0.0f,0.0f));
@@ -87,14 +94,14 @@ void Server::setUpBoundaries() {
 	Boundary down = Boundary(D3DXVECTOR3(0.0f,1.0f,0.0f), D3DXVECTOR3(0.0f,-bound,0.0f));
 	Boundary front = Boundary(D3DXVECTOR3(0.0f,0.0f,1.0f), D3DXVECTOR3(0.0f,0.0f,-bound));
 	Boundary back = Boundary(D3DXVECTOR3(0.0f,0.0f,-1.0f), D3DXVECTOR3(0.0f,0.0f,bound));
-		
+
 	m_world.boundaries.push_back(left);
 	m_world.boundaries.push_back(right);
 	m_world.boundaries.push_back(top);
 	m_world.boundaries.push_back(down);
 	m_world.boundaries.push_back(front);
 	m_world.boundaries.push_back(back);
-		
+
 }
 
 void Server::initializeGameState() {
@@ -123,6 +130,43 @@ void Server::removeDisconClients() {
 	}
 }
 
+void Server::initializeGameClock() {
+	m_endClock = milliseconds_now() + m_timeLimit;
+}
+
+void Server::updateGameClock() {
+	long long time_remaining = m_endClock - milliseconds_now();
+	if(time_remaining > 0) {
+		m_gameState.setTime(time_remaining);
+	} else {
+		m_gameState.setTime(0);
+	}
+}
+
+bool Server::gameOver() {
+	return m_gameState.getRemainingTimeNum() == 0;
+}
+
+void Server::declareWinner() {
+	unsigned int max = 0;
+	unsigned int client = 0;
+	for(auto it = m_mothershipMap.begin(); it != m_mothershipMap.end(); it++) {
+		if(it->second->m_resourceList.size() > max) {
+			max = it->second->m_resourceList.size();
+			client = it->first;
+		}
+	}
+	m_gameState.setWinner((int) client);
+}
+
+void Server::updateScore() {
+	scoreList_t list;
+	for(auto it = m_mothershipMap.begin(); it != m_mothershipMap.end(); it++) {
+		list.push_back(pair<unsigned int, unsigned char>(it->first, (unsigned char)it->second->m_resourceList.size()));
+	}
+	m_gameState.setScore(list);
+}
+
 
 void Server::loop() {
 	float loopCycle = (float) 1.0/60.0f;
@@ -143,14 +187,27 @@ void Server::loop() {
 			endOfTick();
 			continue;
 		}
+		if (m_startGame) {
+			initializeGameClock();
+			cout << "Game Started" << endl;
+			m_startGame = false;
+		}
+
+		updateGameClock();
+		updateScore();
+		if(gameOver()) {
+			declareWinner();
+			cout << "Game ended \nClient " << m_gameState.getWinner() 
+				<< " wins" << endl;
+		}
 
 		//(optional) currently just removes the name from a player's
 		//ship who has disconnected
 		removeDisconClients();
 
 		addNewClients();
-	
-	
+
+
 		m_clientInput = m_server.getEvents();
 		if(!m_clientInput.empty()) {
 			moveClients();
@@ -164,14 +221,13 @@ void Server::loop() {
 
 		m_world.collision(loopCycle);
 
-		//old way would not iterate over a player map containing clients 0, 2 (size would be 2)
-		//i would be 0, 1 (but no client 1).
 		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) i->second->calcTractorBeam();
 		m_world.update(loopCycle);
 		m_server.broadcastGameState(m_gameState);
-	
+
 		endOfTick();
 	}
+
 }
 
 void Server::addNewClients() {
@@ -188,8 +244,6 @@ void Server::addNewClients() {
 
 void Server::spawnShip(unsigned int client_id) {
 	// Temp
-	Quaternion m_dir(0, 0, 0, 1);
-
 	S_Ship *ship = new S_Ship(genSpawnPos(client_id, SHIP_DIST_FROM_MINE), genShipSpawnDir(client_id), client_id);
 	m_playerMap.insert(pair<unsigned int, S_Ship*>(client_id,ship));
 	m_gameState.push_back(ship);
@@ -203,7 +257,6 @@ void Server::spawnShip(unsigned int client_id) {
 }
 
 void Server::spawnMothership(unsigned int client_id) {
-	Quaternion m_dir(0,0,0,1);
 	S_Mothership *tmp = new S_Mothership(genSpawnPos(client_id, MS_DIST_FROM_MINE), genMotherShipSpawnDir(client_id), client_id);
 	m_mothershipMap.insert(pair<unsigned int, S_Mothership*>(client_id,tmp));
 	m_gameState.push_back(tmp);
@@ -222,7 +275,7 @@ D3DXVECTOR3 Server::genSpawnPos(unsigned int client_id, unsigned int distance) {
 
 Quaternion Server::genShipSpawnDir(unsigned int client_id) {
 	Quaternion rtn;
-	D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian((1.0-client_id)*90), 0 , 0);
+	D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian((float) (1.0-client_id)*90), 0 , 0);
 	return rtn;
 }
 
@@ -231,7 +284,7 @@ Quaternion Server::genMotherShipSpawnDir(unsigned int client_id) {
 	if(client_id % 2 == 0) {
 		D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian((client_id)*90), 0 , 0);
 	} else {
-		D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian(-(2.0-client_id)*90), 0 , 0);
+		D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian((float)-(2.0-client_id)*90), 0 , 0);
 	}
 	return rtn;
 }

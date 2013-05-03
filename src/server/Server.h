@@ -21,6 +21,7 @@
 
 #define MS_DIST_FROM_MINE 300
 #define SHIP_DIST_FROM_MINE 200
+#define TIME_LIMIT 300000
 
 
 typedef map<unsigned int, S_Ship*> PlayerMap_t;
@@ -46,6 +47,8 @@ public:
 	//pauses/unpauses gamestate from being updated
 	//first call pauses server, second call unpauses, etc
 	void pause();
+
+	void startGame();
 
 	virtual ~Server(void);
 
@@ -97,6 +100,16 @@ private:
 
 	Quaternion genMotherShipSpawnDir(unsigned int client_id);
 
+	void initializeGameClock();
+
+	void updateGameClock();
+
+	void declareWinner();
+
+	bool gameOver();
+
+	void updateScore();
+
 
 	//variables
 	NetworkServer m_server;
@@ -107,6 +120,9 @@ private:
 	MothershipMap_t m_mothershipMap;
 	Mine * m_resourceMine;
 	long long m_startTick;
+	long long m_endClock;
+	int m_timeLimit;
+	bool m_startGame;
 	ofstream m_f_error;
 	bool m_start;
 	bool m_reload;

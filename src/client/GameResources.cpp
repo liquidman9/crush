@@ -51,6 +51,7 @@ TBeamPGroup * GameResources::tBeamPGroup = NULL;
 //std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
 struct GameResources::KeyboardState GameResources::m_ks;
+std::wstring timeStr;
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -336,7 +337,7 @@ void GameResources::drawStaticHudElements() {
 		D3DXMatrixIdentity(&mat);
 		
 		// Draw Time (note, very rough right now)
-		std::wstring timeStr = L"Time goes here!!!";
+		//std::wstring timeStr = L"Time goes here!!!";
 		int pixel_x = Gbls::thePresentParams.BackBufferWidth/2;
 		//int pixel_y = 0;
 		pd3dSprite->SetTransform(&mat);
@@ -510,6 +511,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
     {
 		(*ii).second->updated = false;
 	}
+	timeStr = newGameState.getRemainingTimeString();
 
 	// Update state of entitites
 	for (DWORD i = 0; i < newGameState.size(); i++) {

@@ -9,7 +9,6 @@
 #include <shared/game/Entity.h>
 #include <shared/ConfigSettings.h>
 
-#define NETWORKSERVER_MAX_CLIENTS 4
 //typedef GameState State_t;
 
 class NetworkServer :
@@ -50,8 +49,6 @@ public:
 	// to getDisconClients();
 	vector<unsigned int> getDisconClients();
 
-	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
-
 	
 	virtual ~NetworkServer(void);
 
@@ -62,6 +59,7 @@ private:
 	void bindSocket();
 	void removeClients(const vector<map<unsigned int, SOCKET>::iterator> &removeList);
 	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
+	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
 	SOCKET m_incomingSock;
 	map <unsigned int, SOCKET> m_connectedClients;
 	map <unsigned int, string> m_newClients;

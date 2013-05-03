@@ -18,7 +18,9 @@
 #include <shared/game/Resource.h>
 #include <shared/game/Asteroid.h>
 
+#define GS_MAX_MSG_SIZE 25
 
+typedef vector<pair<unsigned int, int>> scoreList_t;
 
 template <class E>
 class GameState
@@ -27,6 +29,9 @@ public:
 
 	GameState(void):m_entities(){
 		m_meta.size = sizeof(gameStateMeta);
+		/*m_serverMessages[0] = "New client has connected to the server";
+		m_serverMessages[1] = "Client has disconnected from the server";
+		m_serverMessages[2] = "Game starts in: ";*/
 	};
 
 	GameState(GameState const & g): m_entities(g.m_entities), m_meta(g.m_meta) {
@@ -51,6 +56,78 @@ public:
 
 	shared_ptr<const E> operator[](unsigned int i) const {
 		return m_entities[i];
+	}
+
+	void setTime(long long const &time) {
+		m_meta.time = (int) time;
+	}
+
+	wstring getRemainingTimeString() const {
+		string hours = to_string((long long)(m_meta.time / (1000*60*60)));
+		string minutes = to_string((long long)(m_meta.time % (1000*60*60))/(1000*60));
+		string seconds = to_string((long long)((m_meta.time % (1000*60*60)) % (1000*60))/1000);
+		if(seconds == "0") {
+			seconds = seconds + "0";
+		}
+		if(hours != "0"){
+			string s(hours + ":" + minutes + ":" + seconds);
+			wstring rtn(s.begin(), s.end());
+			return rtn;
+		} else {
+			string s(minutes + ":" + seconds);
+			wstring rtn(s.begin(), s.end());
+			return rtn;
+		}
+	}
+
+	long long getRemainingTimeNum() const {
+		return m_meta.time;
+	}
+
+	void setWinner(int client) {
+		m_meta.winner = client;
+	}
+
+	int getWinner() {
+		return m_meta.winner;
+	}
+
+	bool isWinner() {
+		return m_meta.winner >= 0;
+	}
+
+	bool isServerMessage() {
+		return message > 0;
+	}
+
+	void setScore(scoreList_t const &list) {
+		for(unsigned int i = 0; i < list.size(); i++) {
+			m_meta.score[i] = list[i].second;
+		}
+	}
+
+	scoreList_t getScore() {
+		scoreList_t rtn;
+		rtn.resize(4);
+		for(int i = 0; i < rt.size(); i++) {
+			rtn[i] = m_meta.size[i];
+		}
+	}
+
+	string getServerMessage() {
+		return m_serverMessage[m_meta.message];
+	}
+
+	bool isGameOver() {
+		return !m_meta.gameInProgress;
+	}
+
+	void setGameInProgress() {
+		m_meta.gameInProgress = true;
+	}
+
+	void setGameOver() {
+		m_meta.gameInProgress = false;
 	}
 
 	void clear() {
@@ -123,7 +200,12 @@ private:
 
 	struct gameStateMeta {
 		unsigned int size;
+		int time;
+		int score[4];
+		char winner;
 	} m_meta;
+
+	//static string m_serverMessages[3];
 
 	vector<shared_ptr<E> > m_entities;
 	friend class NetworkServer;

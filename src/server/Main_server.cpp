@@ -21,6 +21,8 @@ int main() {
 			server.pause();
 		} else if (input == "q") {
 			break;
+		} else if (input == "s") { 
+			server.startGame();
 		}
 	}
 
