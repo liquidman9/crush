@@ -13,19 +13,20 @@
 
 // Project includes
 #include <client/graphics/ParticleGroup.h>
-#include <shared/game/TractorBeam.h>
+#include <client/graphics/entities/C_TractorBeam.h>
 #include <client/graphics/ParticleSystem.h> // for static functions
 
 class TBeamPGroup : public ParticleGroup {
 public:
-	TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle, D3DXCOLOR color, float partSize);
+	TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle);
 	~TBeamPGroup();
 
+	static const float defaultSize;
 	static const float defaultLength;
 	static const float speed;
 	static const float rotSpeed;
 
-	TractorBeam * beamEnt;
+	C_TractorBeam * tBeamEnt;
 	float prevElapsedTime;
 	D3DXMATRIX rotMat;
 	

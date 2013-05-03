@@ -88,7 +88,7 @@ HRESULT GameResources::initState() {
 
 	// create particle system
 	partSystem = new ParticleSystem();
-	tBeamPGroup = new TBeamPGroup(tBeamPartTexture, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+	tBeamPGroup = new TBeamPGroup(tBeamPartTexture);
 	tBeamPGroup->initBeamToFull();
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
@@ -297,9 +297,9 @@ void GameResources::drawAllTractorBeams() {
 	// tractorBeamList
 	// render particles
 		//TODO remove this line, only for testing purposes until tBeams properly implemented from server
-		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
+		//partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
-		tBeamPGroup->beamEnt = tractorBeamList[i];
+		tBeamPGroup->tBeamEnt = tractorBeamList[i];
 		tBeamPGroup->updateGroup();
 		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
 	}
