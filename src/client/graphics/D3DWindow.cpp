@@ -846,6 +846,7 @@ void D3DWindow::OnLostDevice()
 {
 	GameResources::pd3dFont->OnLostDevice();
 	GameResources::pd3dSprite->OnLostDevice();
+	GameResources::partSystem->InvalidateDeviceObjects();
 }
 
 void D3DWindow::OnResetDevice()
