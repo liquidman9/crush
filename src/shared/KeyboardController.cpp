@@ -49,8 +49,9 @@ void KeyboardController::mapInputs()
 	inputs->tractBeam = (m_keyboardState[DIK_SPACE]&0x80)?255:0;
 	inputs->pitch = (m_keyboardState[DIK_DOWN]&0x80)?-20000:(m_keyboardState[DIK_UP]&0x80)?20000:0;
 	inputs->turn = (m_keyboardState[DIK_LEFT]&0x80)?-20000:(m_keyboardState[DIK_RIGHT]&0x80)?20000:0;
-	inputs->roll = (m_keyboardState[DIK_A]&0x80)?-20000:(m_keyboardState[DIK_D]&0x80)?20000:0;;
 	inputs->brake = (m_keyboardState[DIK_S]&0x80)?true:false;
+	inputs->reorient = (m_keyboardState[DIK_LSHIFT]&0x80)?true:false;
+	inputs->push = (m_keyboardState[DIK_LCONTROL]&0x80)?true:false;
 }
 
 bool KeyboardController::isConnected()
