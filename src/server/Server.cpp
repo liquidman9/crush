@@ -148,7 +148,10 @@ void Server::loop() {
 		//ship who has disconnected
 		removeDisconClients();
 
-		addNewClients();
+		//addNewClients();
+		for(auto i = 0; i < 4; i++) {
+			spawnShip(i);
+		}
 
 		m_clientInput = m_server.getEvents();
 		if(!m_clientInput.empty()) {
@@ -194,7 +197,7 @@ void Server::spawnShip(unsigned int client_id) {
 	m_gameState.push_back(beam);
 	m_world.entities.push_back(beam);
 
-	S_Ship *tmp = new S_Ship(genSpawnPos(client_id, SHIP_DIST_FROM_MINE), m_dir, client_id);
+	S_Ship *tmp = new S_Ship(genSpawnPos(client_id, SHIP_DIST_FROM_MINE), genShipSpawnDir(client_id), client_id);
 	tmp->m_tractorBeam = beam;
 	beam->m_ship = tmp;
 	m_playerMap.insert(pair<unsigned int, S_Ship*>(client_id,tmp));
@@ -220,15 +223,27 @@ D3DXVECTOR3 Server::genSpawnPos(unsigned int client_id, unsigned int distance) {
 	return rtn;
 }
 
-Quaternion genSpawnDir(unsigned int client_id) {
+Quaternion Server::genShipSpawnDir(unsigned int client_id) {
 	Quaternion rtn;
-	if (client_id % 2 == 0){
-		rtn = Quaternion(0, 0, 0, 1);
-	} else {
-		rtn = Quaternion(0, 0, 0, 1);
-	}
+	//if (client_id % 2 == 0) {
+		D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian((1.0-client_id)*90), 0 , 0);
+	//} else {
+	//	D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian(-(-2.0+client_id)*180), 0 , 0);
+	//}
 	return rtn;
 }
+
+Quaternion Server::genMotherShipSpawnDir(unsigned int client_id) {
+	Quaternion rtn;
+	//if (client_id % 2 == 0) {
+		D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian((1.0-client_id)*90), 0 , 0);
+//	} else {
+//		D3DXQuaternionRotationYawPitchRoll(&rtn, D3DXToRadian((-2.0+client_id)*90), 0 , 0);
+//	}
+	return rtn;
+}
+
+
 
 
 void Server::moveClients() {

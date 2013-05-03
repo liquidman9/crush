@@ -93,7 +93,9 @@ private:
 
 	D3DXVECTOR3 genSpawnPos(unsigned int client_id, unsigned int distance);
 
-	Quaternion genSpawnDir(unsigned int client_id);
+	Quaternion genShipSpawnDir(unsigned int client_id);
+
+	Quaternion genMotherShipSpawnDir(unsigned int client_id);
 
 
 	//variables
