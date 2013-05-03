@@ -14,7 +14,7 @@ const float TBeamPGroup::rotSpeed = 0.4f;
 TBeamPGroup::TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
 	// TODO fix to take in tBeam pointer
 	m_partList = NULL;
-	m_color = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
+	m_color = D3DCOLOR_XRGB(0,0,255);
 	D3DXMatrixIdentity(&m_worldTransformMat);
     m_size = defaultSize; // Particle's size
     m_numToRelease = 3;
@@ -39,8 +39,8 @@ TBeamPGroup::~TBeamPGroup() {
 }
 
 void TBeamPGroup::updateGroup() {
-	// Do nothing for now, later will update matrix/color/etc
-	m_color = tBeamEnt->m_color;
+	//update color when color added to tbeam
+	//m_color = tBeamEnt->m_color;
 	D3DXVECTOR3 beamVec = tBeamEnt->m_end - tBeamEnt->m_start;
 	float scaleXY = tBeamEnt->m_sentRadius;
 	float scaleZ = D3DXVec3Length(&beamVec)/defaultLength;
@@ -50,7 +50,7 @@ void TBeamPGroup::updateGroup() {
 	D3DXMatrixScaling(&scaleMat, scaleXY, scaleXY, scaleZ);
 	//rotate to direction
 	D3DXMatrixIdentity(&rotMat);
-	if (beamVec.x != 0 && beamVec.y != 0) { // only do if new vec isn't z-axis vec
+	if (!(beamVec.x == 0 && beamVec.y == 0)) { // only do if new vec isn't z-axis vec
 		D3DXVec3Normalize(&beamVec, &beamVec);
 		D3DXVECTOR3 right;
 		D3DXVECTOR3 up(0,1.0f,0);

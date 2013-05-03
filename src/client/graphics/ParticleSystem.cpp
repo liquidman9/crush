@@ -87,9 +87,6 @@ HRESULT ParticleSystem::update(ParticleGroup * pGroup, float elapsedTime) {
 
 	pGroup->m_currentTime += elapsedTime;
 
-	//float elapsedTime = newTime - pGroup->m_currentTime;
- //   pGroup->m_currentTime = newTime;  // Update our particle system timer
-
     ppParticle = &pGroup->m_partList; // Start at the head of the active list
 
     while( *ppParticle )
@@ -116,12 +113,14 @@ HRESULT ParticleSystem::update(ParticleGroup * pGroup, float elapsedTime) {
     // Emit new particles in accordance to the flow rate...
     //-------------------------------------------------------------------------
 
-    if( pGroup->m_currentTime - pGroup->m_lastUpdate > pGroup->m_releaseInterval )
-    {
-        // Reset update timing...
-        pGroup->m_lastUpdate = pGroup->m_currentTime;
-    
-        // Emit new particles at specified flow rate...
+	float timeSinceUpdate = pGroup->m_currentTime - pGroup->m_lastUpdate;
+
+    while( timeSinceUpdate > pGroup->m_releaseInterval) { // create particles if enough time has passed
+		timeSinceUpdate -= pGroup->m_releaseInterval; // decrement time since update
+    	// Reset update timing...
+		pGroup->m_lastUpdate = pGroup->m_currentTime;
+
+        // Emit new particles at specified flow rate
         for( DWORD i = 0; i < pGroup->m_numToRelease; ++i )
         {
             // Do we have any free particles to put back to work?
@@ -139,12 +138,19 @@ HRESULT ParticleSystem::update(ParticleGroup * pGroup, float elapsedTime) {
                 if( NULL == ( pParticle = new Particle ) )
                     return E_OUTOFMEMORY;
             }
+			
+            pParticle->m_fInitTime  = pGroup->m_currentTime - timeSinceUpdate;
+            pGroup->initNewParticle(pParticle); // set up particle state
+			bool isValid = pGroup->updateParticle(pParticle, timeSinceUpdate); // update particle to current time
+			if (isValid) { // particle is valid, put onto particle list for pGroup
+				pParticle->m_pNext = pGroup->m_partList; // Make it the new head
+				pGroup->m_partList = pParticle;
+			} else { // particle wasn't created in a valid state, put back on free list
+				*ppParticle = pParticle->m_pNext;
+				pParticle->m_pNext = m_pFreeList;
+				m_pFreeList = pParticle;
+			}
 
-            pParticle->m_pNext = pGroup->m_partList; // Make it the new head
-            pGroup->m_partList = pParticle;
-
-            pParticle->m_fInitTime  = pGroup->m_currentTime;
-            pGroup->initNewParticle(pParticle);
         }
     }
 
@@ -185,7 +191,13 @@ HRESULT ParticleSystem::render( LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pG
     pd3dDevice->SetRenderState( D3DRS_POINTSCALE_A,  FtoDW(0.0f) );    // Default 1.0
     pd3dDevice->SetRenderState( D3DRS_POINTSCALE_B,  FtoDW(0.0f) );    // Default 0.0
     pd3dDevice->SetRenderState( D3DRS_POINTSCALE_C,  FtoDW(1.0f) );    // Default 0.0
-	pd3dDevice->SetTransform( D3DTS_WORLD, &pGroup->m_worldTransformMat ); // Set world transform matrix for this particle 
+	pd3dDevice->SetTransform( D3DTS_WORLD, &pGroup->m_worldTransformMat ); // Set world transform matrix for this particle
+	//D3DMATERIAL9 partMat;
+	//memset(&partMat, 0, sizeof(partMat));
+	//partMat.Diffuse = pGroup->m_color;
+	//partMat.Ambient = pGroup->m_color;
+	//partMat.Emissive = pGroup->m_color;
+	//pd3dDevice->SetMaterial(&partMat);
 
 	Particle    *pParticle = pGroup->m_partList;
     PointVertex *pVertices;

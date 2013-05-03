@@ -25,7 +25,7 @@ public:
 
 		enum FVF
 		{
-			FVF_Flags = D3DFVF_XYZ | D3DFVF_DIFFUSE
+			FVF_Flags = D3DFVF_XYZ | D3DFVF_DIFFUSE 
 		};
 	};
 

@@ -292,6 +292,7 @@ HRESULT GameResources::loadFont(LPD3DXFONT * pFont, int height, std::wstring fon
 void GameResources::drawAllTractorBeams() {
 		// Set state for particle rendering
 	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
+	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
     Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
     Gbls::pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
 	// tractorBeamList
@@ -299,13 +300,16 @@ void GameResources::drawAllTractorBeams() {
 		//TODO remove this line, only for testing purposes until tBeams properly implemented from server
 		//partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
-		tBeamPGroup->tBeamEnt = tractorBeamList[i];
-		tBeamPGroup->updateGroup();
-		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
+		if(tractorBeamList[i]->m_isOn) {
+			tBeamPGroup->tBeamEnt = tractorBeamList[i];
+			tBeamPGroup->updateGroup();
+			partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
+		}
 	}
 
 	// Reset state after particle rendering
     Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );
     Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 }
 
@@ -314,7 +318,10 @@ void GameResources::drawAllEID() {
 	HRESULT hResult = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND);
 	if(SUCCEEDED(hResult)) {
 		for (UINT i = 0; i < eIDList.size(); i++) {
-			eIDList[i]->draw(curCam, pd3dSprite);
+			//TODO add this back in when ID's work correctly
+			//if(debugCamOn || eIDList[i]->targetEntity->getID() != playerShip->getID()) {
+				eIDList[i]->draw(curCam, pd3dSprite);
+			//}
 		}
 		pd3dSprite->End();
 	}
