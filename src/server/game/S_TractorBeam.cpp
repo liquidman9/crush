@@ -9,14 +9,19 @@
 #include <server/game/S_TractorBeam.h>
 //#include <server/game/S_Ship.h>
 
-static float s_gravitationalConstant =  0.01f;
-static float s_defaultLength = 100;
+using namespace server::entities::tractorbeam;
+
+static float s_gravitationalConstant =  gravity;
+static float s_defaultLength = length;
+
+using namespace server::entities::tractorbeam;
 
 S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	Entity(TRACTORBEAM),
 	TractorBeam(ship->m_playerNum),
 	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), s_defaultLength, 1.0),// infinity
-	m_strength(0)
+	m_strength(0),
+	m_isPulling(true)
 {
 	m_radius = m_sentRadius;
 	m_object = NULL;
@@ -88,10 +93,10 @@ void S_TractorBeam::calculateForce() {
 	if(isLocked()) {
 		D3DXVECTOR3 disV = getCurrentDirection();
 		float disL = getCurrentDistance();
-
+		
 		D3DXVECTOR3 force = m_strength*(s_gravitationalConstant*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
-
-		cout << "Type: "<<(int)m_object->m_type<<" Dis: "<<getCurrentDistance()<<" Force: "<<force.x <<" "<< force.y << " "<<force.z<< endl;
+		cout<<disV.x<<" "<<disV.y<<" "<<disV.z<<"ddd "<< m_object->m_mass<<endl;
+		cout <<" Dis: "<<getCurrentDistance()<<" Force: "<<force.x <<" "<< force.y << " "<<force.z<< endl;
 		
 		if(m_isPulling) {
 			m_ship->applyLinearImpulse(force, .01f);
@@ -110,7 +115,7 @@ void S_TractorBeam::calculateForce() {
 void S_TractorBeam::updateData() {
 	setStartPoint();
 	setEndPoint();
-	cout << "dis: "<<getCurrentDistance()<<" Dir: "<<getCurrentDirection().x<<" "<<getCurrentDirection().y<<" "<<getCurrentDirection().z<<endl;
+	//cout << "dis: "<<getCurrentDistance()<<" Dir: "<<getCurrentDirection().x<<" "<<getCurrentDirection().y<<" "<<getCurrentDirection().z<<endl;
 	if(m_isOn){
 		calculateForce();
 	}
