@@ -28,10 +28,10 @@ public:
 	ServerEntity * m_object;
 	S_Ship * m_ship; 
 	float m_strength;
+	bool m_isPulling;
 
 	// Constructors
-	S_TractorBeam(int);
-	S_TractorBeam(D3DXVECTOR3, Quaternion,int); 
+	S_TractorBeam(S_Ship *);
 
 	// Methods
 	bool isLocked();
@@ -39,10 +39,18 @@ public:
 	D3DXVECTOR3 getCurrentDirection();
 	D3DXVECTOR3 getCurrentDistanceVector();
 	D3DXVECTOR3 getDistanceVectorOf(D3DXVECTOR3);
+	void setStartPoint();
+	void setEndPoint();
 	void lockOn(ServerEntity * entity);
+	
+	// For applying impulses, updating data, etc
+	void updateData();
+
 	void calculateForce();
-	void setOrientation();
-	void setPosition();
+	
+	// Overwrite, since doesnt do anything during normal cycle
+	void update(float delta_time);
+
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
 };
 

@@ -9,8 +9,9 @@ TractorBeam::TractorBeam() :
 	Entity(TRACTORBEAM),
 	m_playerNum(0),
 	m_isOn(false),
-	m_isPulling(true),
-	m_fieldLength(100000.0)
+	m_start(D3DXVECTOR3()),
+	m_end(D3DXVECTOR3()),
+	m_sentRadius(3.5)
 
 {
 }
@@ -19,8 +20,9 @@ TractorBeam::TractorBeam(int pNum) :
 	Entity(TRACTORBEAM),
 	m_playerNum(pNum),
 	m_isOn(false),
-	m_isPulling(true),
-	m_fieldLength(100000.0)
+	m_start(D3DXVECTOR3()),
+	m_end(D3DXVECTOR3()),
+	m_sentRadius(3.5)
 {
 }
 
@@ -49,18 +51,21 @@ const char* TractorBeam::encode() const {
 	*(bool *) (tmp_rtn) = m_isOn;
 	tmp_rtn += sizeof(bool);
 
-	*(bool *) (tmp_rtn) = m_isPulling;
-	tmp_rtn += sizeof(bool);
+	*(D3DXVECTOR3 *) (tmp_rtn) = m_start;
+	tmp_rtn += sizeof(D3DXVECTOR3);
 
-	*(float *) (tmp_rtn) = m_fieldLength;
+	*(D3DXVECTOR3 *) (tmp_rtn) = m_end;
+	tmp_rtn += sizeof(D3DXVECTOR3);
+
+	*(float *) (tmp_rtn) = m_sentRadius;
 
 	return rtn;
 }
 
 ostream& operator<<(ostream& os, const TractorBeam& e) {
-	os << e.getID() << " " << e.m_pos.x << " " << e.m_pos.y << " " << e.m_pos.z
-		<< " " << e.m_orientation.x << " " << e.m_orientation.y << " " << e.m_orientation.z << " " << e.m_orientation.w
-		<< " " << e.m_playerNum << " " << e.m_isPulling << " " << e.m_isOn << " " << e.m_fieldLength;
+	os << e.getID() << " " << e.m_start.x << " " << e.m_start.y << " " << e.m_start.z
+		<< " " << e.m_end.x << " " << e.m_end.y << " " << e.m_end.z 
+		<< " " << e.m_playerNum <<  " " << e.m_isOn << " " << e.m_sentRadius;
 	return os;
 }
 
@@ -72,9 +77,11 @@ void TractorBeam::decode(const char *buff) {
 	buff += sizeof(SHIP_PLAYERNUM_TYPE);
 	m_isOn = *(bool*) buff;
 	buff += sizeof(bool);
-	m_isPulling = *(bool*) buff;
-	buff += sizeof(bool);
-	m_fieldLength = *(float*) buff;
+	m_start = *(D3DXVECTOR3*) buff;
+	buff += sizeof(D3DXVECTOR3);
+	m_end = *(D3DXVECTOR3*) buff;
+	buff += sizeof(D3DXVECTOR3);
+	m_sentRadius= *(float*) buff;
 }
 
 
@@ -91,7 +98,8 @@ void TractorBeam::update(shared_ptr<Entity> sp_source) {
 		Entity::update(sp_source);
 		m_playerNum = srcTractorBeam->m_playerNum;
 		m_isOn = srcTractorBeam->m_isOn;
-		m_isPulling = srcTractorBeam->m_isPulling;
-		m_fieldLength = srcTractorBeam->m_fieldLength;
+		m_start = srcTractorBeam->m_start;
+		m_end = srcTractorBeam->m_end;
+		m_sentRadius = srcTractorBeam->m_sentRadius;
 	}
 }

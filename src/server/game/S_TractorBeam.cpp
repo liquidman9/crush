@@ -10,31 +10,22 @@
 //#include <server/game/S_Ship.h>
 
 static float s_gravitationalConstant =  0.01f;
+static float s_defaultLength = 100000;
 
-S_TractorBeam::S_TractorBeam(int pNum) :
+S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	Entity(TRACTORBEAM),
-	TractorBeam(pNum),
+	TractorBeam(ship->m_playerNum),
 	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), 100000.0f, 1.0),// infinity
 	m_strength(0)
 {
-	m_radius = 2.0;
+	m_radius = m_sentRadius;
 	m_object = NULL;
-	m_ship = NULL;
-	m_pFront = D3DXVECTOR3(m_pos.x, m_pos.y, m_pos.z + m_length);
-	m_pBack = D3DXVECTOR3(m_pos.x, m_pos.y, m_pos.z);
+	m_ship = ship;
+	m_pFront = m_start;
+	m_pBack = m_end;
 }
 
-	
-S_TractorBeam::S_TractorBeam(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
-	Entity(genId(), TRACTORBEAM, pos, orientation),
-	TractorBeam(pNum),
-	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), 100000.0f, 1.0),
-	m_strength(0)
-{	
-	m_radius = 2.0;
-	m_object = NULL;
-	m_ship = NULL;
-}
+
 
 bool S_TractorBeam::isLocked() {
 	if(m_object != NULL) return true;
@@ -43,43 +34,56 @@ bool S_TractorBeam::isLocked() {
 
 void S_TractorBeam::lockOn(ServerEntity * entity) {
 	m_object = entity;
-	m_orientation = m_ship->m_orientation; //tmp
 }
 
 D3DXVECTOR3 S_TractorBeam::getCurrentDirection() {
-	if(!isLocked()) return m_orientation;
-	D3DXVECTOR3 range = m_object->m_pos - m_ship->m_pos;
+//	if(!isLocked()) return D3DXVECTOR3(m_orientation.x, m_orientation.y, m_orientation.z); // use ships direction
+
+	D3DXVECTOR3 range = m_end - m_start;
 	D3DXVec3Normalize(&range, &range);
 	return range;
 }
 
 D3DXVECTOR3 S_TractorBeam::getCurrentDistanceVector() {
-	if(!isLocked()) return m_orientation;
-	D3DXVECTOR3 range = m_object->m_pos - m_ship->m_pos;
-	D3DXVec3Normalize(&range, &range);
+//	if(!isLocked()) return D3DXVECTOR3(m_orientation.x, m_orientation.y, m_orientation.z); // use ships direction
+	D3DXVECTOR3 range = m_end - m_start;
 	return range;
 }
 
 
 
 D3DXVECTOR3 S_TractorBeam::getDistanceVectorOf(D3DXVECTOR3 b) {
-	D3DXVECTOR3 range = b - m_ship->m_pos;
-	D3DXVec3Normalize(&range, &range);
+	D3DXVECTOR3 range = b - m_start;
 	return range;
 }
 
 float S_TractorBeam::getCurrentDistance() {
 	if(!isLocked()) return 100000.0f;
 
-	return D3DXVec3Length(&(m_object->m_pos - m_ship->m_pos));
+	return D3DXVec3Length(&(getCurrentDistanceVector()));
+}
+
+void S_TractorBeam::setStartPoint() {
+	m_start = m_ship->m_pos;
+	m_pFront = m_start;
+}
+
+void S_TractorBeam::setEndPoint() {
+	if(!isLocked()) {
+		D3DXVECTOR3 tmp(m_ship->m_orientation.x, m_ship->m_orientation.y, m_ship->m_orientation.z);
+		m_end = m_pos + tmp * s_defaultLength;
+	}
+	else m_end = m_object->m_pos;
+
+	m_pBack = m_end;
 }
 
 void S_TractorBeam::calculateForce() {
 	// 1 is Ship, 2 is Object, thus pull - object, push + object
 	if(isLocked()) {
-		D3DXVECTOR3 disV = getCurrentDistanceVector();
-		float disL = D3DXVec3Length(&disV);
-		disV = getCurrentDirection();
+		D3DXVECTOR3 disV = getCurrentDirection();
+		float disL = getCurrentDistance();
+
 		D3DXVECTOR3 force = m_strength*(s_gravitationalConstant*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
 
 		cout << "Type: "<<(int)m_object->m_type<<" Dis: "<<getCurrentDistance()<<" Force: "<<force.x <<" "<< force.y << " "<<force.z<< endl;
@@ -94,32 +98,25 @@ void S_TractorBeam::calculateForce() {
 			m_object->applyLinearImpulse(force, .01f);
 		}
 	}
-	else {
-
-	}
 
 }
-/*
-void S_TractorBeam::setOrientation() {
-	//m_orientation = m_ship->m_orientation;
-	D3DXVECTOR3 a;
-	if(isLocked()) D3DXVec3Cross(&a, &getCurrentRange(), &D3DXVECTOR3(0,1,0));
-	else {
-		m_orientation = m_ship->m_orientation;
-		return;
+
+
+void S_TractorBeam::updateData() {
+	setStartPoint();
+	setEndPoint();
+	cout << "dis: "<<getCurrentDistance()<<" Dir: "<<getCurrentDirection().x<<" "<<getCurrentDirection().y<<" "<<getCurrentDirection().z<<endl;
+	if(m_isOn){
+		calculateForce();
 	}
-	Quaternion q = Quaternion(a.x,a.y,a.z,1);
-	q.w = sqrt(pow(D3DXVec3Length(&getCurrentRange()),2) * pow(D3DXVec3Length(&D3DXVECTOR3(0,1,0)),2)) + D3DXVec3Dot(&getCurrentRange(), &D3DXVECTOR3(0,1,0));
+	else {
+		m_object = NULL;
+	}
+}
 
-	m_orientation = q;
-	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
-
-	cout << m_object->m_id << " "<<(int)m_object->m_type<<endl;
-}*/
-/*
-void S_TractorBeam::setPosition() {
-	m_pos = m_ship->m_pos;// + (getCurrentRange()*m_length/2);
-}*/
+void S_TractorBeam::update(float delta_time) {
+	// do nothing during regular update cycle (not affected by physics)
+}
 
 D3DXVECTOR3 S_TractorBeam::calculateRotationalInertia(float mass){
 	float radius_squared = 50;

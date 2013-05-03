@@ -25,8 +25,9 @@ C_TractorBeam::C_TractorBeam(Entity * newEnt) :
 		m_orientation = srcTractorBeam->m_orientation;
 		m_playerNum = srcTractorBeam->m_playerNum;
 		m_isOn= srcTractorBeam->m_isOn;
-	    m_isPulling= srcTractorBeam->m_isPulling;
-		m_fieldLength = srcTractorBeam->m_fieldLength;
+	    m_start= srcTractorBeam->m_start;
+		m_end = srcTractorBeam->m_end;
+		m_sentRadius = srcTractorBeam->m_sentRadius;
 
 		m_pMesh = &Gbls::tractorBeamMesh;
 	} else {

@@ -187,19 +187,18 @@ void Server::addNewClients() {
 
 void Server::spawnShip(unsigned int client_id) {
 	// Temp
-	D3DXVECTOR3 m_pos((FLOAT)-30*(client_id+1),2,2);
 	Quaternion m_dir(0, 0, 0, 1);
 
-	S_TractorBeam *beam = new S_TractorBeam(m_pos, m_dir, client_id);
+	S_Ship *ship = new S_Ship(genSpawnPos(client_id, SHIP_DIST_FROM_MINE), m_dir, client_id);
+	m_playerMap.insert(pair<unsigned int, S_Ship*>(client_id,ship));
+	m_gameState.push_back(ship);
+	m_world.entities.push_back(ship);
+
+	S_TractorBeam *beam = new S_TractorBeam(ship);
 	m_gameState.push_back(beam);
 	m_world.entities.push_back(beam);
 
-	S_Ship *tmp = new S_Ship(genSpawnPos(client_id, SHIP_DIST_FROM_MINE), m_dir, client_id);
-	tmp->m_tractorBeam = beam;
-	beam->m_ship = tmp;
-	m_playerMap.insert(pair<unsigned int, S_Ship*>(client_id,tmp));
-	m_gameState.push_back(tmp);
-	m_world.entities.push_back(tmp);
+	ship->m_tractorBeam = beam;
 }
 
 void Server::spawnMothership(unsigned int client_id) {

@@ -89,19 +89,7 @@ void S_Ship::addPlayerInput(InputState input) {
 
 void S_Ship::calcTractorBeam() {
 
-	if(m_tractorBeam->m_isOn){
-		m_tractorBeam->calculateForce();
-		m_tractorBeam->m_pos = m_pos;
-		m_tractorBeam->m_length = m_tractorBeam->getCurrentDistance();
-		if(!m_tractorBeam->isLocked()) {
-			m_tractorBeam->m_orientation = m_orientation;
-		}
-	}
-	else {
-		m_tractorBeam->m_object = NULL;
-		m_tractorBeam->m_orientation = m_orientation;
-		m_tractorBeam->m_pos = m_pos;
-	}
+	m_tractorBeam->updateData();
 }
 
 D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){
