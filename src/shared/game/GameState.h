@@ -69,6 +69,7 @@ private:
 		for(unsigned int cur_size = 0; cur_size < size; cur_size += m_meta.size){
 			memcpy((char* ) &m_meta, head, sizeof(m_meta));
 			unsigned int size1 = m_meta.size;
+			//assert(size1 == size);
 			clear();
 			for(unsigned int cur_size = 0; cur_size < size1 - sizeof(m_meta); cur_size += ep->size() ){
 				ep = NULL;

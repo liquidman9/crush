@@ -193,15 +193,15 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 
 		if(beam->m_isOn){
 		
-			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP) rtn = false;
-			else if(beam->isLocked()) {	//cout<<"Tractor with Entity"<<endl;
+			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP) rtn = false; // tmp
+			// If is already locked check if closer
+			else if(beam->isLocked()) {	
 				if(beam->getCurrentDistance() > D3DXVec3Length(&beam->getDistanceVectorOf(entity->m_pos))){
 					beam->lockOn(entity);
 				}
-				else {
-				}
 			}
-			else {	//cout<<"Tractor with Entity"<<endl;
+			// nothing locked so lock on
+			else {	
 				beam->lockOn(entity);
 			}
 		}
@@ -219,7 +219,7 @@ float lower = 1.0;
 void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	//cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
 	if(typeResponse(a, b)) {
-		cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
+		//cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
 		D3DXVECTOR3 n = a->m_pos - b->m_pos;
 		D3DXVec3Normalize(&n,&n);
 

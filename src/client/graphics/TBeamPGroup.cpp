@@ -6,23 +6,24 @@
 #include <client/graphics/TBeamPGroup.h>
 #include <client/graphics/ParticleSystem.h>
 
+const float TBeamPGroup::defaultSize = 1.0f;
 const float TBeamPGroup::defaultLength = 10.0f;
 const float TBeamPGroup::speed = -0.5f;
 const float TBeamPGroup::rotSpeed = 0.4f;
 
-TBeamPGroup::TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle, D3DXCOLOR color, float partSize) {
+TBeamPGroup::TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
 	// TODO fix to take in tBeam pointer
 	m_partList = NULL;
-	m_color = color;
+	m_color = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
 	D3DXMatrixIdentity(&m_worldTransformMat);
-    m_size = partSize; // Particle's size
+    m_size = defaultSize; // Particle's size
     m_numToRelease = 3;
 	m_releaseInterval = 1.0f/10.0f; 
 	m_lastUpdate = 0.0f;
 	m_currentTime = 0.0f;
     m_ptexParticle = ptexParticle; // Particle's texture
 
-	beamEnt = NULL;
+	tBeamEnt = NULL;
 	float prevElapsedTime = -1.0f;
 }
 
@@ -34,11 +35,36 @@ TBeamPGroup::~TBeamPGroup() {
         delete pParticle;
     }
     m_partList = NULL;
-	beamEnt = NULL; // not mine to delete though
+	tBeamEnt = NULL; // not mine to delete though
 }
 
 void TBeamPGroup::updateGroup() {
 	// Do nothing for now, later will update matrix/color/etc
+	m_color = tBeamEnt->m_color;
+	D3DXVECTOR3 beamVec = tBeamEnt->m_end - tBeamEnt->m_start;
+	float scaleXY = tBeamEnt->m_sentRadius;
+	float scaleZ = D3DXVec3Length(&beamVec)/defaultLength;
+	m_size = defaultSize * sqrt(tBeamEnt->m_sentRadius * scaleZ);
+	D3DXMATRIX scaleMat, rotMat, transMat;
+	//create scale matrix
+	D3DXMatrixScaling(&scaleMat, scaleXY, scaleXY, scaleZ);
+	//rotate to direction
+	D3DXMatrixIdentity(&rotMat);
+	if (beamVec.x != 0 && beamVec.y != 0) { // only do if new vec isn't z-axis vec
+		D3DXVec3Normalize(&beamVec, &beamVec);
+		D3DXVECTOR3 right;
+		D3DXVECTOR3 up(0,1.0f,0);
+		D3DXVec3Cross(&right, &up, &beamVec);
+		D3DXVec3Normalize(&right, &right);
+		D3DXVec3Cross(&up, &beamVec, &right);
+		rotMat._11 = right.x;   rotMat._12 = right.y;   rotMat._13 = right.z;
+		rotMat._21 = up.x;      rotMat._22 = up.y;      rotMat._23 = up.z;
+		rotMat._31 = beamVec.x; rotMat._32 = beamVec.y; rotMat._33 = beamVec.z;
+	}
+	//translate to tBeamEnt->m_start
+	D3DXMatrixTranslation(&transMat, tBeamEnt->m_start.x, tBeamEnt->m_start.y, tBeamEnt->m_start.z);
+	m_worldTransformMat = scaleMat*rotMat*transMat;
+
 	// TODO fix to work when real tractor beams are sent from network
 }
 

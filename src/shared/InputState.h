@@ -4,14 +4,20 @@
 
 #include <shared/network/Sendable.h>
 
+typedef unsigned char TBType, ThrustType;
+typedef short TurnType, PitchType;
+typedef bool BrakeType, ReType, PushType;
+
 class InputState : public Sendable {
 	public:
-	unsigned char tractBeam;
-	unsigned char thrust;
-	short turn;
-	short pitch;
-	bool brake;
-	short roll;
+	TBType tractBeam;
+	ThrustType thrust;
+	TurnType turn;
+	PitchType pitch;
+	BrakeType brake;
+	ReType reorient;
+	PushType push;
+
 
 	double getThrust() {
 		return thrust/255.0;
@@ -33,30 +39,37 @@ class InputState : public Sendable {
 		return brake;
 	}
 
-	double getRoll() {
-		return roll/32768.0;
+	bool getReorient() {
+		return reorient;
 	}
 
-	static const unsigned int m_size = sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short)*3+sizeof(bool);
+	bool getPushBurst() {
+		return push;
+	}
+
+	static const unsigned int m_size = sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+
+		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType);
 
 	virtual const char* encode() const {
 		char * tmp = new char[m_size];
-		*(unsigned char *) tmp = tractBeam;
-		*(unsigned char *) (tmp+sizeof(unsigned char)) = thrust;
-		*(short *) (tmp+sizeof(unsigned char)+sizeof(char)) = turn;
-		*(short *) (tmp+sizeof(unsigned char)+sizeof(char)+sizeof(short)) = pitch;
-		*(short *) (tmp+sizeof(unsigned char)+sizeof(char)+sizeof(short)+sizeof(short)) = roll;
-		*(bool *) (tmp+sizeof(unsigned char)+sizeof(char)+sizeof(short)+sizeof(short)+sizeof(short)) = brake;
+		*(TBType *) tmp = tractBeam;
+		*(ThrustType *) (tmp+sizeof(TBType)) = thrust;
+		*(TurnType *) (tmp+sizeof(TBType)+sizeof(ThrustType)) = turn;
+		*(PitchType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)) = pitch;
+		*(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)) = brake;
+		*(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)) = reorient;
+		*(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)) = push;
 		return tmp;
 	};
 
 	virtual void decode(const char * tmp) {
-		tractBeam = *(unsigned char *)tmp;
-		thrust = *(unsigned char *)(tmp+sizeof(unsigned char));
-		turn = *(short *) (tmp+sizeof(unsigned char)+sizeof(unsigned char));
-		pitch = *(short *) (tmp+sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short));
-		roll = *(short *) (tmp+sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short)+sizeof(short));
-		brake = *(bool *) (tmp+sizeof(unsigned char)+sizeof(unsigned char)+sizeof(short)+sizeof(short)+sizeof(short));
+		tractBeam = *(TBType *)tmp;
+		thrust = *(ThrustType *)(tmp+sizeof(TBType));
+		turn = *(TurnType *) (tmp+sizeof(TBType)+sizeof(ThrustType));
+		pitch = *(PitchType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType));
+		brake = *(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType));
+		reorient = *(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType));
+		push = *(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType));
 	};
 	virtual const unsigned int size() const { return m_size; };
 };

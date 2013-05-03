@@ -30,9 +30,10 @@ void Collision::resolve()
 	// calculate point of impact
 	D3DXVECTOR3 poi;
 	D3DXVec3Normalize(&poi, &m_closeB);
-	poi *= m_a->m_radius;
+	poi *= -(m_a->m_radius);
 	poi += m_closeA;
 
+	
 	/*
 	// calculate length travelled while colliding/penetration depth
 	D3DXVECTOR3 penetA = poi - m_closeA;
@@ -52,6 +53,15 @@ void Collision::resolve()
 	D3DXVECTOR3 n = m_closeA - m_closeB;
 	float vN = D3DXVec3Dot(&vAB, &n);
 	float nN = D3DXVec3Dot(&n, &n);
+
+	// If the velocities are moving apart, don't do anything
+	if(-vN < -0.01f)
+		return;
+
+	cout << "a: pos: (" << m_a->m_pos.x << ", " << m_a->m_pos.y << ", " << m_a->m_pos.z << ") closest point: (" << m_closeA.x << ", " << m_closeA.y << ", " << m_closeA.z << ") " << endl; 
+	cout << "b: pos: (" << m_b->m_pos.x << ", " << m_b->m_pos.y << ", " << m_b->m_pos.z << ") closest point: (" << m_closeB.x << ", " << m_closeB.y << ", " << m_closeB.z << ") " << endl; 
+	cout << "poi: (" << poi.x << ", " << poi.y << ", " << poi.z << ")" << endl;
+
 
 	// calculate the distance between point of contact and centers of mass
 	D3DXVECTOR3 distA = poi - m_a->m_pos;
@@ -76,29 +86,22 @@ void Collision::resolve()
 	D3DXVec3Cross(&inertB, &inertB, &distB);
 
 	D3DXVECTOR3 inertBoth = inertA + inertB;
+	cout << inertBoth.x << ", " << inertBoth.y << ", " << inertBoth.z << endl;
 
 	// calculate the impulse
 	float impulse = (-(1 + m_a->m_elastic) * vN) / ((nN * (m_a->m_mass_inverse + m_b->m_mass_inverse)));
+	//float impulse = (-(1 + m_a->m_elastic) * vN) / ((nN * (m_a->m_mass_inverse + m_b->m_mass_inverse)) + D3DXVec3Dot(&inertBoth, &n));
+	cout << D3DXVec3Dot(&inertBoth, &n) << endl;
+	cout << impulse << endl;
 	D3DXVECTOR3 jN = impulse * n;
 	D3DXVECTOR3 jNRA;
 	D3DXVECTOR3 jNRB;
 	D3DXVec3Cross(&jNRA, &distA, &jN);
 	D3DXVec3Cross(&jNRB, &distB, &jN);
 
-
-
 	// Add the impulse to both entities
 	m_a->t_impulse += jN;
 	m_b->t_impulse += -jN;
 	//m_a->t_angular_impulse += jNRA;
-	//m_b->t_angular_impulse += -jNRB;
-
-	/*
-	// calculate the force vector of each collision
-	D3DXVECTOR3 forceOnA = m_b->m_mass * (m_b->m_velocity / timeB);
-	D3DXVECTOR3 forceOnB = m_a->m_mass * (m_a->m_velocity / timeA);
-
-	m_a->applyImpulse(forceOnA, poi, timeA);
-	m_b->applyImpulse(forceOnB, poi, timeB);
-	*/
+	//m_b->t_angular_impulse += jNRB;
 }

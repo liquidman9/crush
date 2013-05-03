@@ -21,10 +21,9 @@ void XBoxController::mapInputs()
 	inputs->turn = (controllerState.Gamepad.sThumbLX>0)?controllerState.Gamepad.sThumbLX-XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE:controllerState.Gamepad.sThumbLX+XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
 	if ((inputs->turn<0 && controllerState.Gamepad.sThumbLX>0) || (inputs->turn>0 && controllerState.Gamepad.sThumbLX<0)) { inputs->turn=0;}
 	
-	inputs->roll = (controllerState.Gamepad.sThumbRX>0)?controllerState.Gamepad.sThumbRX-XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE:controllerState.Gamepad.sThumbRX+XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE;
-	if ((inputs->roll<0 && controllerState.Gamepad.sThumbRX>0) || (inputs->roll>0 && controllerState.Gamepad.sThumbRX<0)) { inputs->roll=0;}
 	inputs->brake = (controllerState.Gamepad.wButtons & XINPUT_GAMEPAD_B)?true:false;
-
+	inputs->reorient = (controllerState.Gamepad.wButtons & XINPUT_GAMEPAD_A)?true:false;
+	inputs->push = (controllerState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)?true:false;
 }
 
 bool XBoxController::isConnected()

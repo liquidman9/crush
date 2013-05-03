@@ -57,9 +57,6 @@ HRESULT GameResources::initState() {
 	
 	curCam = &debugCam;
 
-	// Init state that must be init every time device is reset
-	reInitState();
-
 	// Initialize the skybox
 	hres = Skybox::initSkybox();
 	if(FAILED (hres))
@@ -91,12 +88,14 @@ HRESULT GameResources::initState() {
 
 	// create particle system
 	partSystem = new ParticleSystem();
-	partSystem->init(Gbls::pd3dDevice);
-	tBeamPGroup = new TBeamPGroup(tBeamPartTexture, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), 1.0f);
+	tBeamPGroup = new TBeamPGroup(tBeamPartTexture);
 	tBeamPGroup->initBeamToFull();
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
+
+	// Init state that must be init every time device is reset
+	reInitState();
 
 	/*set up temp entities for test rendering TODO remove this and replace with normal object creation from network*/
 #ifdef MYNETWORKOFF  //defined in Gbls
@@ -172,8 +171,12 @@ HRESULT GameResources::reInitState() {
 	if(FAILED (hres))
 		return hres;
 
+	// init particle system vertex buffer
+	partSystem->init(Gbls::pd3dDevice);
+
 	//set backface cullling off TODO remove after models are fixed
 	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+
 	
 	return S_OK;
 }
@@ -294,9 +297,9 @@ void GameResources::drawAllTractorBeams() {
 	// tractorBeamList
 	// render particles
 		//TODO remove this line, only for testing purposes until tBeams properly implemented from server
-		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
+		//partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
-		tBeamPGroup->beamEnt = tractorBeamList[i];
+		tBeamPGroup->tBeamEnt = tractorBeamList[i];
 		tBeamPGroup->updateGroup();
 		partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
 	}
@@ -496,6 +499,11 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
 	updateKeyboardState(); // Clear out keyboard state bits
 	
+	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+    {
+		(*ii).second->updated = false;
+	}
+
 	// Update state of entitites
 	for (DWORD i = 0; i < newGameState.size(); i++) {
 		int id = newGameState[i]->getID();
@@ -503,6 +511,14 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 			entityMap[id] = createEntity(newGameState[i].get());
 		} else {
 			entityMap[id]->update(newGameState[i]);
+			entityMap[id]->updated = true;
+		}
+	}
+
+	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+    {
+		if(false == (*ii).second->updated) {
+			(*ii).second->updated = false;
 		}
 	}
 
@@ -579,5 +595,6 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		}
 		break;
 	}
+	ret->updated = true;
 	return ret;
 }
