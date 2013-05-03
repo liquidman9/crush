@@ -43,7 +43,6 @@ public:
 	D3DXVECTOR3 m_pBack;
 
 	// Derived Variables
-	D3DXVECTOR3 m_velocity;
 	D3DXVECTOR3 m_angular_velocity;
 	Quaternion m_orientation_delta;
 

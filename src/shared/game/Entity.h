@@ -18,6 +18,7 @@
 // Project includes
 #include <shared/network/Sendable.h>
 #include <client/graphics/Renderable.h>
+#include <shared/util/SharedUtils.h>
 
 using namespace std;
 
@@ -34,6 +35,7 @@ private:
 		ENUM_TYPE type;
 		int id;
 		D3DXVECTOR3 pos;
+		D3DXVECTOR3 velocity;
 		Quaternion orientation;
 	};
 
@@ -51,6 +53,7 @@ public:
 	Type m_type;
 
 	D3DXVECTOR3 m_pos;
+	D3DXVECTOR3 m_velocity;
 	Quaternion m_orientation;
 
 	// These two constructors are DEPRECATED
