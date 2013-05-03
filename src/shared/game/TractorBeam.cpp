@@ -11,7 +11,7 @@ TractorBeam::TractorBeam() :
 	m_isOn(false),
 	m_start(D3DXVECTOR3()),
 	m_end(D3DXVECTOR3()),
-	m_sentRadius(3.5)
+	m_sentRadius(1)
 
 {
 }
@@ -22,7 +22,7 @@ TractorBeam::TractorBeam(int pNum) :
 	m_isOn(false),
 	m_start(D3DXVECTOR3()),
 	m_end(D3DXVECTOR3()),
-	m_sentRadius(3.5)
+	m_sentRadius(1)
 {
 }
 

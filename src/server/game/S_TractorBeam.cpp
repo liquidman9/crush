@@ -10,12 +10,12 @@
 //#include <server/game/S_Ship.h>
 
 static float s_gravitationalConstant =  0.01f;
-static float s_defaultLength = 100000;
+static float s_defaultLength = 100;
 
 S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	Entity(TRACTORBEAM),
 	TractorBeam(ship->m_playerNum),
-	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), 100000.0f, 1.0),// infinity
+	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), s_defaultLength, 1.0),// infinity
 	m_strength(0)
 {
 	m_radius = m_sentRadius;
@@ -58,7 +58,7 @@ D3DXVECTOR3 S_TractorBeam::getDistanceVectorOf(D3DXVECTOR3 b) {
 }
 
 float S_TractorBeam::getCurrentDistance() {
-	if(!isLocked()) return 100000.0f;
+	if(!isLocked()) return s_defaultLength;
 
 	return D3DXVec3Length(&(getCurrentDistanceVector()));
 }
@@ -70,8 +70,13 @@ void S_TractorBeam::setStartPoint() {
 
 void S_TractorBeam::setEndPoint() {
 	if(!isLocked()) {
-		D3DXVECTOR3 tmp(m_ship->m_orientation.x, m_ship->m_orientation.y, m_ship->m_orientation.z);
-		m_end = m_pos + tmp * s_defaultLength;
+		Quaternion tmpq;
+		D3DXMATRIX matRotate;
+		D3DXVECTOR3 tmp = D3DXVECTOR3(0,0,1);
+		D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&tmpq, &m_ship->m_orientation));
+		D3DXVec3TransformCoord(&tmp,&tmp,&matRotate);
+		D3DXVec3Normalize( &tmp, &tmp );
+		m_end = m_ship->m_pos + tmp * s_defaultLength;
 	}
 	else m_end = m_object->m_pos;
 
