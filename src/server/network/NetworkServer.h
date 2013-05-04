@@ -39,7 +39,7 @@ public:
 	void broadcastGameState(const GameState<Entity> &);
 
 	//returns a vector of connected Client IDs
-	vector<unsigned int> getConnectedClientIDs();
+	vector<pair<unsigned int,string>> getConnectedClientIDs();
 
 	//returns a vector of that have connected since the last call to
 	//getNewClientIDs;
@@ -62,6 +62,7 @@ private:
 	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
 	SOCKET m_incomingSock;
 	map <unsigned int, SOCKET> m_connectedClients;
+	map <unsigned int, string> m_clientIDs;
 	map <unsigned int, string> m_newClients;
 	vector<unsigned int> m_disconClients;
 

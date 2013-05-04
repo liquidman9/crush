@@ -72,7 +72,7 @@ private:
 	void setUpBoundaries();
 
 	//add any new clients that have conntected
-	void addNewClients();
+	void addNewClients(vector<pair<unsigned int, string>> const &cc);
 	
 	//spawn a new ship for client_id
 	void spawnShip(unsigned int client_id);

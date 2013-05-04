@@ -152,6 +152,10 @@ void NetworkServer::removeClients(const vector<map<unsigned int, SOCKET>::iterat
 		if(nci != m_newClients.end()) {
 			m_newClients.erase(nci);
 		}
+		auto cid = m_clientIDs.find((*it)->first);
+		if(cid != m_clientIDs.end()) {
+			m_clientIDs.erase(cid);
+		}
 		m_clientCount--;
 		m_connectedClients.erase(*it);
 	}
@@ -232,6 +236,7 @@ void NetworkServer::acceptNewClient()
 				EnterCriticalSection(&m_cs);
 				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
+				m_clientIDs.insert(pair<unsigned int, string>(i, string(client_name)));
 				LeaveCriticalSection(&m_cs);
 				cout << "New client " << i << " connected." << endl;
 			}
@@ -251,11 +256,11 @@ void NetworkServer::decodeEvents(const char * head, unsigned int size, map<unsig
 }
 
 
-vector<unsigned int> NetworkServer::getConnectedClientIDs() {
-	vector<unsigned int> rtn;
+vector<pair<unsigned int,string>> NetworkServer::getConnectedClientIDs() {
+	vector<pair<unsigned int,string>> rtn;
 	EnterCriticalSection(&m_cs);
-	for(auto it = m_connectedClients.begin(); it != m_connectedClients.end(); it++){
-		rtn.push_back(it->first);
+	for(auto it = m_clientIDs.begin(); it != m_clientIDs.end(); it++){
+		rtn.push_back(*it);
 	}
 	LeaveCriticalSection(&m_cs);
 	return rtn;
