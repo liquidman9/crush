@@ -66,8 +66,8 @@ public:
 		string hours = to_string((long long)(m_meta.time / (1000*60*60)));
 		string minutes = to_string((long long)(m_meta.time % (1000*60*60))/(1000*60));
 		string seconds = to_string((long long)((m_meta.time % (1000*60*60)) % (1000*60))/1000);
-		if(seconds == "0") {
-			seconds = seconds + "0";
+		if((long long)((m_meta.time % (1000*60*60)) % (1000*60))/1000 < 10) {
+			seconds = "0" + seconds;
 		}
 		if(hours != "0"){
 			string s(hours + ":" + minutes + ":" + seconds);
@@ -101,25 +101,26 @@ public:
 	}
 
 	void setScore(scoreList_t const &list) {
-		for(unsigned int i = 0; i < list.size(); i++) {
-			m_meta.score[i] = list[i].second;
+		for(auto it = list.begin(); it != list.end(); it++) {
+			m_meta.score[it->first] = it->second;
 		}
 	}
 
 	scoreList_t getScore() {
 		scoreList_t rtn;
-		rtn.resize(4);
-		for(int i = 0; i < rt.size(); i++) {
-			rtn[i] = m_meta.size[i];
+		for(unsigned int i = 0; i < 4; i--) {
+			if(m_meta.score[i] >= 0) {
+				rtn.push_back(pair<unsigned int, int>(i, m_meta.size[i]));
+			}
 		}
 	}
 
-	string getServerMessage() {
+	/*string getServerMessage() {
 		return m_serverMessage[m_meta.message];
-	}
+	}*/
 
 	bool isGameOver() {
-		return !m_meta.gameInProgress;
+		return m_meta.time == 0;
 	}
 
 	void setGameInProgress() {
