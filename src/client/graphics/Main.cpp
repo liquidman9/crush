@@ -59,6 +59,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//for checking fps
 			//DWORD startTime = timeGetTime();
 			//DWORD count = 0;
+
+			GameState<Entity> newGameState;
+
 			for(;;) // "forever"
 			{
 
@@ -74,8 +77,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 				//	std::wstring wsTmp(s.begin(), s.end());
 				//	MessageBox( NULL, wsTmp.c_str(), wsTmp.c_str(), MB_OK );
 				//}
-
-				GameState<Entity> newGameState;
 
 #ifndef MYNETWORKOFF  // defined in Gbls
 				if (!GameResources::debugCamOn) {
