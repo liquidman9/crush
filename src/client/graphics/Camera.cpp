@@ -9,7 +9,7 @@
 Camera::Camera() :
 	m_fov(45),
 	m_nearPlane(0.1f),
-	m_farPlane(100000.0f),
+	m_farPlane(20000.0f),
 	m_vEye(0, 0, -3.0f),
 	m_vAt(0, 0, 0),
 	m_vUp(0, 1.0f, 0),
