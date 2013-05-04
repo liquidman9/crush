@@ -320,9 +320,9 @@ void GameResources::drawAllEID() {
 	if(SUCCEEDED(hResult)) {
 		for (UINT i = 0; i < eIDList.size(); i++) {
 			//TODO add this back in when ID's work correctly
-			//if(debugCamOn || eIDList[i]->targetEntity->getID() != playerShip->getID()) {
+			if(debugCamOn || eIDList[i]->targetEntity != playerShip) {
 				eIDList[i]->draw(curCam, pd3dSprite);
-			//}
+			}
 		}
 		pd3dSprite->End();
 	}
@@ -506,30 +506,36 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	s_lastTime = curTime;
 
 	updateKeyboardState(); // Clear out keyboard state bits
-	
-	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
-    {
-		(*ii).second->updated = false;
-	}
+
+	//used for individual deletes if we ever implement that
+	//for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+	//   {
+	//	(*ii).second->updated = false;
+	//}
 	timeStr = newGameState.getRemainingTimeString();
 
-	// Update state of entitites
-	for (DWORD i = 0; i < newGameState.size(); i++) {
-		int id = newGameState[i]->getID();
-		if(entityMap.find(id) == entityMap.end()) {
-			entityMap[id] = createEntity(newGameState[i].get());
-		} else {
-			entityMap[id]->update(newGameState[i]);
-			entityMap[id]->updated = true;
+	if (newGameState.size() == 0) {
+		resetGameState();
+	} else {
+		// Update state of entitites
+		for (DWORD i = 0; i < newGameState.size(); i++) {
+			int id = newGameState[i]->getID();
+			if(entityMap.find(id) == entityMap.end()) {
+				entityMap[id] = createEntity(newGameState[i].get());
+			} else {
+				entityMap[id]->update(newGameState[i]);
+				//entityMap[id]->updated = true; 	//used for individual deletes if we ever implement that
+			}
 		}
 	}
 
-	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
-    {
-		if(false == (*ii).second->updated) {
-			(*ii).second->updated = false;
-		}
-	}
+	//used for individual deletes if we ever implement that
+	//for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+	//   {
+	//	if(false == (*ii).second->updated) {
+	//		(*ii).second->updated = false;
+	//	}
+	//}
 
 	// Update current camera
 	if (debugCamOn) {
@@ -541,6 +547,24 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	// Update particle system
 	partSystem->update(tBeamPGroup, elpasedTime);
 
+}
+
+void GameResources::resetGameState() {
+	playerShip = NULL;
+	shipList.clear();
+	asteroidList.clear();
+	mothershipList.clear();
+	tractorBeamList.clear();
+	resourceList.clear();
+	for (int i = 0; i < eIDList.size(); i++) {
+		delete eIDList[i];
+	}
+	eIDList.clear();
+	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+	{
+		delete (*ii).second;
+	}
+	entityMap.clear();
 }
 
 C_Entity * GameResources::createEntity(Entity * newEnt) {
@@ -604,6 +628,6 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		}
 		break;
 	}
-	ret->updated = true;
+	//ret->updated = true; 	//used for individual deletes if we ever implement that
 	return ret;
 }
