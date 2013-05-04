@@ -95,7 +95,8 @@ bool D3DWindow::Create(HINSTANCE hInstance)
 	}
 
 	// Get the window size for the requested client area size
-	DWORD dwStyle = (WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE) & ~WS_THICKFRAME;
+	//DWORD dwStyle = (WS_OVERLAPPEDWINDOW | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE | WS_CAPTION) & ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+	DWORD dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
 	SIZE sizeWindow;
 	RECT rc;
 	rc.top = rc.left = 0;
@@ -683,7 +684,7 @@ void D3DWindow::ToggleFullscreen()
 	// If we're going to fullscreen mode, save the current window position. If not, restore it
 	if(Gbls::thePresentParams.Windowed)
 	{
-		DWORD dwStyle = (WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE) & ~WS_THICKFRAME;
+		DWORD dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
 		RECT rc;
 		rc.top = rc.left = 0;
 		rc.right = Gbls::windowWidth;
@@ -710,7 +711,8 @@ void D3DWindow::ToggleFullscreen()
 	// Change window style to remove border in fullscreen mode
 	DWORD dwStyle;
 	if(Gbls::thePresentParams.Windowed)
-		dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
+		dwStyle = (WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE | WS_CAPTION ) & ~WS_THICKFRAME;
+//		dwStyle = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
 	else
 		dwStyle = WS_POPUP;
 	SetWindowLongPtr(s_hWnd, GWL_STYLE, dwStyle);
