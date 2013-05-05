@@ -38,9 +38,9 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 		scaleMod = ((scaleMod - 1)/2)+1; // SO MANY MAGIC NUMBERS
 		int pixel_x = (int)(((out.x + 1.0f)/2.0f)*screenWidth);
 		int pixel_y = (int)((-(out.y - 1.0f)/2.0f)*screenHeight);
-		bool infront = out.z > 0.0f && out.z < 1.0f;
 		bool inside = out.x > -1.0f && out.x < 1.0f && out.y > -1.0f && out.y < 1.0f;
 		D3DXVec3TransformCoord(&out, &targetEntity->m_pos, &tmp); //out now has view coords
+		bool infront = out.z > 0.0f /* && out.z < 1.0f*/;
 		if (infront && inside) { // infront && inside fov
 			float length = D3DXVec3Length(&out);
 			float scale = (30.0f/length)*scaleMod;
@@ -63,15 +63,17 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 			if(arrowV.x < 0) // second and third quadrent
 				angle = D3DX_PI + angle;
 
-			D3DXVECTOR2 centerV(m_offScreenSprite.m_vCenter.x, m_onScreenSprite.m_vCenter.y);
+			D3DXVECTOR2 centerV(m_offScreenSprite.m_vCenter.x, m_offScreenSprite.m_vCenter.y);
 			
+			float scaleFactor = scaleMod*0.5f;
+
 			arrowV *= 1.25f;
 			pixel_x = (int)(((arrowV.x + 1.0f)/2.0f)*screenWidth);
-			pixel_x = (int)(max(centerV.x, min(screenWidth - centerV.x, pixel_x)));
+			pixel_x = (int)(max(centerV.x*scaleFactor, min(screenWidth - centerV.x*scaleFactor, pixel_x)));
 			pixel_y = (int)((-(arrowV.y - 1.0f)/2.0f)*screenHeight);
-			pixel_y = (int)(max(centerV.y, min(screenHeight - centerV.y, pixel_y)));
+			pixel_y = (int)(max(centerV.y*scaleFactor, min(screenHeight - centerV.y*scaleFactor, pixel_y)));
 			
-			D3DXMatrixTransformation2D(&mat, NULL, 0.0f, NULL, &centerV, (D3DX_PI*2.0f-angle)-(D3DX_PI/2.0f), NULL);
+			D3DXMatrixTransformation2D(&mat, NULL, 0.0f, &D3DXVECTOR2(scaleFactor, scaleFactor), &centerV, (D3DX_PI*2.0f-angle)-(D3DX_PI/2.0f), NULL);
 			mat._41 = (float)pixel_x;
 			mat._42 = (float)pixel_y;
 			pSpriteRenderer->SetTransform(&mat);

@@ -50,7 +50,7 @@ ostream& operator<<(ostream& os, const Asteroid& e) {
 
 void Asteroid::decode(const char *buff) {
 	Entity::decode(buff);
-	m_type = ASTEROID;
+	//m_type = ASTEROID;
 	buff += Entity::size();
 	m_scale = *(float*) buff;
 }

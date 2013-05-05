@@ -13,6 +13,7 @@ Entity::Entity() :
 	m_id(-1),
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
 	m_orientation(0.0, 0.0, 0.0, 1.0),
+	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(ENTITY)
 { }
 
@@ -20,6 +21,7 @@ Entity::Entity(Type type) :
 	m_id(-1),
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
 	m_orientation(0.0, 0.0, 0.0, 1.0),
+	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(type)
 { }
 // End old constructors
@@ -28,6 +30,7 @@ Entity::Entity(int id, Type type) :
 	m_id(id),
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
 	m_orientation(0.0, 0.0, 0.0, 1.0),
+	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(type)
 { }
 
@@ -35,6 +38,7 @@ Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation) :
 	m_id(id),
 	m_pos(pos),
 	m_orientation(orientation),
+	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(type)
 { }
 
@@ -42,6 +46,7 @@ Entity::Entity(Entity const &e) :
 	m_id(e.m_id),
 	m_type(e.m_type),
 	m_pos(e.m_pos),
+	m_velocity(e.m_velocity),
 	m_orientation(e.m_orientation)
 { }
 
@@ -58,6 +63,7 @@ const char * Entity::encode() const {
 	s.id = m_id;
 	s.pos = m_pos;
 	s.orientation = m_orientation;
+	s.velocity = m_velocity;
 
 	//char * tmp = new char[sizeof(Entity)];
 	//// Encode type
@@ -81,6 +87,7 @@ void Entity::decode(const char * tmp) {
 	m_id = s.id;
 	m_pos = s.pos;
 	m_orientation = s.orientation;
+	m_velocity = s.velocity;
 
 	// Decode Position
 	/*m_id = *(int *) (tmp + sizeof(ENUM_TYPE));

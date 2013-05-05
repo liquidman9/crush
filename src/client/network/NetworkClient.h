@@ -4,8 +4,7 @@
 #include <vector>
 #include <assert.h>
 #include <shared/network/Network.h>
-#include <shared/game/Entity.h>
-#include <shared/network/NetworkDecoder.h>
+#include <client/GameResources.h>
 #include <shared/ConfigSettings.h>
 //#include <shared/game/GameState.h>
 

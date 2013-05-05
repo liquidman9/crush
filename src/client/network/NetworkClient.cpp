@@ -1,5 +1,4 @@
 #include <client/network/NetworkClient.h>
-#include <client/network/EntityDecoder.h>
 
 NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false) {
 
@@ -52,10 +51,10 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 	m_server = n;
 
 	//bind server port to socket
-	if(bind(m_sock ,(struct sockaddr *)&(this->m_sockaddr),
+	/*if(bind(m_sock ,(struct sockaddr *)&(this->m_sockaddr),
 		sizeof(m_sockaddr)) == SOCKET_ERROR) {
 			throw runtime_error("bind() failed with error code : " + to_string((long long) WSAGetLastError()));
-	}
+	}*/
 
 	
 	//connect to server
@@ -138,10 +137,10 @@ void NetworkClient::updateGameState() {
 		}
 		
 		if(!error) {
-			//NetworkDecoder nd(local_buf, recv_len);
 			EnterCriticalSection(&m_cs);
-			//nd.decodeGameState(m_gameState);
-			client::network::decodeGameState(local_buf, recv_len, m_gameState);
+			if(!(m_stateAvailable && m_gameState.size() == 0)) {
+				m_gameState.decode(local_buf, recv_len);
+			}
 			m_stateAvailable = true;
 			LeaveCriticalSection(&m_cs);
 		}

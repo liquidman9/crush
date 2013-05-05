@@ -62,6 +62,7 @@ public:
 	static std::wstring skyboxTextureFilepath_Bottom;
 
 	static std::wstring shipEIDTextureFilepath;
+	static std::wstring tBeamPartTexFilepath;
 	static std::wstring fontStyle;
 	static int fontSize;
 

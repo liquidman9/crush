@@ -9,6 +9,7 @@
 #include <shared/ConfigSettings.h>
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
+//#include <server/game/S_TractorBeam.h>
 
 using namespace server::entities::ship;
 
@@ -44,7 +45,9 @@ void S_Ship::init() {
 // TODO!!!:
 // This method needs to be extracted to the server/physics engine.
 void S_Ship::addPlayerInput(InputState input) {
-	m_tractorBeamOn = (float) input.getTractorBeam();
+	m_tractorBeam->m_strength = (float) input.getTractorBeam();
+	//m_tractorBeamOn = (float) input.getTractorBeam();
+	m_tractorBeam->m_isOn = input.getTractorBeam() != 0; //tmp
 
 	// Linear thrust calculations
 	D3DXVECTOR3 main_thrust_force(0, 0, (float)(input.getThrust() * m_forward_thrust_force));
@@ -87,6 +90,11 @@ void S_Ship::addPlayerInput(InputState input) {
 	applyAngularImpulse(stabilizer_force, 0.1f);
 }
 
+void S_Ship::calcTractorBeam() {
+
+	m_tractorBeam->updateData();
+}
+
 D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){
 	float radius_squared = 25;
 	float height_squared = 100;
@@ -96,13 +104,40 @@ D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){
 };
 
 
-bool S_Ship::gatherResource(S_Resource * res) {
-	if(m_resource != res && m_resource == NULL && res->m_carrier == NULL){
+bool S_Ship::interact(S_Resource * res) {
+	if(m_resource == NULL && res->m_carrier == NULL) {
+		if(((res->m_droppedFrom != m_playerNum && res->m_onDropTimeout) || res->m_droppedFrom != m_playerNum)) {
 			m_resource = res;
 			res->m_carrier = this;
+			res->m_onDropTimeout = false;
+			res->m_dropTimeoutStart = 0;
+			res->m_droppedFrom = -1;
 			cout<<"Gathered"<<endl;
-			return true;
+		}
+		return true;
 	}
 
 	return false;
+}
+
+void S_Ship::interact(S_Asteroid * asteroid) {
+	if(m_resource != NULL) {
+		S_Resource * tmp = m_resource;
+		m_resource = NULL;
+		tmp->m_carrier = NULL;
+		tmp->m_onDropTimeout = true;
+		tmp->m_dropTimeoutStart = GetTickCount();
+		tmp->m_droppedFrom = m_playerNum;
+	}
+}
+
+void S_Ship::interact(S_Ship * ship) {
+	if(m_resource != NULL) {
+		S_Resource * tmp = m_resource;
+		m_resource = NULL;
+		tmp->m_carrier = NULL;
+		tmp->m_onDropTimeout = true;
+		tmp->m_dropTimeoutStart = GetTickCount();
+		tmp->m_droppedFrom = m_playerNum;
+	}
 }

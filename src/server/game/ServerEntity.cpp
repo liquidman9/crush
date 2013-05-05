@@ -7,7 +7,7 @@ D3DXVECTOR3 zero_vec(0.0f, 0.0f, 0.0f);
 int ServerEntity::s_id_gen = 0;
 
 ServerEntity::ServerEntity() :
-	m_velocity(0.0f, 0.0f, 0.0f),
+
 	m_mass(1),
 	m_mass_inverse(1),
 	m_radius(1),
@@ -35,7 +35,6 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, fl
 	m_radius(3),
 	m_length(length),
 	// zeroing values
-	m_velocity(shared::utils::VEC3_ZERO),
 	m_angular_velocity(shared::utils::VEC3_ZERO),
 	m_orientation_delta(0.0f, 0.0f, 0.0f, 0.0f),
 	m_momentum(shared::utils::VEC3_ZERO),

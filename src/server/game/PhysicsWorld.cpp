@@ -18,29 +18,36 @@ ostream& operator<<(ostream& os, const D3DXQUATERNION &v) {
 	return os;
 }
 
-void PhysicsWorld::update(float delta_time) {
+void PhysicsWorld::collision(float delta_time) {
 	//int iterCount = 10;	// Attempt to solve collisions 10 times, to be implemented
 
 
 	for(unsigned i = 0; i < entities.size(); i++)
 	{	
+		// Collsions between objects
 		for(unsigned j = i+1; j < entities.size(); j++)
 		{
 			Collision * c;
 				if ((c = checkCollision(*entities[i], *entities[j])) != NULL)
-					c->resolve();
+					// Object Specific Logic
+					if(typeResponse(entities[i], entities[j]))
+						c->resolve();
 
 			delete(c);
 		}
 
+		// Boundary Collisions
 		for(unsigned k = 0; k < boundaries.size(); k++) {
 			if(checkCollision(*entities[i], boundaries[k])){
 					respond(entities[i], boundaries[k]);
 			}
 		}
 	}
+}
 
 
+void PhysicsWorld::update(float delta_time) {
+	// Updating Positions
 	for(unsigned i = 0; i < entities.size(); i++)
 	{
 		//entities[i]->calculate(.005f);
@@ -81,7 +88,7 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 		sD = 1.0;
 		tN = dotE;
 		tD = dotC;
-		cout << "D is 0" << endl;
+		//cout << "D is 0" << endl;
 	}
 
 	else
@@ -143,28 +150,29 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 
 	D3DXVECTOR3 dP = lengthBs + (sc * lengthA) - (tc * lengthB);	// a(sc) - b(tc) 
 
-	printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
+	//printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
 
 	if(D3DXVec3Length(&dP) < a.m_radius + b.m_radius)
 	{
-		cout << "Not null" << endl;
+		//cout << "Not null" << endl;
 		return Collision::generateCollision(&a, &b, (a.m_pBack + sc * lengthA), (b.m_pBack + tc * lengthB));
 	}
 
-	cout << "null" << endl;
+	//cout << "null" << endl;
 	return (Collision *)NULL;
 }
 
 bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 	ServerEntity * one, * two;
-	bool rtn = true;
+	bool rtn = true; // true if going to calculate a physics response
 
 	// Ships & Resources
 	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == SHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == SHIP)){
 		S_Ship * ship = (S_Ship *)two;
 		S_Resource * res = (S_Resource *) one;
-		ship->gatherResource(res);
-		rtn = false;
+		bool gatheredOrDropped = ship->interact(res);
+		if(gatheredOrDropped) rtn = false;
+		else rtn = true;
 	}
 
 	// Give/Take Resource to Mothership
@@ -172,20 +180,60 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		S_Mothership * mothership = (S_Mothership *)two;
 		S_Ship * ship = (S_Ship *) one;
 		mothership->interact(ship);
-		rtn = false; //tmp
+		rtn = true; 
 	}
+
+	// Ship to Ship
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == SHIP) ){
+		S_Ship * ship1 = (S_Ship *) one;
+		S_Ship * ship2 = (S_Ship *) two;
+		ship1->interact(ship2);
+		ship2->interact(ship1);
+		rtn = true; 
+	}
+
+	// Asteroid hits Ship
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == ASTEROID) || ((one = b)->m_type == SHIP && (two = a)->m_type == ASTEROID)){
+		S_Asteroid * asteroid = (S_Asteroid *)two;
+		S_Ship * ship = (S_Ship *) one;
+		ship->interact(asteroid);
+		rtn = true; 
+	}
+
 
 	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == MOTHERSHIP)){
-		rtn = false;
+		rtn = false;  // change if possible to push a resource into the mothership with the tractorbeam
 	}
 
-	// Tractorbeam doesn't do anything right now
-	if(((one = a)->m_type == TRACTORBEAM) || ((one = b)->m_type == TRACTORBEAM)){
-		rtn = false; //tmp
+
+	if(((one = a)->m_type == TRACTORBEAM && (two = b)->m_type) || ((one = b)->m_type == TRACTORBEAM && (two = a)->m_type)){
+		S_TractorBeam * beam = (S_TractorBeam *)one;
+		ServerEntity * entity = two;
+
+		if(beam->m_isOn){
+		
+			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP) rtn = false; // tmp
+			// If is already locked check if closer
+			else if(beam->isLocked()) {	
+				if(beam->getCurrentDistance() > D3DXVec3Length(&beam->getDistanceVectorOf(entity->m_pos))){
+					beam->lockOn(entity);
+				}
+			}
+			// nothing locked so lock on
+			else {	
+				beam->lockOn(entity);
+			}
+		}
+		rtn = false; // could give them the immovable tag 
 	}
 
 	if(((one = a)->m_type == RESOURCE) && ((one = b)->m_type == RESOURCE)){
-		rtn = false;
+		S_Resource * res1 = (S_Resource *)one;
+		S_Resource * res2 = (S_Resource *)two;
+
+		if(res1->m_carrier != NULL && res2->m_carrier != NULL) rtn = true; 
+		else rtn = false; // resources can be placed on top of it each other when on the mothership
+		// or could give them the immovable tag (relative to their carrier) when on the mothership and while being held
 	}
 
 	return rtn;
@@ -195,7 +243,7 @@ float lower = 1.0;
 void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	//cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
 	if(typeResponse(a, b)) {
-		cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
+		//cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
 		D3DXVECTOR3 n = a->m_pos - b->m_pos;
 		D3DXVec3Normalize(&n,&n);
 

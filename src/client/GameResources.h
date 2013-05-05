@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <mmsystem.h>
 
 // Project includes
 #include <client/graphics/Mesh.h>
@@ -26,6 +27,8 @@
 #include <client/graphics/entities/C_Asteroid.h>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_Entity.h>
+#include <client/graphics/ParticleSystem.h>
+#include <client/graphics/TBeamPGroup.h>
 
 class GameResources {
 public:
@@ -45,6 +48,7 @@ public:
 	static vector<C_Mothership*> mothershipList;
 	static vector<C_TractorBeam*> tractorBeamList;
 	static vector<C_Resource*> resourceList;
+	static vector<EntityIdentifier*> eIDList;
 	static const float PLAYER_CAM_DISTANCE;
 	static const float PLAYER_CAM_HEIGHT;
 	static const float PLAYER_CAM_LOOKAT_DISTANCE;
@@ -57,8 +61,10 @@ public:
 	static int playerNum;
 	static LPD3DXSPRITE pd3dSprite;
 	static LPD3DXFONT GameResources::pd3dFont;
-	static vector<EntityIdentifier*> eIDList;
 	static LPDIRECT3DTEXTURE9 shipEIDTexture;
+	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
+	static ParticleSystem * partSystem;
+	static TBeamPGroup * tBeamPGroup;
 	//static vector<Sprite*> spriteList;
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
@@ -98,6 +104,7 @@ public:
 	static HRESULT initLights();
 	//static HRESULT initSprites();
 	static void drawAll();
+	static void drawAllTractorBeams();
 	static void drawAllEID();
 	static void drawStaticHudElements();
 	//static void drawAllSprites();
@@ -105,6 +112,7 @@ public:
 	static void updatePlayerCamera();
 	static void switchCamera();
 	static void updateGameState(GameState<Entity> & newGameState);
+	static void resetGameState();
 	static C_Entity * createEntity(Entity * newEnt);
 	static void releaseResources();
 

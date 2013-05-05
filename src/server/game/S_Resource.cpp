@@ -9,11 +9,16 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Resource.h>
 
+long S_Resource::s_dropTimeoutLength = 1000; //ms
+
 S_Resource::S_Resource() :
 	Entity(RESOURCE),
 	Resource(),
 	ServerEntity(10, calculateRotationalInertia(10), 1.0, 1.0),
-	m_carrier(NULL)
+	m_carrier(NULL),
+	m_dropTimeoutStart(0),
+	m_onDropTimeout(false),
+	m_droppedFrom(-1)
 {
 }
 
@@ -21,7 +26,10 @@ S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), RESOURCE, pos, orientation),
 	Resource(),
 	ServerEntity(10, calculateRotationalInertia(10), 1.0, 1.0),
-	m_carrier(NULL)
+	m_carrier(NULL),
+	m_dropTimeoutStart(0),
+	m_onDropTimeout(false),
+	m_droppedFrom(-1)
 {	
 }
 
@@ -34,6 +42,14 @@ D3DXVECTOR3 S_Resource::calculateRotationalInertia(float mass){
 };
 
 void S_Resource::update(float delta_time){
+	if(m_onDropTimeout) {
+		if(GetTickCount() - m_dropTimeoutStart > s_dropTimeoutLength) {
+			m_dropTimeoutStart = 0;
+			m_onDropTimeout = 0;
+			m_droppedFrom = -1;
+		}
+	}
+
 	if(m_carrier == NULL ) {
 		ServerEntity::update(delta_time);
 	}

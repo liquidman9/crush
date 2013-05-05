@@ -130,8 +130,9 @@ EventBuff_t NetworkServer::getEvents() {
 				//cannot reach client, close the connection
 				removeList.push_back(it);
 			} else if (recv_len > 0) {
-				NetworkDecoder nd(local_buf, recv_len);
-				nd.decodeEvents(rtn, it->first);
+				/*NetworkDecoder nd(local_buf, recv_len);
+				nd.decodeEvents(rtn, it->first);*/
+				decodeEvents(local_buf, recv_len, rtn, it->first);
 			}
 	}
 	//remove clients that aren't reachable
@@ -150,6 +151,10 @@ void NetworkServer::removeClients(const vector<map<unsigned int, SOCKET>::iterat
 		auto nci = m_newClients.find((*it)->first);
 		if(nci != m_newClients.end()) {
 			m_newClients.erase(nci);
+		}
+		auto cid = m_clientIDs.find((*it)->first);
+		if(cid != m_clientIDs.end()) {
+			m_clientIDs.erase(cid);
 		}
 		m_clientCount--;
 		m_connectedClients.erase(*it);
@@ -231,6 +236,7 @@ void NetworkServer::acceptNewClient()
 				EnterCriticalSection(&m_cs);
 				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
+				m_clientIDs.insert(pair<unsigned int, string>(i, string(client_name)));
 				LeaveCriticalSection(&m_cs);
 				cout << "New client " << i << " connected." << endl;
 			}
@@ -238,11 +244,23 @@ void NetworkServer::acceptNewClient()
 	}
 }
 
-vector<unsigned int> NetworkServer::getConnectedClientIDs() {
-	vector<unsigned int> rtn;
+void NetworkServer::decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client) {
+		Event* ep = NULL;
+		const char* curr_head = head;
+		for(unsigned int cur_size = 0; cur_size < size; cur_size += ep->size() ){
+				ep = new InputState();
+				ep->decode(curr_head);
+				g[client] = shared_ptr<Event>(ep);
+				break;
+	}	
+}
+
+
+vector<pair<unsigned int,string>> NetworkServer::getConnectedClientIDs() {
+	vector<pair<unsigned int,string>> rtn;
 	EnterCriticalSection(&m_cs);
-	for(auto it = m_connectedClients.begin(); it != m_connectedClients.end(); it++){
-		rtn.push_back(it->first);
+	for(auto it = m_clientIDs.begin(); it != m_clientIDs.end(); it++){
+		rtn.push_back(*it);
 	}
 	LeaveCriticalSection(&m_cs);
 	return rtn;

@@ -10,24 +10,65 @@
 #include <d3dx9.h>
 
 // Project includes
+#include <shared/game/Entity.h>
 #include <shared/game/TractorBeam.h>
 #include <server/game/ServerEntity.h>
+#include <server/game/S_Ship.h>
 #include <shared/InputState.h>
 
+class S_Ship;
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
-class S_TractorBeam : public TractorBeam, public ServerEntity{ //switch back to capsule
+
+namespace server {
+	namespace entities {
+		namespace tractorbeam {
+			static const string CONFIG_PREFIX = "tractorbeam_";
+
+			static float gravity = 10.0f;
+			static float length = 250.0f;
+
+			inline void initFromConfig() {
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "gravity", gravity);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "length", length);
+			}
+		}
+	}
+}
+
+
+class S_TractorBeam : public TractorBeam, public ServerEntity{ 
 
 public:
 	// Fields
+	ServerEntity * m_object;
+	S_Ship * m_ship; 
+	float m_strength;
+	bool m_isPulling;
 
 	// Constructors
-	S_TractorBeam(int);
-	S_TractorBeam(D3DXVECTOR3, Quaternion,int); 
+	S_TractorBeam(S_Ship *);
 
 	// Methods
+	bool isLocked();
+	float getCurrentDistance();
+	D3DXVECTOR3 getCurrentDirection();
+	D3DXVECTOR3 getCurrentDistanceVector();
+	D3DXVECTOR3 getDistanceVectorOf(D3DXVECTOR3);
+	void setStartPoint();
+	void setEndPoint();
+	void lockOn(ServerEntity * entity);
+	
+	// For applying impulses, updating data, etc
+	void updateData();
+
+	void calculateForce();
+	
+	// Overwrite, since doesnt do anything during normal cycle
+	void update(float delta_time);
+
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
 };
 

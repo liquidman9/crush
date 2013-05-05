@@ -17,8 +17,12 @@ int main() {
 			server.restart();
 		} else if (input == "rl") {
 			server.reload();
+		} else if (input == "p") {
+			server.pause();
 		} else if (input == "q") {
 			break;
+		} else if (input == "s") { 
+			server.startGame();
 		}
 	}
 

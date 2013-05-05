@@ -8,8 +8,10 @@
 TractorBeam::TractorBeam() :
 	Entity(TRACTORBEAM),
 	m_playerNum(0),
-	m_mode(false),
-	m_strength(10.0)
+	m_isOn(false),
+	m_start(D3DXVECTOR3()),
+	m_end(D3DXVECTOR3()),
+	m_sentRadius(1)
 
 {
 }
@@ -17,8 +19,10 @@ TractorBeam::TractorBeam() :
 TractorBeam::TractorBeam(int pNum) :
 	Entity(TRACTORBEAM),
 	m_playerNum(pNum),
-	m_mode(false),
-	m_strength(10.0)
+	m_isOn(false),
+	m_start(D3DXVECTOR3()),
+	m_end(D3DXVECTOR3()),
+	m_sentRadius(1)
 {
 }
 
@@ -44,18 +48,24 @@ const char* TractorBeam::encode() const {
 	*(SHIP_PLAYERNUM_TYPE *) (tmp_rtn) = m_playerNum;
 	tmp_rtn += sizeof(SHIP_PLAYERNUM_TYPE);
 
-	*(bool *) (tmp_rtn) = m_mode;
+	*(bool *) (tmp_rtn) = m_isOn;
 	tmp_rtn += sizeof(bool);
 
-	*(float *) (tmp_rtn) = m_strength;
+	*(D3DXVECTOR3 *) (tmp_rtn) = m_start;
+	tmp_rtn += sizeof(D3DXVECTOR3);
+
+	*(D3DXVECTOR3 *) (tmp_rtn) = m_end;
+	tmp_rtn += sizeof(D3DXVECTOR3);
+
+	*(float *) (tmp_rtn) = m_sentRadius;
 
 	return rtn;
 }
 
 ostream& operator<<(ostream& os, const TractorBeam& e) {
-	os << e.getID() << " " << e.m_pos.x << " " << e.m_pos.y << " " << e.m_pos.z
-		<< " " << e.m_orientation.x << " " << e.m_orientation.y << " " << e.m_orientation.z << " " << e.m_orientation.w
-		<< " " << e.m_playerNum << " " << e.m_mode << " " << e.m_strength;
+	os << e.getID() << " " << e.m_start.x << " " << e.m_start.y << " " << e.m_start.z
+		<< " " << e.m_end.x << " " << e.m_end.y << " " << e.m_end.z 
+		<< " " << e.m_playerNum <<  " " << e.m_isOn << " " << e.m_sentRadius;
 	return os;
 }
 
@@ -65,9 +75,13 @@ void TractorBeam::decode(const char *buff) {
 	buff += Entity::size();
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
 	buff += sizeof(SHIP_PLAYERNUM_TYPE);
-	m_mode = *(bool*) buff;
+	m_isOn = *(bool*) buff;
 	buff += sizeof(bool);
-	m_strength = *(float*) buff;
+	m_start = *(D3DXVECTOR3*) buff;
+	buff += sizeof(D3DXVECTOR3);
+	m_end = *(D3DXVECTOR3*) buff;
+	buff += sizeof(D3DXVECTOR3);
+	m_sentRadius= *(float*) buff;
 }
 
 
@@ -83,7 +97,9 @@ void TractorBeam::update(shared_ptr<Entity> sp_source) {
 	} else {
 		Entity::update(sp_source);
 		m_playerNum = srcTractorBeam->m_playerNum;
-		m_mode = srcTractorBeam->m_mode;
-		m_strength = srcTractorBeam->m_strength;
+		m_isOn = srcTractorBeam->m_isOn;
+		m_start = srcTractorBeam->m_start;
+		m_end = srcTractorBeam->m_end;
+		m_sentRadius = srcTractorBeam->m_sentRadius;
 	}
 }

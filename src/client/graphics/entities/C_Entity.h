@@ -12,7 +12,8 @@
 class C_Entity : public virtual Entity, public virtual Renderable {
 public:
 	Mesh* m_pMesh;
-	D3DXCOLOR m_color;
+	//D3DXCOLOR m_color;
+	//bool updated;
 };
 
 
