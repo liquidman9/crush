@@ -101,13 +101,40 @@ D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){
 };
 
 
-bool S_Ship::gatherResource(S_Resource * res) {
-	if(m_resource != res && m_resource == NULL && res->m_carrier == NULL){
+bool S_Ship::interact(S_Resource * res) {
+	if(m_resource == NULL && res->m_carrier == NULL) {
+		if(((res->m_droppedFrom != m_playerNum && res->m_onDropTimeout) || res->m_droppedFrom != m_playerNum)) {
 			m_resource = res;
 			res->m_carrier = this;
+			res->m_onDropTimeout = false;
+			res->m_dropTimeoutStart = 0;
+			res->m_droppedFrom = -1;
 			cout<<"Gathered"<<endl;
-			return true;
+		}
+		return true;
 	}
 
 	return false;
+}
+
+void S_Ship::interact(S_Asteroid * asteroid) {
+	if(m_resource != NULL) {
+		S_Resource * tmp = m_resource;
+		m_resource = NULL;
+		tmp->m_carrier = NULL;
+		tmp->m_onDropTimeout = true;
+		tmp->m_dropTimeoutStart = GetTickCount();
+		tmp->m_droppedFrom = m_playerNum;
+	}
+}
+
+void S_Ship::interact(S_Ship * ship) {
+	if(m_resource != NULL) {
+		S_Resource * tmp = m_resource;
+		m_resource = NULL;
+		tmp->m_carrier = NULL;
+		tmp->m_onDropTimeout = true;
+		tmp->m_dropTimeoutStart = GetTickCount();
+		tmp->m_droppedFrom = m_playerNum;
+	}
 }

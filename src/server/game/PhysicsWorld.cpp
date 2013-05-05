@@ -164,14 +164,15 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 
 bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 	ServerEntity * one, * two;
-	bool rtn = true;
+	bool rtn = true; // true if going to calculate a physics response
 
 	// Ships & Resources
 	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == SHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == SHIP)){
 		S_Ship * ship = (S_Ship *)two;
 		S_Resource * res = (S_Resource *) one;
-		ship->gatherResource(res);
-		rtn = false;
+		bool gatheredOrDropped = ship->interact(res);
+		if(gatheredOrDropped) rtn = false;
+		else rtn = true;
 	}
 
 	// Give/Take Resource to Mothership
@@ -182,8 +183,26 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		rtn = true; 
 	}
 
+	// Ship to Ship
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == SHIP) ){
+		S_Ship * ship1 = (S_Ship *) one;
+		S_Ship * ship2 = (S_Ship *) two;
+		ship1->interact(ship2);
+		ship2->interact(ship1);
+		rtn = true; 
+	}
+
+	// Asteroid hits Ship
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == ASTEROID) || ((one = b)->m_type == SHIP && (two = a)->m_type == ASTEROID)){
+		S_Asteroid * asteroid = (S_Asteroid *)two;
+		S_Ship * ship = (S_Ship *) one;
+		ship->interact(asteroid);
+		rtn = true; 
+	}
+
+
 	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == MOTHERSHIP)){
-		rtn = false;
+		rtn = false;  // change if possible to push a resource into the mothership with the tractorbeam
 	}
 
 
@@ -205,11 +224,16 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 				beam->lockOn(entity);
 			}
 		}
-		rtn = false; //tmp
+		rtn = false; // could give them the immovable tag 
 	}
 
 	if(((one = a)->m_type == RESOURCE) && ((one = b)->m_type == RESOURCE)){
-		//rtn = false;
+		S_Resource * res1 = (S_Resource *)one;
+		S_Resource * res2 = (S_Resource *)two;
+
+		if(res1->m_carrier != NULL && res2->m_carrier != NULL) rtn = true; 
+		else rtn = false; // resources can be placed on top of it each other when on the mothership
+		// or could give them the immovable tag (relative to their carrier) when on the mothership and while being held
 	}
 
 	return rtn;

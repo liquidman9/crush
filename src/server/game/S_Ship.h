@@ -14,6 +14,7 @@
 #include <shared/ConfigSettings.h>
 #include <shared/game/Ship.h>
 #include <server/game/S_Resource.h>
+#include <server/game/S_Asteroid.h>
 #include <server/game/S_TractorBeam.h>
 #include <server/game/ServerEntity.h>
 
@@ -67,7 +68,9 @@ public:
 	void calcTractorBeam();
 
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
-	bool gatherResource(S_Resource *);
+	bool interact(S_Resource *);
+	void interact(S_Asteroid *);
+	void interact(S_Ship *);
 
 };
 

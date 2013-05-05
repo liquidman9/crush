@@ -18,11 +18,20 @@
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
+#define SHIP_PLAYERNUM_TYPE char
+
+
+
 class S_Resource : public Resource, public ServerEntity{ //switch back to capsule
 
 public:
 	// Fields
 	ServerEntity * m_carrier;
+	bool m_onDropTimeout;
+	long m_dropTimeoutStart;
+	SHIP_PLAYERNUM_TYPE m_droppedFrom;
+	static long s_dropTimeoutLength;
+
 
 	// Constructors
 	S_Resource();
