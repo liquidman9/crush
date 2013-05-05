@@ -55,6 +55,7 @@ public:
 	D3DXVECTOR3 t_angular_impulse;
 
 	bool m_immovable;
+	int m_resourceSpots;
 
 
 	ServerEntity();

@@ -40,6 +40,7 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 void S_Ship::init() {
 	forward_rot_thruster = D3DXVECTOR3(0, 0, 5);
 	reverse_rot_thruster = D3DXVECTOR3(0, 0, -5);
+	m_resourceSpots = 1;
 }
 
 // TODO!!!:
@@ -109,6 +110,8 @@ bool S_Ship::interact(S_Resource * res) {
 			res->m_onDropTimeout = false;
 			res->m_dropTimeoutStart = 0;
 			res->m_droppedFrom = -1;
+			res->m_spot = 0;
+			res->m_travelFrames = 0;
 			cout<<"Gathered"<<endl;
 		}
 		return true;
@@ -125,6 +128,7 @@ void S_Ship::interact(S_Asteroid * asteroid) {
 		tmp->m_onDropTimeout = true;
 		tmp->m_dropTimeoutStart = GetTickCount();
 		tmp->m_droppedFrom = m_playerNum;
+		tmp->m_spot = -1;
 	}
 }
 
@@ -136,5 +140,7 @@ void S_Ship::interact(S_Ship * ship) {
 		tmp->m_onDropTimeout = true;
 		tmp->m_dropTimeoutStart = GetTickCount();
 		tmp->m_droppedFrom = m_playerNum;
+		tmp->m_spot = -1;
 	}
 }
+

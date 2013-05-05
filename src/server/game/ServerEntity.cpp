@@ -11,7 +11,8 @@ ServerEntity::ServerEntity() :
 	m_mass(1),
 	m_mass_inverse(1),
 	m_radius(1),
-	m_immovable(false)
+	m_immovable(false),
+	m_resourceSpots(0)
 { 
 	reset();
 }
@@ -21,7 +22,8 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia) :
 	m_mass(mass),
 	m_mass_inverse(1/mass),
 	m_radius(1),
-	m_immovable(false)
+	m_immovable(false),
+	m_resourceSpots(0)
 { 
 	reset();
 }
@@ -44,7 +46,8 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, fl
 	m_pFront(m_pos.x, m_pos.y, m_pos.z + length),
 	m_pBack(m_pos.x, m_pos.y, m_pos.z - length),
 	m_elastic(elastic),
-	m_immovable(false)
+	m_immovable(false),
+	m_resourceSpots(0)
 { }
 
 int ServerEntity::genId() {

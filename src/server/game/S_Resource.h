@@ -25,12 +25,17 @@
 class S_Resource : public Resource, public ServerEntity{ //switch back to capsule
 
 public:
+	static int s_maxTravelFrames;
+
 	// Fields
 	ServerEntity * m_carrier;
 	bool m_onDropTimeout;
 	long m_dropTimeoutStart;
 	SHIP_PLAYERNUM_TYPE m_droppedFrom;
 	static long s_dropTimeoutLength;
+	
+	int m_travelFrames;
+	int m_spot;
 
 
 	// Constructors
@@ -39,6 +44,7 @@ public:
 
 	// Methods
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	void travel();
 	void update(float delta_time);
 };
 

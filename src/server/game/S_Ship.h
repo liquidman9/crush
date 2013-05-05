@@ -55,6 +55,7 @@ private:
 	D3DXVECTOR3 reverse_rot_thruster;
 
 public:
+
 	S_Resource * m_resource;
 	S_TractorBeam * m_tractorBeam;
 
@@ -71,6 +72,8 @@ public:
 	bool interact(S_Resource *);
 	void interact(S_Asteroid *);
 	void interact(S_Ship *);
+
+	
 
 };
 
