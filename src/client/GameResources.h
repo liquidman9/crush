@@ -48,6 +48,7 @@ public:
 	static vector<C_Mothership*> mothershipList;
 	static vector<C_TractorBeam*> tractorBeamList;
 	static vector<C_Resource*> resourceList;
+	static vector<EntityIdentifier*> eIDList;
 	static const float PLAYER_CAM_DISTANCE;
 	static const float PLAYER_CAM_HEIGHT;
 	static const float PLAYER_CAM_LOOKAT_DISTANCE;
@@ -60,7 +61,6 @@ public:
 	static int playerNum;
 	static LPD3DXSPRITE pd3dSprite;
 	static LPD3DXFONT GameResources::pd3dFont;
-	static vector<EntityIdentifier*> eIDList;
 	static LPDIRECT3DTEXTURE9 shipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
 	static ParticleSystem * partSystem;
@@ -112,6 +112,7 @@ public:
 	static void updatePlayerCamera();
 	static void switchCamera();
 	static void updateGameState(GameState<Entity> & newGameState);
+	static void resetGameState();
 	static C_Entity * createEntity(Entity * newEnt);
 	static void releaseResources();
 

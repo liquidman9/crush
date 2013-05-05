@@ -138,7 +138,9 @@ void NetworkClient::updateGameState() {
 		
 		if(!error) {
 			EnterCriticalSection(&m_cs);
-			m_gameState.decode(local_buf, recv_len);
+			if(!(m_stateAvailable && m_gameState.size() == 0)) {
+				m_gameState.decode(local_buf, recv_len);
+			}
 			m_stateAvailable = true;
 			LeaveCriticalSection(&m_cs);
 		}

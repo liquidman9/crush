@@ -34,6 +34,7 @@ void Server::start() {
 
 void Server::restart() {
 	m_pause = false;
+	m_startGame = true;
 	m_start = true;
 }
 
@@ -106,8 +107,11 @@ void Server::setUpBoundaries() {
 
 void Server::initializeGameState() {
 	m_gameState.clear();
+	m_server.broadcastGameState(m_gameState);
 	m_playerMap.clear();
 	m_world.entities.clear();
+	addNewClients(m_server.getConnectedClientIDs());
+	
 
 	setUpResourceMine();
 
@@ -170,8 +174,9 @@ void Server::updateScore() {
 
 void Server::loop() {
 	float loopCycle = (float) 1.0/60.0f;
+	bool print_once = false;
 	for(;;) {
-		if(m_start) {			
+		if(m_start) {
 			initializeGameState();
 			reloadConfig();
 			cout << "CRUSH Server has started" << endl;
@@ -188,6 +193,7 @@ void Server::loop() {
 			continue;
 		}
 		if (m_startGame) {
+			print_once = true;
 			initializeGameClock();
 			cout << "Game Started" << endl;
 			m_startGame = false;
@@ -197,15 +203,18 @@ void Server::loop() {
 		updateScore();
 		if(gameOver()) {
 			declareWinner();
-			cout << "Game ended \nClient " << m_gameState.getWinner() 
-				<< " wins" << endl;
+			if(print_once) {
+				cout << "Game ended \nClient " << m_gameState.getWinner() 
+					<< " wins" << endl;
+				print_once = false;
+			}
 		}
 
 		//(optional) currently just removes the name from a player's
 		//ship who has disconnected
 		removeDisconClients();
 
-		addNewClients();
+		addNewClients(m_server.getNewClientIDs());
 
 
 		m_clientInput = m_server.getEvents();
@@ -230,8 +239,8 @@ void Server::loop() {
 
 }
 
-void Server::addNewClients() {
-	vector<pair<unsigned int, string>> cc = m_server.getNewClientIDs();
+void Server::addNewClients(vector<pair<unsigned int, string>> const &cc) {
+	//vector<pair<unsigned int, string>> cc = m_server.getNewClientIDs();
 	//get new client ids and if they aren't in the playerMap add them
 	for(auto it= cc.begin(); it != cc.end(); it++) {
 		auto player = m_playerMap.find(it->first);
