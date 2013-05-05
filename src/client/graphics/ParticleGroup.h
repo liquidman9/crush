@@ -18,7 +18,6 @@
 class ParticleGroup {
 public:
 	Particle *	m_partList;
-	D3DCOLOR	m_color;
 	D3DXMATRIX	m_worldTransformMat;
     float		m_size; // Particle's size
     DWORD       m_numToRelease;
@@ -28,7 +27,7 @@ public:
     LPDIRECT3DTEXTURE9 m_ptexParticle; // Particle's texture
 	
 	virtual void updateGroup() = 0;
-	virtual void initNewParticle(Particle * pParticle) = 0;
+	virtual bool initNewParticle(Particle * pParticle) = 0;
 	virtual bool updateParticle(Particle * pParticle, float elapsedTime) = 0;
 
 };

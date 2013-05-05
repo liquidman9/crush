@@ -140,13 +140,12 @@ HRESULT ParticleSystem::update(ParticleGroup * pGroup, float elapsedTime) {
             }
 			
             pParticle->m_fInitTime  = pGroup->m_currentTime - timeSinceUpdate;
-            pGroup->initNewParticle(pParticle); // set up particle state
-			bool isValid = pGroup->updateParticle(pParticle, timeSinceUpdate); // update particle to current time
-			if (isValid) { // particle is valid, put onto particle list for pGroup
+            if (pGroup->initNewParticle(pParticle) && pGroup->updateParticle(pParticle, timeSinceUpdate)) { // init and update particle to current time
+			//if (isValid) { // particle is valid, put onto particle list for pGroup
 				pParticle->m_pNext = pGroup->m_partList; // Make it the new head
 				pGroup->m_partList = pParticle;
 			} else { // particle wasn't created in a valid state, put back on free list
-				*ppParticle = pParticle->m_pNext;
+				//*ppParticle = pParticle->m_pNext;
 				pParticle->m_pNext = m_pFreeList;
 				m_pFreeList = pParticle;
 			}
@@ -231,7 +230,7 @@ HRESULT ParticleSystem::render( LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pG
         D3DXVECTOR3 vVel(pParticle->m_vCurVel);
 
         pVertices->posit = vPos;
-		pVertices->color = pGroup->m_color;
+		pVertices->color = pParticle->m_color;
         pVertices++;
 
         if( ++dwNumParticlesToRender == m_dwFlush )

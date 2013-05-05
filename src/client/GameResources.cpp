@@ -34,17 +34,21 @@ vector<C_Mothership*> GameResources::mothershipList;
 vector<C_TractorBeam*> GameResources::tractorBeamList;
 vector<C_Resource*> GameResources::resourceList;
 vector<C_Asteroid*> GameResources::asteroidList;
+vector<EntityIdentifier*> GameResources::eIDList;
+vector<EnginePGroup *> GameResources::enginePGroupList;
 std::map<int, C_Entity*> GameResources::entityMap;
 bool GameResources::debugCamOn = true;
 Camera GameResources::debugCam;
 Camera GameResources::playerCam;
 Camera* GameResources::curCam = &debugCam;
+float GameResources::playerCamScale = 1.0f;
+int GameResources::playerCamScaleLevel = 0;
 C_Ship* GameResources::playerShip = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
-vector<EntityIdentifier*> GameResources::eIDList;
 LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
 //std::vector<R_Ship*> GameResources::r_ShipList;
@@ -228,8 +232,14 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 
-	// load particle spirte
+	// load tractor beam particle spirte
 	hres = loadTexture(&tBeamPartTexture, Gbls::tBeamPartTexFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+	// load engine particle spirte
+	hres = loadTexture(&EnginePartTexture, Gbls::enginePartTexFilepath);
 	if (FAILED(hres)) {
 		return hres;
 	}
@@ -290,16 +300,15 @@ HRESULT GameResources::loadFont(LPD3DXFONT * pFont, int height, std::wstring fon
 	return S_OK;
 }
 
+
 void GameResources::drawAllTractorBeams() {
 		// Set state for particle rendering
 	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
 	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
     Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
     Gbls::pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
-	// tractorBeamList
+
 	// render particles
-		//TODO remove this line, only for testing purposes until tBeams properly implemented from server
-		//partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
 		if(tractorBeamList[i]->m_isOn) {
 			tBeamPGroup->tBeamEnt = tractorBeamList[i];
@@ -312,6 +321,25 @@ void GameResources::drawAllTractorBeams() {
     Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
 	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );
     Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+}
+
+void GameResources::drawAllEngines() {
+	// Set state for particle rendering
+	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
+	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
+
+	// render particles
+	for (UINT i = 0; i < enginePGroupList.size(); i++) {
+		partSystem->render(Gbls::pd3dDevice, enginePGroupList[i]);
+	}
+
+	// Reset state after particle rendering
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+
 }
 
 void GameResources::drawAllEID() {
@@ -351,6 +379,15 @@ void GameResources::drawStaticHudElements() {
 		pd3dFont->DrawText(pd3dSprite, timeStr.c_str(), -1, &rect, DT_CENTER | DT_WORDBREAK,
 			D3DCOLOR_XRGB(255, 255, 255));
 
+		// display updates:frames ratio
+		wstringstream strs;
+		strs << Gbls::percentMissedFrames;
+		std::wstring s = strs.str();
+		rect.left = 0; rect.right = 800; rect.top = 0; rect.bottom = 600;
+		pd3dFont->DrawText(pd3dSprite, s.c_str(), -1, &rect, DT_LEFT | DT_WORDBREAK,
+			D3DCOLOR_XRGB(255, 255, 255));
+
+
 	
 		// End sprite rendering
 		pd3dSprite->End();
@@ -370,6 +407,9 @@ void GameResources::drawAll()
 	
 	// Render tractor beams
 	drawAllTractorBeams();
+	
+	//Render all engine exhausts
+	drawAllEngines();
 
 	// Render entity indicators
 	drawAllEID();
@@ -400,6 +440,24 @@ void GameResources::switchCamera() {
 	}
 }
 
+void GameResources::switchPlayerCameraScale() {
+	playerCamScaleLevel = ((playerCamScaleLevel + 1) % 3);
+	switch (playerCamScaleLevel) {
+	case 0:
+		playerCamScale = 1.0f;
+		break;
+	case 1:
+		playerCamScale = 1.75f;
+		break;
+	case 2:
+		playerCamScale = 2.5f;
+		break;
+	default:
+		playerCamScale = 1.0f;
+		break;
+	}
+}
+
 void GameResources::updatePlayerCamera() {
 	if(playerShip) {
 		//TODO update to work with quaternions
@@ -420,8 +478,8 @@ void GameResources::updatePlayerCamera() {
 		D3DXVec3TransformCoord(&up, &up, &matRotate);
 		
 		playerCam.m_vUp = up;
-		playerCam.m_vEye = playerShip->m_pos - (*D3DXVec3Normalize(&dir, &dir))*PLAYER_CAM_DISTANCE + (PLAYER_CAM_HEIGHT * playerCam.m_vUp);
-		playerCam.m_vAt = playerShip->m_pos + (*D3DXVec3Normalize(&dir, &dir))*PLAYER_CAM_LOOKAT_DISTANCE;
+		playerCam.m_vEye = playerShip->m_pos - (*D3DXVec3Normalize(&dir, &dir)) * PLAYER_CAM_DISTANCE * playerCamScale + (PLAYER_CAM_HEIGHT * playerCamScale * playerCam.m_vUp);
+		playerCam.m_vAt = playerShip->m_pos + (*D3DXVec3Normalize(&dir, &dir))*PLAYER_CAM_LOOKAT_DISTANCE * playerCamScale;
 
 		//playerCam.setOrientation(*D3DXQuaternionNormalize(&(playerShip->m_orientation), &(playerShip->m_orientation)));
 		playerCam.updateView();
@@ -502,7 +560,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
 	double curTime = timeGetTime();
 	static double s_lastTime = curTime; // first time initialization, static otherwise
-	float elpasedTime = (float)((curTime - s_lastTime) * 0.001);
+	float elapsedTime = (float)((curTime - s_lastTime) * 0.001);
 	s_lastTime = curTime;
 
 	updateKeyboardState(); // Clear out keyboard state bits
@@ -545,8 +603,10 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	}
 
 	// Update particle system
-	partSystem->update(tBeamPGroup, elpasedTime);
-
+	partSystem->update(tBeamPGroup, elapsedTime);
+	for (UINT i = 0; i < enginePGroupList.size(); i++) {
+		partSystem->update(enginePGroupList[i], elapsedTime);
+	}
 }
 
 void GameResources::resetGameState() {
@@ -556,10 +616,14 @@ void GameResources::resetGameState() {
 	mothershipList.clear();
 	tractorBeamList.clear();
 	resourceList.clear();
-	for (int i = 0; i < eIDList.size(); i++) {
+	for (UINT i = 0; i < eIDList.size(); i++) {
 		delete eIDList[i];
 	}
 	eIDList.clear();
+	for (UINT i = 0; i < enginePGroupList.size(); i++) {
+		delete enginePGroupList[i];
+	}
+	enginePGroupList.clear();
 	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
 	{
 		delete (*ii).second;
@@ -594,6 +658,9 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		shipEID->m_offScreenSprite.setTexture(shipEIDTexture);
 		shipEID->m_offScreenSprite.setCenterToTextureMidpoint();
 		eIDList.push_back(shipEID);
+		EnginePGroup * epg = new EnginePGroup(EnginePartTexture);
+		epg->shipEnt = tmp;
+		enginePGroupList.push_back(epg);
 		ret = tmp;
 		}
 		break;

@@ -12,9 +12,7 @@ const float TBeamPGroup::speed = -0.5f;
 const float TBeamPGroup::rotSpeed = 0.4f;
 
 TBeamPGroup::TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
-	// TODO fix to take in tBeam pointer
 	m_partList = NULL;
-	m_color = D3DCOLOR_XRGB(0,0,255);
 	D3DXMatrixIdentity(&m_worldTransformMat);
     m_size = defaultSize; // Particle's size
     m_numToRelease = 3;
@@ -64,11 +62,10 @@ void TBeamPGroup::updateGroup() {
 	//translate to tBeamEnt->m_start
 	D3DXMatrixTranslation(&transMat, tBeamEnt->m_start.x, tBeamEnt->m_start.y, tBeamEnt->m_start.z);
 	m_worldTransformMat = scaleMat*rotMat*transMat;
-
-	// TODO fix to work when real tractor beams are sent from network
 }
 
-void TBeamPGroup::initNewParticle(Particle * pParticle) {
+bool TBeamPGroup::initNewParticle(Particle * pParticle) {
+	pParticle->m_color = D3DCOLOR_XRGB(0,0,255);
 	float x, y;
 	do { // get random, evenly distributed points in circle
 		x = ParticleSystem::getRandomMinMax(-1.0f, 1.0f);
@@ -77,6 +74,8 @@ void TBeamPGroup::initNewParticle(Particle * pParticle) {
 	pParticle->m_vCurPos.x = x;
 	pParticle->m_vCurPos.y = y;
 	pParticle->m_vCurPos.z = defaultLength;
+
+	return true;
 }
 
 /* Update particle position/velocity.
