@@ -24,6 +24,7 @@
 class S_Mothership : public Mothership, public ServerEntity{ //switch back to capsule
 
 public:
+
 	// Fields
 	vector<S_Resource *> m_resourceList;
 	// Constructors
@@ -33,10 +34,12 @@ public:
 	// Methods
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
 	bool interact(S_Ship * ship);
+	void update(float delta_time);
 
 private:
 	bool giveResource(S_Ship * ship);
 	bool takeResource(S_Ship * ship);
+	
 };
 
 #pragma warning( pop )

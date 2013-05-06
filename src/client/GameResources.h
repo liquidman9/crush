@@ -29,6 +29,7 @@
 #include <client/graphics/entities/C_Entity.h>
 #include <client/graphics/ParticleSystem.h>
 #include <client/graphics/TBeamPGroup.h>
+#include <client/graphics/EnginePGroup.h>
 
 class GameResources {
 public:
@@ -49,6 +50,7 @@ public:
 	static vector<C_TractorBeam*> tractorBeamList;
 	static vector<C_Resource*> resourceList;
 	static vector<EntityIdentifier*> eIDList;
+	static vector<EnginePGroup *> enginePGroupList;
 	static const float PLAYER_CAM_DISTANCE;
 	static const float PLAYER_CAM_HEIGHT;
 	static const float PLAYER_CAM_LOOKAT_DISTANCE;
@@ -57,12 +59,15 @@ public:
 	static Camera debugCam;
 	static Camera playerCam;
 	static Camera * curCam;
+	static float playerCamScale;
+	static int playerCamScaleLevel;
 	static C_Ship * playerShip;
 	static int playerNum;
 	static LPD3DXSPRITE pd3dSprite;
 	static LPD3DXFONT GameResources::pd3dFont;
 	static LPDIRECT3DTEXTURE9 shipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
+	static LPDIRECT3DTEXTURE9 EnginePartTexture;
 	static ParticleSystem * partSystem;
 	static TBeamPGroup * tBeamPGroup;
 	//static vector<Sprite*> spriteList;
@@ -105,12 +110,14 @@ public:
 	//static HRESULT initSprites();
 	static void drawAll();
 	static void drawAllTractorBeams();
+	static void drawAllEngines();
 	static void drawAllEID();
 	static void drawStaticHudElements();
 	//static void drawAllSprites();
 	static void updateDebugCamera();
 	static void updatePlayerCamera();
 	static void switchCamera();
+	static void switchPlayerCameraScale();
 	static void updateGameState(GameState<Entity> & newGameState);
 	static void resetGameState();
 	static C_Entity * createEntity(Entity * newEnt);

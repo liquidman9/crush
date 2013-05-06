@@ -41,6 +41,7 @@ public:
 	static float debugCamMinPitch;
 
 	static int fontHeight;
+	static float percentMissedFrames;
 	
 	// Loaded in from config file
 	static float debugCamMoveSpeed;		//scales the movement speed of the Debug Cam
@@ -63,6 +64,7 @@ public:
 
 	static std::wstring shipEIDTextureFilepath;
 	static std::wstring tBeamPartTexFilepath;
+	static std::wstring enginePartTexFilepath;
 	static std::wstring fontStyle;
 	static int fontSize;
 

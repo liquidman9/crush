@@ -66,6 +66,7 @@ private:
 	bool m_rotating;
 
 public:
+
 	S_Resource * m_resource;
 	S_TractorBeam * m_tractorBeam;
 

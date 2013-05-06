@@ -45,6 +45,7 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 void S_Ship::init() {
 	forward_rot_thruster = D3DXVECTOR3(0, 0, 5);
 	reverse_rot_thruster = D3DXVECTOR3(0, 0, -5);
+	m_resourceSpots = 1;
 }
 
 // TODO!!!:
@@ -53,11 +54,12 @@ void S_Ship::addPlayerInput(InputState input) {
 	m_tractorBeam->m_strength = (float) input.getTractorBeam();
 	//m_tractorBeamOn = (float) input.getTractorBeam();
 	m_tractorBeam->m_isOn = input.getTractorBeam() != 0; //tmp
-
+	m_thruster = input.getThrust();
 	// Linear thrust calculations
+
 	if (abs(input.getThrust()) > FP_ZERO) {
 		m_thrusting = true;
-		D3DXVECTOR3 main_thrust_force(0, 0, (float)input.getThrust()), 
+		D3DXVECTOR3 main_thrust_force(0, 0, m_thruster), 
 					main_thrust_adj;
 		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
 		
@@ -153,6 +155,8 @@ bool S_Ship::interact(S_Resource * res) {
 			res->m_onDropTimeout = false;
 			res->m_dropTimeoutStart = 0;
 			res->m_droppedFrom = -1;
+			res->m_spot = 0;
+			res->m_travelFrames = 0;
 			cout<<"Gathered"<<endl;
 		}
 		return true;
@@ -169,6 +173,7 @@ void S_Ship::interact(S_Asteroid * asteroid) {
 		tmp->m_onDropTimeout = true;
 		tmp->m_dropTimeoutStart = GetTickCount();
 		tmp->m_droppedFrom = m_playerNum;
+		tmp->m_spot = -1;
 	}
 }
 
@@ -180,6 +185,7 @@ void S_Ship::interact(S_Ship * ship) {
 		tmp->m_onDropTimeout = true;
 		tmp->m_dropTimeoutStart = GetTickCount();
 		tmp->m_droppedFrom = m_playerNum;
+		tmp->m_spot = -1;
 	}
 }
 

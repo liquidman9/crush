@@ -100,7 +100,7 @@ void Entity::decode(const char * tmp) {
 void Entity::update(shared_ptr<Entity> source) {
 	m_pos = source->m_pos;
 	m_orientation = source->m_orientation;
-	m_orientation = source->m_orientation;
+	m_velocity = source->m_velocity;
 }
 
 Entity::~Entity(){

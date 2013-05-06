@@ -18,13 +18,14 @@
 
 class Ship : public virtual Entity {
 private:
-	static const unsigned int m_size = Entity::m_size + sizeof(SHIP_PLAYERNUM_TYPE) + sizeof(bool) + MAX_PLAYERNAME_SIZE;
+	static const unsigned int m_size = Entity::m_size + sizeof(SHIP_PLAYERNUM_TYPE) + sizeof(double) + MAX_PLAYERNAME_SIZE;
 
 public:
 	// Fields
 	SHIP_PLAYERNUM_TYPE m_playerNum;
-	bool m_tractorBeamOn;
+	double m_thruster;
 	std::string m_playerName;
+
 
 	// This constructors are deprecated
 	Ship();

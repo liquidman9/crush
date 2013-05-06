@@ -9,7 +9,6 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Mothership.h>
 
-
 S_Mothership::S_Mothership(int pNum) :
 	Entity(MOTHERSHIP),
 	Mothership(pNum),
@@ -17,6 +16,8 @@ S_Mothership::S_Mothership(int pNum) :
 {
 	m_immovable = true;
 	m_radius = 15.0;
+	m_resourceSpots = 10;
+	m_length = 100.0;
 }
 
 S_Mothership::S_Mothership(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
@@ -26,7 +27,10 @@ S_Mothership::S_Mothership(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 {	
 	m_immovable = true;
 	m_radius = 10.0;
+	m_resourceSpots = 10;
+	m_length = 100.0;
 }
+
 
 
 	
@@ -46,26 +50,41 @@ bool S_Mothership::interact(S_Ship * ship) {
 
 }
 
+//Ship gives resource
 bool S_Mothership::giveResource(S_Ship * ship){
 	if(ship->m_resource != NULL) {
-		m_resourceList.push_back(ship->m_resource);
-		ship->m_resource->m_carrier = this;
+		S_Resource * res = ship->m_resource;
+		m_resourceList.push_back(res);
+		res->m_carrier = this;
 		ship->m_resource = NULL;
+		res->m_spot = this->m_resources >= m_resourceSpots? m_resourceSpots:this->m_resources;
 		this->m_resources++;
+		res->m_travelFrames = 0;
 		cout<<"Given"<<endl;
 		return true;
 	}
 	return false;
 }
 
+// Ship takes resource
 bool S_Mothership::takeResource(S_Ship * ship){
 	if(ship->m_resource == NULL && m_resourceList.size() != 0) {
-		ship->m_resource = m_resourceList.back();
+		S_Resource * res = m_resourceList.back();
+		ship->m_resource = res;
 		m_resourceList.pop_back();
-		ship->m_resource->m_carrier = ship;
+		res->m_carrier = ship;
 		this->m_resources--;
+		res->m_spot = 0;
+		res->m_travelFrames = 0;
 		cout<<"Taken"<<endl;
 		return true;
 	}
 	return false;
+}
+
+
+void S_Mothership::update(float delta_time){
+	
+	ServerEntity::update(delta_time);
+
 }

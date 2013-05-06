@@ -35,7 +35,7 @@ C_Ship::C_Ship(Entity * newEnt) :
 	if (srcShip != NULL) {
 		m_pos = srcShip->m_pos;
 		m_orientation = srcShip->m_orientation;
-		m_tractorBeamOn = srcShip->m_tractorBeamOn;
+		m_thruster = srcShip->m_thruster;
 		m_playerNum = srcShip -> m_playerNum;
 		m_pMesh = &Gbls::shipMesh[m_playerNum % Gbls::numShipMeshes];
 	} else {

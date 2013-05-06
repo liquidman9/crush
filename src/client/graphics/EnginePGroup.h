@@ -1,9 +1,9 @@
 //=================================================================================================
-// TBeamPGroup.h - Tractor Beam Particle Group
+// EnginePGroup.h - Engine Particle Group
 //=================================================================================================
 
-#ifndef TBEAMPGROUP_H_INCLUDED
-#define TBEAMPGROUP_H_INCLUDED
+#ifndef ENGINEBEAMPGROUP_H_INCLUDED
+#define ENGINEBEAMPGROUP_H_INCLUDED
 
 // Defines
 #define WIN32_LEAN_AND_MEAN
@@ -13,28 +13,30 @@
 
 // Project includes
 #include <client/graphics/ParticleGroup.h>
-#include <client/graphics/entities/C_TractorBeam.h>
+#include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/ParticleSystem.h> // for static functions
 
-class TBeamPGroup : public ParticleGroup {
+class EnginePGroup : public ParticleGroup {
 public:
-	TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle);
-	~TBeamPGroup();
+	EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticle);
+	~EnginePGroup();
 
+	//static const float defaultSize;
+	static const float ttl;
 	static const float defaultSize;
-	static const float defaultLength;
+	static const float zStartOffset;
 	static const float speed;
-	static const float rotSpeed;
+	static const int color_r;
+	static const int color_g;
+	static const int color_b;
 
-	C_TractorBeam * tBeamEnt;
+	C_Ship * shipEnt;
 	float prevElapsedTime;
-	D3DXMATRIX rotMat;
 	
 	virtual void updateGroup();
 	virtual bool initNewParticle(Particle * pParticle);
 	virtual bool updateParticle(Particle * pParticle, float elapsedTime);
-	virtual void initBeamToFull();
 
 };
 
-#endif // TBEAMPGROUP_H_INCLUDED
+#endif // ENGINEBEAMPGROUP_H_INCLUDED

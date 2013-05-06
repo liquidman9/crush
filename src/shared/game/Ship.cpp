@@ -8,15 +8,15 @@
 Ship::Ship() :
 	Entity(SHIP),
 	m_playerNum(0),
-	m_tractorBeamOn(false)
+	m_thruster(0)
 {
 }
 
 Ship::Ship(int pNum) :
 	Entity(SHIP),
 	m_playerNum(pNum),
-	m_tractorBeamOn(false),
-	m_playerName("Player " + to_string((long long) pNum))
+	m_playerName("Player " + to_string((long long) pNum)),
+	m_thruster(0)
 {}
 
 void Ship::setPlayerName(const string &s) {
@@ -46,8 +46,8 @@ const char* Ship::encode() const {
 	tmp_rtn += sizeof(SHIP_PLAYERNUM_TYPE);
 	
 	// Encode tractor beam
-	*(bool *) (tmp_rtn) = m_tractorBeamOn;
-	tmp_rtn += sizeof(bool);
+	*(double *) (tmp_rtn) = m_thruster;
+	tmp_rtn += sizeof(double);
 
 	memcpy(tmp_rtn, m_playerName.c_str(), MAX_PLAYERNAME_SIZE);
 
@@ -60,7 +60,7 @@ const char* Ship::encode() const {
 ostream& operator<<(ostream& os, const Ship& e) {
 	os << e.getID() << " " << e.m_pos.x << " " << e.m_pos.y << " " << e.m_pos.z
 		<< " " << e.m_orientation.x << " " << e.m_orientation.y << " " << e.m_orientation.z << " " << e.m_orientation.w
-		<< " " << e.m_playerNum << " " << e.m_tractorBeamOn;
+		<< " " << e.m_playerNum << " " << e.m_thruster;
 	return os;
 }
 
@@ -70,8 +70,8 @@ void Ship::decode(const char *buff) {
 	buff += Entity::size();
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
 	buff += sizeof(SHIP_PLAYERNUM_TYPE);
-	m_tractorBeamOn = *(bool *) buff;
-	buff += sizeof(bool);
+	m_thruster = *(double *) buff;
+	buff += sizeof(double);
 	m_playerName = string(buff, MAX_PLAYERNAME_SIZE);
 }
 
@@ -100,7 +100,7 @@ void Ship::update(shared_ptr<Entity> sp_source) {
 #endif
 	} else {
 		Entity::update(sp_source);
-		m_tractorBeamOn = srcShip->m_tractorBeamOn;
+		m_thruster = srcShip->m_thruster;
 		m_playerNum = srcShip -> m_playerNum;
 	}
 }
