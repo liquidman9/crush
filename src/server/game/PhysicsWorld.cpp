@@ -145,8 +145,8 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 		}
 	}
 
-	sc = (abs(sN) < NEAR_ZERO ? 0.0 : sN / sD);
-	tc = (abs(tN) < NEAR_ZERO ? 0.0 : tN / sD);
+	sc = (abs(sN) < NEAR_ZERO ? 0.0f : sN / sD);
+	tc = (abs(tN) < NEAR_ZERO ? 0.0f : tN / sD);
 
 	D3DXVECTOR3 dP = lengthBs + (sc * lengthA) - (tc * lengthB);	// a(sc) - b(tc) 
 

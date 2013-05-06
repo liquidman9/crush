@@ -78,13 +78,13 @@ public:
 	 */
 
 	// Applies a force to this entity's center of mass for the given amount of time(will not cause rotation)
-	virtual void applyLinearImpulse(D3DXVECTOR3 force, float duration);
+	virtual void applyLinearImpulse(D3DXVECTOR3 force);
 
 	// Applies a rotational force to this entity (will not cause linear motion)
-	virtual void applyAngularImpulse(D3DXVECTOR3 torque, float duration);
+	virtual void applyAngularImpulse(D3DXVECTOR3 torque);
 
 	// Applies a force to this entity at the given point for the given amount of time
-	virtual void applyImpulse(D3DXVECTOR3 impulse, D3DXVECTOR3 point, float duration);
+	virtual void applyImpulse(D3DXVECTOR3 impulse, D3DXVECTOR3 point);
 
 	// Applies current acceleration to Entity
 	virtual void update(float delta_time);

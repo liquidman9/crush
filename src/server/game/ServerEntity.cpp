@@ -52,35 +52,33 @@ int ServerEntity::genId() {
 }
 
 // Physics Methods
-// Applies a force to this entity's center of mass for the given amount of time(will not cause rotation)
-void ServerEntity::applyLinearImpulse(D3DXVECTOR3 force, float duration) {
+// Applies a force to this entity's center of mass (will not cause rotation)
+void ServerEntity::applyLinearImpulse(D3DXVECTOR3 linear_impulse) {
 	// Linear calculation
-	t_impulse += force * duration;
+	t_impulse += linear_impulse;
 }
 
 // Applies a rotational force to this entity (will not cause linear motion)
-void ServerEntity::applyAngularImpulse(D3DXVECTOR3 torque, float duration) {
+void ServerEntity::applyAngularImpulse(D3DXVECTOR3 angular_impulse) {
 	// Linear calculation
-	t_angular_impulse += torque * duration;
+	t_angular_impulse += angular_impulse;
 }
 
-// Applies a force to this entity at the given point for the given amount of time
-void ServerEntity::applyImpulse(D3DXVECTOR3 force, D3DXVECTOR3 point, float duration) {
+// Applies a force to this entity at the given point
+void ServerEntity::applyImpulse(D3DXVECTOR3 impulse, D3DXVECTOR3 point) {
 	// Linear calculation
-	t_impulse += force * duration;
+	t_impulse += impulse;
 
 	// Rotational calcultation
-	D3DXVECTOR3 torque, vector_to_point = point - m_pos;
-	D3DXVec3Cross(&torque, &force, &vector_to_point); // Cross product finds torque
-	t_angular_impulse += torque * duration;
+	D3DXVECTOR3 angular_impulse, vector_to_point = point - m_pos;
+	D3DXVec3Cross(&angular_impulse, &impulse, &vector_to_point); // Cross product finds torque
+	t_angular_impulse += angular_impulse;
 }
 
 // Applies current acceleration to Entity
 void ServerEntity::update(float delta_time) {
-	// Move according to last known values for half time
-	float half_time = (delta_time / 2);
-	m_pos += m_velocity * half_time;
-	m_orientation += m_orientation_delta * half_time;
+	m_pos += m_velocity * delta_time;
+	m_orientation += (m_orientation_delta * delta_time);
 	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
 
 	// Apply impulse
@@ -101,11 +99,6 @@ void ServerEntity::update(float delta_time) {
 	} else {
 		m_orientation_delta = Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
 	}
-
-	m_pos += m_velocity * half_time;
-	m_orientation += (m_orientation_delta * half_time);
-	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
-	D3DXQuaternionNormalize(&m_orientation, &m_orientation);
 
 	D3DXMATRIX mat_rotate;
 	D3DXVECTOR4 temp;

@@ -19,10 +19,11 @@ Collision::Collision(ServerEntity * a, ServerEntity * b, D3DXVECTOR3 closeA, D3D
 
 Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB)
 {
-	switch (a->m_type) {		
+	switch (a->m_type) {
+	default:
+		return new Collision(a, b, closeA, closeB);
 	}
 
-	return new Collision(a, b, closeA, closeB);
 }
 
 void Collision::resolve()
@@ -58,10 +59,11 @@ void Collision::resolve()
 	if(-vN < -0.01f)
 		return;
 
+	/*
 	cout << "a: pos: (" << m_a->m_pos.x << ", " << m_a->m_pos.y << ", " << m_a->m_pos.z << ") closest point: (" << m_closeA.x << ", " << m_closeA.y << ", " << m_closeA.z << ") " << endl; 
 	cout << "b: pos: (" << m_b->m_pos.x << ", " << m_b->m_pos.y << ", " << m_b->m_pos.z << ") closest point: (" << m_closeB.x << ", " << m_closeB.y << ", " << m_closeB.z << ") " << endl; 
 	cout << "poi: (" << poi.x << ", " << poi.y << ", " << poi.z << ")" << endl;
-
+	*/
 
 	// calculate the distance between point of contact and centers of mass
 	D3DXVECTOR3 distA = poi - m_a->m_pos;
@@ -86,13 +88,15 @@ void Collision::resolve()
 	D3DXVec3Cross(&inertB, &inertB, &distB);
 
 	D3DXVECTOR3 inertBoth = inertA + inertB;
-	cout << inertBoth.x << ", " << inertBoth.y << ", " << inertBoth.z << endl;
+	//cout << inertBoth.x << ", " << inertBoth.y << ", " << inertBoth.z << endl;
 
 	// calculate the impulse
 	float impulse = (-(1 + m_a->m_elastic) * vN) / ((nN * (m_a->m_mass_inverse + m_b->m_mass_inverse)));
 	//float impulse = (-(1 + m_a->m_elastic) * vN) / ((nN * (m_a->m_mass_inverse + m_b->m_mass_inverse)) + D3DXVec3Dot(&inertBoth, &n));
+	/*
 	cout << D3DXVec3Dot(&inertBoth, &n) << endl;
 	cout << impulse << endl;
+	*/
 	D3DXVECTOR3 jN = impulse * n;
 	D3DXVECTOR3 jNRA;
 	D3DXVECTOR3 jNRB;

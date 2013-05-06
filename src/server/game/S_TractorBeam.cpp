@@ -99,13 +99,13 @@ void S_TractorBeam::calculateForce() {
 		cout <<" Dis: "<<getCurrentDistance()<<" Force: "<<force.x <<" "<< force.y << " "<<force.z<< endl;
 		
 		if(m_isPulling) {
-			m_ship->applyLinearImpulse(force, .01f);
-			m_object->applyLinearImpulse(-force, .01f);
+			m_ship->applyLinearImpulse(force * .01f);
+			m_object->applyLinearImpulse(-force * .01f);
 		}
 		// Push
 		else {
-			m_ship->applyLinearImpulse(-force, .01f);
-			m_object->applyLinearImpulse(force, .01f);
+			m_ship->applyLinearImpulse(-force * .01f);
+			m_object->applyLinearImpulse(force * .01f);
 		}
 	}
 

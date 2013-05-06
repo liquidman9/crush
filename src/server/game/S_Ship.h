@@ -23,21 +23,26 @@ class S_TractorBeam;
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
+#define PI 3.14159f
+
 namespace server {
 	namespace entities {
 		namespace ship {
 			static const string CONFIG_PREFIX = "ship_";
 
 			static float mass = 1000;
-			static float forward_thrust_force = 5000.0f;
-			static float rotation_thrust_force = 1000.0f;
-			static float stabilizer_thrust_force = 0.3f;
+			static float forward_impulse = 1000.0f;
+			static float rotation_impulse = 600.0f;
+			static float braking_impulse = 500.0f;
+
+			static float max_velocity = 100.0f;
+			static float max_rotation_velocity = 2.5f;
 
 			inline void initFromConfig() {
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "mass", mass);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_thrust_force", rotation_thrust_force);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_thrust_force", forward_thrust_force);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "stabilizer_ratio", stabilizer_thrust_force);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_impulse", forward_impulse);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_impulse", rotation_impulse);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "braking_impulse", braking_impulse);
 			}
 		}
 	}
@@ -46,13 +51,19 @@ namespace server {
 
 class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 private:
-	float m_forward_thrust_force;
-	float m_rotation_thrust_force;
-	float m_stabilizer_thrust_force;
+	float m_forward_impulse;
+	float m_rotation_impulse;
+	float m_braking_impulse;
+	
+	float m_max_velocity;
+	float m_max_rotation_velocity;
 
 	// Fields
 	D3DXVECTOR3 forward_rot_thruster;
 	D3DXVECTOR3 reverse_rot_thruster;
+
+	bool m_thrusting;
+	bool m_rotating;
 
 public:
 	S_Resource * m_resource;
@@ -65,12 +76,17 @@ public:
 	// Methods
 	void init();
 	void addPlayerInput(InputState);
+	void applyDamping();
 	void calcTractorBeam();
+
+	virtual void update(float delta_time);
 
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
 	bool interact(S_Resource *);
 	void interact(S_Asteroid *);
 	void interact(S_Ship *);
+
+	void print();
 
 };
 

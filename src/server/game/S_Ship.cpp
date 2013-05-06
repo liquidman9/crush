@@ -6,20 +6,23 @@
 #include <stdio.h>
 
 // Project includes
+#include <shared/util/SharedUtils.h>
 #include <shared/ConfigSettings.h>
 #include <shared/game/Entity.h>
 #include <server/game/S_Ship.h>
 //#include <server/game/S_TractorBeam.h>
 
 using namespace server::entities::ship;
+using namespace shared::utils;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),
 	Ship(),
 	ServerEntity(),
-	m_forward_thrust_force(forward_thrust_force),
-	m_rotation_thrust_force(rotation_thrust_force),
-	m_stabilizer_thrust_force(stabilizer_thrust_force),
+	m_forward_impulse(forward_impulse),
+	m_rotation_impulse(rotation_impulse),
+	m_max_velocity(max_velocity),
+	m_max_rotation_velocity(max_rotation_velocity),
 	m_resource(NULL)
 {
 	init();
@@ -29,9 +32,11 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation),
 	Ship(pNum),
 	ServerEntity(server::entities::ship::mass, calculateRotationalInertia(mass), 5.0, 1.0),
-	m_forward_thrust_force(forward_thrust_force),
-	m_rotation_thrust_force(rotation_thrust_force),
-	m_stabilizer_thrust_force(stabilizer_thrust_force),
+	m_forward_impulse(forward_impulse),
+	m_rotation_impulse(rotation_impulse),
+	m_braking_impulse(braking_impulse),
+	m_max_velocity(max_velocity),
+	m_max_rotation_velocity(max_rotation_velocity),
 	m_resource(NULL)
 {	
 	init();
@@ -50,44 +55,80 @@ void S_Ship::addPlayerInput(InputState input) {
 	m_tractorBeam->m_isOn = input.getTractorBeam() != 0; //tmp
 
 	// Linear thrust calculations
-	D3DXVECTOR3 main_thrust_force(0, 0, (float)(input.getThrust() * m_forward_thrust_force));
+	if (abs(input.getThrust()) > FP_ZERO) {
+		m_thrusting = true;
+		D3DXVECTOR3 main_thrust_force(0, 0, (float)input.getThrust()), 
+					main_thrust_adj;
+		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
+		
+		applyLinearImpulse(main_thrust_adj * m_forward_impulse);
+	}
 
 	// Rotational thrust calculations
-	D3DXVECTOR3 fore_rot_force((float)(-input.getTurn() * m_rotation_thrust_force), (float)(-input.getPitch() * m_rotation_thrust_force), 0);
-	D3DXVECTOR3 aft_rot_force(-fore_rot_force);
-	
-	// Stabilizing thrust calculations
-	//D3DXVECTOR3 stabilizer_force(-m_angular_momentum.x * m_stabilizer_ratio, -m_angular_momentum.y * m_stabilizer_ratio, -m_angular_momentum.z * m_stabilizer_ratio);
-	D3DXVECTOR3 stabilizer_force(-m_angular_momentum);
-	D3DXVec3Normalize(&stabilizer_force, &stabilizer_force);
-	stabilizer_force *= m_stabilizer_thrust_force;
+	if (abs(input.getPitch()) > FP_ZERO || abs(input.getTurn()) > FP_ZERO) {
+		m_rotating = true;
+		D3DXVECTOR3 rot_thrust_adj((float)input.getPitch(), (float)input.getTurn(), 0);
+		D3DXVec3Normalize(&rot_thrust_adj, &rot_thrust_adj);
+		D3DXVec3Rotate(&rot_thrust_adj, &rot_thrust_adj, &m_orientation);
 
-	// Thruster positions
-	D3DXVECTOR3 fore_thruster_pos_adj, aft_thruster_pos_adj;
-	D3DXVECTOR3 main_thrust_adj, fore_thrust_adj, aft_thrust_adj;
-	
-	// Pos transforms
-	D3DXVec3Rotate(&fore_thruster_pos_adj, &forward_rot_thruster, &m_orientation);
-	D3DXVec3Rotate(&aft_thruster_pos_adj, &reverse_rot_thruster, &m_orientation);
+		applyAngularImpulse(rot_thrust_adj * m_rotation_impulse);
+	}
+	static int count = 0;
+	if ((count %= 60) == 0) {
+		print();
+		cout << "Thrusting: " << m_thrusting << endl;
+		cout << "Max Vel: " << m_max_velocity << endl;
+	}
+	count++;
+}
 
-	// Thrust transforms
-	D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
-	D3DXVec3Rotate(&fore_thrust_adj, &fore_rot_force, &m_orientation);
-	D3DXVec3Rotate(&aft_thrust_adj, &aft_rot_force, &m_orientation);
+void S_Ship::applyDamping() {
 
-	// MOVEMENT
-	// Main thruster
-	applyLinearImpulse(main_thrust_adj, 0.1f);
+	// Linear damping
+	float mag_velocity = D3DXVec3Length(&m_velocity), mag_angular_velocity = D3DXVec3Length(&m_angular_velocity);
+	if (mag_velocity > FP_ZERO) {
+		// Linear stabilizer
+		D3DXVECTOR3 lin_stabilizer_vec(-m_momentum);
+		D3DXVec3Normalize(&lin_stabilizer_vec, &lin_stabilizer_vec);
 
-	// ROTATION
-	// Forward rotation thruster
-	applyImpulse(fore_thrust_adj, m_pos + fore_thruster_pos_adj, 0.1f);
-	// Rear rotation thruster
-	applyImpulse(aft_thrust_adj, m_pos + aft_thruster_pos_adj, 0.1f);
-	
-	// DAMPING
+		if (m_thrusting) {
+			// Thrusting, we only want to reduce the impulse
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_forward_impulse;
+			float damping_factor = (mag_velocity / m_max_velocity);
+			applyLinearImpulse(lin_stabilizer_force * damping_factor);
+		} else {
+			// Not thrusting, we need to slow down as quickly as possible
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_braking_impulse;
+			applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum));
+		}
+	}
+
 	// Rotation damping
-	applyAngularImpulse(stabilizer_force, 0.1f);
+	if (mag_angular_velocity > FP_ZERO) {
+		// Rotation stabilizer
+		D3DXVECTOR3 rot_stabilizer_vec(-m_angular_momentum);
+		D3DXVec3Normalize(&rot_stabilizer_vec, &rot_stabilizer_vec);
+
+		D3DXVECTOR3 rot_stabilizer_force = rot_stabilizer_vec * m_rotation_impulse;
+		
+		if (m_rotating) {
+			// Rotating, we only want to reduce the impulse
+			float damping_factor = (mag_angular_velocity / m_max_rotation_velocity);
+			applyAngularImpulse(rot_stabilizer_force * damping_factor);
+		} else {
+			// Not rotating, we need to slow down as quickly as possible
+			applyAngularImpulse(Vec3ComponentAbsMin(rot_stabilizer_force, -m_angular_momentum));
+		}
+	}
+
+	m_thrusting = false;
+	m_rotating = false;
+
+}
+
+void S_Ship::update(float delta_time) {
+	applyDamping();
+	ServerEntity::update(delta_time);
 }
 
 void S_Ship::calcTractorBeam() {
@@ -140,4 +181,10 @@ void S_Ship::interact(S_Ship * ship) {
 		tmp->m_dropTimeoutStart = GetTickCount();
 		tmp->m_droppedFrom = m_playerNum;
 	}
+}
+
+void S_Ship::print() {
+	cout << "Pos: "; printVec(m_pos); cout << endl;
+	cout << "Velocity: " << D3DXVec3Length(&m_velocity) << endl;
+	cout << "Rotation: " << D3DXVec3Length(&m_angular_velocity) << endl;
 }
