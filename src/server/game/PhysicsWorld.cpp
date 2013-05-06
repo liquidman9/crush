@@ -236,6 +236,10 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		// or could give them the immovable tag (relative to their carrier) when on the mothership and while being held
 	}
 
+	if(((one = a)->m_type == RESOURCE)|| ((one = b)->m_type == RESOURCE)){
+		rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
+	}
+
 	return rtn;
 
 }

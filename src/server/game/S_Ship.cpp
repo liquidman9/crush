@@ -174,6 +174,7 @@ void S_Ship::interact(S_Asteroid * asteroid) {
 		tmp->m_dropTimeoutStart = GetTickCount();
 		tmp->m_droppedFrom = m_playerNum;
 		tmp->m_spot = -1;
+		tmp->reset(); // temporary to stop resources from moving far far away when dropped
 	}
 }
 
@@ -186,6 +187,7 @@ void S_Ship::interact(S_Ship * ship) {
 		tmp->m_dropTimeoutStart = GetTickCount();
 		tmp->m_droppedFrom = m_playerNum;
 		tmp->m_spot = -1;
+		tmp->reset(); // temporary to stop resources from moving far far away when dropped
 	}
 }
 
