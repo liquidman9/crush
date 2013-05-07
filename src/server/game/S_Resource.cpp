@@ -28,7 +28,7 @@ S_Resource::S_Resource() :
 S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), RESOURCE, pos, orientation),
 	Resource(),
-	ServerEntity(10, calculateRotationalInertia(10), 1.0, 1.0),
+	ServerEntity(0.1, calculateRotationalInertia(10), 1.0, 1.0),
 	m_carrier(NULL),
 	m_dropTimeoutStart(0),
 	m_onDropTimeout(false),

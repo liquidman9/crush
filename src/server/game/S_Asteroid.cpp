@@ -14,7 +14,7 @@ static int m_range = 300, m_start = 20;
 S_Asteroid::S_Asteroid() :
 	Entity(ASTEROID),
 	Asteroid(),
-	ServerEntity((m_scale = (rand() % m_range) + m_start)*5, calculateRotationalInertia(m_scale*5), 1.0, 1.0)
+	ServerEntity((m_scale = (rand() % m_range) + m_start)*.05, calculateRotationalInertia(m_scale*5), 1.0, 1.0)
 {
 
 }

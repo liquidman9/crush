@@ -77,9 +77,9 @@ void S_Ship::addPlayerInput(InputState input) {
 	}
 	static int count = 0;
 	if ((count %= 60) == 0) {
-		print();
-		cout << "Thrusting: " << m_thrusting << endl;
-		cout << "Max Vel: " << m_max_velocity << endl;
+		//print();
+		//cout << "Thrusting: " << m_thrusting << endl;
+		//cout << "Max Vel: " << m_max_velocity << endl;
 	}
 	count++;
 }
@@ -139,8 +139,8 @@ void S_Ship::calcTractorBeam() {
 }
 
 D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){
-	float radius_squared = 25;
-	float height_squared = 100;
+	float radius_squared = 5 * 5;
+	float height_squared = (2 * 5.0) * (2 * 5.0);
 	return D3DXVECTOR3( (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
 						(0.5f) * mass * radius_squared,
 						(1.0f / 12.0f) * mass * (3 * radius_squared + height_squared));
