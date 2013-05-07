@@ -34,7 +34,7 @@ public:
 	static Mesh * shipMesh;
 	static Mesh * mothershipMesh;
 	static Mesh asteroidMesh;
-	static Mesh tractorBeamMesh;
+	//static Mesh tractorBeamMesh;
 	static Mesh resourceMesh;
 	
 	static float debugCamMaxPitch;
@@ -52,7 +52,7 @@ public:
 	static std::wstring * shipMeshFilepath;
 	static std::wstring * mothershipMeshFilepath;
 	static std::wstring asteroidMeshFilepath;
-	static std::wstring tractorBeamMeshFilepath;
+	//static std::wstring tractorBeamMeshFilepath;
 	static std::wstring resourceMeshFilepath;
 	
 	static std::wstring skyboxTextureFilepath_Front;

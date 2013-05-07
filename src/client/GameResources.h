@@ -73,6 +73,10 @@ public:
 	static std::wstring timeStr;
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
+
+	// for debugging collisions
+	static LPD3DXMESH collisionSphere;
+	static LPD3DXMESH collisionCylinder;
 	//static vector<Sprite*> spriteList;
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
@@ -116,6 +120,7 @@ public:
 	static void drawAllEngines();
 	static void drawAllEID();
 	static void drawStaticHudElements();
+	static void drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius);
 	//static void drawAllSprites();
 	static void updateDebugCamera();
 	static void updatePlayerCamera();

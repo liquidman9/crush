@@ -51,6 +51,13 @@ LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
+
+// for debugging collisions
+LPD3DXMESH GameResources::collisionSphere = NULL;
+LPD3DXMESH GameResources::collisionCylinder = NULL;
+static const D3DXCOLOR WHITE( D3DCOLOR_XRGB(255, 255, 255) );
+static const D3DXCOLOR BLACK( D3DCOLOR_XRGB(0, 0, 0) );
+static const D3DMATERIAL9 MATERIAL_WHITE = {WHITE, WHITE, WHITE, BLACK, 2.0f};
 //std::vector<R_Ship*> GameResources::r_ShipList;
 //std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
@@ -149,16 +156,28 @@ void GameResources::releaseResources() {
 
 	releaseAdditionalTextures();
 	
-	for(int i = 0; i < Gbls::numShipMeshes; i++) {
-		Gbls::shipMesh[0].Destroy();
+	// release collision shape meshes
+	if( collisionCylinder != NULL ) {
+        collisionCylinder->Release();
+		collisionCylinder = NULL;
 	}
+	if( collisionSphere != NULL ) {
+        collisionSphere->Release();
+		collisionSphere = NULL;
+	}
+
+	//Gbls::tractorBeamMesh.Destroy();
+	Gbls::resourceMesh.Destroy();
+	Gbls::asteroidMesh.Destroy();
+
 	for(int i = 0; i < Gbls::numShipMeshes; i++) {
 		Gbls::mothershipMesh[0].Destroy();
 	}
 
-	Gbls::asteroidMesh.Destroy();
-	Gbls::resourceMesh.Destroy();
-	Gbls::tractorBeamMesh.Destroy();
+	for(int i = 0; i < Gbls::numShipMeshes; i++) {
+		Gbls::shipMesh[0].Destroy();
+	}
+
 
 	Skybox::releaseSkybox();
 }
@@ -207,8 +226,15 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	if(FAILED(hres = Gbls::resourceMesh.Create(Gbls::resourceMeshFilepath)))
 			return hres;
-	if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
-			return hres;
+	//if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
+	//		return hres;
+
+	// for debugging collisions:
+
+	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 1.0f, 10, 10, &collisionSphere, NULL)))
+		return hres;
+	if (FAILED(hres = D3DXCreateCylinder(Gbls::pd3dDevice, 1.0f, 1.0f, 1.0f, 20, 10, &collisionCylinder, NULL)))
+		return hres;
 
 	return S_OK;
 }
@@ -302,6 +328,42 @@ HRESULT GameResources::loadFont(LPD3DXFONT * pFont, int height, std::wstring fon
 	return S_OK;
 }
 
+void GameResources::drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius) {
+	Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
+	Gbls::pd3dDevice->SetMaterial(&MATERIAL_WHITE);
+
+	D3DXVECTOR3 shapeVec = pt2 - pt1;
+	D3DXVECTOR3 midpoint = (pt2 + pt1)/2.0f;
+	D3DXMATRIX scaleMat, rotMat, transMat;
+	//create scale matrix
+	D3DXMatrixScaling(&scaleMat, radius, radius, D3DXVec3Length(&shapeVec));
+	//rotate to direction
+	D3DXMatrixIdentity(&rotMat);
+	if (!(shapeVec.x == 0 && shapeVec.y == 0)) { // only do if new vec isn't z-axis vec
+		D3DXVec3Normalize(&shapeVec, &shapeVec);
+		D3DXVECTOR3 right;
+		D3DXVECTOR3 up(0,1.0f,0);
+		D3DXVec3Cross(&right, &up, &shapeVec);
+		D3DXVec3Normalize(&right, &right);
+		D3DXVec3Cross(&up, &shapeVec, &right);
+		rotMat._11 = right.x;   rotMat._12 = right.y;   rotMat._13 = right.z;
+		rotMat._21 = up.x;      rotMat._22 = up.y;      rotMat._23 = up.z;
+		rotMat._31 = shapeVec.x; rotMat._32 = shapeVec.y; rotMat._33 = shapeVec.z;
+	}
+	//translate to tBeamEnt->m_start
+	D3DXMatrixTranslation(&transMat, midpoint.x, midpoint.y, midpoint.z);
+	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(scaleMat*rotMat*transMat));
+	collisionCylinder->DrawSubset(0);
+	D3DXMatrixScaling(&scaleMat, radius, radius, radius);
+	D3DXMatrixTranslation(&transMat, pt1.x, pt1.y, pt1.z);
+	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(scaleMat*rotMat*transMat));
+	collisionSphere->DrawSubset(0);
+	D3DXMatrixTranslation(&transMat, pt2.x, pt2.y, pt2.z);
+	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(scaleMat*rotMat*transMat));
+	collisionSphere->DrawSubset(0);
+
+	Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
+}
 
 void GameResources::drawAllTractorBeams() {
 		// Set state for particle rendering
@@ -419,6 +481,8 @@ void GameResources::drawAll()
     {
 		(*ii).second->draw();
 	}
+
+	//drawCollisionBounds(D3DXVECTOR3(10, 0, 0), D3DXVECTOR3(10, 10, 10), 2.0f);
 	
 	// Render tractor beams
 	drawAllTractorBeams();

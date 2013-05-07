@@ -29,8 +29,8 @@ std::wstring * Gbls::mothershipMeshFilepath;
 Mesh * Gbls::mothershipMesh;
 std::wstring Gbls::asteroidMeshFilepath;
 Mesh Gbls::asteroidMesh;
-std::wstring Gbls::tractorBeamMeshFilepath;
-Mesh Gbls::tractorBeamMesh;
+//std::wstring Gbls::tractorBeamMeshFilepath;
+//Mesh Gbls::tractorBeamMesh;
 std::wstring Gbls::resourceMeshFilepath;
 Mesh Gbls::resourceMesh;
 float Gbls::debugCamMoveSpeed = 0.5f;
@@ -126,12 +126,12 @@ void Gbls::initFromConfig() {
 	asteroidMesh.setScaleRotate(1, 0, 0, 0);
 
 	/* TractorBeam */
-	if(!conf.getValue("tractorBeamMeshFilepath", tmpString)) {  //default
-			tractorBeamMeshFilepath = L"player_ship_001.x";
-	} else {  //assign to wstring
-			tractorBeamMeshFilepath = wstring(tmpString.begin(), tmpString.end());
-	}
-	tractorBeamMesh.setScaleRotate(1, 0, 0, 0);
+	//if(!conf.getValue("tractorBeamMeshFilepath", tmpString)) {  //default
+	//		tractorBeamMeshFilepath = L"player_ship_001.x";
+	//} else {  //assign to wstring
+	//		tractorBeamMeshFilepath = wstring(tmpString.begin(), tmpString.end());
+	//}
+	//tractorBeamMesh.setScaleRotate(1, 0, 0, 0);
 
 	/* Resource */
 	if(!conf.getValue("resourceMeshFilepath", tmpString)) {  //default
