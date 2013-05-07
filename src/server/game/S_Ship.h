@@ -29,6 +29,7 @@ namespace server {
 			static float forward_impulse = 1000.0f;
 			static float rotation_impulse = 600.0f;
 			static float braking_impulse = 500.0f;
+
 			static float max_velocity = 100.0f;
 			static float max_rotation_velocity = 2.5f;
 

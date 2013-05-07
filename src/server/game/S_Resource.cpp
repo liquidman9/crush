@@ -40,10 +40,9 @@ S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 
 D3DXVECTOR3 S_Resource::calculateRotationalInertia(float mass){
 	float radius_squared = 1;
-	float height_squared = 1;
-	return D3DXVECTOR3( (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
-						(0.5f) * mass * radius_squared,
-						(1.0f / 12.0f) * mass * (3 * radius_squared + height_squared));
+	return D3DXVECTOR3( (2.0f / 5.0f) * mass * radius_squared,
+						(2.0f / 5.0f) * mass * radius_squared,
+						(2.0f / 5.0f) * mass * radius_squared);
 };
 
 void S_Resource::travel() {
