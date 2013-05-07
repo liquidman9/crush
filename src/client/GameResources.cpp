@@ -55,7 +55,9 @@ TBeamPGroup * GameResources::tBeamPGroup = NULL;
 //std::vector<Entity*> GameResources::entityList;
 //std::vector<std::vector<Renderable*>*> GameResources::renderList;
 struct GameResources::KeyboardState GameResources::m_ks;
-std::wstring timeStr;
+std::wstring GameResources::timeStr;
+std::wstring GameResources::playerNameStr[4];
+int GameResources::playerScore[4];
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -357,38 +359,51 @@ void GameResources::drawAllEID() {
 
 }
 
+void GameResources::placeTextCenterCeiling(LPCWSTR str, UINT x) {
+	D3DXMATRIX mat;
+		D3DXMatrixIdentity(&mat);
+		
+		//std::wstring timeStr = L"Time goes here!!!";
+		//int pixel_x = Gbls::thePresentParams.BackBufferWidth/2;
+		pd3dSprite->SetTransform(&mat);
+		RECT rect = {0, 0, 0, 0};
+		pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CALCRECT,
+			NULL);
+		//rect.top += pixel_y - (rect.bottom/2);
+		//rect.bottom += pixel_y - (rect.bottom/2);
+		rect.left += x - (rect.right/2);
+		rect.right += x - (rect.right/2);
+		pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CENTER | DT_WORDBREAK,
+			D3DCOLOR_XRGB(255, 255, 255));
+}
+
+void GameResources::placeTextCenterFloor(LPCWSTR str, UINT x) {
+		D3DXMATRIX mat;
+		D3DXMatrixIdentity(&mat);
+		
+		//std::wstring timeStr = L"Time goes here!!!";
+		//int pixel_x = Gbls::thePresentParams.BackBufferWidth/2;
+		pd3dSprite->SetTransform(&mat);
+		RECT rect = {0, 0, 0, 0};
+		pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CALCRECT,
+			NULL);
+		rect.top += Gbls::thePresentParams.BackBufferHeight - rect.bottom;
+		rect.bottom = Gbls::thePresentParams.BackBufferHeight;
+		rect.left += x - (rect.right/2);
+		rect.right += x - (rect.right/2);
+		pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CENTER | DT_WORDBREAK,
+			D3DCOLOR_XRGB(255, 255, 255));
+}
+
 void GameResources::drawStaticHudElements() {
 	HRESULT hres = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
 	if(SUCCEEDED(hres))
 	{
-		D3DXMATRIX mat;
-		D3DXMatrixIdentity(&mat);
-		
-		// Draw Time (note, very rough right now)
-		//std::wstring timeStr = L"Time goes here!!!";
-		int pixel_x = Gbls::thePresentParams.BackBufferWidth/2;
-		//int pixel_y = 0;
-		pd3dSprite->SetTransform(&mat);
-		RECT rect = {0, 0, 0, 0};
-		pd3dFont->DrawText(pd3dSprite, timeStr.c_str(), -1, &rect, DT_CALCRECT,
-			NULL);
-		//rect.top += pixel_y - (rect.bottom/2);
-		//rect.bottom += pixel_y - (rect.bottom/2);
-		rect.left += pixel_x - (rect.right/2);
-		rect.right += pixel_x - (rect.right/2);
-		pd3dFont->DrawText(pd3dSprite, timeStr.c_str(), -1, &rect, DT_CENTER | DT_WORDBREAK,
-			D3DCOLOR_XRGB(255, 255, 255));
-
-		// display updates:frames ratio
-		wstringstream strs;
-		strs << Gbls::percentMissedFrames;
-		std::wstring s = strs.str();
-		rect.left = 0; rect.right = 800; rect.top = 0; rect.bottom = 600;
-		pd3dFont->DrawText(pd3dSprite, s.c_str(), -1, &rect, DT_LEFT | DT_WORDBREAK,
-			D3DCOLOR_XRGB(255, 255, 255));
-
-
-	
+		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
+		placeTextCenterFloor((L"Player 1\n" + std::to_wstring(playerScore[0])).c_str(), Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f));
+		placeTextCenterFloor((L"Player 2\n" + std::to_wstring(playerScore[1])).c_str(), Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f));
+		placeTextCenterFloor((L"Player 3\n" + std::to_wstring(playerScore[2])).c_str(), Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f));
+		placeTextCenterFloor((L"Player 4\n" + std::to_wstring(playerScore[3])).c_str(), Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f));
 		// End sprite rendering
 		pd3dSprite->End();
 	}
@@ -571,6 +586,25 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	//	(*ii).second->updated = false;
 	//}
 	timeStr = newGameState.getRemainingTimeString();
+	//scoreList_t scores = newGameState.getScore();
+	
+	//for( scoreList_t::iterator ii=scores.begin(); ii!=scores.end(); ++ii)
+	//{
+	//	UINT pNum = (*ii).first;
+	//	if (pNum >= 1 && pNum <= 4) {
+	//		playerScore[pNum-1] = (*ii).second;
+	//	}
+	//}
+
+	//for( UINT i = 0; i < scores.size(); ++i)
+	//{
+	//	UINT pNum = scores[i].first;
+	//	if (pNum >= 1 && pNum <= 4) {
+	//		playerScore[pNum-1] = scores[i].second;
+	//	}
+	//}
+
+
 
 	if (newGameState.size() == 0) {
 		resetGameState();

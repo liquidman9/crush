@@ -70,6 +70,9 @@ public:
 	static LPDIRECT3DTEXTURE9 EnginePartTexture;
 	static ParticleSystem * partSystem;
 	static TBeamPGroup * tBeamPGroup;
+	static std::wstring timeStr;
+	static std::wstring playerNameStr[4];
+	static int playerScore[4];
 	//static vector<Sprite*> spriteList;
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
@@ -123,6 +126,9 @@ public:
 	static C_Entity * createEntity(Entity * newEnt);
 	static void releaseResources();
 
+private:
+	static void placeTextCenterCeiling(LPCWSTR str, UINT x);
+	static void placeTextCenterFloor(LPCWSTR str, UINT x);
 };
 
 
