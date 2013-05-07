@@ -5,6 +5,8 @@
 #include <d3dx9.h>
 #include <iostream>
 
+#define DEBUG true
+
 namespace shared {
 	namespace utils {
 		static const float FP_ZERO = 0.000001f;

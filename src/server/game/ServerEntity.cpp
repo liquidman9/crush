@@ -1,5 +1,6 @@
 #include <shared/game/Entity.h>
 #include <server/game/ServerEntity.h>
+#include <shared/util/SharedUtils.h>
 
 float FP_ZERO = 0.000001f;
 D3DXVECTOR3 zero_vec(0.0f, 0.0f, 0.0f);
@@ -76,6 +77,9 @@ void ServerEntity::applyImpulse(D3DXVECTOR3 impulse, D3DXVECTOR3 point) {
 	D3DXVECTOR3 angular_impulse, vector_to_point = point - m_pos;
 	D3DXVec3Cross(&angular_impulse, &impulse, &vector_to_point); // Cross product finds torque
 	t_angular_impulse += angular_impulse;
+	if (DEBUG) {
+		cout << "Angular impulse: "; shared::utils::printVec(angular_impulse); cout << endl;
+	}
 }
 
 // Applies current acceleration to Entity
@@ -151,4 +155,11 @@ void ServerEntity::reset() {
 	// Accumulator Values
 	t_impulse = zero_vec;
 	t_angular_impulse = zero_vec;
+}
+
+void ServerEntity::print() {
+	cout << "Type: " << (int)m_type << endl;
+	cout << "Pos: "; shared::utils::printVec(m_pos); cout << endl;
+	cout << "Velocity: " << D3DXVec3Length(&m_velocity) << endl;
+	cout << "Rotation: " << D3DXVec3Length(&m_angular_velocity) << endl;
 }

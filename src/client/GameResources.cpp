@@ -400,10 +400,10 @@ void GameResources::drawStaticHudElements() {
 	if(SUCCEEDED(hres))
 	{
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
-		placeTextCenterFloor((L"Player 1\n" + std::to_wstring(playerScore[0])).c_str(), Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f));
-		placeTextCenterFloor((L"Player 2\n" + std::to_wstring(playerScore[1])).c_str(), Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f));
-		placeTextCenterFloor((L"Player 3\n" + std::to_wstring(playerScore[2])).c_str(), Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f));
-		placeTextCenterFloor((L"Player 4\n" + std::to_wstring(playerScore[3])).c_str(), Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f));
+		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f));
+		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f));
+		placeTextCenterFloor((L"Player 3\n" + std::to_wstring((long long)playerScore[2])).c_str(), Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f));
+		placeTextCenterFloor((L"Player 4\n" + std::to_wstring((long long)playerScore[3])).c_str(), Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f));
 		// End sprite rendering
 		pd3dSprite->End();
 	}

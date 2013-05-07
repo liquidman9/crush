@@ -23,7 +23,7 @@ private:
 public:
 	// Fields
 	SHIP_PLAYERNUM_TYPE m_playerNum;
-	double m_thruster;
+	float m_thruster;
 	std::string m_playerName;
 
 
