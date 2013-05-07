@@ -59,7 +59,7 @@ void S_Ship::addPlayerInput(InputState input) {
 
 	if (abs(input.getThrust()) > FP_ZERO) {
 		m_thrusting = true;
-		D3DXVECTOR3 main_thrust_force(0, 0, m_thruster), 
+		D3DXVECTOR3 main_thrust_force(0, 0, (float)m_thruster), 
 					main_thrust_adj;
 		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
 		
@@ -75,6 +75,7 @@ void S_Ship::addPlayerInput(InputState input) {
 
 		applyAngularImpulse(rot_thrust_adj * m_rotation_impulse);
 	}
+	/*
 	static int count = 0;
 	if ((count %= 60) == 0) {
 		//print();
@@ -82,6 +83,7 @@ void S_Ship::addPlayerInput(InputState input) {
 		//cout << "Max Vel: " << m_max_velocity << endl;
 	}
 	count++;
+	*/
 }
 
 void S_Ship::applyDamping() {

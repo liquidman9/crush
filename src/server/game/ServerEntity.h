@@ -102,6 +102,8 @@ public:
 	// Resets values
 	virtual void reset();
 
+	virtual void print();
+
 	// Forced abstract for rotational inertia calculation
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass) = 0;
 };

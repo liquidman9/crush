@@ -43,6 +43,8 @@ namespace server {
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_impulse", forward_impulse);
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_impulse", rotation_impulse);
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "braking_impulse", braking_impulse);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "max_velocity", max_velocity);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "max_rotation_velocity", max_rotation_velocity);
 			}
 		}
 	}
@@ -87,7 +89,7 @@ public:
 	void interact(S_Asteroid *);
 	void interact(S_Ship *);
 
-	void print();
+	virtual void print();
 
 };
 
