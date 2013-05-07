@@ -13,17 +13,12 @@
 #include <shared/InputState.h>
 #include <shared/ConfigSettings.h>
 #include <shared/game/Ship.h>
+#include <server/game/S_TractorBeam.h>
 #include <server/game/S_Resource.h>
 #include <server/game/S_Asteroid.h>
-#include <server/game/S_TractorBeam.h>
 #include <server/game/ServerEntity.h>
 
 class S_TractorBeam;
-
-#pragma warning( push )
-#pragma warning( disable : 4250 )
-
-#define PI 3.14159f
 
 namespace server {
 	namespace entities {
@@ -49,6 +44,8 @@ namespace server {
 	}
 }
 
+#pragma warning( push )
+#pragma warning( disable : 4250 )
 
 class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 private:

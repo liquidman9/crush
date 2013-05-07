@@ -37,8 +37,8 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 void Collision::resolve()
 {
 	// calculate point of impact
-	D3DXVECTOR3 poi;
-	D3DXVec3Normalize(&poi, &m_closeB);
+	D3DXVECTOR3 poi, delta_pos = m_closeB - m_closeA;
+	D3DXVec3Normalize(&poi, &delta_pos);
 	poi *= -(m_a->m_radius);
 	poi += m_closeA;
 
