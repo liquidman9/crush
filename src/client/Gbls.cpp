@@ -43,7 +43,7 @@ std::wstring Gbls::skyboxTextureFilepath_Top = L"SkyBox_Top.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
 std::wstring Gbls::shipEIDTextureFilepath = L"Arrow.png";
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
-std::wstring Gbls::enginePartTexFilepath = L"particle01.bmp"; 
+std::wstring Gbls::enginePartTexFilepath = L"particle02.bmp"; 
 std::wstring Gbls::fontStyle = L"Ariel";
 int Gbls::fontSize = 48;
 D3DXCOLOR Gbls::lightDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
