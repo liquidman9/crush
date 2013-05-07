@@ -586,15 +586,15 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	//	(*ii).second->updated = false;
 	//}
 	timeStr = newGameState.getRemainingTimeString();
-	//scoreList_t scores = newGameState.getScore();
+	scoreList_t scores = newGameState.getScore();
 	
-	//for( scoreList_t::iterator ii=scores.begin(); ii!=scores.end(); ++ii)
-	//{
-	//	UINT pNum = (*ii).first;
-	//	if (pNum >= 1 && pNum <= 4) {
-	//		playerScore[pNum-1] = (*ii).second;
-	//	}
-	//}
+	for( scoreList_t::iterator ii=scores.begin(); ii!=scores.end(); ++ii)
+	{
+		UINT pNum = (*ii).first;
+		//if (pNum >= 1 && pNum <= 4) {
+			playerScore[pNum] = (*ii).second;
+		//}
+	}
 
 	//for( UINT i = 0; i < scores.size(); ++i)
 	//{

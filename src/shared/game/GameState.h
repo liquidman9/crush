@@ -110,9 +110,10 @@ public:
 		scoreList_t rtn;
 		for(unsigned int i = 0; i < 4; i--) {
 			if(m_meta.score[i] >= 0) {
-				rtn.push_back(pair<unsigned int, int>(i, m_meta.size[i]));
+				rtn.push_back(pair<unsigned int, int>(i, m_meta.score[i]));
 			}
 		}
+		return rtn;
 	}
 
 	/*string getServerMessage() {
