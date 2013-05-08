@@ -142,7 +142,7 @@ void NetworkClient::updateGameState() {
 		}
 
 		int total_size = recv_len;
-		while(!error && recv_len < m_gameState.gsMinSize()) {
+		while(!error && total_size < m_gameState.gsMinSize()) {
 			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
 				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 				error = true;

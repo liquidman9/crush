@@ -166,18 +166,22 @@ private:
 		assert(size >= sizeof(m_meta));
 		//memcpy(local_buf,head,size);
 		auto orig_head = head;
+		unsigned int total_size = 0;
 		auto gs_size = getRecvSize(head);
 		unsigned int cur_size;
 		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
 			gs_size = getRecvSize(orig_head+cur_size);
+			auto next_size = cur_size + gs_size;
 			if(gs_size == gsMinSize()) {
 				head = orig_head + cur_size;
 				break;
-			} else if(cur_size + gs_size <= size) {
+			} else if(next_size <= size) {
 				head = orig_head + cur_size;
+			} else {
+				break;
 			}
 		}
-		return size - (head - orig_head);
+		return size - cur_size;
 	}
 
 	int decode(const char *head, const unsigned int size) {
