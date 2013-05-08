@@ -69,21 +69,20 @@ void Server::setUpResourceMine() {
 }
 
 void Server::setUpAsteroids() {
-
-
+	
+	int count = 20;
+	int range = 400;
+	int start = -200;
 	Quaternion m_dir3(0, 0, 0, 1);
+	for(int i = 0; i < count; i++) {
 
-
-	D3DXVECTOR3 m_pos4(0,0,-15);
-	S_Asteroid *test5 = new S_Asteroid(m_pos4, m_dir3);
-	m_gameState.push_back(test5);
-	m_world.entities.push_back(test5);
-
-	D3DXVECTOR3 m_pos5(0,0,15);
-	S_Asteroid *test6 = new S_Asteroid(m_pos5, m_dir3);
-	m_gameState.push_back(test6);
-	m_world.entities.push_back(test6);
-
+		float scale =  (rand() % S_Asteroid::s_range) + S_Asteroid::s_start;
+		D3DXVECTOR3 m_pos4((rand()%range)+start,(rand()%range)+start,(rand()%range)+start);
+		S_Asteroid *test5 = new S_Asteroid(m_pos4, m_dir3,scale);
+		m_gameState.push_back(test5);
+		m_world.entities.push_back(test5);
+	}
+	
 }
 
 void Server::setUpBoundaries() {

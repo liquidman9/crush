@@ -23,12 +23,13 @@ float Gbls::debugCamMinPitch = D3DXToRadian(-89.0f);
 // Loaded from config files
 
 int Gbls::numShipMeshes = 4;
+int Gbls::numAsteroidMeshes = 5;
 std::wstring * Gbls::shipMeshFilepath;
 Mesh * Gbls::shipMesh;
 std::wstring * Gbls::mothershipMeshFilepath;
 Mesh * Gbls::mothershipMesh;
-std::wstring Gbls::asteroidMeshFilepath;
-Mesh Gbls::asteroidMesh;
+std::wstring * Gbls::asteroidMeshFilepath;
+Mesh * Gbls::asteroidMesh;
 //std::wstring Gbls::tractorBeamMeshFilepath;
 //Mesh Gbls::tractorBeamMesh;
 std::wstring Gbls::resourceMeshFilepath;
@@ -117,13 +118,19 @@ void Gbls::initFromConfig() {
 		mothershipMesh[i].setScaleRotate(tmpF[0], tmpF[1], tmpF[2], tmpF[3]);
 	}
 
-	/* Asteroid */
-	if(!conf.getValue("asteroidMeshFilepath", tmpString)) {  //default
-			asteroidMeshFilepath = L"player_ship_001.x";
-	} else {  //assign to wstring
-			asteroidMeshFilepath = wstring(tmpString.begin(), tmpString.end());
+	conf.getValue("numAsteroidMeshes",numAsteroidMeshes);
+	asteroidMeshFilepath = new wstring[numAsteroidMeshes];
+	asteroidMesh = new Mesh[numAsteroidMeshes];
+	for (int i = 0; i < numAsteroidMeshes; i++) {
+		stream.str(string());
+		stream.clear();
+		stream << i;
+		if(!conf.getValue("asteroidMeshFilepath_"+stream.str(),tmpString)) {  //default
+			asteroidMeshFilepath[i] = L"asteroid_001.x";
+		} else {  //assign to wstring
+			asteroidMeshFilepath[i] = wstring(tmpString.begin(), tmpString.end());
+		}
 	}
-	asteroidMesh.setScaleRotate(1, 0, 0, 0);
 
 	/* TractorBeam */
 	//if(!conf.getValue("tractorBeamMeshFilepath", tmpString)) {  //default

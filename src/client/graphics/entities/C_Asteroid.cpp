@@ -24,7 +24,8 @@ C_Asteroid::C_Asteroid(Entity * newEnt) :
 		m_pos = srcAsteroid->m_pos;
 		m_orientation = srcAsteroid->m_orientation;
 		m_scale = srcAsteroid->m_scale;
-		m_pMesh = &Gbls::asteroidMesh;
+		int i = rand()%Gbls::numAsteroidMeshes;
+		m_pMesh = &(Gbls::asteroidMesh[i]);
 	} else {
 		cerr << "SEVERE : Unable to create Client Asteroid!" << endl;
 	}
@@ -34,9 +35,9 @@ void C_Asteroid::draw()
 {
 
 	// Scale Asteroid 
-	float conv = 120*100;
+	//float conv = m_scale/5.0;
 	D3DXMATRIX matScale;
-	D3DXMatrixScaling(&matScale, m_scale/conv, m_scale/conv, m_scale/conv);
+	D3DXMatrixScaling(&matScale, m_scale, m_scale, m_scale);
 	
 	// Translate Asteroid to correct possition
 	D3DXMATRIX matTranslate;
