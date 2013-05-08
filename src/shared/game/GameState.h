@@ -142,20 +142,61 @@ public:
 	};
 
 private:
-	void decode(const char *head, const unsigned int size) {
-		Entity* ep = NULL;		
-		const char* cur_head = head + sizeof(m_meta);
-		for(unsigned int cur_size = 0; cur_size < size; cur_size += m_meta.size){
-			memcpy((char* ) &m_meta, head, sizeof(m_meta));
-			unsigned int size1 = m_meta.size;
-			if(m_meta.size == sizeof(m_meta)){
-				clear();
-				return;
+	int getExpectedSize(const char* head, const unsigned int size) const {
+		assert(size >= sizeof(m_meta));
+		auto gs_size = getRecvSize(head);
+		gameStateMeta gs_meta;
+		memcpy((char* ) &gs_meta, head, sizeof(m_meta));
+		unsigned int cur_size;
+		bool valid_gameState = false;
+		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
+			gs_size = getRecvSize(head+cur_size);
+			if(cur_size + gs_size <= size) {
+				valid_gameState = true;
 			}
+		}
+		if (valid_gameState && cur_size != size) {
+			return cur_size - gs_size;
+		}
+		return cur_size;
+	}
+
+	int getLastCompleteGS(const char* &head, const unsigned int size) const {
+		//char local_buf[65000];
+		assert(size >= sizeof(m_meta));
+		//memcpy(local_buf,head,size);
+		auto orig_head = head;
+		auto gs_size = getRecvSize(head);
+		unsigned int cur_size;
+		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
+			gs_size = getRecvSize(orig_head+cur_size);
+			if(gs_size == gsMinSize()) {
+				head = orig_head + cur_size;
+				break;
+			} else if(cur_size + gs_size <= size) {
+				head = orig_head + cur_size;
+			}
+		}
+		return size - (head - orig_head);
+	}
+
+	int decode(const char *head, const unsigned int size) {
+		auto orig_head = head;
+		auto rtn = getLastCompleteGS(head, size);
+		if(rtn < 0) {
+			return rtn;
+		}
+		memcpy((char* ) &m_meta, head, sizeof(m_meta));
+		auto gs_size = m_meta.size;
+		const char* cur_head = head + sizeof(m_meta);
+			Entity *ep = NULL;
 			clear();
-			for(unsigned int cur_size = 0; cur_size < size1 - sizeof(m_meta); cur_size += ep->size() ){
+			//int test = head - orig_head;
+			Type a;
+			//assert(head - orig_head >= 0);
+			for(unsigned int cur_size = 0; cur_size < gs_size - sizeof(m_meta); cur_size += ep->size() ){
 				ep = NULL;
-				Type a = *(Type*) (cur_head + cur_size);
+				a = *(Type*) (cur_head + cur_size);
 				switch(a) {
 				case SHIP: 
 					ep = new C_Ship();
@@ -187,7 +228,8 @@ private:
 					break;
 				}
 			}
-		}
+			return rtn;
+		//}
 	}
 
 	const char * getSendBuff() const {
@@ -201,6 +243,14 @@ private:
 			delete []tmp;
 		}		
 		return send_buff;
+	}
+
+	unsigned int getRecvSize(const char *a) const {
+		return *(unsigned int*) a;
+	}
+
+	int gsMinSize() const {
+		return sizeof(m_meta);
 	}
 
 	struct gameStateMeta {

@@ -108,6 +108,7 @@ void Server::initializeGameState() {
 	m_gameState.clear();
 	m_server.broadcastGameState(m_gameState);
 	m_playerMap.clear();
+	m_mothershipMap.clear();
 	m_world.entities.clear();
 	addNewClients(m_server.getConnectedClientIDs());
 	
@@ -165,7 +166,7 @@ void Server::declareWinner() {
 void Server::updateScore() {
 	scoreList_t list;
 	for(auto it = m_mothershipMap.begin(); it != m_mothershipMap.end(); it++) {
-		list.push_back(pair<unsigned int, unsigned char>(it->first, (unsigned char)it->second->m_resourceList.size()));
+		list.push_back(pair<unsigned int, unsigned char>(it->first, (unsigned char)it->second->m_resources));
 	}
 	m_gameState.setScore(list);
 }

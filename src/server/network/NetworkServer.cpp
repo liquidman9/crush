@@ -100,11 +100,16 @@ void NetworkServer::broadcastGameState(const GameState<Entity> &state) {
 }
 
 bool NetworkServer::sendToClient(const char * const buff, const int size, const unsigned int client,  SOCKET &s) {
-	if(send(s, buff, size, 0) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+	int send_len;
+	if((send_len = send(s, buff, size, 0) == SOCKET_ERROR) && WSAGetLastError() != WSAEWOULDBLOCK) {
 		cerr << "failed to send to client " + to_string((long long)client)
 			+ ". Error code : " + to_string((long long) WSAGetLastError()) << endl;
 		return false;
 	}
+	/*if(send_len != size) {
+		cerr << "Error send_len: "<<  send_len << "expected send size: " << size <<  endl;
+	}*/
+	//assert(send_len == size);
 	return true;
 }
 
