@@ -150,6 +150,9 @@ private:
 		unsigned int cur_size;
 		bool valid_gameState = false;
 		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
+			if(gs_size == 0) {
+				return -1;
+			}
 			gs_size = getRecvSize(head+cur_size);
 			if(cur_size + gs_size <= size) {
 				valid_gameState = true;
@@ -171,17 +174,17 @@ private:
 		unsigned int cur_size;
 		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
 			gs_size = getRecvSize(orig_head+cur_size);
+			assert(gs_size >= sizeof(m_meta));
 			auto next_size = cur_size + gs_size;
 			if(gs_size == gsMinSize()) {
 				head = orig_head + cur_size;
-				break;
+				return size - (next_size);
 			} else if(next_size <= size) {
+				total_size = next_size;
 				head = orig_head + cur_size;
-			} else {
-				break;
 			}
 		}
-		return size - cur_size;
+		return size - total_size;
 	}
 
 	int decode(const char *head, const unsigned int size) {

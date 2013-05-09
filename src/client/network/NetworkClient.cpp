@@ -131,11 +131,11 @@ void NetworkClient::updateGameState() {
 		bool error = false;
 		//memset(local_buf,'\0', MAX_PACKET_SIZE);
 		int recv_len;
-		if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
+		if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE-remaining_data, 0)) == SOCKET_ERROR) {
 			cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 			error = true;
 		}
-		auto test = m_gameState.getRecvSize(local_buf);
+		auto test = m_gameState.getRecvSize(buff);
 
 		if(error && WSAGetLastError() == WSAETIMEDOUT) {
 			cerr << "conntection to the server timedout" << endl;
@@ -143,7 +143,7 @@ void NetworkClient::updateGameState() {
 
 		int total_size = recv_len;
 		while(!error && total_size < m_gameState.gsMinSize()) {
-			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
+			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE-total_size, 0)) == SOCKET_ERROR) {
 				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 				error = true;
 				break;
@@ -153,7 +153,7 @@ void NetworkClient::updateGameState() {
 		int expected_size;
 
 		if(!error) {
-			expected_size = m_gameState.getExpectedSize(local_buf, total_size);
+			expected_size = m_gameState.getExpectedSize(buff, total_size);
 		}
 		
 		while(!error && total_size < expected_size) {
@@ -167,7 +167,7 @@ void NetworkClient::updateGameState() {
 		}
 
 		if(!error) {
-			remaining_data = local_gs.decode(local_buf, total_size);
+			remaining_data = local_gs.decode(buff, total_size);
 			EnterCriticalSection(&m_cs);
 			if(!(m_stateAvailable && m_gameState.size() == 0)) {
 				m_gameState = local_gs;
@@ -175,6 +175,9 @@ void NetworkClient::updateGameState() {
 			m_stateAvailable = true;
 			LeaveCriticalSection(&m_cs);
 			assert(remaining_data >= 0);
+			if(remaining_data > 0) {
+				memcpy(buff, buff + (total_size - remaining_data), remaining_data);
+			}
 		}
 	}
 }
