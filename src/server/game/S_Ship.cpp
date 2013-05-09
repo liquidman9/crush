@@ -31,7 +31,7 @@ S_Ship::S_Ship() :
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation),
 	Ship(pNum),
-	ServerEntity(server::entities::ship::mass, calculateRotationalInertia(mass), 5.0, 1.0),
+	ServerEntity(mass, calculateRotationalInertia(mass), 5.0, 1.0),
 	m_forward_impulse(forward_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_braking_impulse(braking_impulse),
@@ -142,10 +142,10 @@ void S_Ship::calcTractorBeam() {
 
 D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){
 	float radius_squared = 5 * 5;
-	float height_squared = (2 * 5.0) * (2 * 5.0);
+	float height_squared = (2 * 5.0f) * (2 * 5.0f);
 	return D3DXVECTOR3( (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
-						(0.5f) * mass * radius_squared,
-						(1.0f / 12.0f) * mass * (3 * radius_squared + height_squared));
+						(1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
+						(0.5f) * mass * radius_squared);
 };
 
 

@@ -25,12 +25,12 @@ namespace server {
 		namespace ship {
 			static const string CONFIG_PREFIX = "ship_";
 
-			static float mass = 1000.0f;
-			static float forward_impulse = 1000.0f;
-			static float rotation_impulse = 600.0f;
-			static float braking_impulse = 500.0f;
+			static float mass = 10000.0f;
+			static float forward_impulse = 5000.0f;
+			static float rotation_impulse = 3000.0f;
+			static float braking_impulse = 2500.0f;
 
-			static float max_velocity = 100.0f;
+			static float max_velocity = 50.0f;
 			static float max_rotation_velocity = 2.5f;
 
 			inline void initFromConfig() {

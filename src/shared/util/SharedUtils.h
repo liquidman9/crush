@@ -31,6 +31,10 @@ namespace shared {
 		inline void printVec(D3DXVECTOR3 vec) {
 			std::cout << "< " << vec.x << " , " << vec.y << " , " << vec.z << " >";
 		}
+
+		inline void printQuat(D3DXQUATERNION q) {
+			std::cout << "< " << q.x << " , " << q.y << " , " << q.z << " , " << q.w <<" >";
+		}
 	}
 }
 

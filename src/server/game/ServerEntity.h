@@ -28,12 +28,15 @@ protected:
 	float m_radius;
 	*/
 
+	// Recalculates values based on position/orientation
+	void recalculateRelativeValues();
+
 public:
 	// Effective constants
 	// THESE NEED TO BE PROTECTED
 
 	float m_mass; float m_mass_inverse;
-	D3DXVECTOR3 m_rot_inertia, m_rot_inertia_inverse;
+	D3DXMATRIX m_rot_inertia, m_rot_inertia_inverse;
 
 	// Collision
 	float m_radius;
@@ -87,11 +90,10 @@ public:
 	// Applies a force to this entity at the given point for the given amount of time
 	virtual void applyImpulse(D3DXVECTOR3 impulse, D3DXVECTOR3 point);
 
-	// Applies current acceleration to Entity
+	// Updates entity's physical variables
 	virtual void update(float delta_time);
 
 	// Getters/Setters
-	void setVelocity(D3DXVECTOR3 velocity);
 	D3DXVECTOR3 getVelocity();
 
 	// Utility Methods

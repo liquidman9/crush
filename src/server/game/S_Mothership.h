@@ -22,7 +22,7 @@ namespace server {
 		namespace mothership {
 			static const string CONFIG_PREFIX = "mothership_";
 
-			static float mass = 25000.0f;
+			static float mass = 20000000.0f;
 
 			inline void initFromConfig() {
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "mass", mass);

@@ -21,7 +21,7 @@ Collision::Collision(ServerEntity * a, ServerEntity * b, D3DXVECTOR3 closeA, D3D
 Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB)
 {
 	if (DEBUG) {
-		if ((a->m_type == SHIP && b->m_type == MOTHERSHIP) || (b->m_type == SHIP && a->m_type == SHIP)) {
+		if ((a->m_type == SHIP && b->m_type == MOTHERSHIP) || (b->m_type == MOTHERSHIP && a->m_type == SHIP)) {
 			a->print();
 			b->print();
 			cout << "Closest to A: "; shared::utils::printVec(closeA); cout << " , Closest to B: "; shared::utils::printVec(closeB); cout << endl;
@@ -36,12 +36,17 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 
 void Collision::resolve()
 {
+	float e_coll = 0.9;
+	float u_fr = 0.5;
+	D3DXVECTOR4 temp;
 	// calculate point of impact
-	D3DXVECTOR3 poi, delta_pos = m_closeB - m_closeA;
-	D3DXVec3Normalize(&poi, &delta_pos);
-	poi *= -(m_a->m_radius);
-	poi += m_closeA;
+	D3DXVECTOR3 collision_normal, poi, delta_pos;
 
+	delta_pos = m_closeA - m_closeB;
+
+	D3DXVec3Normalize(&collision_normal, &delta_pos);
+	poi = (collision_normal * m_b->m_radius + m_closeB) + (-collision_normal * m_a->m_radius + m_closeA);
+	poi /= 2;
 	
 	/*
 	// calculate length travelled while colliding/penetration depth
@@ -56,70 +61,84 @@ void Collision::resolve()
 	penetB.z = abs(penetB.z);
 	*/
 
-	D3DXVECTOR3 relative_velocity = m_a->m_velocity - m_b->m_velocity;
-
-	// Calculate normal vector of velocity
-	D3DXVECTOR3 n = m_closeA - m_closeB;
-	float vN = D3DXVec3Dot(&relative_velocity, &n);
-	float nN = D3DXVec3Dot(&n, &n);
-
-	// If the velocities are moving apart, don't do anything
-	if(-vN < -0.01f || nN < 0.01)
-		return;
-
-	if (DEBUG) {
-	cout << "a: \tpos: (" << m_a->m_pos.x << ", " << m_a->m_pos.y << ", " << m_a->m_pos.z << ") closest point: (" << m_closeA.x << ", " << m_closeA.y << ", " << m_closeA.z << ") " << endl; 
-	cout << "\tfront: (" << m_a->m_pFront.x << ", " << m_a->m_pFront.y << ", " << m_a->m_pFront.z << ") back: (" << m_a->m_pBack.x << ", " << m_a->m_pBack.y << ", " << m_a->m_pBack.z << ") " << endl; 
-	cout << "\tb: pos: (" << m_b->m_pos.x << ", " << m_b->m_pos.y << ", " << m_b->m_pos.z << ") closest point: (" << m_closeB.x << ", " << m_closeB.y << ", " << m_closeB.z << ") " << endl; 
-	cout << "\tfront: (" << m_b->m_pFront.x << ", " << m_b->m_pFront.y << ", " << m_b->m_pFront.z << ") back: (" << m_b->m_pBack.x << ", " << m_b->m_pBack.y << ", " << m_b->m_pBack.z << ") " << endl; 
-	cout << "poi: (" << poi.x << ", " << poi.y << ", " << poi.z << ")" << endl;
-	}
-
-
 	// calculate the distance between point of contact and centers of mass
-	D3DXVECTOR3 distA = poi - m_a->m_pos;
-	distA = D3DXVECTOR3(abs(distA.x), abs(distA.y), abs(distA.z));
-	D3DXVECTOR3 distB = poi - m_b->m_pos;
-	distB = D3DXVECTOR3(abs(distB.x), abs(distB.y), abs(distB.z));
+	D3DXVECTOR3 r_a = poi - m_a->m_pos;
+	D3DXVECTOR3 r_b = poi - m_b->m_pos;
+
+	D3DXVECTOR3 relative_linear_velocity = m_a->m_velocity - m_b->m_velocity;
+
+	// Calculate rotation velocity at point of collision
+	D3DXVECTOR3 a_collision_rotation_velocity, b_collision_rotation_velocity;
+	D3DXVec3Cross(&a_collision_rotation_velocity, &m_a->m_angular_velocity, &r_a);
+	D3DXVec3Cross(&b_collision_rotation_velocity, &m_b->m_angular_velocity, &r_b);
+
+	D3DXVECTOR3 relative_angular_velocity = a_collision_rotation_velocity - b_collision_rotation_velocity;
+
+	D3DXVECTOR3 relative_total_velocity = relative_linear_velocity + relative_angular_velocity;
+
+	float vN = min(0.0f, D3DXVec3Dot(&relative_total_velocity, &collision_normal));
+	float nN = D3DXVec3Dot(&collision_normal, &collision_normal);
 
 	// calculate angular portion of impulse
-	D3DXVECTOR3 inertA;  
-	D3DXVec3Cross(&inertA, &distA, &n);
-	D3DXVECTOR3 inertB;  
-	D3DXVec3Cross(&inertB, &distB, &n);
+	D3DXVECTOR3 inertA, inertB;  
 
-	inertA.x = m_a->m_rot_inertia_inverse.x * inertA.x;
-	inertA.y = m_a->m_rot_inertia_inverse.y * inertA.y;
-	inertA.z = m_a->m_rot_inertia_inverse.z * inertA.z;
-	inertB.x = m_b->m_rot_inertia_inverse.x * inertB.x;
-	inertB.y = m_b->m_rot_inertia_inverse.y * inertB.y;
-	inertB.z = m_b->m_rot_inertia_inverse.z * inertB.z;
+	// I^-1(r x n)
+	D3DXVec3Transform(&temp, D3DXVec3Cross(&inertA, &r_a, &collision_normal), &m_a->m_rot_inertia_inverse);
+	inertA = D3DXVECTOR3(temp.x, temp.y, temp.z);
 
-	D3DXVec3Cross(&inertA, &inertA, &distA);
-	D3DXVec3Cross(&inertB, &inertB, &distB);
+	D3DXVec3Transform(&temp, D3DXVec3Cross(&inertB, &r_b, &collision_normal), &m_b->m_rot_inertia_inverse);
+	inertB = D3DXVECTOR3(temp.x, temp.y, temp.z);
 
-	D3DXVECTOR3 inertBoth = inertA + inertB;
-	//cout << inertBoth.x << ", " << inertBoth.y << ", " << inertBoth.z << endl;
+	D3DXVECTOR3 inertBoth = *D3DXVec3Cross(&inertA, &inertA, &r_a) + *D3DXVec3Cross(&inertB, &inertB, &r_b);
 
 	// calculate the impulse
-	//float impulse = (-(1 + m_a->m_elastic) * vN) / ((nN * (m_a->m_mass_inverse + m_b->m_mass_inverse)));
-	float impulse = (-(1 + m_a->m_elastic) * vN) / ((nN * (m_a->m_mass_inverse + m_b->m_mass_inverse)) + D3DXVec3Dot(&inertBoth, &n));
+	float impulse = (-(1 + e_coll) * vN) / (m_a->m_mass_inverse + m_b->m_mass_inverse + D3DXVec3Dot(&inertBoth, &collision_normal));
 
 	//cout << D3DXVec3Dot(&inertBoth, &n) << endl;
 	//cout << impulse << endl;
 	
-	D3DXVECTOR3 jN = impulse * n;
+	D3DXVECTOR3 jN = impulse * collision_normal;
+
+	// Friction force!
+
+	D3DXVECTOR3 tangentVelocity = relative_total_velocity - (vN * collision_normal);
+
+	if (D3DXVec3Dot(&tangentVelocity, &tangentVelocity)) {
+		D3DXVECTOR3 tangent;
+		D3DXVec3Normalize(&tangent, &tangentVelocity);
+		float vt = D3DXVec3Dot(&relative_total_velocity, &tangent);
+		// calculate angular portion of impulse
+		D3DXVECTOR3 tI_a, tI_b;  
+
+		// I^-1(r x n)
+		D3DXVec3Transform(&temp, D3DXVec3Cross(&tI_a, &r_a, &tangent), &m_a->m_rot_inertia_inverse);
+		tI_a = D3DXVECTOR3(temp.x, temp.y, temp.z);
+
+		D3DXVec3Transform(&temp, D3DXVec3Cross(&tI_b, &r_b, &tangent), &m_b->m_rot_inertia_inverse);
+		tI_b = D3DXVECTOR3(temp.x, temp.y, temp.z);
+
+		D3DXVECTOR3 inertBoth = *D3DXVec3Cross(&tI_a, &tI_a, &r_a) + *D3DXVec3Cross(&tI_b, &tI_b, &r_b);
+
+		float kt = m_a->m_mass_inverse + m_b->m_mass_inverse + D3DXVec3Dot(&inertBoth, &tangent);
+
+		float friction = max(-u_fr * impulse, min(u_fr * impulse, -vt / kt));
+
+		jN += friction * tangent;
+		cout << "Impulse force: " << impulse << endl;
+		cout << "Friction force: " << friction << endl;
+	}
+
+	if (true) {
+		cout << "Impulse vector: "; shared::utils::printVec(jN); cout << endl;
+		cout << "DistA: "; shared::utils::printVec(r_a); cout << endl;
+		cout << "DistB: "; shared::utils::printVec(r_b); cout << endl;
+		cout << "POI: "; shared::utils::printVec(poi); cout << endl;
+	}
 
 	// Add the impulse to both entities
-
 	m_a->applyImpulse(jN, poi);
 	m_b->applyImpulse(-jN, poi);
 
-	if (DEBUG) {
-		cout << "Impulse force: "; shared::utils::printVec(jN); cout << endl;
-		cout << "DistA: "; shared::utils::printVec(distA); cout << endl;
-		cout << "DistB: "; shared::utils::printVec(distB); cout << endl;
-		cout << "POI: "; shared::utils::printVec(poi); cout << endl;
-	}
+	
 
 }
