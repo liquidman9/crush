@@ -39,11 +39,11 @@ public:
 	D3DXMATRIX m_rot_inertia, m_rot_inertia_inverse;
 
 	// Collision
-	float m_radius;
+	//float m_radius;
 	float m_length;
 	float m_elastic;
-	D3DXVECTOR3 m_pFront;
-	D3DXVECTOR3 m_pBack;
+	//D3DXVECTOR3 m_pFront;
+	//D3DXVECTOR3 m_pBack;
 
 	// Derived Variables
 	D3DXVECTOR3 m_angular_velocity;

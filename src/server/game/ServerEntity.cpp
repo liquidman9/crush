@@ -12,7 +12,6 @@ ServerEntity::ServerEntity() :
 	m_mass_inverse(1),
 	m_rot_inertia(*D3DXMatrixScaling(&m_rot_inertia, 1.0f, 1.0f, 1.0f)),
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
-	m_radius(1),
 	m_immovable(false),
 	m_resourceSpots(0),
 	
@@ -31,7 +30,6 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia) :
 	m_mass_inverse(1/mass),
 	m_rot_inertia(*D3DXMatrixScaling(&m_rot_inertia, rot_inertia.x, rot_inertia.y, rot_inertia.z)),
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
-	m_radius(1),
 	m_immovable(false),
 	m_resourceSpots(0),
 
@@ -52,7 +50,6 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, fl
 	m_mass_inverse(1/mass),
 	m_rot_inertia(*D3DXMatrixScaling(&m_rot_inertia, rot_inertia.x, rot_inertia.y, rot_inertia.z)),
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
-	m_radius(3),
 	m_length(length),
 	m_elastic(elastic),
 	m_immovable(false),

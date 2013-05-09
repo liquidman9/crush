@@ -31,7 +31,8 @@ Entity::Entity(int id, Type type) :
 	m_pos(D3DXVECTOR3(0.0, 0.0, 0.0)),
 	m_orientation(0.0, 0.0, 0.0, 1.0),
 	m_velocity(shared::utils::VEC3_ZERO),
-	m_type(type)
+	m_type(type),
+	m_radius(1)
 { }
 
 Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation) : 
@@ -39,7 +40,8 @@ Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation) :
 	m_pos(pos),
 	m_orientation(orientation),
 	m_velocity(shared::utils::VEC3_ZERO),
-	m_type(type)
+	m_type(type),
+	m_radius(3)
 { }
 
 Entity::Entity(Entity const &e) :
@@ -47,7 +49,8 @@ Entity::Entity(Entity const &e) :
 	m_type(e.m_type),
 	m_pos(e.m_pos),
 	m_velocity(e.m_velocity),
-	m_orientation(e.m_orientation)
+	m_orientation(e.m_orientation),
+	m_radius(e.m_radius)
 { }
 
 ostream& operator<<(ostream& os, const Entity& e) {
