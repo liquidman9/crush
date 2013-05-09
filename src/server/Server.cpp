@@ -54,7 +54,10 @@ void Server::startGame() {
 void Server::reloadConfig() {
 	ConfigSettings::config->reloadSettingsFile();
 
-	ConfigSettings::config->getValue("gp_timeLimit", m_timeLimit); 
+	ConfigSettings::config->getValue("gp_timeLimit", m_timeLimit);
+	server::entities::ship::initFromConfig();
+	server::entities::tractorbeam::initFromConfig();
+	server::entities::mothership::initFromConfig();
 	//add variables to update here
 }
 
