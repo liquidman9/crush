@@ -21,7 +21,8 @@
 class S_Asteroid : public Asteroid, public ServerEntity{ //switch back to capsule
 
 public:
-	static int s_range, s_start;
+	static int s_range;
+	static float s_start;
 	// Fields
 
 	// Constructors
