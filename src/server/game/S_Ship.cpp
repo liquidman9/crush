@@ -15,12 +15,12 @@
 using namespace shared::utils;
 using namespace server::entities::ship;
 
-mass = 10000.0f;
-forward_impulse = 5000.0f;
-rotation_impulse = 3000.0f;
-braking_impulse = 2500.0f;
-max_velocity = 50.0f;
-max_rotation_velocity = 2.5f;
+float server::entities::tractorbeam::mass = 10000.0f;
+float server::entities::tractorbeam::forward_impulse = 5000.0f;
+float server::entities::tractorbeam::rotation_impulse = 3000.0f;
+float server::entities::tractorbeam::braking_impulse = 2500.0f;
+float server::entities::tractorbeam::max_velocity = 50.0f;
+float server::entities::tractorbeam::max_rotation_velocity = 2.5f;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),

@@ -16,8 +16,8 @@ static float s_defaultLength = length;
 
 using namespace server::entities::tractorbeam;
 
-gravity = 5.0f;
-length = 350.0f;
+float server::entities::tractorbeam::gravity = 5.0f;
+float server::entities::tractorbeam::length = 350.0f;
 
 S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	Entity(TRACTORBEAM),
