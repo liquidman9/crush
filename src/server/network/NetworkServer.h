@@ -61,6 +61,7 @@ private:
 	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
 	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
 	SOCKET m_incomingSock;
+	const GameState<Entity> *m_sendGS;
 	map <unsigned int, SOCKET> m_connectedClients;
 	map <unsigned int, string> m_clientIDs;
 	map <unsigned int, string> m_newClients;
@@ -69,15 +70,26 @@ private:
 	
 	//thread stuff
 	CRITICAL_SECTION m_cs;
+	CONDITION_VARIABLE m_cv;
 	HANDLE m_hThread;
+	HANDLE m_hThread1;
+
 	void acceptNewClient();
 	void updateEventsBuffer();
+	void broadcastGameStateWorker();
+	void initializeThreads();
 	
 
 
 	static unsigned __stdcall ThreadStaticEntryPoint(void * pThis) {
 		NetworkServer * pthX = (NetworkServer*)pThis;
 		pthX->acceptNewClient();	
+		return 1;
+	}
+
+	static unsigned __stdcall ThreadStaticEntryPoint1(void * pThis) {
+		NetworkServer * pthX = (NetworkServer*)pThis;
+		pthX->broadcastGameStateWorker();	
 		return 1;
 	}
 

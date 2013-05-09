@@ -29,6 +29,7 @@ void Server::start() {
 			this,           // arg list holding the "this" pointer
 			0,		
 			&threadID );
+		SetThreadPriority(m_hThread, THREAD_PRIORITY_HIGHEST);
 	}
 }
 

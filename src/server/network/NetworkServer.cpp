@@ -12,18 +12,10 @@ Network(),
 {
 	WSADATA wsa;
 	WSAStartup(MAKEWORD(2,2),&wsa);
-	InitializeCriticalSection(&m_cs);
 	initializeSocket();
 	bindSocket();
 	startListening();
-
-	unsigned int threadID;
-	m_hThread = (HANDLE)_beginthreadex( NULL, // security
-		0,             // stack size
-		NetworkServer::ThreadStaticEntryPoint,// entry-point-function
-		this,           // arg list holding the "this" pointer
-		0,		
-		&threadID );
+	initializeThreads();
 }
 
 NetworkServer::NetworkServer(string ip, unsigned short port) : 
@@ -32,18 +24,10 @@ Network(ip, port),
 {
 	WSADATA wsa;
 	WSAStartup(MAKEWORD(2,2),&wsa);
-	InitializeCriticalSection(&m_cs);
 	initializeSocket();
 	bindSocket();
 	startListening();
-
-	unsigned int threadID;
-	m_hThread = (HANDLE)_beginthreadex( NULL, // security
-		0,             // stack size
-		NetworkServer::ThreadStaticEntryPoint,// entry-point-function
-		this,           // arg list holding the "this" pointer
-		0,		
-		&threadID );
+	initializeThreads();
 }
 
 NetworkServer::NetworkServer(unsigned short port) : 
@@ -52,18 +36,34 @@ Network(port),
 {
 	WSADATA wsa;
 	WSAStartup(MAKEWORD(2,2),&wsa);
-	InitializeCriticalSection(&m_cs);	
+	
 	initializeSocket();
 	bindSocket();
 	startListening();
+	initializeThreads();
+}
 
-	unsigned int threadID;
+void NetworkServer::initializeThreads() { 
+	InitializeCriticalSection(&m_cs);
+	InitializeConditionVariable(&m_cv);
+
+	unsigned int threadID = 0;
 	m_hThread = (HANDLE)_beginthreadex( NULL, // security
 		0,             // stack size
 		NetworkServer::ThreadStaticEntryPoint,// entry-point-function
 		this,           // arg list holding the "this" pointer
 		0,		
 		&threadID );
+
+	threadID = 1;
+	m_hThread = (HANDLE)_beginthreadex( NULL, // security
+		0,             // stack size
+		NetworkServer::ThreadStaticEntryPoint1,// entry-point-function
+		this,           // arg list holding the "this" pointer
+		0,		
+		&threadID );
+	
+
 }
 
 void NetworkServer::startListening() {
@@ -78,25 +78,39 @@ void NetworkServer::initializeSocket() {
 	}
 }
 
+void NetworkServer::broadcastGameStateWorker() {
+	vector<map<unsigned int, SOCKET>::iterator> removeList;
+	
+	for(;;){		
+		//send to every client currently connected
+		EnterCriticalSection(&m_cs);
+		SleepConditionVariableCS(&m_cv, &m_cs, INFINITE);
+
+		const char* send_buff = m_sendGS->getSendBuff();
+		unsigned int size = m_sendGS->sendSize();
+		for(auto it = m_connectedClients.begin();
+			it != m_connectedClients.end(); it++) {
+				if(!sendToClient(send_buff, size, it->first, it->second)) {
+					//client can't be reached
+					removeList.push_back(it);
+				}
+		}
+		//remove clients who cannot be reached
+		removeClients(removeList);
+		LeaveCriticalSection(&m_cs);
+		delete []send_buff;		
+	}
+}
+
 void NetworkServer::broadcastGameState(const GameState<Entity> &state) {
 	//accumulate all data into send buffer
-	const char* send_buff = state.getSendBuff();
-
-	vector<map<unsigned int, SOCKET>::iterator> removeList;
-
-	//send to every client currently connected
-	EnterCriticalSection(&m_cs);
-	for(auto it = m_connectedClients.begin();
-		it != m_connectedClients.end(); it++) {
-			if(!sendToClient(send_buff, state.sendSize(), it->first, it->second)) {
-				//client can't be reached
-				removeList.push_back(it);
-			}
+	if(m_clientCount == 0) {
+		return;
 	}
-	//remove clients who cannot be reached
-	removeClients(removeList);
+	EnterCriticalSection(&m_cs);
+	m_sendGS = &state;
 	LeaveCriticalSection(&m_cs);
-	delete []send_buff;
+	WakeConditionVariable(&m_cv);
 }
 
 bool NetworkServer::sendToClient(const char * const buff, const int size, const unsigned int client,  SOCKET &s) {
@@ -107,7 +121,7 @@ bool NetworkServer::sendToClient(const char * const buff, const int size, const 
 		return false;
 	}
 	/*if(send_len != size) {
-		cerr << "Error send_len: "<<  send_len << "expected send size: " << size <<  endl;
+	cerr << "Error send_len: "<<  send_len << "expected send size: " << size <<  endl;
 	}*/
 	//assert(send_len == size);
 	return true;
@@ -250,13 +264,13 @@ void NetworkServer::acceptNewClient()
 }
 
 void NetworkServer::decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client) {
-		Event* ep = NULL;
-		const char* curr_head = head;
-		for(unsigned int cur_size = 0; cur_size < size; cur_size += ep->size() ){
-				ep = new InputState();
-				ep->decode(curr_head);
-				g[client] = shared_ptr<Event>(ep);
-				break;
+	Event* ep = NULL;
+	const char* curr_head = head;
+	for(unsigned int cur_size = 0; cur_size < size; cur_size += ep->size() ) {
+		ep = new InputState();
+		ep->decode(curr_head);
+		g[client] = shared_ptr<Event>(ep);
+		break;
 	}	
 }
 
@@ -294,7 +308,9 @@ vector<unsigned int> NetworkServer::getDisconClients() {
 
 NetworkServer::~NetworkServer(void) {
 	TerminateThread(m_hThread, 0);
+	TerminateThread(m_hThread1, 0);
 	CloseHandle(m_hThread);
+	CloseHandle(m_hThread1);
 	for(auto it = m_connectedClients.begin(); it != m_connectedClients.end(); it++){
 		closesocket(it->second);
 	}
