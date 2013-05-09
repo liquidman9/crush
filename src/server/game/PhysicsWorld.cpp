@@ -36,12 +36,16 @@ void PhysicsWorld::collision(float delta_time) {
 			delete(c);
 		}
 
-		// Boundary Collisions
+	/*	// Boundary Collisions
 		for(unsigned k = 0; k < boundaries.size(); k++) {
 			if(checkCollision(*entities[i], boundaries[k])){
 					respond(entities[i], boundaries[k]);
 			}
 		}
+		*/
+
+		checkInBounds(entities[i]);
+
 	}
 }
 
@@ -273,6 +277,7 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	}
 }
 
+/*
 bool PhysicsWorld::checkCollision(ServerEntity& a, Boundary& b){
 
     D3DXVECTOR3 v(a.m_pos - b.m_point);
@@ -289,10 +294,42 @@ bool PhysicsWorld::checkCollision(ServerEntity& a, Boundary& b){
 void PhysicsWorld::respond(ServerEntity * a, Boundary b) {
 	D3DXVECTOR3 n = b.m_normal;
 
-	D3DXVECTOR3 v1 = a->m_velocity;
-	float a1 = D3DXVec3Dot(&v1,&n);
+	//D3DXVECTOR3 v1 = a->m_velocity;
+	//float a1 = D3DXVec3Dot(&v1,&n);
 
-	D3DXVECTOR3 nv1 = v1 - 2*n*a1;
+	//D3DXVECTOR3 nv1 = v1 - 2*n*a1;
+
+	D3DXVECTOR3 dir = -(D3DXVECTOR3(0,0,0) + a->m_pos);
+	if(a->m_type == ASTEROID) {
+		//a->m_destroy = true;
+		a->reset();
+		a->applyLinearImpulse(dir*100000);
+	}
+	else if(a->m_type == SHIP) {
+		a->applyLinearImpulse(dir*10000);
+	}
+	///else if(a->m_type == RESOURCE) {
+	///	a->m_destroy = true;
+	//}
 	//a->m_velocity = nv1/lower;
 	//a->m_pos+= a->m_velocity;
+}*/
+
+void PhysicsWorld::checkInBounds(ServerEntity * a) {
+	if(abs(D3DXVec3Length(&a->m_pos)) +a->m_radius > m_worldRadius) {
+		// Out of Bounds
+		if(a->m_type == ASTEROID){
+			a->m_momentum = D3DXVECTOR3(0,0,0);
+			a->m_angular_momentum = D3DXVECTOR3(0,0,0);
+
+			D3DXVECTOR3 norm;
+			D3DXVec3Normalize(&norm, &-a->m_pos);
+			a->applyLinearImpulse(norm*10000);
+		}
+		else if(a->m_type == SHIP) {
+			D3DXVECTOR3 norm;
+			D3DXVec3Normalize(&norm, &-a->m_pos);
+			a->applyLinearImpulse(norm*10000);
+		}
+	}
 }

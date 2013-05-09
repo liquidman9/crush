@@ -48,7 +48,8 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, fl
 	m_pBack(m_pos.x, m_pos.y, m_pos.z - length),
 	m_elastic(elastic),
 	m_immovable(false),
-	m_resourceSpots(0)
+	m_resourceSpots(0),
+	m_destroy(false)
 { }
 
 int ServerEntity::genId() {
@@ -95,7 +96,7 @@ void ServerEntity::update(float delta_time) {
 	// Reset temporary values
 	t_impulse = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	t_angular_impulse = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
+	
 	// Calculate velocity/angular velocity
 	m_velocity = m_momentum * m_mass_inverse;
 	m_angular_velocity = D3DXVECTOR3(m_angular_momentum.x * m_rot_inertia_inverse.x, 
@@ -155,6 +156,8 @@ void ServerEntity::reset() {
 	// Accumulator Values
 	t_impulse = zero_vec;
 	t_angular_impulse = zero_vec;
+
+	m_destroy = false;
 }
 
 void ServerEntity::print() {

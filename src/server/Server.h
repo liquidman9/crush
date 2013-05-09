@@ -80,8 +80,14 @@ private:
 	//spawn a new mothership for client_id
 	void spawnMothership(unsigned int client_id);
 
+	// spawn an Asteroid
+	void spawnAsteroid();
+
 	//move clients that are currently known
 	void moveClients();
+
+	// delete and respawn entities that have gone out of bounds
+	void resolveOutOfBoundsEntities();
 
 	//used in startTick and endOftick
 	long long milliseconds_now();
@@ -118,6 +124,8 @@ private:
 	EventBuff_t m_clientInput;
 	PlayerMap_t m_playerMap;
 	MothershipMap_t m_mothershipMap;
+	vector<S_Asteroid *> m_asteroidList;
+	int m_numAsteroids;
 	Mine * m_resourceMine;
 	long long m_startTick;
 	long long m_endClock;
