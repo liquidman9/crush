@@ -89,10 +89,12 @@ bool S_Mothership::takeResource(S_Ship * ship){
 void S_Mothership::update(float delta_time){
 	ServerEntity::update(delta_time);
 	
-	static int count = 0;
-	count++;
-	if (count % 120 == 0) {
-		cout << "Orientation: "; shared::utils::printQuat(this->m_orientation); cout << endl;
-		cout << "Angular motion: "; shared::utils::printVec(this->m_angular_velocity); cout << endl;
+	if (DEBUG) {
+		static int count = 0;
+		count++;
+		if (count % 120 == 0) {
+			cout << "Orientation: "; shared::utils::printQuat(this->m_orientation); cout << endl;
+			cout << "Angular motion: "; shared::utils::printVec(this->m_angular_velocity); cout << endl;
+		}
 	}
 }

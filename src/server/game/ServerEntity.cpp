@@ -92,12 +92,12 @@ void ServerEntity::applyImpulse(D3DXVECTOR3 impulse, D3DXVECTOR3 point) {
 	t_impulse += impulse;
 
 	// Rotational calcultation
-	cout << "Pos: "; shared::utils::printVec(m_pos); cout << endl;
-	cout << "Point: "; shared::utils::printVec(point); cout << endl;
 	D3DXVECTOR3 angular_impulse, vector_to_point = point - m_pos;
 	D3DXVec3Cross(&angular_impulse, &vector_to_point, &impulse); // Cross product finds torque
 	t_angular_impulse += angular_impulse;
 	if (DEBUG) {
+		cout << "Pos: "; shared::utils::printVec(m_pos); cout << endl;
+		cout << "Point: "; shared::utils::printVec(point); cout << endl;
 		cout << "Angular impulse: "; shared::utils::printVec(angular_impulse); cout << endl;
 	}
 }

@@ -93,13 +93,11 @@ void Collision::resolve()
 
 	// calculate the impulse
 	float impulse = (-(1 + e_coll) * vN) / (m_a->m_mass_inverse + m_b->m_mass_inverse + D3DXVec3Dot(&inertBoth, &collision_normal));
-
-	//cout << D3DXVec3Dot(&inertBoth, &n) << endl;
-	//cout << impulse << endl;
 	
 	D3DXVECTOR3 jN = impulse * collision_normal;
 
 	// Friction force!
+	float friction;
 
 	D3DXVECTOR3 tangentVelocity = relative_total_velocity - (vN * collision_normal);
 
@@ -121,14 +119,14 @@ void Collision::resolve()
 
 		float kt = m_a->m_mass_inverse + m_b->m_mass_inverse + D3DXVec3Dot(&inertBoth, &tangent);
 
-		float friction = max(-u_fr * impulse, min(u_fr * impulse, -vt / kt));
+		friction = max(-u_fr * impulse, min(u_fr * impulse, -vt / kt));
 
 		jN += friction * tangent;
-		cout << "Impulse force: " << impulse << endl;
-		cout << "Friction force: " << friction << endl;
 	}
 
-	if (true) {
+	if (DEBUG) {
+		cout << "Impulse force: " << impulse << endl;
+		cout << "Friction force: " << friction << endl;
 		cout << "Impulse vector: "; shared::utils::printVec(jN); cout << endl;
 		cout << "DistA: "; shared::utils::printVec(r_a); cout << endl;
 		cout << "DistB: "; shared::utils::printVec(r_b); cout << endl;

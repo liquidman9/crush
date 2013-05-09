@@ -85,15 +85,6 @@ void S_Ship::addPlayerInput(InputState input) {
 
 		applyAngularImpulse(rot_thrust_adj * m_rotation_impulse);
 	}
-	/*
-	static int count = 0;
-	if ((count %= 60) == 0) {
-		//print();
-		//cout << "Thrusting: " << m_thrusting << endl;
-		//cout << "Max Vel: " << m_max_velocity << endl;
-	}
-	count++;
-	*/
 }
 
 void S_Ship::applyDamping() {
