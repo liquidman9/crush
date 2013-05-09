@@ -11,8 +11,8 @@
 
 using namespace server::entities::tractorbeam;
 
-static float s_gravitationalConstant =  gravity;
-static float s_defaultLength = length;
+//static float s_gravitationalConstant =  gravity;
+//static float s_defaultLength = length;
 
 using namespace server::entities::tractorbeam;
 
@@ -66,7 +66,7 @@ D3DXVECTOR3 S_TractorBeam::getDistanceVectorOf(D3DXVECTOR3 b) {
 }
 
 float S_TractorBeam::getCurrentDistance() {
-	if(!isLocked()) return s_defaultLength;
+	if(!isLocked()) return length;
 
 	return D3DXVec3Length(&(getCurrentDistanceVector()));
 }
@@ -84,7 +84,7 @@ void S_TractorBeam::setEndPoint() {
 		D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&tmpq, &m_ship->m_orientation));
 		D3DXVec3TransformCoord(&tmp,&tmp,&matRotate);
 		D3DXVec3Normalize( &tmp, &tmp );
-		m_end = m_ship->m_pos + tmp * s_defaultLength;
+		m_end = m_ship->m_pos + tmp * length;
 	}
 	else m_end = m_object->m_pos;
 
@@ -97,7 +97,7 @@ void S_TractorBeam::calculateForce() {
 		D3DXVECTOR3 disV = getCurrentDirection();
 		float disL = getCurrentDistance();
 		
-		D3DXVECTOR3 force = m_strength*(s_gravitationalConstant*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
+		D3DXVECTOR3 force = m_strength*(gravity*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
 	
 		if(m_isPulling) {
 			m_ship->applyLinearImpulse(force * .01f);

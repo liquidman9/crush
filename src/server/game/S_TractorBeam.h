@@ -27,8 +27,8 @@ namespace server {
 		namespace tractorbeam {
 			static const string CONFIG_PREFIX = "tractorbeam_";
 
-			extern float gravity = 5.0f;
-			extern float length = 350.0f;
+			extern float gravity;
+			extern float length;
 
 			inline void initFromConfig() {
 				ConfigSettings::config->getValue(CONFIG_PREFIX + "gravity", gravity);
