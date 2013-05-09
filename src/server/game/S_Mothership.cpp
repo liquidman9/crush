@@ -12,6 +12,8 @@
 
 using namespace server::entities::mothership;
 
+mass = 20000000.0f;
+
 S_Mothership::S_Mothership(int pNum) :
 	Entity(MOTHERSHIP),
 	Mothership(pNum),

@@ -12,8 +12,15 @@
 #include <server/game/S_Ship.h>
 //#include <server/game/S_TractorBeam.h>
 
-using namespace server::entities::ship;
 using namespace shared::utils;
+using namespace server::entities::ship;
+
+mass = 10000.0f;
+forward_impulse = 5000.0f;
+rotation_impulse = 3000.0f;
+braking_impulse = 2500.0f;
+max_velocity = 50.0f;
+max_rotation_velocity = 2.5f;
 
 S_Ship::S_Ship() :
 	Entity(SHIP),

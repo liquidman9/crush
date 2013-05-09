@@ -16,10 +16,13 @@ static float s_defaultLength = length;
 
 using namespace server::entities::tractorbeam;
 
+gravity = 5.0f;
+length = 350.0f;
+
 S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	Entity(TRACTORBEAM),
 	TractorBeam(ship->m_playerNum),
-	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), s_defaultLength, 1.0),// infinity
+	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), length, 1.0),// infinity
 	m_strength(0),
 	m_isPulling(true)
 {
