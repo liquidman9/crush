@@ -21,11 +21,12 @@
 class S_Asteroid : public Asteroid, public ServerEntity{ //switch back to capsule
 
 public:
+	static int s_range, s_start;
 	// Fields
 
 	// Constructors
 	S_Asteroid();
-	S_Asteroid(D3DXVECTOR3, Quaternion);
+	S_Asteroid(D3DXVECTOR3, Quaternion, float);
 
 	// Methods
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);

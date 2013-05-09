@@ -57,6 +57,7 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, fl
 	m_elastic(elastic),
 	m_immovable(false),
 	m_resourceSpots(0),
+	m_destroy(false),
 	// zeroing values
 	m_angular_velocity(shared::utils::VEC3_ZERO),
 	m_orientation_delta(0.0f, 0.0f, 0.0f, 0.0f),
@@ -188,6 +189,8 @@ void ServerEntity::reset() {
 	// Accumulator Values
 	t_impulse = zero_vec;
 	t_angular_impulse = zero_vec;
+
+	m_destroy = false;
 }
 
 void ServerEntity::print() {

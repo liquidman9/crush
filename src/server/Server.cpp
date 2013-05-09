@@ -29,6 +29,7 @@ void Server::start() {
 			this,           // arg list holding the "this" pointer
 			0,		
 			&threadID );
+		SetThreadPriority(m_hThread, THREAD_PRIORITY_HIGHEST);
 	}
 }
 
@@ -69,26 +70,55 @@ void Server::setUpResourceMine() {
 }
 
 void Server::setUpAsteroids() {
+	cout << "Begin setting up asteroids..." <<endl;
+	m_numAsteroids = 50;
+	int range = 400;
+	int start = -200;
 
+	Quaternion defaultAsteroidDir(0, 0, 0, 1);
+	for(int i = 0; i < m_numAsteroids; i++) {
+		S_Asteroid * newAsteroid;
+		bool fits = false;
+		float scale = 1;
+		D3DXVECTOR3 asteroidPos(0,0,0);
 
-	Quaternion m_dir3(0, 0, 0, 1);
+		while(!fits) {
+			scale =  (rand() % S_Asteroid::s_range) + S_Asteroid::s_start;
+			asteroidPos = D3DXVECTOR3((rand()%range)+start,(rand()%range)+start,(rand()%range)+start);
+			cout<<i;
+			newAsteroid = new S_Asteroid(asteroidPos, defaultAsteroidDir, scale);
 
+			fits = true;
 
-	D3DXVECTOR3 m_pos4(0,0,-15);
-	S_Asteroid *test5 = new S_Asteroid(m_pos4, m_dir3);
-	m_gameState.push_back(test5);
-	m_world.entities.push_back(test5);
+			// Check with Current Entities
+			for(int j = 0; j < m_world.entities.size(); j++) {
+				ServerEntity *cmp = m_world.entities[j];
+				if(m_world.checkCollision(*cmp,*newAsteroid) != NULL){
+					fits = false;
+					break;
+				}
+			}
 
-	D3DXVECTOR3 m_pos5(0,0,15);
-	S_Asteroid *test6 = new S_Asteroid(m_pos5, m_dir3);
-	m_gameState.push_back(test6);
-	m_world.entities.push_back(test6);
+			// check with spawn spots of players 1 -4
 
+		}
+
+		int forceMax = 20000;
+		int forceMulti = 25;
+		D3DXVECTOR3 initialForce(((rand() % forceMax*2)-forceMax)*forceMulti,((rand() % forceMax*2)-forceMax)*forceMulti,((rand() % forceMax*2)-forceMax)*forceMulti);
+		
+		newAsteroid->applyLinearImpulse(initialForce * .01f);
+		m_asteroidList.push_back(newAsteroid);
+		m_gameState.push_back(newAsteroid);
+		m_world.entities.push_back(newAsteroid);
+	}
+
+	cout << "Finished setting up asteroids..." <<endl;
 }
 
 void Server::setUpBoundaries() {
-
-	float bound = 500;
+	m_world.m_worldRadius = 350;
+	/*float bound = 500;
 	Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
 	Boundary right = Boundary(D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DXVECTOR3(bound,0.0f,0.0f));
 	Boundary top = Boundary(D3DXVECTOR3(0.0f,-1.0f,0.0f), D3DXVECTOR3(0.0f,bound,0.0f));
@@ -101,7 +131,7 @@ void Server::setUpBoundaries() {
 	m_world.boundaries.push_back(top);
 	m_world.boundaries.push_back(down);
 	m_world.boundaries.push_back(front);
-	m_world.boundaries.push_back(back);
+	m_world.boundaries.push_back(back);*/
 
 }
 
@@ -109,6 +139,7 @@ void Server::initializeGameState() {
 	m_gameState.clear();
 	m_server.broadcastGameState(m_gameState);
 	m_playerMap.clear();
+	m_mothershipMap.clear();
 	m_world.entities.clear();
 	addNewClients(m_server.getConnectedClientIDs());
 	
@@ -166,7 +197,7 @@ void Server::declareWinner() {
 void Server::updateScore() {
 	scoreList_t list;
 	for(auto it = m_mothershipMap.begin(); it != m_mothershipMap.end(); it++) {
-		list.push_back(pair<unsigned int, unsigned char>(it->first, (unsigned char)it->second->m_resourceList.size()));
+		list.push_back(pair<unsigned int, unsigned char>(it->first, (unsigned char)it->second->m_resources));
 	}
 	m_gameState.setScore(list);
 }
@@ -176,6 +207,7 @@ void Server::loop() {
 	float loopCycle = (float) 1.0/60.0f;
 	bool print_once = false;
 	for(;;) {
+		startTick();
 		if(m_start) {
 			initializeGameState();
 			reloadConfig();
@@ -185,8 +217,8 @@ void Server::loop() {
 			reloadConfig();
 			cout << "Config file reloaded" << endl;
 			m_reload = false;
-		}		
-		startTick();
+		}
+		
 		if(m_pause) {
 			m_server.broadcastGameState(m_gameState);
 			endOfTick();
@@ -230,6 +262,7 @@ void Server::loop() {
 
 		m_world.collision(loopCycle);
 
+
 		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) i->second->calcTractorBeam();
 		m_world.update(loopCycle);
 		m_server.broadcastGameState(m_gameState);
@@ -263,6 +296,7 @@ void Server::spawnShip(unsigned int client_id) {
 	m_world.entities.push_back(beam);
 
 	ship->m_tractorBeam = beam;
+
 }
 
 void Server::spawnMothership(unsigned int client_id) {
@@ -309,6 +343,8 @@ void Server::moveClients() {
 		}
 	}
 }
+
+
 
 long long Server::milliseconds_now() {
 	static LARGE_INTEGER s_frequency;

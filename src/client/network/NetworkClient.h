@@ -48,6 +48,8 @@ public:
 
 	const unsigned int getClientID() { return m_clientID; };
 
+	unsigned int droppedGameStates() { return m_dropped; };
+
 
 	virtual ~NetworkClient(void);
 
@@ -61,6 +63,7 @@ private:
 	bool m_stateAvailable;
 	GameState<Entity> m_gameState;
 	void bindToServer(Network const &, const string &);
+	unsigned int m_dropped;
 
 
 	//thread stuff

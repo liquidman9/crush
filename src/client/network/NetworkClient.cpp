@@ -1,6 +1,6 @@
 #include <client/network/NetworkClient.h>
 
-NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false) {
+NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_dropped(0) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
@@ -9,7 +9,7 @@ NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false) {
 	initializeSocket();
 }
 
-NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false) {
+NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false), m_dropped(0) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
@@ -52,15 +52,15 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 
 	//bind server port to socket
 	/*if(bind(m_sock ,(struct sockaddr *)&(this->m_sockaddr),
-		sizeof(m_sockaddr)) == SOCKET_ERROR) {
-			throw runtime_error("bind() failed with error code : " + to_string((long long) WSAGetLastError()));
+	sizeof(m_sockaddr)) == SOCKET_ERROR) {
+	throw runtime_error("bind() failed with error code : " + to_string((long long) WSAGetLastError()));
 	}*/
 
-	
+
 	//connect to server
 	if(connect( m_sock, (struct sockaddr *) &(m_server.getSockAddr()), sizeof(m_server.getSockAddr())) == SOCKET_ERROR ){
 		cerr << "connect() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
-		
+
 		runtime_error e("connect() failed with error code : " + to_string((long long) WSAGetLastError()));
 		throw e;
 	}
@@ -69,7 +69,7 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 	int clientID;
 	if (recv (m_sock, (char *) &clientID, sizeof(m_clientID), 0) == SOCKET_ERROR) {
 		cerr << "Failed to get client ID : " + to_string((long long) WSAGetLastError()) << endl;
-		
+
 		runtime_error e("Failed to get client ID : " + to_string((long long) WSAGetLastError()));
 		throw e;
 	}
@@ -90,14 +90,14 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 
 	if (send (m_sock, send_name.c_str(), MAX_PLAYERNAME_SIZE, 0) == SOCKET_ERROR) {
 		cerr << "Failed to send player name : " + to_string((long long) WSAGetLastError()) << endl;
-		
+
 		runtime_error e("Failed to send player name : " + to_string((long long) WSAGetLastError()));
 		throw e;
 	}
 
 	//don't collect data and send in a big packet
 	char value = 1;
-    setsockopt( m_sock, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
+	setsockopt( m_sock, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
 
 
 
@@ -122,27 +122,62 @@ void NetworkClient::sendToServer(Event* e) {
 }
 
 void NetworkClient::updateGameState() {
-	char local_buf[MAX_PACKET_SIZE];
+	char buff[MAX_PACKET_SIZE];
+	char *local_buf;
+	int remaining_data = 0;
+	GameState<Entity> local_gs;
 	while(1) {
+		local_buf = buff + remaining_data;
 		bool error = false;
-		memset(local_buf,'\0', MAX_PACKET_SIZE);
+		//memset(local_buf,'\0', MAX_PACKET_SIZE);
 		int recv_len;
-		if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
-				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
-				error = true;
+		if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE-remaining_data, 0)) == SOCKET_ERROR) {
+			cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+			error = true;
 		}
+		auto test = m_gameState.getRecvSize(buff);
 
 		if(error && WSAGetLastError() == WSAETIMEDOUT) {
 			cerr << "conntection to the server timedout" << endl;
 		}
-		
+
+		unsigned int total_size = recv_len + remaining_data;
+		while(!error && total_size < m_gameState.gsMinSize()) {
+			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE-total_size, 0)) == SOCKET_ERROR) {
+				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+				error = true;
+				break;
+			}
+			total_size += recv_len;
+		}
+
+		unsigned int expected_size;
 		if(!error) {
+			expected_size = m_gameState.getExpectedSize(buff, total_size);
+		}
+		
+		while(!error && total_size < expected_size) {
+			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR) {
+				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+				error = true;
+				break;
+			}
+			total_size += recv_len;
+			expected_size = m_gameState.getExpectedSize(local_buf, total_size);
+		}
+
+		if(!error) {
+			remaining_data = local_gs.decode(buff, total_size, m_dropped);
 			EnterCriticalSection(&m_cs);
 			if(!(m_stateAvailable && m_gameState.size() == 0)) {
-				m_gameState.decode(local_buf, recv_len);
-			}
+				m_gameState = local_gs;
+			}			
 			m_stateAvailable = true;
 			LeaveCriticalSection(&m_cs);
+			assert(remaining_data >= 0);
+			if(remaining_data > 0) {
+				memcpy(buff, buff + (total_size - remaining_data), remaining_data);
+			}
 		}
 	}
 }

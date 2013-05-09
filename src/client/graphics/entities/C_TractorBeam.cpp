@@ -29,7 +29,7 @@ C_TractorBeam::C_TractorBeam(Entity * newEnt) :
 		m_end = srcTractorBeam->m_end;
 		m_sentRadius = srcTractorBeam->m_sentRadius;
 
-		m_pMesh = &Gbls::tractorBeamMesh;
+		//m_pMesh = &Gbls::tractorBeamMesh;
 	} else {
 		cerr << "SEVERE : Unable to create Client TractorBeam!" << endl;
 	}

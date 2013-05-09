@@ -24,6 +24,7 @@ using namespace std;
 
 class PhysicsWorld {
 public:
+	float m_worldRadius;
 	vector<ServerEntity *> entities;
 	vector<Boundary> boundaries;
 	vector<D3DXVECTOR3> forceVectors;
@@ -35,5 +36,6 @@ public:
 	bool typeResponse(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, Boundary);
+	void checkInBounds(ServerEntity *);
 
 };

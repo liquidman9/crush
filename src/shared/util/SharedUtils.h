@@ -5,7 +5,7 @@
 #include <d3dx9.h>
 #include <iostream>
 
-#define DEBUG true
+#define DEBUG false
 
 namespace shared {
 	namespace utils {
