@@ -48,7 +48,8 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, fl
 	m_pBack(m_pos.x, m_pos.y, m_pos.z - length),
 	m_elastic(elastic),
 	m_immovable(false),
-	m_resourceSpots(0)
+	m_resourceSpots(0),
+	m_destroy(false)
 { }
 
 int ServerEntity::genId() {
@@ -155,6 +156,8 @@ void ServerEntity::reset() {
 	// Accumulator Values
 	t_impulse = zero_vec;
 	t_angular_impulse = zero_vec;
+
+	m_destroy = false;
 }
 
 void ServerEntity::print() {

@@ -80,8 +80,14 @@ private:
 	//spawn a new mothership for client_id
 	void spawnMothership(unsigned int client_id);
 
+	// spawn an Asteroid
+	void spawnAsteroid();
+
 	//move clients that are currently known
 	void moveClients();
+
+	// delete and respawn entities that have gone out of bounds
+	void resolveOutOfBoundsEntities();
 
 	//used in startTick and endOftick
 	long long milliseconds_now();

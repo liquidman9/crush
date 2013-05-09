@@ -107,6 +107,7 @@ void Server::setUpAsteroids() {
 		D3DXVECTOR3 initialForce(((rand() % forceMax*2)-forceMax)*forceMulti,((rand() % forceMax*2)-forceMax)*forceMulti,((rand() % forceMax*2)-forceMax)*forceMulti);
 		
 		newAsteroid->applyLinearImpulse(initialForce * .01f);
+		m_asteroidList.push_back(newAsteroid);
 		m_gameState.push_back(newAsteroid);
 		m_world.entities.push_back(newAsteroid);
 	}
@@ -115,8 +116,8 @@ void Server::setUpAsteroids() {
 }
 
 void Server::setUpBoundaries() {
-
-	float bound = 500;
+	m_world.m_worldRadius = 350;
+	/*float bound = 500;
 	Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
 	Boundary right = Boundary(D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DXVECTOR3(bound,0.0f,0.0f));
 	Boundary top = Boundary(D3DXVECTOR3(0.0f,-1.0f,0.0f), D3DXVECTOR3(0.0f,bound,0.0f));
@@ -129,7 +130,7 @@ void Server::setUpBoundaries() {
 	m_world.boundaries.push_back(top);
 	m_world.boundaries.push_back(down);
 	m_world.boundaries.push_back(front);
-	m_world.boundaries.push_back(back);
+	m_world.boundaries.push_back(back);*/
 
 }
 
@@ -259,6 +260,7 @@ void Server::loop() {
 
 		m_world.collision(loopCycle);
 
+
 		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) i->second->calcTractorBeam();
 		m_world.update(loopCycle);
 		m_server.broadcastGameState(m_gameState);
@@ -339,6 +341,8 @@ void Server::moveClients() {
 		}
 	}
 }
+
+
 
 long long Server::milliseconds_now() {
 	static LARGE_INTEGER s_frequency;
