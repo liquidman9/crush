@@ -53,6 +53,7 @@ ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
 
 // for debugging collisions
+bool GameResources::renderCBWireframe = false;
 LPD3DXMESH GameResources::collisionSphere = NULL;
 LPD3DXMESH GameResources::collisionCylinder = NULL;
 static const D3DXCOLOR WHITE( D3DCOLOR_XRGB(255, 255, 255) );
@@ -334,8 +335,8 @@ HRESULT GameResources::loadFont(LPD3DXFONT * pFont, int height, std::wstring fon
 }
 
 void GameResources::drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius) {
-	Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
-	Gbls::pd3dDevice->SetMaterial(&MATERIAL_WHITE);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
+	//Gbls::pd3dDevice->SetMaterial(&MATERIAL_WHITE);
 
 	D3DXVECTOR3 shapeVec = pt2 - pt1;
 	D3DXVECTOR3 midpoint = (pt2 + pt1)/2.0f;
@@ -367,7 +368,7 @@ void GameResources::drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, fl
 	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(scaleMat*rotMat*transMat));
 	collisionSphere->DrawSubset(0);
 
-	Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
 }
 
 void GameResources::drawAllTractorBeams() {
@@ -487,6 +488,16 @@ void GameResources::drawAll()
 		(*ii).second->draw();
 	}
 
+	if (renderCBWireframe) {
+		Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
+		Gbls::pd3dDevice->SetMaterial(&MATERIAL_WHITE);
+		for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+		{
+			drawCollisionBounds((*ii).second->m_pFront, (*ii).second->m_pBack, (*ii).second->m_radius);
+		}
+	}
+	
+	Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
 	//drawCollisionBounds(D3DXVECTOR3(10, 0, 0), D3DXVECTOR3(10, 10, 10), 2.0f);
 	
 	// Render tractor beams
