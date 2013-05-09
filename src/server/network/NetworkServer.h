@@ -36,7 +36,7 @@ public:
 	EventBuff_t getEvents();
 
 	//Sends games State to all connected clients
-	void broadcastGameState(const GameState<Entity> &);
+	void broadcastGameState(GameState<Entity> &);
 
 	//returns a vector of connected Client IDs
 	vector<pair<unsigned int,string>> getConnectedClientIDs();
@@ -61,7 +61,7 @@ private:
 	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
 	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
 	SOCKET m_incomingSock;
-	const GameState<Entity> *m_sendGS;
+	GameState<Entity> *m_sendGS;
 	map <unsigned int, SOCKET> m_connectedClients;
 	map <unsigned int, string> m_clientIDs;
 	map <unsigned int, string> m_newClients;

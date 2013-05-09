@@ -141,7 +141,7 @@ void NetworkClient::updateGameState() {
 			cerr << "conntection to the server timedout" << endl;
 		}
 
-		int total_size = recv_len + remaining_data;
+		unsigned int total_size = recv_len + remaining_data;
 		while(!error && total_size < m_gameState.gsMinSize()) {
 			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE-total_size, 0)) == SOCKET_ERROR) {
 				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
@@ -150,8 +150,8 @@ void NetworkClient::updateGameState() {
 			}
 			total_size += recv_len;
 		}
-		int expected_size;
 
+		unsigned int expected_size;
 		if(!error) {
 			expected_size = m_gameState.getExpectedSize(buff, total_size);
 		}

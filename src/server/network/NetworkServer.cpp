@@ -87,7 +87,11 @@ void NetworkServer::broadcastGameStateWorker() {
 		SleepConditionVariableCS(&m_cv, &m_cs, INFINITE);
 
 		const char* send_buff = m_sendGS->getSendBuff();
+#ifdef ENABLE_COMPRESSION
+		unsigned int size = *(unsigned int*) send_buff;
+#else
 		unsigned int size = m_sendGS->sendSize();
+#endif
 		for(auto it = m_connectedClients.begin();
 			it != m_connectedClients.end(); it++) {
 				if(!sendToClient(send_buff, size, it->first, it->second)) {
@@ -102,11 +106,11 @@ void NetworkServer::broadcastGameStateWorker() {
 	}
 }
 
-void NetworkServer::broadcastGameState(const GameState<Entity> &state) {
+void NetworkServer::broadcastGameState(GameState<Entity> &state) {
 	//accumulate all data into send buffer
-	if(m_clientCount == 0) {
-		return;
-	}
+	//if(m_clientCount == 0) {
+	//	return;
+	//}
 	EnterCriticalSection(&m_cs);
 	m_sendGS = &state;
 	LeaveCriticalSection(&m_cs);
