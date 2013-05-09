@@ -64,6 +64,9 @@ const char * Entity::encode() const {
 	s.pos = m_pos;
 	s.orientation = m_orientation;
 	s.velocity = m_velocity;
+	s.pBack = m_pBack;
+	s.pFront = m_pFront;
+	s.radius = m_radius;
 
 	//char * tmp = new char[sizeof(Entity)];
 	//// Encode type
@@ -88,6 +91,9 @@ void Entity::decode(const char * tmp) {
 	m_pos = s.pos;
 	m_orientation = s.orientation;
 	m_velocity = s.velocity;
+	m_pFront = s.pFront;
+	m_pBack = s.pBack;
+	m_radius = s.radius;
 
 	// Decode Position
 	/*m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
