@@ -95,7 +95,7 @@ void ServerEntity::update(float delta_time) {
 	// Reset temporary values
 	t_impulse = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	t_angular_impulse = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
+	
 	// Calculate velocity/angular velocity
 	m_velocity = m_momentum * m_mass_inverse;
 	m_angular_velocity = D3DXVECTOR3(m_angular_momentum.x * m_rot_inertia_inverse.x, 

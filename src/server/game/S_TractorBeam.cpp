@@ -95,9 +95,7 @@ void S_TractorBeam::calculateForce() {
 		float disL = getCurrentDistance();
 		
 		D3DXVECTOR3 force = m_strength*(s_gravitationalConstant*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
-		//cout<<disV.x<<" "<<disV.y<<" "<<disV.z<<"ddd "<< m_object->m_mass<<endl;
-		//cout <<" Dis: "<<getCurrentDistance()<<" Force: "<<force.x <<" "<< force.y << " "<<force.z<< endl;
-		
+	
 		if(m_isPulling) {
 			m_ship->applyLinearImpulse(force * .01f);
 			m_object->applyLinearImpulse(-force * .01f);

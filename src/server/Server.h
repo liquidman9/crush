@@ -118,6 +118,8 @@ private:
 	EventBuff_t m_clientInput;
 	PlayerMap_t m_playerMap;
 	MothershipMap_t m_mothershipMap;
+	vector<S_Asteroid *> m_asteroidList;
+	int m_numAsteroids;
 	Mine * m_resourceMine;
 	long long m_startTick;
 	long long m_endClock;
