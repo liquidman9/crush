@@ -9,7 +9,8 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Asteroid.h>
 
-int S_Asteroid::s_range = 20, S_Asteroid::s_start = .25;
+int S_Asteroid::s_range = 20;
+float S_Asteroid::s_start = .25;
 
 int massConv = 250;
 int radiusConv = 2;
