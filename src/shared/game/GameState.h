@@ -164,7 +164,7 @@ private:
 		return cur_size;
 	}
 
-	int getLastCompleteGS(const char* &head, const unsigned int size) const {
+	int getLastCompleteGS(const char* &head, const unsigned int size, unsigned int &dropped) const {
 		//char local_buf[65000];
 		assert(size >= sizeof(m_meta));
 		//memcpy(local_buf,head,size);
@@ -178,8 +178,10 @@ private:
 			auto next_size = cur_size + gs_size;
 			if(gs_size == gsMinSize()) {
 				head = orig_head + cur_size;
+				dropped = 0;
 				return size - (next_size);
 			} else if(next_size <= size) {
+				dropped++;
 				total_size = next_size;
 				head = orig_head + cur_size;
 			}
@@ -187,9 +189,9 @@ private:
 		return size - total_size;
 	}
 
-	int decode(const char *head, const unsigned int size) {
+	int decode(const char *head, const unsigned int size, unsigned int &dropped) {
 		auto orig_head = head;
-		auto rtn = getLastCompleteGS(head, size);
+		auto rtn = getLastCompleteGS(head, size, dropped);
 		if(rtn < 0) {
 			return rtn;
 		}

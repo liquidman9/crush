@@ -176,6 +176,7 @@ void Server::loop() {
 	float loopCycle = (float) 1.0/60.0f;
 	bool print_once = false;
 	for(;;) {
+		startTick();
 		if(m_start) {
 			initializeGameState();
 			reloadConfig();
@@ -185,8 +186,8 @@ void Server::loop() {
 			reloadConfig();
 			cout << "Config file reloaded" << endl;
 			m_reload = false;
-		}		
-		startTick();
+		}
+		
 		if(m_pause) {
 			m_server.broadcastGameState(m_gameState);
 			endOfTick();

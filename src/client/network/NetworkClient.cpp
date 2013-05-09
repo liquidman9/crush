@@ -1,6 +1,6 @@
 #include <client/network/NetworkClient.h>
 
-NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false) {
+NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_dropped(0) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
@@ -9,7 +9,7 @@ NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false) {
 	initializeSocket();
 }
 
-NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false) {
+NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false), m_dropped(0) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
@@ -141,7 +141,7 @@ void NetworkClient::updateGameState() {
 			cerr << "conntection to the server timedout" << endl;
 		}
 
-		int total_size = recv_len;
+		int total_size = recv_len + remaining_data;
 		while(!error && total_size < m_gameState.gsMinSize()) {
 			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE-total_size, 0)) == SOCKET_ERROR) {
 				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
@@ -167,7 +167,7 @@ void NetworkClient::updateGameState() {
 		}
 
 		if(!error) {
-			remaining_data = local_gs.decode(buff, total_size);
+			remaining_data = local_gs.decode(buff, total_size, m_dropped);
 			EnterCriticalSection(&m_cs);
 			if(!(m_stateAvailable && m_gameState.size() == 0)) {
 				m_gameState = local_gs;
