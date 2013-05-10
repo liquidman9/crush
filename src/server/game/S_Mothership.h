@@ -11,7 +11,7 @@
 #include <vector>
 
 // Project includes
-#include <shared/game/Mothership.h>g
+#include <shared/game/Mothership.h>
 #include <server/game/S_Resource.h>
 #include <server/game/S_Ship.h>
 #include <server/game/ServerEntity.h>

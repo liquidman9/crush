@@ -43,9 +43,12 @@ Network(port),
 	initializeThreads();
 }
 
-void NetworkServer::initializeThreads() { 
+void NetworkServer::initializeThreads() {
+	m_sendAvailable = false;
 	InitializeCriticalSection(&m_cs);
-	InitializeConditionVariable(&m_cv);
+	InitializeCriticalSection(&m_cs1);
+	InitializeConditionVariable(&m_workerReady);
+	InitializeConditionVariable(&m_broadcastReady);
 
 	unsigned int threadID = 0;
 	m_hThread = (HANDLE)_beginthreadex( NULL, // security
@@ -83,15 +86,21 @@ void NetworkServer::broadcastGameStateWorker() {
 	
 	for(;;){		
 		//send to every client currently connected
-		EnterCriticalSection(&m_cs);
-		SleepConditionVariableCS(&m_cv, &m_cs, INFINITE);
-
-		const char* send_buff = m_sendGS->getSendBuff();
+		EnterCriticalSection(&m_cs1);		
+		while(!m_sendAvailable) {
+			SleepConditionVariableCS(&m_broadcastReady, &m_cs1, INFINITE);
+		}
+		m_sendAvailable = false;
+		const char* send_buff = m_sendGS.getSendBuff();
 #ifdef ENABLE_COMPRESSION
 		unsigned int size = *(unsigned int*) send_buff;
 #else
-		unsigned int size = m_sendGS->sendSize();
+		unsigned int size = m_sendGS.sendSize();
 #endif
+		LeaveCriticalSection(&m_cs1);
+		WakeConditionVariable(&m_workerReady);
+
+		//EnterCriticalSection(&m_cs);
 		for(auto it = m_connectedClients.begin();
 			it != m_connectedClients.end(); it++) {
 				if(!sendToClient(send_buff, size, it->first, it->second)) {
@@ -102,19 +111,26 @@ void NetworkServer::broadcastGameStateWorker() {
 		//remove clients who cannot be reached
 		removeClients(removeList);
 		LeaveCriticalSection(&m_cs);
+		removeList.clear();
+
 		delete []send_buff;		
 	}
 }
 
-void NetworkServer::broadcastGameState(GameState<Entity> &state) {
-	//accumulate all data into send buffer
-	//if(m_clientCount == 0) {
-	//	return;
-	//}
-	EnterCriticalSection(&m_cs);
-	m_sendGS = &state;
-	LeaveCriticalSection(&m_cs);
-	WakeConditionVariable(&m_cv);
+void NetworkServer::broadcastGameState(GameState<Entity> const &state) {
+	if(m_clientCount == 0) {
+		return;
+	}
+
+	//copy gameState to WorkerGameState producer/consumer style
+	EnterCriticalSection(&m_cs1);
+	while(m_sendAvailable) {
+		SleepConditionVariableCS(&m_workerReady, &m_cs1, INFINITE);
+	}
+	m_sendGS = state;
+	m_sendAvailable = true;
+	WakeConditionVariable(&m_broadcastReady);
+	LeaveCriticalSection(&m_cs1);
 }
 
 bool NetworkServer::sendToClient(const char * const buff, const int size, const unsigned int client,  SOCKET &s) {

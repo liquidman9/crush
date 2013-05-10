@@ -151,14 +151,28 @@ public:
 		m_meta.size = sizeof(gameStateMeta);
 	}
 
+	bool empty() const {
+		return m_entities.empty();
+	}
+
 	virtual ~GameState(void) {
 		m_entities.clear();
 	};
 
 private:
-	//#ifdef ENABLE_COMPRESSION
-	//	unsigned int m_cSize;
-	//#endif
+#ifdef ENABLE_COMPRESSION
+	bool getIsEmpty(const char* head) const {
+		return *(bool*)(head + sizeof(unsigned int));
+	}
+
+	void setIsEmpty(const char* head, bool isEmpty) const {
+		*(bool*)(head + sizeof(unsigned int)) = isEmpty;
+	}
+#endif
+
+#ifdef ENABLE_COMPRESSION
+	
+#endif
 
 	unsigned int getExpectedSize(const char* head, const unsigned int size) const {
 		assert(size >= gsMinSize());
@@ -192,12 +206,17 @@ private:
 		auto gs_size = getRecvSize(head);
 		unsigned int cur_size;
 		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
-			gs_size = getRecvSize(orig_head+cur_size);
-#ifndef ENABLE_COMPRESSION
+			
+#ifndef ENABLE_COMPRESSION			
 			assert(gs_size >= gsMinSize());
 #endif
+			gs_size = getRecvSize(orig_head+cur_size);
 			auto next_size = cur_size + gs_size;
+#ifndef ENABLE_COMPRESSION
 			if(gs_size == gsMinSize()) {
+#else
+			if(getIsEmpty(orig_head+cur_size)) {
+#endif
 				head = orig_head + cur_size;
 				dropped = 0;
 				return size - (next_size);
@@ -227,7 +246,7 @@ private:
 		unsigned long d_len;
 		unsigned char* d_out = new unsigned char[size*4];
 		//skip over stored compressed_size
-		unsigned char* c_in = (unsigned char*) head + sizeof(unsigned int);
+		unsigned char* c_in = (unsigned char*) head + sizeof(unsigned int) + sizeof(bool);
 		auto r = lzo1x_decompress(c_in,c_len,d_out,&d_len,NULL);
 		if(r != LZO_E_OK) {
 			cerr << "OH GOD WE GUNNA CRASH (decompress failed)" << endl;
@@ -304,11 +323,12 @@ private:
 		char *out_tmp = new char[2*m_meta.size];
 		unsigned char scratch [LZO1X_1_MEM_COMPRESS];
 		unsigned char* in = (unsigned char *) send_buff;
-		unsigned char* out = (unsigned char*) (out_tmp + sizeof(unsigned int));
+		unsigned char* out = (unsigned char*) (out_tmp + sizeof(unsigned int) + sizeof(bool));
 		lzo_uint in_len = total_size;
 		lzo_uint out_len;
 		lzo1x_1_compress(in,in_len,out,&out_len,scratch);
-		*(lzo_uint*) out_tmp =  out_len + sizeof(unsigned int);
+		*(lzo_uint*) out_tmp =  out_len + sizeof(unsigned int) + sizeof(bool);
+		setIsEmpty(out_tmp, empty());
 		delete []send_buff;
 		return out_tmp;
 #else

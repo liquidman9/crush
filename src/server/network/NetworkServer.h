@@ -3,6 +3,7 @@
 // Global includes
 #include <vector>
 #include <map>
+#include <queue>
 
 // Project includes
 #include <shared/network/Network.h>
@@ -36,7 +37,7 @@ public:
 	EventBuff_t getEvents();
 
 	//Sends games State to all connected clients
-	void broadcastGameState(GameState<Entity> &);
+	void broadcastGameState(GameState<Entity> const&);
 
 	//returns a vector of connected Client IDs
 	vector<pair<unsigned int,string>> getConnectedClientIDs();
@@ -61,7 +62,8 @@ private:
 	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
 	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
 	SOCKET m_incomingSock;
-	GameState<Entity> *m_sendGS;
+	//queue<GameState<Entity>> m_gameStateQueue;
+	GameState<Entity> m_sendGS;
 	map <unsigned int, SOCKET> m_connectedClients;
 	map <unsigned int, string> m_clientIDs;
 	map <unsigned int, string> m_newClients;
@@ -70,7 +72,11 @@ private:
 	
 	//thread stuff
 	CRITICAL_SECTION m_cs;
-	CONDITION_VARIABLE m_cv;
+	CRITICAL_SECTION m_cs1;
+	CONDITION_VARIABLE m_workerReady;
+	CONDITION_VARIABLE m_broadcastReady;
+	bool m_sendAvailable;
+
 	HANDLE m_hThread;
 	HANDLE m_hThread1;
 
