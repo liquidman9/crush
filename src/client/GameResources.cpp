@@ -514,12 +514,15 @@ void GameResources::drawAll()
 	drawStaticHudElements();
 }
 
+// called each frame to update the state of all game sounds
 void GameResources::playSounds()
 {
+	//Engine sounds
 	for (UINT i = 0; i < shipList.size(); i++) {
 		sound.playEngine(shipList[i]);
 	}
 
+	//Tractor Beam Sounds
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
 		sound.playTractorBeam(tractorBeamList[i]);
 	}
@@ -735,7 +738,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	}
 
 	//Update the sound engine on the changes
-	//playSounds();
+	playSounds();
 }
 
 void GameResources::resetGameState() {

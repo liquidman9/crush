@@ -5,6 +5,7 @@
 #include <client/graphics/entities/C_Ship.h>
 #include <client/GameResources.h>
 
+const float AUDSCALE = 10.0;
 SoundManager::SoundManager() {
 
 	CoInitializeEx( NULL, COINIT_MULTITHREADED );
@@ -35,7 +36,7 @@ SoundManager::SoundManager() {
 			formats[TBEAMSOUND] = wfxtb;
 
 			pXAudio2->GetDeviceDetails(0,&deviceDetails);
-			X3DAudioInitialize( deviceDetails.OutputFormat.dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, X3DInstance );
+			X3DAudioInitialize( deviceDetails.OutputFormat.dwChannelMask, X3DAUDIO_SPEED_OF_SOUND/100.0, X3DInstance );
 		}
 	}
 }
@@ -59,11 +60,15 @@ void SoundManager::playTractorBeam(C_TractorBeam beam) {
 		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
 		tractorBeams3d.insert(pair<int,X3DAUDIO_EMITTER*>(beam.m_playerNum, Emitter));
 		tractorBeams3d[beam.m_playerNum]->ChannelCount = 1;
-		tractorBeams3d[beam.m_playerNum]->CurveDistanceScaler = FLT_MIN;
+		tractorBeams3d[beam.m_playerNum]->CurveDistanceScaler = AUDSCALE;
+		tractorBeams3d[beam.m_playerNum]->DopplerScaler = 20.0;
 	}
 
-	//tractorBeams3d[beam.m_playerNum]->OrientFront = EmitterOrientFront;
-	//tractorBeams3d[beam.m_playerNum]->OrientTop = EmitterOrientTop;
+	X3DAUDIO_VECTOR aud;
+	aud.x=0; aud.y=0; aud.z=1;
+	tractorBeams3d[beam.m_playerNum]->OrientFront = aud;
+	aud.x=0; aud.y=1; aud.z=0;
+	tractorBeams3d[beam.m_playerNum]->OrientTop = aud;
 	tractorBeams3d[beam.m_playerNum]->Position = beam.m_pos;
 	tractorBeams3d[beam.m_playerNum]->Velocity = beam.m_velocity;
 
@@ -81,8 +86,8 @@ X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_
 	tractorBeams[beam.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
 	//tractorBeams[beam.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
 
-	XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient), 1.0f };
-//	tractorBeams[beam.m_playerNum]->SetFilterParameters(&FilterParameters);
+	//XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient), 1.0f };
+	//tractorBeams[beam.m_playerNum]->SetFilterParameters(&FilterParameters);
 
 	if(beam.m_isOn) {
 		tractorBeams[beam.m_playerNum]->Start(0);
@@ -93,8 +98,11 @@ X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_
 
 void SoundManager::playEngine(C_Ship ship) {
 	if (ship.m_playerNum == GameResources::playerNum) {
-		//Listener.OrientFront = ListenerOrientFront;
-		//Listener.OrientTop = ListenerOrientTop;
+		X3DAUDIO_VECTOR aud;
+		aud.x=0; aud.y=0; aud.z=1;
+		Listener.OrientFront = aud;
+		aud.x=0; aud.y=1; aud.z=0;
+		Listener.OrientTop = aud;
 		Listener.Position = ship.m_pos;
 		Listener.Velocity = ship.m_velocity;
 	}
@@ -111,11 +119,15 @@ void SoundManager::playEngine(C_Ship ship) {
 		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
 		engines3d.insert(pair<int,X3DAUDIO_EMITTER*>(ship.m_playerNum, Emitter));
 		engines3d[ship.m_playerNum]->ChannelCount = 1;
-		engines3d[ship.m_playerNum]->CurveDistanceScaler = FLT_MIN;
+		engines3d[ship.m_playerNum]->CurveDistanceScaler = AUDSCALE;
+		engines3d[ship.m_playerNum]->DopplerScaler = 20.0;
 	}
 
-	//engines3d[ship.m_playerNum]->OrientFront = EmitterOrientFront;
-	//engines3d[ship.m_playerNum]->OrientTop = EmitterOrientTop;
+	X3DAUDIO_VECTOR aud;
+	aud.x=0; aud.y=0; aud.z=1;
+	engines3d[ship.m_playerNum]->OrientFront = aud;
+	aud.x=0; aud.y=1; aud.z=0;
+	engines3d[ship.m_playerNum]->OrientTop = aud;
 	engines3d[ship.m_playerNum]->Position = ship.m_pos;
 	engines3d[ship.m_playerNum]->Velocity = ship.m_velocity;
 
@@ -133,8 +145,11 @@ X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_
 	engines[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
 	//engines[ship.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
 
-	XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient), 1.0f };
-	//engines[ship.m_playerNum]->SetFilterParameters(&FilterParameters);
+	/*XAUDIO2_FILTER_PARAMETERS FilterParameters;
+	FilterParameters.Type = LowPassFilter;
+	FilterParameters.OneOverQ= 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient);
+	FilterParameters.Frequency = 1.0f;*/
+	//engines[ship.m_playerNum]->SetFilterParameters(NULL);
 
 	if (ship.m_thruster == 0) {
 		engines[ship.m_playerNum]->Stop();
