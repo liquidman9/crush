@@ -100,7 +100,7 @@ void NetworkServer::broadcastGameStateWorker() {
 		LeaveCriticalSection(&m_cs1);
 		WakeConditionVariable(&m_workerReady);
 
-		//EnterCriticalSection(&m_cs);
+		EnterCriticalSection(&m_cs);
 		for(auto it = m_connectedClients.begin();
 			it != m_connectedClients.end(); it++) {
 				if(!sendToClient(send_buff, size, it->first, it->second)) {

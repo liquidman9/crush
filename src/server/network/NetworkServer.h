@@ -3,7 +3,6 @@
 // Global includes
 #include <vector>
 #include <map>
-#include <queue>
 
 // Project includes
 #include <shared/network/Network.h>
@@ -62,7 +61,6 @@ private:
 	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
 	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
 	SOCKET m_incomingSock;
-	//queue<GameState<Entity>> m_gameStateQueue;
 	GameState<Entity> m_sendGS;
 	map <unsigned int, SOCKET> m_connectedClients;
 	map <unsigned int, string> m_clientIDs;
