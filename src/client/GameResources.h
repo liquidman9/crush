@@ -21,6 +21,7 @@
 //#include <client/graphics/entities/R_Ship.h>
 #include <shared/GameInput.h>
 #include <client/graphics/EntityIdentifier.h>
+#include <client/graphics/entities/C_Extractor.h>
 #include <client/graphics/entities/C_Resource.h>
 #include <client/graphics/entities/C_TractorBeam.h>
 #include <client/graphics/entities/C_Mothership.h>

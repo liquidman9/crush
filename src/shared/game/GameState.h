@@ -292,6 +292,11 @@ private:
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
 				break;
+			case EXTRACTOR:
+				ep = new C_Extractor();
+				ep->decode(cur_head + cur_size);
+				this->push_back(ep);
+				break;
 			default:
 				cerr << "ERROR decoding entity state. Unknown type: " << (int) (*(ENUM_TYPE*)( cur_head + cur_size)) << endl;
 				break;
@@ -358,4 +363,3 @@ private:
 	friend class NetworkClient;
 
 };
-

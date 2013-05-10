@@ -169,6 +169,7 @@ void GameResources::releaseResources() {
 	}
 
 	//Gbls::tractorBeamMesh.Destroy();
+	Gbls::extractorMesh.Destroy();
 	Gbls::resourceMesh.Destroy();
 	for(int i = 0; i < Gbls::numAsteroidMeshes; i++) {
 		Gbls::asteroidMesh[0].Destroy();
@@ -232,6 +233,8 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	}
 	if(FAILED(hres = Gbls::resourceMesh.Create(Gbls::resourceMeshFilepath)))
+			return hres;
+	if(FAILED(hres = Gbls::extractorMesh.Create(Gbls::extractorMeshFilepath)))
 			return hres;
 	//if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
 	//		return hres;
@@ -823,6 +826,13 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		{
 		C_Resource * tmp = new C_Resource(newEnt);
 		resourceList.push_back(tmp);
+		ret = tmp;
+		}
+		break;
+	case EXTRACTOR :
+		{
+		C_Extractor * tmp = new C_Extractor(newEnt);
+		//resourceList.push_back(tmp);
 		ret = tmp;
 		}
 		break;
