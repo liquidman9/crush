@@ -11,21 +11,9 @@ Extractor::Extractor() :
 }
 
 
-const char* Extractor::encode() const {
-	// Declare ret
-	char *rtn = new char[m_size];
-
+unsigned int Extractor::encode(char *head) const {
 	// Get entity encode
-	const char *tmp = Entity::encode();
-
-	// Copy entity encode into this ret
-	memcpy(rtn, tmp, Entity::size());
-
-	//always delete the encode buffer
-	delete []tmp;
-
-
-	return rtn;
+	return Entity::encode(head);
 }
 
 ostream& operator<<(ostream& os, const Extractor& e) {
@@ -34,9 +22,8 @@ ostream& operator<<(ostream& os, const Extractor& e) {
 	return os;
 }
 
-void Extractor::decode(const char *buff) {
-	Entity::decode(buff);
-	m_type = EXTRACTOR;
+unsigned int Extractor::decode(const char *buff) {
+	return Entity::decode(buff);
 }
 
 
