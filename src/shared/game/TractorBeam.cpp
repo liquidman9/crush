@@ -27,37 +27,25 @@ TractorBeam::TractorBeam(int pNum) :
 }
 
 
-const char* TractorBeam::encode() const {
-	// Declare ret
-	char *rtn = new char[m_size];
-
+unsigned int TractorBeam::encode(char *head) const {
 	// Get entity encode
-	const char *tmp = Entity::encode();
-
-	// Copy entity encode into this ret
-	memcpy(rtn, tmp, Entity::size());
-
-	//always delete the encode buffer
-	delete []tmp;
-
-	// Set up temp buffer at the end of entity encoding
-	char* tmp_rtn = rtn;
-	tmp_rtn += Entity::size();
+	unsigned int rtn = Entity::encode(head);
 
 	// Encode Scale
-	*(SHIP_PLAYERNUM_TYPE *) (tmp_rtn) = m_playerNum;
-	tmp_rtn += sizeof(SHIP_PLAYERNUM_TYPE);
+	*(SHIP_PLAYERNUM_TYPE *) (head+rtn) = m_playerNum;
+	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
 
-	*(bool *) (tmp_rtn) = m_isOn;
-	tmp_rtn += sizeof(bool);
+	*(bool *) (head+rtn) = m_isOn;
+	rtn += sizeof(bool);
 
-	*(D3DXVECTOR3 *) (tmp_rtn) = m_start;
-	tmp_rtn += sizeof(D3DXVECTOR3);
+	*(D3DXVECTOR3 *) (head+rtn) = m_start;
+	rtn += sizeof(D3DXVECTOR3);
 
-	*(D3DXVECTOR3 *) (tmp_rtn) = m_end;
-	tmp_rtn += sizeof(D3DXVECTOR3);
+	*(D3DXVECTOR3 *) (head+rtn) = m_end;
+	rtn += sizeof(D3DXVECTOR3);
 
-	*(float *) (tmp_rtn) = m_sentRadius;
+	*(float *) (head+rtn) = m_sentRadius;
+	rtn += sizeof(float);
 
 	return rtn;
 }
@@ -69,19 +57,20 @@ ostream& operator<<(ostream& os, const TractorBeam& e) {
 	return os;
 }
 
-void TractorBeam::decode(const char *buff) {
-	Entity::decode(buff);
+unsigned int TractorBeam::decode(const char *buff) {
+	unsigned int rtn = Entity::decode(buff);
 	m_type = TRACTORBEAM;
-	buff += Entity::size();
-	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
-	buff += sizeof(SHIP_PLAYERNUM_TYPE);
-	m_isOn = *(bool*) buff;
-	buff += sizeof(bool);
-	m_start = *(D3DXVECTOR3*) buff;
-	buff += sizeof(D3DXVECTOR3);
-	m_end = *(D3DXVECTOR3*) buff;
-	buff += sizeof(D3DXVECTOR3);
-	m_sentRadius= *(float*) buff;
+	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) (buff+rtn);
+	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
+	m_isOn = *(bool*) (buff+rtn);
+	rtn += sizeof(bool);
+	m_start = *(D3DXVECTOR3*) (buff+rtn);
+	rtn += sizeof(D3DXVECTOR3);
+	m_end = *(D3DXVECTOR3*) (buff+rtn);
+	rtn += sizeof(D3DXVECTOR3);
+	m_sentRadius= *(float*) (buff+rtn);
+	rtn += sizeof(float);
+	return rtn;
 }
 
 

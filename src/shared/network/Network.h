@@ -11,6 +11,11 @@
 #include <map>
 
 
+#define NETWORKSERVER_MAX_CLIENTS 4
+#define ENABLE_COMPRESSION
+
+
+
 // Project includes
 #include <shared/game/GameState.h>
 #include <shared/game/Entity.h>
@@ -25,7 +30,7 @@ typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;
 #define DEFAULT_PORT 8889
 #define MAX_PACKET_SIZE 65507
 #define TIMEOUT 5000;
-#define NETWORKSERVER_MAX_CLIENTS 4
+
 
 
 using namespace std;

@@ -309,10 +309,11 @@ private:
 		memcpy(send_buff,(char*) &m_meta, sizeof(m_meta));
 		int total_size = sizeof(m_meta);
 		for(unsigned int i = 0; i < m_entities.size(); i++) {
-			const char* tmp = m_entities[i]->encode();
-			memcpy(send_buff + total_size, tmp, m_entities[i]->size());
-			total_size += m_entities[i]->size();
-			delete []tmp;
+			//char * tmp = new char[m_entities[i]->size()];
+			total_size += m_entities[i]->encode(send_buff+total_size);
+			//memcpy(send_buff + total_size, tmp, m_entities[i]->size());
+			//total_size += m_entities[i]->size();
+			//delete []tmp;
 		}
 #ifdef ENABLE_COMPRESSION
 		static bool init = false;

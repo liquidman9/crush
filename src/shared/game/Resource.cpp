@@ -11,21 +11,10 @@ Resource::Resource() :
 }
 
 
-const char* Resource::encode() const {
-	// Declare ret
-	char *rtn = new char[m_size];
-
+unsigned int Resource::encode(char *head) const {
 	// Get entity encode
-	const char *tmp = Entity::encode();
+	unsigned int rtn = Entity::encode(head);
 
-	// Copy entity encode into this ret
-	memcpy(rtn, tmp, Entity::size());
-
-	delete []tmp;
-
-	// Set up temp buffer at the end of entity encoding
-	char* tmp_rtn = rtn;
-	tmp_rtn += Entity::size();
 	return rtn;
 }
 
@@ -35,10 +24,8 @@ ostream& operator<<(ostream& os, const Resource& e) {
 	return os;
 }
 
-void Resource::decode(const char *buff) {
-	Entity::decode(buff);
-	m_type = RESOURCE;
-	buff += Entity::size();
+unsigned int Resource::decode(const char *buff) {
+	return Entity::decode(buff);
 }
 
 

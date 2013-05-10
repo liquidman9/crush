@@ -25,34 +25,20 @@ void Ship::setPlayerName(const string &s) {
 }
 
 
-const char* Ship::encode() const {
-	// Declare ret
-	char *rtn = new char[m_size];
-
+unsigned int Ship::encode(char *head) const {
 	// Get entity encode
-	const char *tmp = Entity::encode();
-
-	// Copy entity encode into this ret
-	memcpy(rtn, tmp, Entity::size());
-
-	//*(ENUM_TYPE*) rtn = SHIP; THIS SHOULD BE SET IN ENTITY
-
-	// Set up temp buffer at the end of entity encoding
-	char* tmp_rtn = rtn;
-	tmp_rtn += Entity::size();
+	unsigned int rtn = Entity::encode(head);
 
 	// Encode playernum
-	*(SHIP_PLAYERNUM_TYPE*) (tmp_rtn) = m_playerNum;
-	tmp_rtn += sizeof(SHIP_PLAYERNUM_TYPE);
+	*(SHIP_PLAYERNUM_TYPE*) (head + rtn) = m_playerNum;
+	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
 	
 	// Encode tractor beam
-	*(double *) (tmp_rtn) = m_thruster;
-	tmp_rtn += sizeof(double);
+	*(double *) (head + rtn) = m_thruster;
+	rtn += sizeof(double);
 
-	memcpy(tmp_rtn, m_playerName.c_str(), MAX_PLAYERNAME_SIZE);
-
-	// Delete temp pointer
-	delete []tmp;
+	memcpy(head + rtn, m_playerName.c_str(), MAX_PLAYERNAME_SIZE);
+	rtn += MAX_PLAYERNAME_SIZE;
 
 	return rtn;
 }
@@ -64,15 +50,16 @@ ostream& operator<<(ostream& os, const Ship& e) {
 	return os;
 }
 
-void Ship::decode(const char *buff) {
-	Entity::decode(buff);
+unsigned int Ship::decode(const char *buff) {
+	unsigned int rtn = Entity::decode(buff);
 	//m_type = SHIP;
-	buff += Entity::size();
-	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) buff;
-	buff += sizeof(SHIP_PLAYERNUM_TYPE);
-	m_thruster = *(double *) buff;
-	buff += sizeof(double);
-	m_playerName = string(buff, MAX_PLAYERNAME_SIZE);
+	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) (buff+rtn);
+	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
+	m_thruster = *(double *) (buff+rtn);
+	rtn += sizeof(double);
+	m_playerName = string(buff+rtn, MAX_PLAYERNAME_SIZE);
+	rtn += MAX_PLAYERNAME_SIZE;
+	return rtn;
 }
 
 //void Ship::update(Entity * source) {

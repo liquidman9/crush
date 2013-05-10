@@ -20,6 +20,8 @@
 #include <client/graphics/Renderable.h>
 #include <shared/util/SharedUtils.h>
 
+#define ENABLE_DELTAS
+
 using namespace std;
 
 typedef D3DXQUATERNION Quaternion;
@@ -45,6 +47,9 @@ private:
 protected:
 	static const unsigned int m_size = sizeof(send_struct); //sizeof(ENUM_TYPE) + sizeof(int) + sizeof(D3DXVECTOR3) + sizeof(Quaternion);
 	
+#ifdef ENABLE_DELTAS
+	//void encodeDeltas(char *, unsigned int added_size, unsigned int & curr_size);
+#endif
 	// THIS CONSTRUCTOR SHOULD NEVER BE DIRECTLY CALLED.
 	Entity();
 
@@ -75,8 +80,8 @@ public:
 
 	// Methods
 	const int getID() const { return m_id; };
-	virtual const char* encode() const;
-	virtual void decode(const char *);
+	virtual unsigned int encode(char *) const;
+	virtual unsigned int decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
 	virtual void update(shared_ptr<Entity> source);
 	//virtual void update(Entity* source);

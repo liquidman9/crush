@@ -60,7 +60,7 @@ ostream& operator<<(ostream& os, const Entity& e) {
 }
 
 
-const char * Entity::encode() const {
+unsigned int Entity::encode(char *tmp) const {
 	send_struct s;
 	s.type = m_type;
 	s.id = m_id;
@@ -81,13 +81,13 @@ const char * Entity::encode() const {
 	//// Encode orientation
 	//*(Quaternion *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3)) = m_orientation;
 
-	char* tmp = new char[sizeof(send_struct)];
+	//char* tmp = new char[sizeof(send_struct)];
 	memcpy(tmp, (const char *) &s, sizeof(send_struct));
 
-	return tmp;
+	return sizeof(send_struct);
 }
 
-void Entity::decode(const char * tmp) {
+unsigned int Entity::decode(const char * tmp) {
 	send_struct s;
 	memcpy((char *) &s, tmp, sizeof(send_struct));
 	m_id = s.id;
@@ -97,6 +97,7 @@ void Entity::decode(const char * tmp) {
 	m_pFront = s.pFront;
 	m_pBack = s.pBack;
 	m_radius = s.radius;
+	return sizeof(send_struct);
 
 	// Decode Position
 	/*m_id = *(int *) (tmp + sizeof(ENUM_TYPE));

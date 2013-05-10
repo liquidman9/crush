@@ -18,25 +18,13 @@ Asteroid::Asteroid(float scale) :
 }
 
 
-const char* Asteroid::encode() const {
-	// Declare ret
-	char *rtn = new char[m_size];
-
+unsigned int Asteroid::encode(char *head) const {
 	// Get entity encode
-	const char *tmp = Entity::encode();
-
-	// Copy entity encode into this ret
-	memcpy(rtn, tmp, Entity::size());
-
-	//always delete the encode buffer
-	delete []tmp;
-
-	// Set up temp buffer at the end of entity encoding
-	char* tmp_rtn = rtn;
-	tmp_rtn += Entity::size();
+	unsigned int rtn = Entity::encode(head);
 
 	// Encode Scale
-	*(float *) (tmp_rtn) = m_scale;
+	*(float *) (head+rtn) = m_scale;
+	rtn += sizeof(float);
 
 	return rtn;
 }
@@ -48,11 +36,11 @@ ostream& operator<<(ostream& os, const Asteroid& e) {
 	return os;
 }
 
-void Asteroid::decode(const char *buff) {
-	Entity::decode(buff);
-	//m_type = ASTEROID;
-	buff += Entity::size();
-	m_scale = *(float*) buff;
+unsigned int Asteroid::decode(const char *buff) {
+	unsigned int rtn =Entity::decode(buff);
+	m_scale = *(float*) (buff+rtn);
+	rtn += sizeof(float);
+	return rtn;
 }
 
 

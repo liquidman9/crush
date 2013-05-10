@@ -20,28 +20,16 @@ Mothership::Mothership(int pNum) :
 }
 
 
-const char* Mothership::encode() const {
-	// Declare ret
-	char *rtn = new char[m_size];
-
+unsigned int Mothership::encode(char *head) const {
 	// Get entity encode
-	const char *tmp = Entity::encode();
-
-	// Copy entity encode into this ret
-	memcpy(rtn, tmp, Entity::size());
-
-	//always delete the encode buffer
-	delete []tmp;
-
-	// Set up temp buffer at the end of entity encoding
-	char* tmp_rtn = rtn;
-	tmp_rtn += Entity::size();
+	unsigned int rtn = Entity::encode(head);
 
 	// Encode Scale
-	*(PLAYERNUM_TYPE *) (tmp_rtn) = m_playerNum;
-	tmp_rtn += sizeof(PLAYERNUM_TYPE);
+	*(PLAYERNUM_TYPE *) (head + rtn) = m_playerNum;
+	rtn += sizeof(PLAYERNUM_TYPE);
 
-	*(int *) (tmp_rtn) = m_resources;
+	*(int *) (head + rtn) = m_resources;
+	rtn += sizeof(int);
 
 	return rtn;
 }
@@ -53,13 +41,13 @@ ostream& operator<<(ostream& os, const Mothership& e) {
 	return os;
 }
 
-void Mothership::decode(const char *buff) {
-	Entity::decode(buff);
-	m_type = MOTHERSHIP;
-	buff += Entity::size();
-	m_playerNum = *(PLAYERNUM_TYPE*) buff;
-	buff += sizeof(PLAYERNUM_TYPE);
-	m_resources = *(int*) buff;
+unsigned int Mothership::decode(const char *buff) {
+	unsigned int rtn = Entity::decode(buff);
+	m_playerNum = *(PLAYERNUM_TYPE*) (buff+rtn);
+	rtn += sizeof(PLAYERNUM_TYPE);
+	m_resources = *(int*) (buff+rtn);
+	rtn += sizeof(int);
+	return rtn;
 }
 
 
