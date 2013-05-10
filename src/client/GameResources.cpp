@@ -66,6 +66,7 @@ struct GameResources::KeyboardState GameResources::m_ks;
 std::wstring GameResources::timeStr;
 std::wstring GameResources::playerNameStr[4];
 int GameResources::playerScore[4];
+SoundManager GameResources::sound;
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -168,6 +169,7 @@ void GameResources::releaseResources() {
 	}
 
 	//Gbls::tractorBeamMesh.Destroy();
+	Gbls::extractorMesh.Destroy();
 	Gbls::resourceMesh.Destroy();
 	for(int i = 0; i < Gbls::numAsteroidMeshes; i++) {
 		Gbls::asteroidMesh[0].Destroy();
@@ -231,6 +233,8 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	}
 	if(FAILED(hres = Gbls::resourceMesh.Create(Gbls::resourceMeshFilepath)))
+			return hres;
+	if(FAILED(hres = Gbls::extractorMesh.Create(Gbls::extractorMeshFilepath)))
 			return hres;
 	//if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
 	//		return hres;
@@ -513,6 +517,20 @@ void GameResources::drawAll()
 	drawStaticHudElements();
 }
 
+// called each frame to update the state of all game sounds
+void GameResources::playSounds()
+{
+	//Engine sounds
+	for (UINT i = 0; i < shipList.size(); i++) {
+		sound.playEngine(shipList[i]);
+	}
+
+	//Tractor Beam Sounds
+	for (UINT i = 0; i < tractorBeamList.size(); i++) {
+		sound.playTractorBeam(tractorBeamList[i]);
+	}
+}
+
 // called each frame after processing keyboard state from that frame
 // clears out up keys
 void GameResources::updateKeyboardState() {
@@ -721,6 +739,9 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
 		partSystem->update(enginePGroupList[i], elapsedTime);
 	}
+
+	//Update the sound engine on the changes
+	playSounds();
 }
 
 void GameResources::resetGameState() {
@@ -805,6 +826,13 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		{
 		C_Resource * tmp = new C_Resource(newEnt);
 		resourceList.push_back(tmp);
+		ret = tmp;
+		}
+		break;
+	case EXTRACTOR :
+		{
+		C_Extractor * tmp = new C_Extractor(newEnt);
+		//resourceList.push_back(tmp);
 		ret = tmp;
 		}
 		break;

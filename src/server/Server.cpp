@@ -62,15 +62,18 @@ void Server::reloadConfig() {
 	//add variables to update here
 }
 
-void Server::setUpResourceMine() {
+void Server::setUpExtractor() {
 	D3DXVECTOR3 m_pos1(0,0,0);
 	Quaternion m_dir1(0.0, 0.0, 0.0, 1.0);
-	m_resourceMine = new Mine();
-	S_Resource *res = m_resourceMine->respawn();
+	m_extractor = new S_Extractor( m_pos1,m_dir1);
+	S_Resource *res = m_extractor->respawn();
+	m_gameState.push_back(m_extractor);
+	m_world.entities.push_back(m_extractor);
+
 	m_gameState.push_back(res);
 	m_world.entities.push_back(res);
 
-	m_resourceMine->setStart(milliseconds_now());
+	m_extractor->setStart(milliseconds_now());
 }
 
 void Server::setUpAsteroids() {
@@ -118,20 +121,6 @@ void Server::setUpAsteroids() {
 
 void Server::setUpBoundaries() {
 	m_world.m_worldRadius = 350;
-	/*float bound = 500;
-	Boundary left = Boundary(D3DXVECTOR3(1.0f,0.0f,0.0f), D3DXVECTOR3(-bound,0.0f,0.0f));
-	Boundary right = Boundary(D3DXVECTOR3(-1.0f,0.0f,0.0f), D3DXVECTOR3(bound,0.0f,0.0f));
-	Boundary top = Boundary(D3DXVECTOR3(0.0f,-1.0f,0.0f), D3DXVECTOR3(0.0f,bound,0.0f));
-	Boundary down = Boundary(D3DXVECTOR3(0.0f,1.0f,0.0f), D3DXVECTOR3(0.0f,-bound,0.0f));
-	Boundary front = Boundary(D3DXVECTOR3(0.0f,0.0f,1.0f), D3DXVECTOR3(0.0f,0.0f,-bound));
-	Boundary back = Boundary(D3DXVECTOR3(0.0f,0.0f,-1.0f), D3DXVECTOR3(0.0f,0.0f,bound));
-
-	m_world.boundaries.push_back(left);
-	m_world.boundaries.push_back(right);
-	m_world.boundaries.push_back(top);
-	m_world.boundaries.push_back(down);
-	m_world.boundaries.push_back(front);
-	m_world.boundaries.push_back(back);*/
 
 }
 
@@ -207,7 +196,7 @@ void Server::loop() {
 		if(m_start) {
 			initializeGameState();
 			reloadConfig();
-			setUpResourceMine();
+			setUpExtractor();
 			setUpAsteroids();
 			cout << "CRUSH Server has started" << endl;
 			m_start = false;
@@ -252,8 +241,8 @@ void Server::loop() {
 			moveClients();
 		}
 
-		if(m_resourceMine->checkRespawn(milliseconds_now())) {
-			S_Resource * res = m_resourceMine->respawn();
+		if(m_extractor->checkRespawn(milliseconds_now())) {
+			S_Resource * res = m_extractor->respawn();
 			m_gameState.push_back(res);
 			m_world.entities.push_back(res);
 		}

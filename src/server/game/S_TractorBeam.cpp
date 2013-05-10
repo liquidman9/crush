@@ -20,7 +20,7 @@ float server::entities::tractorbeam::gravity = 5.0f;
 float server::entities::tractorbeam::length = 350.0f;
 
 S_TractorBeam::S_TractorBeam(S_Ship * ship) :
-	Entity(TRACTORBEAM),
+	Entity(genId(), TRACTORBEAM, D3DXVECTOR3(0,0,0), Quaternion(0,0,0,1)),
 	TractorBeam(ship->m_playerNum),
 	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), length, 1.0),
 	m_strength(0),

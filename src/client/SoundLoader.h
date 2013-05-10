@@ -89,12 +89,12 @@ HRESULT ReadChunkData(HANDLE hFile, void * buffer, DWORD buffersize, DWORD buffe
 }
 
 
-void loadSound(WAVEFORMATEXTENSIBLE &wfx, XAUDIO2_BUFFER &buffer) {
+void loadSound(TCHAR * path, WAVEFORMATEXTENSIBLE &wfx, XAUDIO2_BUFFER &buffer) {
 
 	#ifdef _XBOX
 	char * strFileName = "game:\\media\\MusicMono.wav";
 	#else
-	TCHAR * strFileName = _TEXT("test.wav");
+	TCHAR * strFileName = path;
 	#endif
 	// Open the file
 	HANDLE hFile = CreateFile(
@@ -108,6 +108,8 @@ void loadSound(WAVEFORMATEXTENSIBLE &wfx, XAUDIO2_BUFFER &buffer) {
 
 	if( INVALID_HANDLE_VALUE == hFile ) {
 		std::cerr << HRESULT_FROM_WIN32( GetLastError() ) << std::endl;
+		
+		MessageBox( NULL, (L"Could not find sound file "+(wstring)path).c_str() , L"CRUSH.exe", MB_OK );
 		exit(5);
 	}
 

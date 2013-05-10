@@ -13,7 +13,7 @@
 #include <server/game/S_Resource.h>
 #include <server/game/S_TractorBeam.h>
 #include <server/game/S_Mothership.h>
-#include <server/game/Mine.h>
+#include <server/game/S_Extractor.h>
 #include <server/game/PhysicsWorld.h>
 #include <shared/ConfigSettings.h>
 
@@ -64,7 +64,7 @@ private:
 	void initializeGameState();
 
 	// add initial resources and the mine
-	void setUpResourceMine();
+	void setUpExtractor();
 
 	// add initial asteroids to the map
 	void setUpAsteroids();
@@ -85,9 +85,6 @@ private:
 
 	//move clients that are currently known
 	void moveClients();
-
-	// delete and respawn entities that have gone out of bounds
-	void resolveOutOfBoundsEntities();
 
 	//used in startTick and endOftick
 	long long milliseconds_now();
@@ -124,7 +121,7 @@ private:
 	EventBuff_t m_clientInput;
 	PlayerMap_t m_playerMap;
 	MothershipMap_t m_mothershipMap;
-	Mine * m_resourceMine;
+	S_Extractor * m_extractor;
 	long long m_startTick;
 	long long m_endClock;
 	int m_timeLimit;

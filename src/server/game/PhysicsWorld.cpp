@@ -216,7 +216,7 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 
 		if(beam->m_isOn){
 		
-			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP) rtn = false; // tmp
+			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP || entity->m_type == EXTRACTOR) rtn = false; // tmp
 			// If is already locked check if closer
 			else if(beam->isLocked()) {	
 				if(beam->getCurrentDistance() > D3DXVec3Length(&beam->getDistanceVectorOf(entity->m_pos))){
@@ -242,6 +242,10 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 
 	if(((one = a)->m_type == RESOURCE)|| ((one = b)->m_type == RESOURCE)){
 		rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
+	}
+
+	if(((one = a)->m_type == EXTRACTOR && (two = b)->m_type == SHIP)|| ((one = b)->m_type == EXTRACTOR && (two = a)->m_type == SHIP)){
+		rtn = false; // temporarily disabling reaction between ship and extractor
 	}
 
 	return rtn;

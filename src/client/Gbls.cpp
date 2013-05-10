@@ -34,6 +34,9 @@ Mesh * Gbls::asteroidMesh;
 //Mesh Gbls::tractorBeamMesh;
 std::wstring Gbls::resourceMeshFilepath;
 Mesh Gbls::resourceMesh;
+std::wstring Gbls::extractorMeshFilepath;
+Mesh Gbls::extractorMesh;
+
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;
 std::wstring Gbls::skyboxTextureFilepath_Front = L"SkyBox_Front.jpg";
@@ -147,6 +150,14 @@ void Gbls::initFromConfig() {
 			resourceMeshFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 	resourceMesh.setScaleRotate(1, 0, 0, 0);
+
+	/* Extractor */
+	if(!conf.getValue("extractorMeshFilepath", tmpString)) {  //default
+			extractorMeshFilepath = L"extractor.x";
+	} else {  //assign to wstring
+			extractorMeshFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	extractorMesh.setScaleRotate(1, 0, 0, 0);
 
 	/* Debug Cam */
 	conf.getValue("debugCamMoveSpeed", debugCamMoveSpeed);
