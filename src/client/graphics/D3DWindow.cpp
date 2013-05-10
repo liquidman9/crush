@@ -274,6 +274,10 @@ LRESULT CALLBACK D3DWindow::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 			GameResources::switchPlayerCameraScale();
 			break;
 
+		case '8':
+			GameResources::renderCBWireframe = !GameResources::renderCBWireframe;
+			break;
+
 		case VK_UP:
 			GameResources::m_ks.upDown = true;
 			break;

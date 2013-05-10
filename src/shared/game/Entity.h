@@ -37,6 +37,9 @@ private:
 		D3DXVECTOR3 pos;
 		D3DXVECTOR3 velocity;
 		Quaternion orientation;
+		D3DXVECTOR3 pFront;
+		D3DXVECTOR3 pBack;
+		float radius;
 	};
 
 protected:
@@ -55,6 +58,9 @@ public:
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_velocity;
 	Quaternion m_orientation;
+	D3DXVECTOR3 m_pFront;
+	D3DXVECTOR3 m_pBack;
+	float m_radius;
 
 	// These two constructors are DEPRECATED
 	Entity(Type type);

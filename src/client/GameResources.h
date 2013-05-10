@@ -75,6 +75,7 @@ public:
 	static int playerScore[4];
 
 	// for debugging collisions
+	static bool renderCBWireframe;
 	static LPD3DXMESH collisionSphere;
 	static LPD3DXMESH collisionCylinder;
 	//static vector<Sprite*> spriteList;
