@@ -22,9 +22,10 @@ float server::entities::tractorbeam::length = 350.0f;
 S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	Entity(TRACTORBEAM),
 	TractorBeam(ship->m_playerNum),
-	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), length, 1.0),// infinity
+	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), length, 1.0),
 	m_strength(0),
-	m_isPulling(true)
+	m_isPulling(true),
+	m_gravity(gravity)
 {
 	m_radius = m_sentRadius;
 	m_object = NULL;
@@ -84,7 +85,7 @@ void S_TractorBeam::setEndPoint() {
 		D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&tmpq, &m_ship->m_orientation));
 		D3DXVec3TransformCoord(&tmp,&tmp,&matRotate);
 		D3DXVec3Normalize( &tmp, &tmp );
-		m_end = m_ship->m_pos + tmp * length;
+		m_end = m_ship->m_pos + tmp * m_length;
 	}
 	else m_end = m_object->m_pos;
 
@@ -97,7 +98,7 @@ void S_TractorBeam::calculateForce() {
 		D3DXVECTOR3 disV = getCurrentDirection();
 		float disL = getCurrentDistance();
 		
-		D3DXVECTOR3 force = m_strength*(gravity*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
+		D3DXVECTOR3 force = m_strength*(m_gravity*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
 	
 		if(m_isPulling) {
 			m_ship->applyLinearImpulse(force * .01f);

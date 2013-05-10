@@ -43,6 +43,8 @@ class S_TractorBeam : public TractorBeam, public ServerEntity{
 
 public:
 	// Fields
+	float m_gravity;
+
 	ServerEntity * m_object;
 	S_Ship * m_ship; 
 	float m_strength;
