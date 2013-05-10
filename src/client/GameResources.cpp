@@ -66,6 +66,7 @@ struct GameResources::KeyboardState GameResources::m_ks;
 std::wstring GameResources::timeStr;
 std::wstring GameResources::playerNameStr[4];
 int GameResources::playerScore[4];
+SoundManager GameResources::sound;
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -513,6 +514,17 @@ void GameResources::drawAll()
 	drawStaticHudElements();
 }
 
+void GameResources::playSounds()
+{
+	for (UINT i = 0; i < shipList.size(); i++) {
+		sound.playEngine(shipList[i]);
+	}
+
+	for (UINT i = 0; i < tractorBeamList.size(); i++) {
+		sound.playTractorBeam(tractorBeamList[i]);
+	}
+}
+
 // called each frame after processing keyboard state from that frame
 // clears out up keys
 void GameResources::updateKeyboardState() {
@@ -721,6 +733,9 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
 		partSystem->update(enginePGroupList[i], elapsedTime);
 	}
+
+	//Update the sound engine on the changes
+	//playSounds();
 }
 
 void GameResources::resetGameState() {
