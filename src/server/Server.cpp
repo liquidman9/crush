@@ -58,6 +58,7 @@ void Server::reloadConfig() {
 	server::entities::ship::initFromConfig();
 	server::entities::tractorbeam::initFromConfig();
 	server::entities::mothership::initFromConfig();
+	server::entities::asteroid::initFromConfig();
 	//add variables to update here
 }
 
@@ -74,20 +75,17 @@ void Server::setUpResourceMine() {
 
 void Server::setUpAsteroids() {
 	cout << "Begin setting up asteroids..." <<endl;
-	m_numAsteroids = 50;
-	int range = 400;
-	int start = -200;
 
 	Quaternion defaultAsteroidDir(0, 0, 0, 1);
-	for(int i = 0; i < m_numAsteroids; i++) {
+	for(int i = 0; i < server::entities::asteroid::numAsteroids; i++) {
 		S_Asteroid * newAsteroid;
 		bool fits = false;
 		float scale = 1;
 		D3DXVECTOR3 asteroidPos(0,0,0);
 
 		while(!fits) {
-			scale =  (rand() % S_Asteroid::s_range) + S_Asteroid::s_start;
-			asteroidPos = D3DXVECTOR3((rand()%range)+start,(rand()%range)+start,(rand()%range)+start);
+			scale =  (rand() % server::entities::asteroid::rangeMass) + server::entities::asteroid::startMass;
+			asteroidPos = D3DXVECTOR3((rand()%server::entities::asteroid::rangePos)+server::entities::asteroid::startPos,(rand()%server::entities::asteroid::rangePos)+server::entities::asteroid::startPos,(rand()%server::entities::asteroid::rangePos)+server::entities::asteroid::startPos);
 			cout<<i;
 			newAsteroid = new S_Asteroid(asteroidPos, defaultAsteroidDir, scale);
 
@@ -111,7 +109,6 @@ void Server::setUpAsteroids() {
 		D3DXVECTOR3 initialForce(((rand() % forceMax*2)-forceMax)*forceMulti,((rand() % forceMax*2)-forceMax)*forceMulti,((rand() % forceMax*2)-forceMax)*forceMulti);
 		
 		newAsteroid->applyLinearImpulse(initialForce * .01f);
-		m_asteroidList.push_back(newAsteroid);
 		m_gameState.push_back(newAsteroid);
 		m_world.entities.push_back(newAsteroid);
 	}
@@ -146,10 +143,6 @@ void Server::initializeGameState() {
 	m_world.entities.clear();
 	addNewClients(m_server.getConnectedClientIDs());
 	
-
-	setUpResourceMine();
-
-	setUpAsteroids();
 
 	setUpBoundaries();
 
@@ -214,6 +207,8 @@ void Server::loop() {
 		if(m_start) {
 			initializeGameState();
 			reloadConfig();
+			setUpResourceMine();
+			setUpAsteroids();
 			cout << "CRUSH Server has started" << endl;
 			m_start = false;
 		} else if (m_reload) {

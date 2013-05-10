@@ -13,6 +13,33 @@
 #include <shared/game/Asteroid.h>
 #include <server/game/ServerEntity.h>
 #include <shared/InputState.h>
+#include <shared/ConfigSettings.h>
+
+namespace server {
+	namespace entities {
+		namespace asteroid {
+			static const string CONFIG_PREFIX = "asteroid_";
+
+			extern float startMass;
+			extern int rangeMass;
+			extern float startPos;
+			extern int rangePos;
+			extern float scaleToRadius;
+			extern float radiusToMass;
+			extern int numAsteroids;
+
+			inline void initFromConfig() {
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "numAsteroids", numAsteroids);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "startMass", startMass);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "rangeMass", rangeMass);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "startPos", startPos);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "rangePos", rangePos);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "scaleToRadius", scaleToRadius);
+				ConfigSettings::config->getValue(CONFIG_PREFIX + "radiusToMass", radiusToMass);
+			}
+		}
+	}
+}
 
 
 #pragma warning( push )
@@ -21,8 +48,7 @@
 class S_Asteroid : public Asteroid, public ServerEntity{ //switch back to capsule
 
 public:
-	static int s_range;
-	static float s_start;
+
 	// Fields
 
 	// Constructors
