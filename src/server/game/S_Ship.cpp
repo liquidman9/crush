@@ -59,16 +59,17 @@ void S_Ship::init() {
 // This method needs to be extracted to the server/physics engine.
 void S_Ship::addPlayerInput(InputState input) {
 	
-	//m_tractorBeamOn = (float) input.getTractorBeam();
-	m_tractorBeam->m_isOn = (input.getTractorBeam() != 0 || input.getPushBurst()); //tmp
-
 	if(input.getPushBurst()) {
-		m_tractorBeam->m_isPulling = false;
-		m_tractorBeam->m_strength = 1.0f;
+		m_tractorBeam->setIsOn(true);
+		m_tractorBeam->setIsPulling(false);
+	}
+	else if(input.getTractorBeam() != 0) {
+		m_tractorBeam->setIsOn(true);
+		m_tractorBeam->setIsPulling(true);
+		m_tractorBeam->m_strength = (float) input.getTractorBeam();
 	}
 	else {
-		m_tractorBeam->m_isPulling = true;
-		m_tractorBeam->m_strength = (float) input.getTractorBeam();
+		m_tractorBeam->setIsOn(false);
 	}
 
 	m_thruster = input.getThrust();
@@ -137,10 +138,16 @@ void S_Ship::applyDamping() {
 	m_rotating = false;
 
 }
+void S_Ship::updateHeldObject(){
+	m_tractorBeam->m_object->m_pos = m_pos + m_tractorBeam->getCurrentDirection()*m_tractorBeam->m_heldDistance;//(m_radius > m_tractorBeam->m_object->m_radius? m_radius: m_tractorBeam->m_object->m_radius); 
+}
 
 void S_Ship::update(float delta_time) {
 	applyDamping();
+	
 	ServerEntity::update(delta_time);
+	if(m_tractorBeam->m_isHolding)
+		updateHeldObject();
 }
 
 void S_Ship::calcTractorBeam() {
@@ -175,8 +182,12 @@ bool S_Ship::interact(S_Resource * res) {
 	return false;
 }
 
-void S_Ship::interact(S_Asteroid * asteroid) {
-	if(m_resource != NULL) {
+bool S_Ship::interact(S_Asteroid * asteroid) {
+	if(m_tractorBeam->m_object != NULL && m_tractorBeam->m_object == asteroid){
+		m_tractorBeam->m_isColliding = true;
+		return false;
+	}
+	else if(m_resource != NULL) {
 		S_Resource * tmp = m_resource;
 		m_resource = NULL;
 		tmp->m_carrier = NULL;
@@ -186,9 +197,14 @@ void S_Ship::interact(S_Asteroid * asteroid) {
 		tmp->m_spot = -1;
 		tmp->reset(); // temporary to stop resources from moving far far away when dropped
 	}
+	return true;
 }
 
-void S_Ship::interact(S_Ship * ship) {
+bool S_Ship::interact(S_Ship * ship) {
+	if(m_tractorBeam->m_object != NULL && m_tractorBeam->m_object == ship){
+		m_tractorBeam->m_isColliding = true;
+		return false;
+	}
 	if(m_resource != NULL) {
 		S_Resource * tmp = m_resource;
 		m_resource = NULL;
@@ -199,6 +215,7 @@ void S_Ship::interact(S_Ship * ship) {
 		tmp->m_spot = -1;
 		tmp->reset(); // temporary to stop resources from moving far far away when dropped
 	}
+	return true;
 }
 
 void S_Ship::print() {

@@ -130,6 +130,7 @@ void ServerEntity::recalculateRelativeValues() {
 void ServerEntity::update(float delta_time) {
 	// Apply current frame's physics
 	// Apply impulse
+
 	m_momentum += t_impulse;
 	m_angular_momentum += t_angular_impulse;
 	

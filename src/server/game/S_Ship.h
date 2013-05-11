@@ -77,13 +77,16 @@ public:
 	void addPlayerInput(InputState);
 	void applyDamping();
 	void calcTractorBeam();
+	void updateHeldObject();
 
 	virtual void update(float delta_time);
 
 	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+
+	//todo switch interacts to true->success instead of true->collsion response
 	bool interact(S_Resource *);
-	void interact(S_Asteroid *);
-	void interact(S_Ship *);
+	bool interact(S_Asteroid *);
+	bool interact(S_Ship *);
 
 	virtual void print();
 
