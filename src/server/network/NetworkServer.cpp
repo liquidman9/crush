@@ -91,11 +91,12 @@ void NetworkServer::broadcastGameStateWorker() {
 			SleepConditionVariableCS(&m_broadcastReady, &m_cs1, INFINITE);
 		}
 		m_sendAvailable = false;
-		
+#ifdef ENABLE_DELTA
 		if(curr_clients != m_connectedClients.size()) {
 			curr_clients = m_connectedClients.size();
 			m_sendGS.resetDeltas();
 		}
+#endif
 		auto send_buff = m_sendGS.getSendBuff();
 #ifdef ENABLE_COMPRESSION
 		unsigned int size = *(unsigned int*) send_buff;

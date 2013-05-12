@@ -82,7 +82,7 @@ public:
 	virtual const unsigned int size() const { return m_size; };
 #ifdef ENABLE_DELTA
 	virtual const unsigned int deltaSize() const { 
-		return m_size + m_size/(sizeof(char)*8) + m_size%(sizeof(char)*8) + sizeof(BITFIELD_CONTAINER);
+		return this->m_size + (int) ceil((float) this->m_size/(sizeof(char)*8)) + sizeof(BITFIELD_CONTAINER);
 	}
 #endif
 	virtual void update(shared_ptr<Entity> source);

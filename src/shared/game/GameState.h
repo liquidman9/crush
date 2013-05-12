@@ -50,7 +50,7 @@ public:
 #ifdef ENABLE_DELTA
 		m_buffSize += e->deltaSize();
 #else
-		m_buffSizee += e->size();
+		m_buffSize += e->size();
 #endif
 
 		m_entities.push_back(shared_ptr<E>(e));
@@ -164,7 +164,7 @@ public:
 	};
 
 private:
-   	void push_back_size(Entity * e, unsigned int size) {
+	void push_back_size(Entity * e, unsigned int size) {
 		m_meta.size += size;
 		m_entities.push_back(shared_ptr<E>(e));
 	}
@@ -186,24 +186,6 @@ private:
 	unsigned int getExpectedSize(char* head, const unsigned int size) const {
 		assert(size >= gsMinSize());
 		return getRecvSize(head);
-		//auto gs_size = getRecvSize(head);
-		//gameStateMeta gs_meta;
-		//memcpy((char* ) &gs_meta, head, gsMinSize());
-		//unsigned int cur_size;
-		//bool valid_gameState = false;
-		/*for(cur_size = 0; cur_size < size; cur_size += gs_size) {
-		gs_size = getRecvSize(head+cur_size);
-		if(gs_size == 0) {
-		return -1;
-		}			
-		if(cur_size + gs_size <= size) {
-		valid_gameState = true;
-		}
-		}
-		if (valid_gameState && cur_size != size) {
-		return cur_size - gs_size;
-		}
-		return cur_size;*/
 	}
 
 	int getLastCompleteGS(char* &head, const unsigned int size, unsigned int &dropped) const {
@@ -233,7 +215,7 @@ private:
 				head = orig_head + cur_size;
 			}
 		}
-
+		dropped--;
 		return size - total_size;
 #endif
 	}
@@ -257,18 +239,24 @@ private:
 		//skip over stored compressed_size
 		unsigned char* c_in = (unsigned char*) head + sizeof(unsigned int) + sizeof(bool);
 		auto r = lzo1x_decompress(c_in,c_len,d_out,&d_len,NULL);
-		if(r != LZO_E_OK) {
+		if(r != LZO_E_OK && r != -8) {
 			cerr << "OH GOD WE GUNNA CRASH (decompress failed)" << endl;
 		}
 		size = d_len;
 
 		head = (char*) d_out;
 #endif
-
+		memcpy((char* ) &m_meta, head, sizeof(m_meta));
+		auto gs_size = m_meta.size;
 #ifdef ENABLE_DELTA
-		decodeDeltaState(head);
+
+		if(gs_size != gsMinSize()) {
+			decodeDeltaState(head, gs_size);
+		} else {
+			clear();
+		}
 #else
-		decodeNew(head);
+		decodeNew(head, gs_size);
 #endif
 
 #ifdef ENABLE_COMPRESSION
@@ -308,9 +296,7 @@ private:
 #endif
 	}
 
-	void decodeNew(char *head) {
-		memcpy((char* ) &m_meta, head, sizeof(m_meta));
-		auto gs_size = m_meta.size;
+	void decodeNew(char *head, unsigned int gs_size) {
 		char* cur_head = head + sizeof(m_meta);
 		Entity *ep = NULL;
 		clear();
@@ -320,6 +306,7 @@ private:
 		for(unsigned int cur_size = 0; cur_size < gs_size - sizeof(m_meta);){
 			Entity* ep = NULL;
 			ep = decodeNewEntity(cur_size+cur_head, cur_size, false);
+			push_back(ep);
 		}
 	}
 
@@ -364,9 +351,7 @@ private:
 		}
 	}
 
-	void decodeDeltaState(char *head) {
-		memcpy((char* ) &m_meta, head, sizeof(m_meta));
-		auto gs_size = m_meta.size;
+	void decodeDeltaState(char *head, unsigned int gs_size) {
 		char* cur_head = head + sizeof(m_meta);
 		for(unsigned int cur_size = 0, i = 0; cur_size < gs_size - sizeof(m_meta); i++){
 			if(Sendable::isNewObject(cur_head + cur_size)) {
@@ -374,7 +359,7 @@ private:
 				push_back_size(decodeNewEntity(cur_head + cur_size, cur_size, true), cur_size - tmp);
 				continue;
 			}
-				cur_size += m_entities[i]->decode(cur_head + cur_size);
+			cur_size += m_entities[i]->decode(cur_head + cur_size);
 		}
 	}
 
