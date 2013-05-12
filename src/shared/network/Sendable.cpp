@@ -147,7 +147,7 @@ unsigned int Sendable::decodeDelta(char* buff) {
 }
 
 unsigned int Sendable::skipDeltaInfo(char *buff) {
-	return  *(BITFIELD_CONTAINER *) buff + sizeof(BITFIELD_CONTAINER); 
+	return  (unsigned int)(ceil(((float)*(BITFIELD_CONTAINER *) buff)/8)) + sizeof(BITFIELD_CONTAINER); 
 }
 
 

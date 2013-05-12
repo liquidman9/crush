@@ -36,7 +36,7 @@ Network(port),
 {
 	WSADATA wsa;
 	WSAStartup(MAKEWORD(2,2),&wsa);
-	
+
 	initializeSocket();
 	bindSocket();
 	startListening();
@@ -65,7 +65,7 @@ void NetworkServer::initializeThreads() {
 		this,           // arg list holding the "this" pointer
 		0,		
 		&threadID );
-	
+
 
 }
 
@@ -84,6 +84,8 @@ void NetworkServer::initializeSocket() {
 void NetworkServer::broadcastGameStateWorker() {
 	vector<map<unsigned int, SOCKET>::iterator> removeList;
 	unsigned int curr_clients = 0;
+	bool send_empty = false;
+	GameState<Entity> e;
 	for(;;){		
 		//send to every client currently connected
 		EnterCriticalSection(&m_cs1);		
@@ -95,8 +97,10 @@ void NetworkServer::broadcastGameStateWorker() {
 		if(curr_clients != m_connectedClients.size()) {
 			curr_clients = m_connectedClients.size();
 			m_sendGS.resetDeltas();
+			send_empty = true;
 		}
 #endif
+		//get send buff and size
 		auto send_buff = m_sendGS.getSendBuff();
 #ifdef ENABLE_COMPRESSION
 		unsigned int size = *(unsigned int*) send_buff;
@@ -106,9 +110,29 @@ void NetworkServer::broadcastGameStateWorker() {
 		LeaveCriticalSection(&m_cs1);
 		WakeConditionVariable(&m_workerReady);
 
+		//prep empty gamestate send if necessary
+#ifdef ENABLE_DELTA
+		char * send_buff_e;
+		if(send_buff)
+			send_buff_e = e.getSendBuff();
+#ifdef ENABLE_COMPRESSION 
+		unsigned int size_e = *(unsigned int*) send_buff_e;
+#else
+		unsigned int size_e = e.sendSize();
+#endif
+#endif
+
 		EnterCriticalSection(&m_cs);
 		for(auto it = m_connectedClients.begin();
 			it != m_connectedClients.end(); it++) {
+#ifdef ENABLE_DELTA
+				if(send_empty) {
+					if(!sendToClient(send_buff_e, size_e, it->first, it->second)) {
+						//client can't be reached
+						removeList.push_back(it);
+					}
+				}
+#endif
 				if(!sendToClient(send_buff, size, it->first, it->second)) {
 					//client can't be reached
 					removeList.push_back(it);
@@ -118,6 +142,12 @@ void NetworkServer::broadcastGameStateWorker() {
 		removeClients(removeList);
 		LeaveCriticalSection(&m_cs);
 		removeList.clear();
+		
+#ifdef ENABLE_DELTA
+		if(send_buff)
+			delete []send_buff_e;
+		send_empty = false;
+#endif
 
 		delete []send_buff;		
 	}

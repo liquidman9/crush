@@ -28,6 +28,7 @@ NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailab
 
 
 void NetworkClient::initializeSocket() {
+	m_dropped = 0;
 	if( (m_sock = socket(AF_INET , SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET )  {
 		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
 	}
@@ -211,7 +212,7 @@ int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned 
 					cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 				} else if (r == 0) {
 					cerr << "connection to the server timed out" << endl;
-					throw runtime_error("connection to the server timed out");
+				//	throw runtime_error("connection to the server timed out");
 				} 
 			} else {
 				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
