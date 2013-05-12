@@ -40,7 +40,8 @@ namespace server {
 
 
 class S_TractorBeam : public TractorBeam, public ServerEntity{ 
-
+private:
+	bool m_isPulling;
 public:
 	// Fields
 	float m_gravity;
@@ -48,7 +49,10 @@ public:
 	ServerEntity * m_object;
 	S_Ship * m_ship; 
 	float m_strength;
-	bool m_isPulling;
+	
+	bool m_isColliding;
+	bool m_isHolding;
+	float m_heldDistance; //temp
 
 	// Constructors
 	S_TractorBeam(S_Ship *);
@@ -62,6 +66,10 @@ public:
 	void setStartPoint();
 	void setEndPoint();
 	void lockOn(ServerEntity * entity);
+
+	void setIsPulling(bool);
+	bool getIsPulling();
+	void setIsOn(bool);
 	
 	// For applying impulses, updating data, etc
 	void updateData();

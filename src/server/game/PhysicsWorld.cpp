@@ -191,32 +191,31 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 	if(((one = a)->m_type == SHIP && (two = b)->m_type == SHIP) ){
 		S_Ship * ship1 = (S_Ship *) one;
 		S_Ship * ship2 = (S_Ship *) two;
-		ship1->interact(ship2);
-		ship2->interact(ship1);
-		rtn = true; 
+		if(ship1->interact(ship2) && ship2->interact(ship1)) rtn = true;
+		else rtn = false; 
 	}
 
 	// Asteroid hits Ship
 	if(((one = a)->m_type == SHIP && (two = b)->m_type == ASTEROID) || ((one = b)->m_type == SHIP && (two = a)->m_type == ASTEROID)){
 		S_Asteroid * asteroid = (S_Asteroid *)two;
 		S_Ship * ship = (S_Ship *) one;
-		ship->interact(asteroid);
-		rtn = true; 
+		return ship->interact(asteroid);
+		//rtn = true; 
 	}
 
-
+	//Resource and Mothership
 	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == MOTHERSHIP)){
 		rtn = false;  // change if possible to push a resource into the mothership with the tractorbeam
 	}
 
-
+	// TractorBeam
 	if(((one = a)->m_type == TRACTORBEAM && (two = b)->m_type) || ((one = b)->m_type == TRACTORBEAM && (two = a)->m_type)){
 		S_TractorBeam * beam = (S_TractorBeam *)one;
 		ServerEntity * entity = two;
 
 		if(beam->m_isOn){
 		
-			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP || entity->m_type == EXTRACTOR) rtn = false; // tmp
+			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP || entity->m_type == EXTRACTOR || (entity->m_type == RESOURCE && ((S_Resource *)entity)->m_carrier != NULL)) rtn = false; // tmp
 			// If is already locked check if closer
 			else if(beam->isLocked()) {	
 				if(beam->getCurrentDistance() > D3DXVec3Length(&beam->getDistanceVectorOf(entity->m_pos))){
@@ -231,6 +230,7 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		rtn = false; // could give them the immovable tag 
 	}
 
+	// Resource
 	if(((one = a)->m_type == RESOURCE) && ((one = b)->m_type == RESOURCE)){
 		S_Resource * res1 = (S_Resource *)one;
 		S_Resource * res2 = (S_Resource *)two;
@@ -240,10 +240,12 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		// or could give them the immovable tag (relative to their carrier) when on the mothership and while being held
 	}
 
+	// Resource Temp
 	if(((one = a)->m_type == RESOURCE)|| ((one = b)->m_type == RESOURCE)){
 		rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
 	}
 
+	//Extractor and Ship
 	if(((one = a)->m_type == EXTRACTOR && (two = b)->m_type == SHIP)|| ((one = b)->m_type == EXTRACTOR && (two = a)->m_type == SHIP)){
 		rtn = false; // temporarily disabling reaction between ship and extractor
 	}

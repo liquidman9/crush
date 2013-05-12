@@ -1,3 +1,7 @@
+//=================================================================================================
+// GameState.h This class maintains an InputState for player input and handles the current Controller.
+//=================================================================================================
+
 #pragma once
 #ifndef GAMEINPUT_H
 #define GAMEINPUT_H

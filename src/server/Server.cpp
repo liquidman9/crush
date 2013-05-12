@@ -78,6 +78,7 @@ void Server::setUpExtractor() {
 
 void Server::setUpAsteroids() {
 	cout << "Begin setting up asteroids..." <<endl;
+	srand(milliseconds_now());
 
 	Quaternion defaultAsteroidDir(0, 0, 0, 1);
 	for(int i = 0; i < server::entities::asteroid::numAsteroids; i++) {

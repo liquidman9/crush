@@ -1,3 +1,7 @@
+//=================================================================================================
+// GameState.cpp This class maintains an InputState for player input and handles the current Controller.
+//=================================================================================================
+
 #include "GameInput.h"
 
 GameInput::GameInput() {

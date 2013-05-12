@@ -1,3 +1,7 @@
+//=================================================================================================
+// SoundManager.cpp This class maintains and manages all sound within the game.
+//=================================================================================================
+
 #include "SoundManager.h"
 
 #include <iostream>
@@ -36,7 +40,7 @@ SoundManager::SoundManager() {
 			formats[TBEAMSOUND] = wfxtb;
 
 			pXAudio2->GetDeviceDetails(0,&deviceDetails);
-			X3DAudioInitialize( deviceDetails.OutputFormat.dwChannelMask, X3DAUDIO_SPEED_OF_SOUND/100.0, X3DInstance );
+			X3DAudioInitialize( deviceDetails.OutputFormat.dwChannelMask, X3DAUDIO_SPEED_OF_SOUND/100.0f, X3DInstance );
 		}
 	}
 }
@@ -156,7 +160,7 @@ X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_
 	}else {
 		engines[ship.m_playerNum]->Start(0);
 	}
-	engines[ship.m_playerNum]->SetVolume(ship.m_thruster);
+	engines[ship.m_playerNum]->SetVolume((float)ship.m_thruster);
 }
 /*
 void SoundManager::newVoice(vector<IXAudio2SourceVoice> * list, SENUM_TYPE type) {

@@ -1,3 +1,7 @@
+//=================================================================================================
+// SoundLoader.h  Static class for loading .wav sound files.
+//=================================================================================================
+
 #ifdef _XBOX //Big-Endian
 #define fourccRIFF 'RIFF'
 #define fourccDATA 'data'

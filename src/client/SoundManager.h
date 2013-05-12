@@ -1,3 +1,7 @@
+//=================================================================================================
+// SoundManager.h This class maintains and manages all sound within the game.
+//=================================================================================================
+
 #pragma once
 #ifndef SOUNDMANAGER_H
 #define SOUNDMANAGER_H
