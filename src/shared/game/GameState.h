@@ -233,15 +233,16 @@ private:
 			init = true;
 		}
 		auto c_size = getRecvSize(head);
-		unsigned int c_len = (unsigned int) c_size - sizeof(unsigned int);
+		unsigned int c_len = (unsigned int) c_size - sizeof(unsigned int) - sizeof(bool);
 		unsigned long d_len;
-		unsigned char* d_out = new unsigned char[size*4];
+		unsigned char* d_out = new unsigned char[size*10];
 		//skip over stored compressed_size
 		unsigned char* c_in = (unsigned char*) head + sizeof(unsigned int) + sizeof(bool);
 		auto r = lzo1x_decompress(c_in,c_len,d_out,&d_len,NULL);
-		if(r != LZO_E_OK && r != -8) {
+		if(r != LZO_E_OK) {
 			cerr << "OH GOD WE GUNNA CRASH (decompress failed)" << endl;
 		}
+		assert(size*10 > d_len);
 		size = d_len;
 
 		head = (char*) d_out;
@@ -360,6 +361,7 @@ private:
 				continue;
 			}
 			cur_size += m_entities[i]->decode(cur_head + cur_size);
+			assert(cur_size <= gs_size - sizeof(m_meta));
 		}
 	}
 

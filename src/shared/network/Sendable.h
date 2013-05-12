@@ -5,7 +5,7 @@
 
 
 
-//#define ENABLE_DELTA
+#define ENABLE_DELTA
 #define ENABLE_COMPRESSION
 
 
