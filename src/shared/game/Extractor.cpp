@@ -11,9 +11,17 @@ Extractor::Extractor() :
 }
 
 
-unsigned int Extractor::encode(char *head) const {
+unsigned int Extractor::encode(char *head) {
 	// Get entity encode
-	return Entity::encode(head);
+	auto rtn = Entity::encode(head);
+
+#ifdef ENABLE_DELTA
+	char tmp [m_size + MAX_ENTITY_SIZE];
+	rtn = encodeDelta(tmp, head, rtn);
+	memcpy(head, tmp, rtn);
+#endif
+
+	return rtn;
 }
 
 ostream& operator<<(ostream& os, const Extractor& e) {
@@ -22,8 +30,22 @@ ostream& operator<<(ostream& os, const Extractor& e) {
 	return os;
 }
 
-unsigned int Extractor::decode(const char *buff) {
-	return Entity::decode(buff);
+unsigned int Extractor::decode(char *buff) {
+	unsigned int actual_rtn = Entity::decode(buff);
+#ifdef ENABLE_DELTA
+	unsigned int rtn = Entity::size();
+	buff = m_oldState;
+#else
+	unsigned int rtn = actual_rtn;
+#endif
+	//new variables here
+
+
+#ifdef ENABLE_DELTA
+	return actual_rtn;
+#else
+	return rtn;
+#endif
 }
 
 

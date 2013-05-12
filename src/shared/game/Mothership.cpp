@@ -20,7 +20,7 @@ Mothership::Mothership(int pNum) :
 }
 
 
-unsigned int Mothership::encode(char *head) const {
+unsigned int Mothership::encode(char *head) {
 	// Get entity encode
 	unsigned int rtn = Entity::encode(head);
 
@@ -30,6 +30,12 @@ unsigned int Mothership::encode(char *head) const {
 
 	*(int *) (head + rtn) = m_resources;
 	rtn += sizeof(int);
+
+#ifdef ENABLE_DELTA
+	char tmp [m_size + MAX_ENTITY_SIZE];
+	rtn = encodeDelta(tmp, head, rtn);
+	memcpy(head, tmp, rtn);
+#endif
 
 	return rtn;
 }
@@ -41,13 +47,25 @@ ostream& operator<<(ostream& os, const Mothership& e) {
 	return os;
 }
 
-unsigned int Mothership::decode(const char *buff) {
-	unsigned int rtn = Entity::decode(buff);
+unsigned int Mothership::decode(char *buff) {
+	unsigned int actual_rtn = Entity::decode(buff);
+#ifdef ENABLE_DELTA
+	unsigned int rtn = Entity::size();
+	buff = m_oldState;
+#else
+	unsigned int rtn = actual_rtn;
+#endif
+
 	m_playerNum = *(PLAYERNUM_TYPE*) (buff+rtn);
 	rtn += sizeof(PLAYERNUM_TYPE);
 	m_resources = *(int*) (buff+rtn);
 	rtn += sizeof(int);
+
+#ifdef ENABLE_DELTA
+	return actual_rtn;
+#else
 	return rtn;
+#endif
 }
 
 

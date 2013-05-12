@@ -83,7 +83,7 @@ void NetworkServer::initializeSocket() {
 
 void NetworkServer::broadcastGameStateWorker() {
 	vector<map<unsigned int, SOCKET>::iterator> removeList;
-	
+	unsigned int curr_clients = 0;
 	for(;;){		
 		//send to every client currently connected
 		EnterCriticalSection(&m_cs1);		
@@ -91,7 +91,12 @@ void NetworkServer::broadcastGameStateWorker() {
 			SleepConditionVariableCS(&m_broadcastReady, &m_cs1, INFINITE);
 		}
 		m_sendAvailable = false;
-		const char* send_buff = m_sendGS.getSendBuff();
+		
+		if(curr_clients != m_connectedClients.size()) {
+			curr_clients = m_connectedClients.size();
+			m_sendGS.resetDeltas();
+		}
+		auto send_buff = m_sendGS.getSendBuff();
 #ifdef ENABLE_COMPRESSION
 		unsigned int size = *(unsigned int*) send_buff;
 #else
@@ -226,11 +231,12 @@ void NetworkServer::acceptNewClient()
 			}
 
 			unsigned int i = max_clients;
+			unsigned int tmp_client_count = m_clientCount;
 			// find clientID for new client
 			if (m_clientCount < max_clients - 1) {
 				for (i = 0; i < max_clients; i++) {
 					if(m_connectedClients.find(i) == m_connectedClients.end()) {							
-						++m_clientCount;
+						tmp_client_count++;
 						break;
 					}
 				}
@@ -243,7 +249,7 @@ void NetworkServer::acceptNewClient()
 			} else {
 
 				//send clientID
-				int clientID = m_clientCount - 1;
+				int clientID = tmp_client_count - 1;
 				if(send(ClientSocket, (const char *) &(clientID), sizeof(m_clientCount), 0) == SOCKET_ERROR){
 					//LOOK HERE IF THERE ARE PROBLEMS CONNECTING
 					cerr << "Error sending client id : " + to_string((long long) WSAGetLastError()) << endl;
@@ -261,7 +267,7 @@ void NetworkServer::acceptNewClient()
 
 				//set client to non-blocking
 				u_long iMode = 1;
-				if(ioctlsocket(ClientSocket, FIONBIO, &iMode) == SOCKET_ERROR){
+				if(ioctlsocket(ClientSocket, FIONBIO, &iMode) == SOCKET_ERROR) {
 					runtime_error e("Error setting client socket to non-blocking : "
 						+ to_string((long long) WSAGetLastError()));
 					throw e;
@@ -273,9 +279,12 @@ void NetworkServer::acceptNewClient()
 
 				//insert new client into connected clients
 				EnterCriticalSection(&m_cs);
+				EnterCriticalSection(&m_cs1);
+				m_clientCount = tmp_client_count;
 				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				m_clientIDs.insert(pair<unsigned int, string>(i, string(client_name)));
+				LeaveCriticalSection(&m_cs1);
 				LeaveCriticalSection(&m_cs);
 				cout << "New client " << i << " connected." << endl;
 			}
@@ -283,9 +292,9 @@ void NetworkServer::acceptNewClient()
 	}
 }
 
-void NetworkServer::decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client) {
+void NetworkServer::decodeEvents(char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client) {
 	Event* ep = NULL;
-	const char* curr_head = head;
+	char* curr_head = head;
 	for(unsigned int cur_size = 0; cur_size < size; cur_size += ep->size() ) {
 		ep = new InputState();
 		ep->decode(curr_head);

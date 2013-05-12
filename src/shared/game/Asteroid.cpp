@@ -18,13 +18,19 @@ Asteroid::Asteroid(float scale) :
 }
 
 
-unsigned int Asteroid::encode(char *head) const {
+unsigned int Asteroid::encode(char *head) {
 	// Get entity encode
 	unsigned int rtn = Entity::encode(head);
 
 	// Encode Scale
 	*(float *) (head+rtn) = m_scale;
 	rtn += sizeof(float);
+
+#ifdef ENABLE_DELTA
+	char tmp [m_size + MAX_ENTITY_SIZE];
+	rtn = encodeDelta(tmp, head, rtn);
+	memcpy(head, tmp, rtn);
+#endif
 
 	return rtn;
 }
@@ -36,11 +42,25 @@ ostream& operator<<(ostream& os, const Asteroid& e) {
 	return os;
 }
 
-unsigned int Asteroid::decode(const char *buff) {
-	unsigned int rtn =Entity::decode(buff);
+unsigned int Asteroid::decode(char *buff) {
+	unsigned int actual_rtn = Entity::decode(buff);
+#ifdef ENABLE_DELTA
+	unsigned int rtn = Entity::size();
+	buff = m_oldState;
+#else
+	unsigned int rtn = actual_rtn;
+#endif
+
 	m_scale = *(float*) (buff+rtn);
 	rtn += sizeof(float);
+
+
+#ifdef ENABLE_DELTA
+	return actual_rtn;
+#else
 	return rtn;
+#endif
+
 }
 
 

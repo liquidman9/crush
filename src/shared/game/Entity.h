@@ -14,6 +14,7 @@
 #include <d3dx9.h>
 #include <iostream>
 #include <memory>
+#include<math.h>
 
 // Project includes
 #include <shared/network/Sendable.h>
@@ -35,21 +36,17 @@ class Entity : public Sendable {
 private:
 	struct send_struct {
 		ENUM_TYPE type;
-		int id;
-		D3DXVECTOR3 pos;
-		D3DXVECTOR3 velocity;
 		Quaternion orientation;
+		D3DXVECTOR3 pos;
+		D3DXVECTOR3 velocity;		
 		D3DXVECTOR3 pFront;
-		D3DXVECTOR3 pBack;
+		D3DXVECTOR3 pBack;		
+		int id;		
 		float radius;
 	};
 
 protected:
-	static const unsigned int m_size = sizeof(send_struct); //sizeof(ENUM_TYPE) + sizeof(int) + sizeof(D3DXVECTOR3) + sizeof(Quaternion);
-	
-#ifdef ENABLE_DELTAS
-	//void encodeDeltas(char *, unsigned int added_size, unsigned int & curr_size);
-#endif
+	static const unsigned int m_size = sizeof(send_struct);
 	// THIS CONSTRUCTOR SHOULD NEVER BE DIRECTLY CALLED.
 	Entity();
 
@@ -80,9 +77,14 @@ public:
 
 	// Methods
 	const int getID() const { return m_id; };
-	virtual unsigned int encode(char *) const;
-	virtual unsigned int decode(const char *);
+	virtual unsigned int encode(char *);
+	virtual unsigned int decode(char *);
 	virtual const unsigned int size() const { return m_size; };
+#ifdef ENABLE_DELTA
+	virtual const unsigned int deltaSize() const { 
+		return m_size + m_size/(sizeof(char)*8) + m_size%(sizeof(char)*8) + sizeof(BITFIELD_CONTAINER);
+	}
+#endif
 	virtual void update(shared_ptr<Entity> source);
 	//virtual void update(Entity* source);
 

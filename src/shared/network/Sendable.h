@@ -1,36 +1,60 @@
 #pragma once
+
+#include<vector>
+#include<assert.h>
+
+
+
 #define ENABLE_DELTA
+//#define ENABLE_COMPRESSION
+
 
 #ifdef ENABLE_DELTA
-//must be a multiple of 2
-//#define MAX_SEND_SIZE 128
+class BitField {
+#define BITFIELD_CONTAINER unsigned char
+#define MAX_ENTITY_SIZE (1 << sizeof(BITFIELD_CONTAINER)*8)
+#define MAX_ENCODED_ENTITY_SIZE (2*MAX_ENTITY_SIZE + sizeof(BITFIED_CONTAINER))
+public :
+	bool operator[](unsigned int i);
+	bool const operator[](unsigned int i) const;
+	void setBitAt(unsigned int i, bool value);
+	unsigned int size();
+	unsigned int sendSize();
+	void clear();
+	unsigned int encode(char * buff);
+	unsigned int decode(char *buff);
+
+private:
+	std::vector<char> m_field;
+};
+
 #endif
 
 class Sendable
 {
-public:
+
+public :
 
 	virtual const unsigned int size() const = 0;
-	virtual unsigned int encode(char *) const = 0;
-	virtual unsigned int decode(const char *) = 0;
-	
-#ifdef ENABLE_DELTA
-	/*typedef struct {
-		unsigned field : MAX_SEND_SIZE;
-	} deltaField;
+	virtual unsigned int encode(char *) = 0;
+	virtual unsigned int decode(char *) = 0;
 
-	static void encodeDelta(char* buff, void *new_data, void *old_data, deltaField *dfield, unsigned int &curr_encode_size, unsigned int added_size) {
-		char * np = (char *) new_data;
-		char * op = (char *) old_data;
-		for(unsigned int encode_count = 0; encode_count < added_size; ++curr_encode_size, ++encode_count) {
-			if(*np = *op) {
-				dfield->field |= 1 << curr_encode_size;
-				buff[curr_encode_size] = old_data;
-			} else {
-				dfield->field &= ~(1 << curr_encode_size);
-			}
-		}
-	}*/
+#ifdef ENABLE_DELTA
+	static bool isNewObject(char* buff);
+	virtual unsigned int encodeDelta(char* buff, char *new_data, unsigned int size);
+	virtual unsigned int decodeDelta(char* buff);
+	static unsigned int skipDeltaInfo(char * buff);
+	char *m_oldState;
+
+protected :
+	Sendable();
+
+	//pointer to old non-delta encoded state
+
+
+	//bit field that represents what bytes have changed (first bit represents new object)
+	BitField m_deltaField;
+
 #endif
 };
 

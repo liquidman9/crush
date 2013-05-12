@@ -12,9 +12,6 @@
 
 
 #define NETWORKSERVER_MAX_CLIENTS 4
-#define ENABLE_COMPRESSION
-
-
 
 // Project includes
 #include <shared/game/GameState.h>

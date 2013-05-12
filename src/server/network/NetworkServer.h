@@ -53,13 +53,13 @@ public:
 	virtual ~NetworkServer(void);
 
 private:
-	unsigned int m_clientCount;
+	volatile unsigned int m_clientCount;
 	void initializeSocket();
 	void startListening();
 	void bindSocket();
 	void removeClients(const vector<map<unsigned int, SOCKET>::iterator> &removeList);
 	bool sendToClient(const char * const, const int, const unsigned int,  SOCKET &);
-	void decodeEvents(const char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
+	void decodeEvents(char * head, unsigned int size, map<unsigned int, shared_ptr<Event> > &g, unsigned int client);
 	SOCKET m_incomingSock;
 	GameState<Entity> m_sendGS;
 	map <unsigned int, SOCKET> m_connectedClients;

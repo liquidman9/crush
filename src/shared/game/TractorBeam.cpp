@@ -27,7 +27,7 @@ TractorBeam::TractorBeam(int pNum) :
 }
 
 
-unsigned int TractorBeam::encode(char *head) const {
+unsigned int TractorBeam::encode(char *head) {
 	// Get entity encode
 	unsigned int rtn = Entity::encode(head);
 
@@ -47,6 +47,13 @@ unsigned int TractorBeam::encode(char *head) const {
 	*(float *) (head+rtn) = m_sentRadius;
 	rtn += sizeof(float);
 
+
+#ifdef ENABLE_DELTA
+	char tmp [m_size + MAX_ENTITY_SIZE];
+	rtn = encodeDelta(tmp, head, rtn);
+	memcpy(head, tmp, rtn);
+#endif
+
 	return rtn;
 }
 
@@ -57,8 +64,15 @@ ostream& operator<<(ostream& os, const TractorBeam& e) {
 	return os;
 }
 
-unsigned int TractorBeam::decode(const char *buff) {
-	unsigned int rtn = Entity::decode(buff);
+unsigned int TractorBeam::decode(char * buff) {
+	unsigned int actual_rtn = Entity::decode(buff);
+#ifdef ENABLE_DELTA
+	unsigned int rtn = Entity::size();
+	buff = m_oldState;
+#else
+	unsigned int rtn = actual_rtn;
+#endif
+
 	m_type = TRACTORBEAM;
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) (buff+rtn);
 	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
@@ -70,7 +84,12 @@ unsigned int TractorBeam::decode(const char *buff) {
 	rtn += sizeof(D3DXVECTOR3);
 	m_sentRadius= *(float*) (buff+rtn);
 	rtn += sizeof(float);
+
+#ifdef ENABLE_DELTA
+	return actual_rtn;
+#else
 	return rtn;
+#endif
 }
 
 

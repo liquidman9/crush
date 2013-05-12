@@ -50,7 +50,7 @@ class InputState : public Sendable {
 	static const unsigned int m_size = sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+
 		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType);
 
-	virtual unsigned int encode(char * tmp) const {
+	virtual unsigned int encode(char * tmp) {
 		//char * tmp = new char[m_size];
 		*(TBType *) tmp = tractBeam;
 		*(ThrustType *) (tmp+sizeof(TBType)) = thrust;
@@ -62,7 +62,7 @@ class InputState : public Sendable {
 		return size();
 	};
 
-	virtual unsigned int decode(const char * tmp) {
+	virtual unsigned int decode(char * tmp) {
 		tractBeam = *(TBType *)tmp;
 		thrust = *(ThrustType *)(tmp+sizeof(TBType));
 		turn = *(TurnType *) (tmp+sizeof(TBType)+sizeof(ThrustType));

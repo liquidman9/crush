@@ -35,8 +35,8 @@ public:
 
 	// Methods
 	virtual void setPlayerName(const string &);
-	virtual unsigned int encode(char *) const;
-	virtual unsigned int decode(const char *);
+	virtual unsigned int encode(char *);
+	virtual unsigned int decode(char *);
 	virtual const unsigned int size() const { return m_size; };
 
 	//virtual void update(Entity * source);

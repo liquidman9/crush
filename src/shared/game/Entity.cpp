@@ -60,7 +60,7 @@ ostream& operator<<(ostream& os, const Entity& e) {
 }
 
 
-unsigned int Entity::encode(char *tmp) const {
+unsigned int Entity::encode(char *tmp) {
 	send_struct s;
 	s.type = m_type;
 	s.id = m_id;
@@ -87,8 +87,21 @@ unsigned int Entity::encode(char *tmp) const {
 	return sizeof(send_struct);
 }
 
-unsigned int Entity::decode(const char * tmp) {
+unsigned int Entity::decode(char * tmp) {
 	send_struct s;
+	unsigned int rtn = sizeof(send_struct);
+#ifdef ENABLE_DELTA
+	rtn = decodeDelta(tmp);
+	/*if (Sendable::isNewObject(tmp)){
+		tmp += rtn1;
+		rtn += rtn1;
+	} else {
+		rtn = rtn1;
+	}*/
+	/*tmp += Sendable::skipDeltaInfo(tmp);*/
+	tmp = m_oldState;
+#endif
+	
 	memcpy((char *) &s, tmp, sizeof(send_struct));
 	m_id = s.id;
 	m_pos = s.pos;
@@ -97,7 +110,7 @@ unsigned int Entity::decode(const char * tmp) {
 	m_pFront = s.pFront;
 	m_pBack = s.pBack;
 	m_radius = s.radius;
-	return sizeof(send_struct);
+	return rtn;
 
 	// Decode Position
 	/*m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
