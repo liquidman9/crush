@@ -66,7 +66,6 @@ private:
 	map <unsigned int, string> m_clientIDs;
 	map <unsigned int, string> m_newClients;
 	vector<unsigned int> m_disconClients;
-
 	
 	//thread stuff
 	CRITICAL_SECTION m_cs;

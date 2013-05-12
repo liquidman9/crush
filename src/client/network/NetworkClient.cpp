@@ -18,7 +18,7 @@ NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port),
 	initializeSocket();
 }
 
-NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailable(false) {
+NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailable(false), m_dropped(0) {
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
 	}
@@ -31,9 +31,10 @@ void NetworkClient::initializeSocket() {
 	if( (m_sock = socket(AF_INET , SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET )  {
 		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
 	}
-	int timeout = TIMEOUT;
-	ConfigSettings::config->getValue("network_timeout", timeout);
-	if(setsockopt( m_sock, SOL_SOCKET, SO_RCVTIMEO, (const char *) &timeout, sizeof( timeout )) ) {
+	m_timeOut = TIMEOUT;
+	m_timeOut *= 1000;
+	ConfigSettings::config->getValue("network_timeout", m_timeOut);
+	if(setsockopt( m_sock, SOL_SOCKET, SO_RCVTIMEO, (const char *) &m_timeOut, sizeof( m_timeOut )) ) {
 		runtime_error e("Could not set timeout : " + to_string((long long) WSAGetLastError()));
 		throw e;
 	}
@@ -99,6 +100,12 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 	char value = 1;
 	setsockopt( m_sock, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
 
+	u_long iMode = 1;
+	if(ioctlsocket(m_sock, FIONBIO, &iMode) == SOCKET_ERROR) {
+		runtime_error e("Error setting client socket to non-blocking : "
+			+ to_string((long long) WSAGetLastError()));
+		throw e;
+	}
 
 
 	//start thread to recv data from server
@@ -125,16 +132,17 @@ void NetworkClient::updateGameState() {
 	char buff[MAX_PACKET_SIZE];
 	char *local_buf;
 	int remaining_data = 0;
+
 	GameState<Entity> local_gs;
 	while(1) {
 		local_buf = buff + remaining_data;
 		bool error = false;
-		//memset(local_buf,'\0', MAX_PACKET_SIZE);
-		int recv_len;
-		if ((recv_len = recv(m_sock, local_buf, MAX_PACKET_SIZE-remaining_data, 0)) == SOCKET_ERROR) {
-			cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+
+		int recv_len = recvFromServer(local_buf, MAX_PACKET_SIZE-remaining_data, remaining_data);
+		if(recv_len < 0) {
 			error = true;
 		}
+
 		auto test = m_gameState.getRecvSize(buff);
 
 		if(error && WSAGetLastError() == WSAETIMEDOUT) {
@@ -143,10 +151,9 @@ void NetworkClient::updateGameState() {
 
 		unsigned int total_size = recv_len + remaining_data;
 		while(!error && total_size < m_gameState.gsMinSize()) {
-			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE-total_size, 0)) == SOCKET_ERROR) {
-				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+			recv_len = recvFromServer(local_buf+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
+			if(recv_len < 0) { 
 				error = true;
-				break;
 			}
 			total_size += recv_len;
 		}
@@ -155,12 +162,11 @@ void NetworkClient::updateGameState() {
 		if(!error) {
 			expected_size = m_gameState.getExpectedSize(buff, total_size);
 		}
-		
+
 		while(!error && total_size < expected_size) {
-			if ((recv_len = recv(m_sock, local_buf+total_size, MAX_PACKET_SIZE-total_size, 0)) == SOCKET_ERROR) {
-				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+			recv_len = recvFromServer(local_buf+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
+			if(recv_len < 0) { 
 				error = true;
-				break;
 			}
 			total_size += recv_len;
 			expected_size = m_gameState.getExpectedSize(local_buf, total_size);
@@ -180,6 +186,43 @@ void NetworkClient::updateGameState() {
 			}
 		}
 	}
+}
+
+int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned int remaining_data) {
+	static fd_set fds;
+	static timeval timeout = {m_timeOut/1000, 0};
+	static bool init = false;
+	bool error = false;
+	if(!init) {
+		FD_ZERO(&fds);
+		FD_SET(m_sock, &fds);
+		init = true;
+	}
+	int recv_len = 0;
+	do {
+		if (((recv_len = recv(m_sock, local_buf, size, 0)) == SOCKET_ERROR)) {
+			if(WSAGetLastError() == WSAEWOULDBLOCK) {
+				if(remaining_data != 0) {
+					recv_len = 0;
+					break;
+				}
+				int r;
+				if((r = select(NULL, &fds, NULL, NULL, &timeout)) == SOCKET_ERROR) {
+					cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+				} else if (r == 0) {
+					cerr << "connection to the server timed out" << endl;
+					throw runtime_error("connection to the server timed out");
+				} 
+			} else {
+				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+				error = true;
+			}
+		}
+	} while(!error && recv_len <= 0 && remaining_data == 0);
+	if(error) {
+		return -1;
+	}
+	return recv_len;
 }
 
 

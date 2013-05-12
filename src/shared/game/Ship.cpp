@@ -70,7 +70,7 @@ unsigned int Ship::decode(char *buff) {
 	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
 	m_thruster = *(double *) (buff+rtn);
 	rtn += sizeof(double);
-	m_playerName = string(buff+rtn, MAX_PLAYERNAME_SIZE);
+	m_playerName = string(buff+rtn, MAX_PLAYERNAME_SIZE - 1);
 	rtn += MAX_PLAYERNAME_SIZE;
 
 #ifdef ENABLE_DELTA

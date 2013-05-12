@@ -26,7 +26,7 @@ typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;
 
 #define DEFAULT_PORT 8889
 #define MAX_PACKET_SIZE 65507
-#define TIMEOUT 5000;
+#define TIMEOUT 5; //(in seconds)
 
 
 

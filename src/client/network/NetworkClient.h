@@ -57,6 +57,7 @@ public:
 private:
 	unsigned int m_clientID;
 	void initializeSocket();
+	int recvFromServer(char * local_buf, unsigned int size, unsigned int remaining_data);
 	SOCKET m_sock;
 	WSADATA wsa;
 	Network m_server;
@@ -64,6 +65,7 @@ private:
 	GameState<Entity> m_gameState;
 	void bindToServer(Network const &, const string &);
 	unsigned int m_dropped;
+	int m_timeOut;
 
 
 	//thread stuff
