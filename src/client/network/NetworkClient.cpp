@@ -222,7 +222,7 @@ int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned 
 				error = true;
 			}
 		}
-	} while(!error && recv_len <= 0 && remaining_data == 0);
+	} while(!error && recv_len < 0 && remaining_data == 0);
 	if(error) {
 		return -1;
 	}
