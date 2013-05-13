@@ -15,7 +15,7 @@ long S_Resource::s_dropTimeoutLength = 1000; //ms
 S_Resource::S_Resource() :
 	Entity(RESOURCE),
 	Resource(),
-	ServerEntity(10, calculateRotationalInertia(10), 1.0, 1.0),
+	ServerEntity(10, 1.0, calculateRotationalInertia(10)),
 	m_carrier(NULL),
 	m_dropTimeoutStart(0),
 	m_onDropTimeout(false),
@@ -28,7 +28,7 @@ S_Resource::S_Resource() :
 S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), RESOURCE, pos, orientation),
 	Resource(),
-	ServerEntity(10, calculateRotationalInertia(10), 1.0, 1.0),
+	ServerEntity(10, 1.0, calculateRotationalInertia(10)),
 	m_carrier(NULL),
 	m_dropTimeoutStart(0),
 	m_onDropTimeout(false),
@@ -38,11 +38,11 @@ S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 {	
 }
 
-D3DXVECTOR3 S_Resource::calculateRotationalInertia(float mass){
+D3DXMATRIX S_Resource::calculateRotationalInertia(float mass){
 	float radius_squared = 1;
-	return D3DXVECTOR3( (2.0f / 5.0f) * mass * radius_squared,
-						(2.0f / 5.0f) * mass * radius_squared,
-						(2.0f / 5.0f) * mass * radius_squared);
+	return *D3DXMatrixScaling(&D3DXMATRIX(), (2.0f / 5.0f) * mass * radius_squared,
+											 (2.0f / 5.0f) * mass * radius_squared,
+											 (2.0f / 5.0f) * mass * radius_squared);
 };
 
 void S_Resource::travel() {

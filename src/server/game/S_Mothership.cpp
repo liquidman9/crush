@@ -12,39 +12,23 @@
 
 using namespace server::entities::mothership;
 
-float server::entities::mothership::mass = 20000000.0f;
-
-S_Mothership::S_Mothership(int pNum) :
-	Entity(MOTHERSHIP),
-	Mothership(pNum),
-	ServerEntity(mass, calculateRotationalInertia(mass), 5.0f, 1.0f)
-{
-	m_immovable = true;
-	m_radius = 5.0f;
-	m_resourceSpots = 10;
-	m_length = 5.0f;
-}
-
 S_Mothership::S_Mothership(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), MOTHERSHIP, pos, orientation),
 	Mothership(pNum),
-	ServerEntity(mass, calculateRotationalInertia(mass), 5.0f, 1.0f)
+	ServerEntity(mass, 5.0f, calculateRotationalInertia(mass))
 {	
 	m_immovable = true;
 	m_radius = 5.0f;
 	m_resourceSpots = 10;
 	m_length = 5.0f;
 }
-
-
-
 	
-D3DXVECTOR3 S_Mothership::calculateRotationalInertia(float mass){
+D3DXMATRIX S_Mothership::calculateRotationalInertia(float mass){
 	float radius_squared = 100;
 	float height_squared = 400;
-	return D3DXVECTOR3( (1.0f / 12.0f) * mass * (radius_squared + height_squared),
-						(1.0f / 12.0f) * mass * (radius_squared + height_squared),
-						(1.0f / 12.0f) * mass * (radius_squared + height_squared));
+	return *D3DXMatrixScaling(&D3DXMATRIX(), (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
+											 (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
+											 (0.5f) * mass * radius_squared);
 };
 
 bool S_Mothership::interact(S_Ship * ship) {
@@ -95,8 +79,8 @@ void S_Mothership::update(float delta_time){
 		static int count = 0;
 		count++;
 		if (count % 120 == 0) {
-			cout << "Orientation: "; shared::utils::printQuat(this->m_orientation); cout << endl;
-			cout << "Angular motion: "; shared::utils::printVec(this->m_angular_velocity); cout << endl;
+			cout << "Orientation: " << this->m_orientation << endl;
+			cout << "Angular motion: " << this->m_angular_velocity << endl;
 		}
 	}
 }

@@ -5,15 +5,18 @@
 
 
 
-#define ENABLE_DELTA
+//#define ENABLE_DELTA
 #define ENABLE_COMPRESSION
 
 
 #ifdef ENABLE_DELTA
+
 class BitField {
+
 #define BITFIELD_CONTAINER unsigned char
 #define MAX_ENTITY_SIZE (1 << sizeof(BITFIELD_CONTAINER)*8)
 #define MAX_ENCODED_ENTITY_SIZE (2*MAX_ENTITY_SIZE + sizeof(BITFIED_CONTAINER))
+
 public :
 	bool operator[](unsigned int i);
 	bool const operator[](unsigned int i) const;

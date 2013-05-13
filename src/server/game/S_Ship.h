@@ -17,32 +17,9 @@
 #include <server/game/S_Resource.h>
 #include <server/game/S_Asteroid.h>
 #include <server/game/ServerEntity.h>
+#include <server/Globals.h>
 
 class S_TractorBeam;
-
-namespace server {
-	namespace entities {
-		namespace ship {
-			static const string CONFIG_PREFIX = "ship_";
-
-			extern float mass;
-			extern float forward_impulse;
-			extern float rotation_impulse;
-			extern float braking_impulse;
-			extern float max_velocity;
-			extern float max_rotation_velocity;
-
-			inline void initFromConfig() {
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "mass", mass);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "forward_impulse", forward_impulse);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "rotation_impulse", rotation_impulse);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "braking_impulse", braking_impulse);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "max_velocity", max_velocity);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "max_rotation_velocity", max_rotation_velocity);
-			}
-		}
-	}
-}
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
@@ -81,14 +58,12 @@ public:
 
 	virtual void update(float delta_time);
 
-	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 
 	//todo switch interacts to true->success instead of true->collsion response
 	bool interact(S_Resource *);
 	bool interact(S_Asteroid *);
 	bool interact(S_Ship *);
-
-	virtual void print();
 
 };
 

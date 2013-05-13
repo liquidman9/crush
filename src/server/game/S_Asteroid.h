@@ -15,33 +15,6 @@
 #include <shared/InputState.h>
 #include <shared/ConfigSettings.h>
 
-namespace server {
-	namespace entities {
-		namespace asteroid {
-			static const string CONFIG_PREFIX = "asteroid_";
-
-			extern float startMass;
-			extern int rangeMass;
-			extern float startPos;
-			extern int rangePos;
-			extern float scaleToRadius;
-			extern float radiusToMass;
-			extern int numAsteroids;
-
-			inline void initFromConfig() {
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "numAsteroids", numAsteroids);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "startMass", startMass);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "rangeMass", rangeMass);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "startPos", startPos);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "rangePos", rangePos);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "scaleToRadius", scaleToRadius);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "radiusToMass", radiusToMass);
-			}
-		}
-	}
-}
-
-
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
@@ -52,11 +25,11 @@ public:
 	// Fields
 
 	// Constructors
-	S_Asteroid();
 	S_Asteroid(D3DXVECTOR3, Quaternion, float);
 
 	// Methods
-	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	static float calculateMass(float radius, float density);
+	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 };
 
 #pragma warning( pop )

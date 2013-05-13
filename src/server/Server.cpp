@@ -1,5 +1,7 @@
 #include "Server.h"
+#include <shared/util/SharedUtils.h>
 
+using namespace shared::utils;
 
 Server::Server(unsigned int port):m_server(port)
 {
@@ -54,12 +56,11 @@ void Server::startGame() {
 void Server::reloadConfig() {
 	ConfigSettings::config->reloadSettingsFile();
 
-	ConfigSettings::config->getValue("gp_timeLimit", m_timeLimit);
-	server::entities::ship::initFromConfig();
-	server::entities::tractorbeam::initFromConfig();
-	server::entities::mothership::initFromConfig();
-	server::entities::asteroid::initFromConfig();
-	//add variables to update here
+	// Load config
+	server::initFromConfig();
+
+	// Update values as necessary
+	m_timeLimit = server::game::timelimit;
 }
 
 void Server::setUpExtractor() {
@@ -78,25 +79,26 @@ void Server::setUpExtractor() {
 
 void Server::setUpAsteroids() {
 	cout << "Begin setting up asteroids..." <<endl;
-	srand(milliseconds_now());
+	srand((unsigned int)milliseconds_now());
 
 	Quaternion defaultAsteroidDir(0, 0, 0, 1);
-	for(int i = 0; i < server::entities::asteroid::numAsteroids; i++) {
+	using namespace server::world;
+	for(int i = 0; i < asteroids_num; i++) {
 		S_Asteroid * newAsteroid;
 		bool fits = false;
 		float scale = 1;
 		D3DXVECTOR3 asteroidPos(0,0,0);
 
 		while(!fits) {
-			scale =  (rand() % server::entities::asteroid::rangeMass) + server::entities::asteroid::startMass;
-			asteroidPos = D3DXVECTOR3((rand()%server::entities::asteroid::rangePos)+server::entities::asteroid::startPos,(rand()%server::entities::asteroid::rangePos)+server::entities::asteroid::startPos,(rand()%server::entities::asteroid::rangePos)+server::entities::asteroid::startPos);
-			cout<<i;
+			scale =  (rand_float() * asteroids_scale_range) + asteroids_scale_start;
+			asteroidPos = Vec3RandRange(asteroids_pos_start, asteroids_pos_range);
+			cout << i;
 			newAsteroid = new S_Asteroid(asteroidPos, defaultAsteroidDir, scale);
 
 			fits = true;
 
 			// Check with Current Entities
-			for(int j = 0; j < m_world.entities.size(); j++) {
+			for(unsigned int j = 0; j < m_world.entities.size(); j++) {
 				ServerEntity *cmp = m_world.entities[j];
 				if(m_world.checkCollision(*cmp,*newAsteroid) != NULL){
 					fits = false;
@@ -108,11 +110,16 @@ void Server::setUpAsteroids() {
 
 		}
 
-		int forceMax = 20000;
-		int forceMulti = 25;
-		D3DXVECTOR3 initialForce(((rand() % forceMax*2)-forceMax)*forceMulti,((rand() % forceMax*2)-forceMax)*forceMulti,((rand() % forceMax*2)-forceMax)*forceMulti);
-		
-		newAsteroid->applyLinearImpulse(initialForce * .01f);
+		float max_vel = 5.0f;
+		float max_rot = PI / 4.0f;
+		D3DXVECTOR3 initial_vel = Vec3RandRange(-asteroids_vel_range/2, asteroids_vel_range) * newAsteroid->m_mass,
+					initial_rot_vel = Vec3RandRange(-asteroids_rot_vel_range/2, asteroids_rot_vel_range);
+		D3DXVECTOR4 temp;
+		D3DXVec3Transform(&temp, &initial_rot_vel, &newAsteroid->m_rot_inertia);
+		initial_rot_vel = D3DXVECTOR3(temp.x, temp.y, temp.z);
+
+		newAsteroid->applyLinearImpulse(initial_vel);
+		newAsteroid->applyAngularImpulse(initial_rot_vel);
 		m_gameState.push_back(newAsteroid);
 		m_world.entities.push_back(newAsteroid);
 	}

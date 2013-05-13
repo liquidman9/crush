@@ -41,7 +41,6 @@ public:
 	// Collision
 	//float m_radius;
 	float m_length;
-	float m_elastic;
 	//D3DXVECTOR3 m_pFront;
 	//D3DXVECTOR3 m_pBack;
 
@@ -63,11 +62,9 @@ public:
 
 
 	ServerEntity();
-	ServerEntity(float mass);
+	ServerEntity(float mass, D3DXMATRIX rot_inertia);
 
-	ServerEntity(float mass, D3DXVECTOR3 rot_inertia);
-
-	ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, float elastic);
+	ServerEntity(float mass, float length, D3DXMATRIX rot_inertia);
 
 	// General Methods
 	int genId();
@@ -108,7 +105,7 @@ public:
 	virtual void print();
 
 	// Forced abstract for rotational inertia calculation
-	virtual D3DXVECTOR3 calculateRotationalInertia(float mass) = 0;
+	virtual D3DXMATRIX calculateRotationalInertia(float mass) = 0;
 };
 
 

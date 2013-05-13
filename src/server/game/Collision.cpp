@@ -24,7 +24,7 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 		if ((a->m_type == SHIP && b->m_type == MOTHERSHIP) || (b->m_type == MOTHERSHIP && a->m_type == SHIP)) {
 			a->print();
 			b->print();
-			cout << "Closest to A: "; shared::utils::printVec(closeA); cout << " , Closest to B: "; shared::utils::printVec(closeB); cout << endl;
+			cout << "Closest to A: " << closeA << " , Closest to B: " << closeB << endl;
 		}
 	}
 	switch (a->m_type) {
@@ -36,8 +36,8 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 
 void Collision::resolve()
 {
-	float e_coll = 0.9;
-	float u_fr = 0.5;
+	float e_coll = 0.9f;
+	float u_fr = 0.5f;
 	D3DXVECTOR4 temp;
 	// calculate point of impact
 	D3DXVECTOR3 collision_normal, poi, delta_pos;
@@ -124,13 +124,19 @@ void Collision::resolve()
 		jN += friction * tangent;
 	}
 
-	if (DEBUG) {
+	if (true && (m_a->m_type == SHIP && m_b->m_type == MOTHERSHIP) || (m_a->m_type == ASTEROID && m_b->m_type == SHIP)) {
+		cout << endl << "Collision Info:" << endl;
+		cout << "A type: " << (int)m_a->m_type << endl;
+		cout << "B type: " << (int)m_b->m_type << endl;
+		cout << "Relative vel: " << relative_total_velocity << endl;
 		cout << "Impulse force: " << impulse << endl;
 		cout << "Friction force: " << friction << endl;
-		cout << "Impulse vector: "; shared::utils::printVec(jN); cout << endl;
-		cout << "DistA: "; shared::utils::printVec(r_a); cout << endl;
-		cout << "DistB: "; shared::utils::printVec(r_b); cout << endl;
-		cout << "POI: "; shared::utils::printVec(poi); cout << endl;
+		cout << "Impulse vector: " << jN << endl;
+		cout << "DistA: " << r_a << endl;
+		cout << "DistB: " << r_b << endl;
+		cout << "A_Inert: " << m_a->m_rot_inertia << endl;
+		cout << "B_Inert: " << m_b->m_rot_inertia << endl;
+		cout << "POI: " << poi << endl << endl;
 	}
 
 	// Add the impulse to both entities

@@ -15,13 +15,6 @@
 using namespace shared::utils;
 using namespace server::entities::ship;
 
-float server::entities::ship::mass = 10000.0f;
-float server::entities::ship::forward_impulse = 5000.0f;
-float server::entities::ship::rotation_impulse = 3000.0f;
-float server::entities::ship::braking_impulse = 2500.0f;
-float server::entities::ship::max_velocity = 50.0f;
-float server::entities::ship::max_rotation_velocity = 2.5f;
-
 S_Ship::S_Ship() :
 	Entity(SHIP),
 	Ship(),
@@ -38,7 +31,7 @@ S_Ship::S_Ship() :
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation),
 	Ship(pNum),
-	ServerEntity(mass, calculateRotationalInertia(mass), 5.0, 1.0),
+	ServerEntity(mass, 5.0, calculateRotationalInertia(mass)),
 	m_forward_impulse(forward_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_braking_impulse(braking_impulse),
@@ -155,12 +148,12 @@ void S_Ship::calcTractorBeam() {
 	m_tractorBeam->updateData();
 }
 
-D3DXVECTOR3 S_Ship::calculateRotationalInertia(float mass){
+D3DXMATRIX S_Ship::calculateRotationalInertia(float mass){
 	float radius_squared = 5 * 5;
 	float height_squared = (2 * 5.0f) * (2 * 5.0f);
-	return D3DXVECTOR3( (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
-						(1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
-						(0.5f) * mass * radius_squared);
+	return *D3DXMatrixScaling(&D3DXMATRIX(), (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
+											 (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
+											 (0.5f) * mass * radius_squared);
 };
 
 
@@ -216,10 +209,4 @@ bool S_Ship::interact(S_Ship * ship) {
 		tmp->reset(); // temporary to stop resources from moving far far away when dropped
 	}
 	return true;
-}
-
-void S_Ship::print() {
-	cout << "Pos: "; printVec(m_pos); cout << endl;
-	cout << "Velocity: " << D3DXVec3Length(&m_velocity) << endl;
-	cout << "Rotation: " << D3DXVec3Length(&m_angular_velocity) << endl;
 }

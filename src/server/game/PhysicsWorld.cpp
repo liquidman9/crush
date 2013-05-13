@@ -49,22 +49,18 @@ void PhysicsWorld::collision(float delta_time) {
 	}
 }
 
-
+// delta_time is in fractions of a second.
 void PhysicsWorld::update(float delta_time) {
-	// Updating Positions
+	// Pre-collision step
+
+	// Perform collisions
+
+	// Post-collision step
+
+	// Updating objects
 	for(unsigned i = 0; i < entities.size(); i++)
 	{
-		//entities[i]->calculate(.005f);
 		entities[i]->update(delta_time);
-			// Derived Variables
-		/*
-		ServerEntity * e = entities[i];
-		cout << "Entity: " << i << endl;
-		cout << "Velocity: " << e->m_velocity << endl;
-		cout << "Angular Velocity: " << e->m_angular_velocity << endl;
-		cout << "Orientation Delta: " << e->m_orientation_delta << endl;
-		cout << "Orientation: " << e->m_orientation << endl;
-		*/
 	}
 }
 
@@ -158,12 +154,9 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 
 	if(D3DXVec3Length(&dP) < a.m_radius + b.m_radius)
 	{
-		//cout << "Not null" << endl;
 		return Collision::generateCollision(&a, &b, (a.m_pBack + sc * lengthA), (b.m_pBack + tc * lengthB));
 	}
-
-	//cout << "null" << endl;
-	return (Collision *)NULL;
+	return NULL;
 }
 
 bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {

@@ -8,42 +8,28 @@
 // Project includes
 #include <shared/game/Entity.h>
 #include <server/game/S_Asteroid.h>
+#include <server/Globals.h>
 
-
+using namespace shared::utils;
 using namespace server::entities::asteroid;
-int server::entities::asteroid::numAsteroids = 50;
-float server::entities::asteroid::startMass = 0.25f;
-int server::entities::asteroid::rangeMass = 20;
-float server::entities::asteroid::startPos = -200.0f;
-int server::entities::asteroid::rangePos = 400;
-float server::entities::asteroid::scaleToRadius = 2.0f;
-float server::entities::asteroid::radiusToMass = 250.0f;
-
-
-
-S_Asteroid::S_Asteroid() :
-	Entity(ASTEROID),
-	Asteroid(),
-	ServerEntity(m_mass = ((m_radius = (m_scale = (rand() % rangeMass) + startMass)*scaleToRadius) * radiusToMass), calculateRotationalInertia(m_mass), 1.0, 1.0)
-{
-	m_radius = (m_scale)*scaleToRadius;
-}
 
 S_Asteroid::S_Asteroid(D3DXVECTOR3 pos, Quaternion orientation, float scale) :
 	Entity(genId(), ASTEROID, pos, orientation),
-	Asteroid(),
-	ServerEntity(m_mass = ((m_radius = (m_scale = scale)*scaleToRadius) * radiusToMass), calculateRotationalInertia(m_mass), 1.0, 1.0)
+	Asteroid(scale),
+	ServerEntity(calculateMass(m_radius = scale *scaleToRadius, density), m_radius, calculateRotationalInertia(calculateMass(scale * scaleToRadius, density)))
 {	
 	m_radius = (m_scale)*scaleToRadius;
-	cout<<"Mass: "<<m_mass<<" Radius: "<<m_radius<<" Scale: "<<m_scale<<endl;
+	cout << "Mass: "<< m_mass<< " Radius: " << m_radius << " Scale: " << m_scale << endl;
+	//cout << m_rot_inertia << endl;
 }
 
+float S_Asteroid::calculateMass(float radius, float density) {
+	return (float)(density * 4/3 * PI * pow(radius, 3));
+}
 
-
-D3DXVECTOR3 S_Asteroid::calculateRotationalInertia(float mass){
-	float radius_squared = m_radius;
-	return D3DXVECTOR3( (2.0f / 5.0f) * mass * radius_squared,
-						(2.0f / 5.0f) * mass * radius_squared,
-						(2.0f / 5.0f) * mass * radius_squared);
-};
-
+D3DXMATRIX S_Asteroid::calculateRotationalInertia(float mass) {
+	float radius_squared = m_radius * m_radius;
+	return *D3DXMatrixScaling(&D3DXMATRIX(), (2.0f / 5.0f) * mass * radius_squared,
+											 (2.0f / 5.0f) * mass * radius_squared,
+											 (2.0f / 5.0f) * mass * radius_squared);
+}
