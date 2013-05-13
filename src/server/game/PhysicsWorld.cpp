@@ -271,15 +271,15 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
  * location and properties if out of bounds
  */
 void PhysicsWorld::checkInBounds(ServerEntity * a) {
-	if(abs(D3DXVec3Length(&a->m_pos)) +a->m_radius > m_worldRadius) {
+	float asteroidWorldRadius = m_worldRadius + 100;
+	if(abs(D3DXVec3Length(&a->m_pos)) +a->m_radius > m_worldRadius && a->m_type == SHIP) {
 		// Out of Bounds
-		if(a->m_type == ASTEROID){
-			((S_Asteroid *)a)->reCreateAsteroid(m_worldRadius);
-		}
-		else if(a->m_type == SHIP) {
-			D3DXVECTOR3 norm;
-			D3DXVec3Normalize(&norm, &-a->m_pos);
-			a->applyLinearImpulse(norm*10000);
-		}
+		D3DXVECTOR3 norm;
+		D3DXVec3Normalize(&norm, &-a->m_pos);
+		a->applyLinearImpulse(norm*10000);
+
+	}
+	else if(abs(D3DXVec3Length(&a->m_pos)) > asteroidWorldRadius && a->m_type == ASTEROID) {
+		((S_Asteroid *)a)->reCreateAsteroid(asteroidWorldRadius);
 	}
 }

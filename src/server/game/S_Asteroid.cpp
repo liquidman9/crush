@@ -46,7 +46,6 @@ float S_Asteroid::generateSize() {
 void S_Asteroid::reCreateAsteroid(float boundaryRadius) {
 	srand(GetTickCount());
 
-	cout<<"Recreating"<<endl;
 	m_scale = generateSize();
 	m_radius = m_scale*scaleToRadius;
 	m_mass = m_radius*radiusToMass;
@@ -67,27 +66,25 @@ void S_Asteroid::reCreateAsteroid(float boundaryRadius) {
 
 
 	// Calculate Position
-	float r = boundaryRadius - m_radius*1.5;
+	float r = boundaryRadius - 1.0;
 	float x, y, z, tmp1, tmp2;
-	z = (rand()%3)-1;
+	z = ((((float)rand())/((float)RAND_MAX))*2)-1;
 	tmp1 = sqrt(1 - z*z);
 	tmp2 = (((float)rand())/((float)RAND_MAX))*2*3.14159265359;
 	x = tmp1 * cos(tmp2);
-	y = tmp2 * sin(tmp2);
+	y = tmp1 * sin(tmp2);
 
 	m_pos = D3DXVECTOR3(x*r, y*r, z*r);
 
 	// Calculate Directional Force
-	float x0, y0, z0, tmp10, tmp20;
-	z0 = (rand()%3)-1;
-	tmp10 = sqrt(1 - z0*z0);
-	tmp20 = (((float)rand())/((float)RAND_MAX))*2*3.14159265359;
-	x0 = tmp1 * cos(tmp2);
-	y0 = tmp2 * sin(tmp2);
+	 D3DXVECTOR3 goTo = D3DXVECTOR3(rand()%(int)(boundaryRadius/2),
+		 rand()%(int)(boundaryRadius/2),
+		rand()%(int)(boundaryRadius/2));
+
 	
-	D3DXVECTOR3 dirr = D3DXVECTOR3(x0,y0,z0)*(boundaryRadius/2);
-	D3DXVec3Normalize(&dirr, &(m_pos-dirr));
-	applyLinearImpulse(dirr*((rand() % 20000*2)-20000)*25);
+	D3DXVECTOR3 dirr = -(m_pos - goTo);
+	D3DXVec3Normalize(&dirr, &dirr);
+	applyLinearImpulse(dirr*(rand() % 20000*2)*25* .01f);
 
 
 }
