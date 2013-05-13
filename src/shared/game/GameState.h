@@ -17,6 +17,9 @@
 #include <shared/game/Mothership.h>
 #include <shared/game/Resource.h>
 #include <shared/game/Asteroid.h>
+#include <shared/game/Extractor.h>
+
+//#define ENABLE_COMPRESSION
 
 #ifdef ENABLE_COMPRESSION
 #include<shared/network/minilzo.h>
@@ -47,12 +50,7 @@ public:
 	};
 
 	void push_back(E *e) {
-#ifdef ENABLE_DELTA
-		m_buffSize += e->deltaSize();
-#else
-		m_buffSize += e->size();
-#endif
-
+		m_meta.size += e->size();
 		m_entities.push_back(shared_ptr<E>(e));
 	};
 
@@ -67,11 +65,11 @@ public:
 		return m_meta.size;
 	}
 
-	shared_ptr<E>& operator[](unsigned int i) {
+	shared_ptr<E> operator[](unsigned int i) {
 		return m_entities[i];
 	}
 
-	shared_ptr<const E>& operator[](unsigned int i) const {
+	shared_ptr<const E> operator[](unsigned int i) const {
 		return m_entities[i];
 	}
 
@@ -154,58 +152,59 @@ public:
 		m_meta.size = sizeof(gameStateMeta);
 	}
 
-
 	bool empty() const {
 		return m_entities.empty();
 	}
 
 	virtual ~GameState(void) {
 		m_entities.clear();
-	};
+	}
 
 private:
-	void push_back_size(Entity * e, unsigned int size) {
-		m_meta.size += size;
-		m_entities.push_back(shared_ptr<E>(e));
-	}
-
-	bool getIsEmpty(const char* head) const {
-#ifdef ENABLE_COMPRESSION
-		return *(bool*)(head + sizeof(unsigned int));
-#else
-		return getRecvSize(head) == gsMinSize();
-#endif
-	}
-
-#ifdef ENABLE_COMPRESSION
-	void setIsEmpty(const char* head, bool isEmpty) const {
-		*(bool*)(head + sizeof(unsigned int)) = isEmpty;
-	}
-#endif
-
-	unsigned int getExpectedSize(char* head, const unsigned int size) const {
+	unsigned int getExpectedSize(const char* head, const unsigned int size) const {
 		assert(size >= gsMinSize());
 		return getRecvSize(head);
+		//gameStateMeta gs_meta;
+		//memcpy((char* ) &gs_meta, head, gsMinSize());
+		/*unsigned int cur_size;
+		bool valid_gameState = false;
+		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
+			gs_size = getRecvSize(head+cur_size);
+			if(gs_size == 0) {
+				return -1;
+			}			
+			if(cur_size + gs_size <= size) {
+				valid_gameState = true;
+			}
+		}
+		if (valid_gameState && cur_size != size) {
+			return cur_size - gs_size;
+		}
+		return cur_size;*/
 	}
 
-	int getLastCompleteGS(char* &head, const unsigned int size, unsigned int &dropped) const {
-		assert(size >= gsMinSize());
-		auto gs_size = getRecvSize(head);
-
-#ifdef ENABLE_DELTA
-		return size - gs_size;
-#else
+	int getLastCompleteGS(const char* &head, const unsigned int size) const {
 		auto orig_head = head;
-		unsigned int total_size = 0;
-		unsigned int cur_size;
-		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
+		//char local_buf[65000];
+		assert(size >= gsMinSize());
+		//memcpy(local_buf,head,size);
 
+		unsigned int total_size = 0;
+		auto gs_size = getRecvSize(head);
+		return size - gs_size;
+		/*unsigned int cur_size;
+		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
+			
 #ifndef ENABLE_COMPRESSION			
 			assert(gs_size >= gsMinSize());
 #endif
 			gs_size = getRecvSize(orig_head+cur_size);
 			auto next_size = cur_size + gs_size;
+#ifndef ENABLE_COMPRESSION
+			if(gs_size == gsMinSize()) {
+#else
 			if(getIsEmpty(orig_head+cur_size)) {
+#endif
 				head = orig_head + cur_size;
 				dropped = 0;
 				return size - (next_size);
@@ -215,164 +214,78 @@ private:
 				head = orig_head + cur_size;
 			}
 		}
-		dropped--;
-		return size - total_size;
-#endif
+		return size - total_size;*/
 	}
 
-	int decode(char *head, unsigned int size, unsigned int &dropped) {
+	int decode(const char *head, unsigned int size) {
 		auto orig_head = head;
-		auto rtn = getLastCompleteGS(head, size, dropped);
+		auto rtn = getLastCompleteGS(head, size);
 		if(rtn < 0) {
 			return rtn;
 		}
-#ifdef ENABLE_COMPRESSION
-		static bool init = false;
-		if(!init){
-			lzo_init();
-			init = true;
-		}
-		auto c_size = getRecvSize(head);
-		unsigned int c_len = (unsigned int) c_size - sizeof(unsigned int) - sizeof(bool);
-		unsigned long d_len;
-		unsigned char* d_out = new unsigned char[size*10];
-		//skip over stored compressed_size
-		unsigned char* c_in = (unsigned char*) head + sizeof(unsigned int) + sizeof(bool);
-		auto r = lzo1x_decompress(c_in,c_len,d_out,&d_len,NULL);
-		if(r != LZO_E_OK) {
-			cerr << "OH GOD WE GUNNA CRASH (decompress failed)" << endl;
-		}
-		assert(size*10 > d_len);
-		size = d_len;
-
-		head = (char*) d_out;
-#endif
 		memcpy((char* ) &m_meta, head, sizeof(m_meta));
 		auto gs_size = m_meta.size;
-#ifdef ENABLE_DELTA
-
-		if(gs_size != gsMinSize()) {
-			decodeDeltaState(head, gs_size);
-		} else {
-			clear();
-		}
-#else
-		decodeNew(head, gs_size);
-#endif
-
-#ifdef ENABLE_COMPRESSION
-		delete []d_out;
-#endif
-		return rtn;
-	}
-
-	char * getSendBuff() {
-		char *send_buff = new char[10000];
-		int total_size = sizeof(m_meta);
-		for(unsigned int i = 0; i < m_entities.size(); i++) {			
-			total_size += m_entities[i]->encode(send_buff+total_size);
-		}
-		//assert(total_size <= m_meta.size);
-		m_meta.size = total_size;
-		memcpy(send_buff,(char*) &m_meta, sizeof(m_meta));
-#ifdef ENABLE_COMPRESSION
-		static bool init = false;
-		if(!init){
-			lzo_init();
-			init = true;
-		}
-		char *out_tmp = new char[2*m_meta.size];
-		unsigned char scratch [LZO1X_1_MEM_COMPRESS];
-		unsigned char* in = (unsigned char *) send_buff;
-		unsigned char* out = (unsigned char*) (out_tmp + sizeof(unsigned int) + sizeof(bool));
-		lzo_uint in_len = total_size;
-		lzo_uint out_len;
-		lzo1x_1_compress(in,in_len,out,&out_len,scratch);
-		*(lzo_uint*) out_tmp =  out_len + sizeof(unsigned int) + sizeof(bool);
-		setIsEmpty(out_tmp, empty());
-		delete []send_buff;
-		return out_tmp;
-#else
-		return send_buff;
-#endif
-	}
-
-	void decodeNew(char *head, unsigned int gs_size) {
-		char* cur_head = head + sizeof(m_meta);
+		const char* cur_head = head + sizeof(m_meta);
 		Entity *ep = NULL;
 		clear();
 		//int test = head - orig_head;
-		//Type a;
+		Type a;
 		//assert(head - orig_head >= 0);
-		for(unsigned int cur_size = 0; cur_size < gs_size - sizeof(m_meta);){
-			Entity* ep = NULL;
-			ep = decodeNewEntity(cur_size+cur_head, cur_size, false);
-			push_back(ep);
-		}
-	}
-
-	Entity* decodeNewEntity(char *head, unsigned int &cur_size, bool isDelta) {
-		Entity* ep = NULL;
-		Type a = *(Type*) (head);
-#ifdef ENABLE_DELTA
-		if(isDelta) {
-			auto tmp = Sendable::skipDeltaInfo(head);
-			a = *(Type*) (head+tmp);
-		}
-#endif
-		switch(a) {
-		case SHIP: 
-			ep = new Ship();
-			cur_size += ep->decode(head);
-			return ep;
-		case ASTEROID:
-			ep = new Asteroid();
-			cur_size += ep->decode(head);
-			return ep;
-		case TRACTORBEAM:
-			ep = new TractorBeam();
-			cur_size += ep->decode(head);
-			return ep;
-		case MOTHERSHIP:
-			ep = new Mothership();
-			cur_size += ep->decode(head);
-			return ep;
-		case RESOURCE:
-			ep = new Resource();
-			cur_size += ep->decode(head);
-			return ep;
-		case EXTRACTOR:
-			ep = new Extractor();
-			cur_size += ep->decode(head);
-			return ep;
-		default:
-			cerr << "ERROR decoding entity state. Unknown type: " << (int) (*(ENUM_TYPE*)(head)) << endl;
-			assert(NULL);
-			return NULL;
-		}
-	}
-
-	void decodeDeltaState(char *head, unsigned int gs_size) {
-		char* cur_head = head + sizeof(m_meta);
-		for(unsigned int cur_size = 0, i = 0; cur_size < gs_size - sizeof(m_meta); i++){
-			if(Sendable::isNewObject(cur_head + cur_size)) {
-				auto tmp = cur_size;
-				push_back_size(decodeNewEntity(cur_head + cur_size, cur_size, true), cur_size - tmp);
-				continue;
+		for(unsigned int cur_size = 0; cur_size < gs_size - sizeof(m_meta); cur_size += ep->size() ){
+			ep = NULL;
+			a = *(Type*) (cur_head + cur_size);
+			switch(a) {
+			case SHIP: 
+				ep = new Ship();
+				ep->decode(cur_head + cur_size);
+				this->push_back(ep);
+				break;
+			case ASTEROID:
+				ep = new Asteroid();
+				ep->decode(cur_head + cur_size);
+				this->push_back(ep);
+				break;
+			case TRACTORBEAM:
+				ep = new TractorBeam();
+				ep->decode(cur_head + cur_size);
+				this->push_back(ep);
+				break;
+			case MOTHERSHIP:
+				ep = new Mothership();
+				ep->decode(cur_head + cur_size);
+				this->push_back(ep);
+				break;
+			case RESOURCE:
+				ep = new Resource();
+				ep->decode(cur_head + cur_size);
+				this->push_back(ep);
+				break;
+			case EXTRACTOR:
+				ep = new Extractor();
+				ep->decode(cur_head + cur_size);
+				this->push_back(ep);
+				break;
+			default:
+				cerr << "ERROR decoding entity state. Unknown type: " << (int) (*(ENUM_TYPE*)( cur_head + cur_size)) << endl;
+				break;
 			}
-			cur_size += m_entities[i]->decode(cur_head + cur_size);
-			assert(cur_size <= gs_size - sizeof(m_meta));
 		}
+		return rtn;
 	}
 
-#ifdef ENABLE_DELTA
-	void resetDeltas() {
+	const char * getSendBuff() const {
+		char *send_buff = new char[m_meta.size];
+		memcpy(send_buff,(char*) &m_meta, sizeof(m_meta));
+		int total_size = sizeof(m_meta);
 		for(unsigned int i = 0; i < m_entities.size(); i++) {
-			delete []m_entities[i]->m_oldState;
-			m_entities[i]->m_oldState = NULL;
+			//char * tmp = new char[m_entities[i]->size()];
+			total_size += m_entities[i]->encode(send_buff+total_size);
+			//memcpy(send_buff + total_size, tmp, m_entities[i]->size());
+			//total_size += m_entities[i]->size();
+			//delete []tmp;
 		}
+		return send_buff;
 	}
-#endif
 
 	unsigned int getRecvSize(const char *a) const {
 		return *(unsigned int*) a;
@@ -389,7 +302,6 @@ private:
 		char winner;
 	} m_meta;
 
-	unsigned int m_buffSize;
 	//static string m_serverMessages[3];
 
 	vector<shared_ptr<E> > m_entities;
@@ -398,3 +310,4 @@ private:
 	friend class Server;
 
 };
+

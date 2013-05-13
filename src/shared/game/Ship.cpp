@@ -25,7 +25,7 @@ void Ship::setPlayerName(const string &s) {
 }
 
 
-unsigned int Ship::encode(char *head) {
+unsigned int Ship::encode(char *head) const {
 	// Get entity encode
 	unsigned int rtn = Entity::encode(head);
 
@@ -40,12 +40,6 @@ unsigned int Ship::encode(char *head) {
 	memcpy(head + rtn, m_playerName.c_str(), MAX_PLAYERNAME_SIZE);
 	rtn += MAX_PLAYERNAME_SIZE;
 
-#ifdef ENABLE_DELTA
-	char tmp [m_size + MAX_ENTITY_SIZE];
-	rtn = encodeDelta(tmp, head, rtn);
-	memcpy(head, tmp, rtn);
-#endif
-
 	return rtn;
 }
 
@@ -56,28 +50,16 @@ ostream& operator<<(ostream& os, const Ship& e) {
 	return os;
 }
 
-unsigned int Ship::decode(char *buff) {
-	unsigned int actual_rtn = Entity::decode(buff);
-#ifdef ENABLE_DELTA
-	unsigned int rtn = Entity::size();
-	buff = m_oldState;
-#else
-	unsigned int rtn = actual_rtn;
-#endif
-
+unsigned int Ship::decode(const char *buff) {
+	unsigned int rtn = Entity::decode(buff);
 	//m_type = SHIP;
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) (buff+rtn);
 	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
 	m_thruster = *(double *) (buff+rtn);
 	rtn += sizeof(double);
-	m_playerName = string(buff+rtn, MAX_PLAYERNAME_SIZE - 1);
+	m_playerName = string(buff+rtn, MAX_PLAYERNAME_SIZE);
 	rtn += MAX_PLAYERNAME_SIZE;
-
-#ifdef ENABLE_DELTA
-	return actual_rtn;
-#else
 	return rtn;
-#endif
 }
 
 //void Ship::update(Entity * source) {

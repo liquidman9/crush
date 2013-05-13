@@ -25,12 +25,7 @@ ostream& operator<<(ostream& os, const Resource& e) {
 }
 
 unsigned int Resource::decode(const char *buff) {
-	unsigned int rtn = Entity::decode(buff);
-
-	//new variables here
-
-	return rtn;
-
+	return Entity::decode(buff);
 }
 
 

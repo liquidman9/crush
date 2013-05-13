@@ -30,6 +30,10 @@ typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;
 #define ENABLE_DELTA
 #define ENABLE_COMPRESSION
 
+#ifdef ENABLE_COMPRESSION
+#include<shared/network/minilzo.h>
+#endif
+
 
 using namespace std;
 
@@ -37,8 +41,8 @@ using namespace std;
 #ifdef ENABLE_DELTA
 class BitField {
 #define BITFIELD_CONTAINER unsigned int
-#define MAX_ENTITY_SIZE (1 << sizeof(BITFIELD_CONTAINER)*8)
-#define MAX_ENCODED_ENTITY_SIZE (2*MAX_ENTITY_SIZE + sizeof(BITFIED_CONTAINER))
+//#define MAX_ENTITY_SIZE (1 << sizeof(BITFIELD_CONTAINER)*8)
+//#define MAX_ENCODED_ENTITY_SIZE (2*MAX_ENTITY_SIZE + sizeof(BITFIED_CONTAINER))
 public :
 	bool operator[](unsigned int i);
 	bool const operator[](unsigned int i) const;
@@ -74,10 +78,18 @@ public:
 #endif
 
 #ifdef ENABLE_COMPRESSION
+	//compresses input char array of passed size, returns a new buffer and updates size
 	char * compress(const char *, unsigned int &size);
+	//decompresses input char array of passed size and returns a new pointer with the new value of size
 	char * decompress(const char *, unsigned int &size);
+	void setHeader(char * buff, unsigned int c_size, unsigned int d_size);
+	void loadHeader(const char* buff, unsigned int &c_len, unsigned int &d_size);
+	unsigned int sizeofHeader();
 #endif
-
+	//encodes buffer of in_size and returns new buffer with out_size
+	const char * encodeSendBuff(const char *haed, unsigned int in_size, unsigned int &out_size);
+	//decodes buffer of out_size and returns new buffer with out_size
+	const char * decodeSendBuff(const char *head, unsigned int in_size, unsigned int &out_size);
 	unsigned int getSize(const char *);
 
 

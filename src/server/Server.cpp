@@ -199,6 +199,25 @@ void Server::loop() {
 			reloadConfig();
 			setUpExtractor();
 			setUpAsteroids();
+		 	/*auto buff =  m_gameState.getSendBuff();
+			auto size = m_gameState.sendSize();
+			auto buff1 = m_server.encodeSendBuff(buff, size, size);
+			m_server.clearDelta();
+			auto buff2 = m_server.decodeSendBuff(buff1, size, size);
+				for(int i = 0; i < size; i++) {
+				if(buff2[i] != buff[i]) {
+					break;
+				}
+			}
+			GameState<Entity> a;
+			a.decode(buff2, size);*/
+			/*auto buff1 = m_server.encodeDelta(buff,size);
+			auto buff2 = m_server.compress(buff1, size);
+			delete buff1;
+			m_server.clearDelta();
+			auto buff3 = m_server.decompress(buff2, size);
+			auto buff4 = m_server.decodeDelta(buff3,size);*/
+		
 			cout << "CRUSH Server has started" << endl;
 			m_start = false;
 		} else if (m_reload) {

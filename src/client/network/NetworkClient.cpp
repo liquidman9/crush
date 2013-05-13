@@ -174,7 +174,9 @@ void NetworkClient::updateGameState() {
 		}
 
 		if(!error) {
-			remaining_data = local_gs.decode(buff, total_size, m_dropped);
+			unsigned int size;
+			auto decodeBuff = decodeSendBuff(buff, getSize(buff), size); 
+			remaining_data = local_gs.decode(decodeBuff, size);
 			EnterCriticalSection(&m_cs);
 			if(!(m_stateAvailable && m_gameState.size() == 0)) {
 				m_gameState = local_gs;
@@ -185,7 +187,8 @@ void NetworkClient::updateGameState() {
 			if(remaining_data > 0) {
 				memcpy(buff, buff + (total_size - remaining_data), remaining_data);
 			}
-		}
+			delete []decodeBuff;
+		}		
 	}
 }
 

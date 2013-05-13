@@ -6,7 +6,7 @@
 
 
 #define ENABLE_DELTA
-#define ENABLE_COMPRESSION
+//#define ENABLE_COMPRESSION
 
 
 //#ifdef ENABLE_DELTA
@@ -47,7 +47,7 @@ public :
 //	char *m_oldState;
 
 protected :
-	Sendable();
+	//Sendable();
 
 	//pointer to old non-delta encoded state
 
