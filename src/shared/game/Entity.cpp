@@ -71,16 +71,6 @@ unsigned int Entity::encode(char *tmp) const {
 	s.pFront = m_pFront;
 	s.radius = m_radius;
 
-	//char * tmp = new char[sizeof(Entity)];
-	//// Encode type
-	//*(ENUM_TYPE *) tmp = m_type;
-	//// Encode id
-	//*(int *) (tmp + sizeof(ENUM_TYPE)) = m_id;
-	//// Encode pos
-	//*(D3DXVECTOR3 *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_pos;
-	//// Encode orientation
-	//*(Quaternion *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3)) = m_orientation;
-
 	//char* tmp = new char[sizeof(send_struct)];
 	memcpy(tmp, (const char *) &s, sizeof(send_struct));
 
@@ -99,12 +89,6 @@ unsigned int Entity::decode(const char * tmp) {
 	m_radius = s.radius;
 	return sizeof(send_struct);
 
-	// Decode Position
-	/*m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
-	m_pos = *(D3DXVECTOR3*)(tmp + sizeof(m_id) + sizeof(ENUM_TYPE));
-	m_orientation = *(Quaternion*)(tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3));*/
-	/*memcpy(&m_pos,tmp + sizeof(m_id) + sizeof(ENUM_TYPE), sizeof(D3DXVECTOR3));
-	memcpy(&m_orientation, tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3), sizeof(Quaternion));*/
 }
 
 void Entity::update(shared_ptr<Entity> source) {

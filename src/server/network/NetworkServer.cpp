@@ -84,7 +84,6 @@ void NetworkServer::initializeSocket() {
 void NetworkServer::broadcastGameStateWorker() {
 	vector<map<unsigned int, SOCKET>::iterator> removeList;
 	unsigned int curr_clients = 0;
-	bool send_empty = false;
 	GameState<Entity> e;
 	for(;;){		
 		//send to every client currently connected
@@ -93,48 +92,25 @@ void NetworkServer::broadcastGameStateWorker() {
 			SleepConditionVariableCS(&m_broadcastReady, &m_cs1, INFINITE);
 		}
 		m_sendAvailable = false;
-//#ifdef ENABLE_DELTA
-//		if(curr_clients != m_connectedClients.size()) {
-//			curr_clients = m_connectedClients.size();
-//			clearDelta();
-//			send_empty = true;
-//		}
-//#endif
+
+#ifdef ENABLE_DELTA //todo fix multiple clients connecting
+		if(curr_clients != m_connectedClients.size()) {
+			curr_clients = m_connectedClients.size();
+			clearDelta();
+		}
+#endif
 		//get send buff and size
 		auto gs_send_buff = m_sendGS.getSendBuff();
 		unsigned int size;
 		auto send_buff = encodeSendBuff(gs_send_buff, m_sendGS.sendSize(), size);
-//#ifdef ENABLE_COMPRESSION
-//		unsigned int size = *(unsigned int*) send_buff;
-//#else
-//		unsigned int size = m_sendGS.sendSize();
-//#endif
 		LeaveCriticalSection(&m_cs1);
 		WakeConditionVariable(&m_workerReady);
 
 		//prep empty gamestate send if necessary
-//#ifdef ENABLE_DELTA
-//		const char * send_buff_e;
-//		if(send_buff)
-//			send_buff_e = e.getSendBuff();
-//#ifdef ENABLE_COMPRESSION 
-//		unsigned int size_e = *(unsigned int*) send_buff_e;
-//#else
-//		unsigned int size_e = e.sendSize();
-//#endif
-//#endif
 
 		EnterCriticalSection(&m_cs);
 		for(auto it = m_connectedClients.begin();
 			it != m_connectedClients.end(); it++) {
-//#ifdef ENABLE_DELTA
-//				if(send_empty) {
-//					if(!sendToClient(send_buff_e, size_e, it->first, it->second)) {
-//						//client can't be reached
-//						removeList.push_back(it);
-//					}
-//				}
-//#endif
 				if(!sendToClient(send_buff, size, it->first, it->second)) {
 					//client can't be reached
 					removeList.push_back(it);
@@ -144,12 +120,6 @@ void NetworkServer::broadcastGameStateWorker() {
 		removeClients(removeList);
 		LeaveCriticalSection(&m_cs);
 		removeList.clear();
-		
-//#ifdef ENABLE_DELTA
-//		if(send_buff)
-//			delete []send_buff_e;
-//		send_empty = false;
-//#endif
 
 		delete []gs_send_buff;	
 		delete []send_buff;
@@ -179,10 +149,6 @@ bool NetworkServer::sendToClient(const char * const buff, const int size, const 
 			+ ". Error code : " + to_string((long long) WSAGetLastError()) << endl;
 		return false;
 	}
-	/*if(send_len != size) {
-	cerr << "Error send_len: "<<  send_len << "expected send size: " << size <<  endl;
-	}*/
-	//assert(send_len == size);
 	return true;
 }
 
@@ -208,8 +174,6 @@ EventBuff_t NetworkServer::getEvents() {
 				//cannot reach client, close the connection
 				removeList.push_back(it);
 			} else if (recv_len > 0) {
-				/*NetworkDecoder nd(local_buf, recv_len);
-				nd.decodeEvents(rtn, it->first);*/
 				decodeEvents(local_buf, recv_len, rtn, it->first);
 			}
 	}
@@ -313,12 +277,12 @@ void NetworkServer::acceptNewClient()
 
 				//insert new client into connected clients
 				EnterCriticalSection(&m_cs);
-			//	EnterCriticalSection(&m_cs1);
+				EnterCriticalSection(&m_cs1);
 				m_clientCount = tmp_client_count;
 				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				m_clientIDs.insert(pair<unsigned int, string>(i, string(client_name)));
-			//	LeaveCriticalSection(&m_cs1);
+				LeaveCriticalSection(&m_cs1);
 				LeaveCriticalSection(&m_cs);
 				cout << "New client " << i << " connected." << endl;
 			}

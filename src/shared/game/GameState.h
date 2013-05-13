@@ -19,11 +19,6 @@
 #include <shared/game/Asteroid.h>
 #include <shared/game/Extractor.h>
 
-//#define ENABLE_COMPRESSION
-
-#ifdef ENABLE_COMPRESSION
-#include<shared/network/minilzo.h>
-#endif
 #define GS_MAX_MSG_SIZE 25
 
 typedef vector<pair<unsigned int, int>> scoreList_t;
@@ -35,18 +30,9 @@ public:
 
 	GameState(void):m_entities(){
 		m_meta.size = sizeof(gameStateMeta);
-		//#ifdef ENABLE_COMPRESSION
-		//		m_cSize = m_meta.size;
-		//#endif
-		/*m_serverMessages[0] = "New client has connected to the server";
-		m_serverMessages[1] = "Client has disconnected from the server";
-		m_serverMessages[2] = "Game starts in: ";*/
 	};
 
 	GameState(GameState const & g): m_entities(g.m_entities), m_meta(g.m_meta) {
-		//#ifdef ENABLE_COMPRESSION
-		//	m_cSize = g.m_cSize;
-		//#endif
 	};
 
 	void push_back(E *e) {
@@ -59,9 +45,6 @@ public:
 	}
 
 	unsigned int sendSize() const {
-		//#ifdef ENABLE_COMPRESSION
-		//	return m_cSize;
-		//#endif
 		return m_meta.size;
 	}
 
@@ -131,10 +114,6 @@ public:
 		return rtn;
 	}
 
-	/*string getServerMessage() {
-	return m_serverMessage[m_meta.message];
-	}*/
-
 	bool isGameOver() {
 		return m_meta.time == 0;
 	}
@@ -164,57 +143,13 @@ private:
 	unsigned int getExpectedSize(const char* head, const unsigned int size) const {
 		assert(size >= gsMinSize());
 		return getRecvSize(head);
-		//gameStateMeta gs_meta;
-		//memcpy((char* ) &gs_meta, head, gsMinSize());
-		/*unsigned int cur_size;
-		bool valid_gameState = false;
-		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
-			gs_size = getRecvSize(head+cur_size);
-			if(gs_size == 0) {
-				return -1;
-			}			
-			if(cur_size + gs_size <= size) {
-				valid_gameState = true;
-			}
-		}
-		if (valid_gameState && cur_size != size) {
-			return cur_size - gs_size;
-		}
-		return cur_size;*/
 	}
 
 	int getLastCompleteGS(const char* &head, const unsigned int size) const {
-		auto orig_head = head;
-		//char local_buf[65000];
+		auto orig_head = head;	
 		assert(size >= gsMinSize());
-		//memcpy(local_buf,head,size);
-
-		unsigned int total_size = 0;
 		auto gs_size = getRecvSize(head);
 		return size - gs_size;
-		/*unsigned int cur_size;
-		for(cur_size = 0; cur_size < size; cur_size += gs_size) {
-			
-#ifndef ENABLE_COMPRESSION			
-			assert(gs_size >= gsMinSize());
-#endif
-			gs_size = getRecvSize(orig_head+cur_size);
-			auto next_size = cur_size + gs_size;
-#ifndef ENABLE_COMPRESSION
-			if(gs_size == gsMinSize()) {
-#else
-			if(getIsEmpty(orig_head+cur_size)) {
-#endif
-				head = orig_head + cur_size;
-				dropped = 0;
-				return size - (next_size);
-			} else if(next_size <= size) {
-				dropped++;
-				total_size = next_size;
-				head = orig_head + cur_size;
-			}
-		}
-		return size - total_size;*/
 	}
 
 	int decode(const char *head, unsigned int size) {
@@ -227,10 +162,8 @@ private:
 		auto gs_size = m_meta.size;
 		const char* cur_head = head + sizeof(m_meta);
 		Entity *ep = NULL;
-		clear();
-		//int test = head - orig_head;
+		clear();		
 		Type a;
-		//assert(head - orig_head >= 0);
 		for(unsigned int cur_size = 0; cur_size < gs_size - sizeof(m_meta); cur_size += ep->size() ){
 			ep = NULL;
 			a = *(Type*) (cur_head + cur_size);
@@ -278,11 +211,7 @@ private:
 		memcpy(send_buff,(char*) &m_meta, sizeof(m_meta));
 		int total_size = sizeof(m_meta);
 		for(unsigned int i = 0; i < m_entities.size(); i++) {
-			//char * tmp = new char[m_entities[i]->size()];
 			total_size += m_entities[i]->encode(send_buff+total_size);
-			//memcpy(send_buff + total_size, tmp, m_entities[i]->size());
-			//total_size += m_entities[i]->size();
-			//delete []tmp;
 		}
 		return send_buff;
 	}

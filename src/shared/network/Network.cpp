@@ -6,28 +6,44 @@
 #include <shared/network/Network.h>
 
 
-Network::Network(void): m_oldState(NULL), m_oldSize(0) {
+Network::Network(void) 
+#ifdef ENABLE_DELTA
+:m_oldState(NULL), m_oldSize(0) 
+#endif
+{
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
 	m_sockaddr.sin_family = AF_INET;
 	m_sockaddr.sin_addr.s_addr = INADDR_ANY;
 	m_sockaddr.sin_port = htons(DEFAULT_PORT);
 }
 
-Network::Network(string ip,unsigned short port): m_oldState(NULL), m_oldSize(0) {
+Network::Network(string ip,unsigned short port)
+#ifdef ENABLE_DELTA
+:m_oldState(NULL), m_oldSize(0) 
+#endif
+{
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
 	m_sockaddr.sin_family = AF_INET;
 	m_sockaddr.sin_addr.S_un.S_addr = inet_addr(ip.c_str());
 	m_sockaddr.sin_port = htons(port);
 }
 
-Network::Network(unsigned short port): m_oldState(NULL), m_oldSize(0) {
+Network::Network(unsigned short port)
+#ifdef ENABLE_DELTA
+:m_oldState(NULL), m_oldSize(0) 
+#endif
+{
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
 	m_sockaddr.sin_family = AF_INET;
 	m_sockaddr.sin_addr.s_addr = INADDR_ANY;
 	m_sockaddr.sin_port = htons(port);
 }
 
-Network::Network(struct sockaddr_in si): m_oldState(NULL), m_oldSize(0) {
+Network::Network(struct sockaddr_in si)
+#ifdef ENABLE_DELTA
+:m_oldState(NULL), m_oldSize(0) 
+#endif
+{
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
 	m_sockaddr.sin_family = AF_INET;
 	m_sockaddr.sin_addr = si.sin_addr;
