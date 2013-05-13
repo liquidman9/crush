@@ -50,19 +50,15 @@ void S_TractorBeam::lockOn(ServerEntity * entity) {
 }
 
 D3DXVECTOR3 S_TractorBeam::getCurrentDirection() {
-//	if(!isLocked()) return D3DXVECTOR3(m_orientation.x, m_orientation.y, m_orientation.z); // use ships direction
-
 	D3DXVECTOR3 range = m_end - m_start;
 	D3DXVec3Normalize(&range, &range);
 	return range;
 }
 
 D3DXVECTOR3 S_TractorBeam::getCurrentDistanceVector() {
-//	if(!isLocked()) return D3DXVECTOR3(m_orientation.x, m_orientation.y, m_orientation.z); // use ships direction
 	D3DXVECTOR3 range = m_end - m_start;
 	return range;
 }
-
 
 
 D3DXVECTOR3 S_TractorBeam::getDistanceVectorOf(D3DXVECTOR3 b) {
@@ -77,12 +73,16 @@ float S_TractorBeam::getCurrentDistance() {
 }
 
 void S_TractorBeam::setStartPoint() {
+
+	/* For if start point is at edge of "shield"
 	//Quaternion tmpq;
 	//D3DXMATRIX matRotate;
 	//D3DXVECTOR3 tmp = D3DXVECTOR3(0,0,1);
 	//D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&tmpq, &m_ship->m_orientation));
 	//D3DXVec3TransformCoord(&tmp,&tmp,&matRotate);
 	//D3DXVec3Normalize( &tmp, &tmp );
+	*/
+
 	m_start = m_ship->m_pos;// + tmp*m_ship->m_radius;
 	m_pFront = m_start;
 }
@@ -113,23 +113,23 @@ void S_TractorBeam::calculateForce() {
 		D3DXVECTOR3 force = m_strength*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
 
 		if(m_isPulling) {
-				// Check for Over
-				D3DXVECTOR3 shipMomentumTest, objectMomentumTest, shipVelocityTest, objectVelocityTest, shipPositionTest, objectPositionTest;
-				shipMomentumTest = m_ship->m_momentum + m_ship->t_impulse + (force*.01f);
-				shipVelocityTest = shipMomentumTest * m_ship->m_mass_inverse;
-				shipPositionTest = m_ship->m_pos + shipVelocityTest * (1.0f/60.0f);
+			// Check for extreme force that pulls the object in the opposite direction
+			D3DXVECTOR3 shipMomentumTest, objectMomentumTest, shipVelocityTest, objectVelocityTest, shipPositionTest, objectPositionTest;
+			shipMomentumTest = m_ship->m_momentum + m_ship->t_impulse + (force*.01f);
+			shipVelocityTest = shipMomentumTest * m_ship->m_mass_inverse;
+			shipPositionTest = m_ship->m_pos + shipVelocityTest * (1.0f/60.0f);
 
-				objectMomentumTest = m_object->m_momentum + m_object->t_impulse + (-force*.01f);
-				objectVelocityTest = objectMomentumTest * m_object->m_mass_inverse;
-				objectPositionTest = m_object->m_pos + objectVelocityTest * (1.0f/60.0f);
+			objectMomentumTest = m_object->m_momentum + m_object->t_impulse + (-force*.01f);
+			objectVelocityTest = objectMomentumTest * m_object->m_mass_inverse;
+			objectPositionTest = m_object->m_pos + objectVelocityTest * (1.0f/60.0f);
 
 			D3DXVECTOR3 disB = getCurrentDistanceVector();
 			D3DXVECTOR3 disA = objectPositionTest - shipPositionTest;
-			float a = acos(D3DXVec3Dot(&disA,&disB)/(D3DXVec3Length(&disB)*D3DXVec3Length(&disA)))*(float)(180.0/3.14159265);
-			
+			float angleDiff = acos(D3DXVec3Dot(&disA,&disB)/(D3DXVec3Length(&disB)*D3DXVec3Length(&disA)))*180.0f/PI;
 
-			// reaching threshold
-			if(a > 3.0 || m_isColliding || m_isHolding){
+			// If at the point to be held
+			if(angleDiff > 3.0 || m_isColliding || m_isHolding){
+				// Resources are not held by tractor beam once they collide with the ship
 				if(m_object->m_type == RESOURCE) {
 					if(m_ship->interact((S_Resource *)m_object)) cout << "Resource not gathered- error?"<<endl;
 					else {
@@ -139,12 +139,13 @@ void S_TractorBeam::calculateForce() {
 					}
 				}
 				else {
-					if(!m_isHolding) m_heldDistance = disL;
+					if(!m_isHolding) m_heldDistance = disL; // Set permanent holding distance
 					m_object->m_momentum = D3DXVECTOR3(0.0f,0.0f,0.0f);
-					m_object->t_impulse = D3DXVECTOR3(0.0f,0.0f,0.0f);
+					m_object->t_impulse = D3DXVECTOR3(0.0f,0.0f,0.0f); // zero out physics (position is set in the Ship's update)
 					m_isHolding = true;
 				}
 			}
+			// Apply normal pulling force
 			else {
 				m_ship->applyLinearImpulse(force * .01f);
 				m_object->applyLinearImpulse(-force * .01f);
@@ -167,7 +168,7 @@ void S_TractorBeam::calculateForce() {
 void S_TractorBeam::updateData() {
 	setStartPoint();
 	setEndPoint();
-	//cout << "dis: "<<getCurrentDistance()<<" Dir: "<<getCurrentDirection().x<<" "<<getCurrentDirection().y<<" "<<getCurrentDirection().z<<endl;
+
 	if(m_isOn){
 		calculateForce();
 		m_isColliding = false;
@@ -202,6 +203,32 @@ void S_TractorBeam::setIsOn(bool isOn){
 		m_isOn = isOn;
 	}
 }
+
+
+bool S_TractorBeam::interact(ServerEntity * entity) {
+	if(m_isOn){
+		
+		if(entity->m_type == SHIP && m_ship == entity || 
+			entity->m_type == MOTHERSHIP || 
+			entity->m_type == EXTRACTOR || 
+			(entity->m_type == RESOURCE && ((S_Resource *)entity)->m_carrier != NULL)) 
+				return false; // tmp
+		// If is already locked check if closer
+		else if(isLocked()) {	
+			if(getCurrentDistance() > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))){
+				lockOn(entity);
+			}
+		}
+		// nothing locked so lock on
+		else {	
+			lockOn(entity);
+		}
+	}
+
+	return false;
+}
+
+
 void S_TractorBeam::update(float delta_time) {
 	// do nothing during regular update cycle (not affected by physics)
 }

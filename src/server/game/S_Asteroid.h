@@ -27,6 +27,10 @@ public:
 	// Constructors
 	S_Asteroid(D3DXVECTOR3, Quaternion, float);
 
+	void reCreateAsteroid(float boundaryRadius);
+
+	static float generateSize();
+
 	// Methods
 	static float calculateMass(float radius, float density);
 	virtual D3DXMATRIX calculateRotationalInertia(float mass);

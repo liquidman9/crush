@@ -19,8 +19,6 @@ ostream& operator<<(ostream& os, const D3DXQUATERNION &v) {
 }
 
 void PhysicsWorld::collision(float delta_time) {
-	//int iterCount = 10;	// Attempt to solve collisions 10 times, to be implemented
-
 
 	for(unsigned i = 0; i < entities.size(); i++)
 	{	
@@ -35,14 +33,6 @@ void PhysicsWorld::collision(float delta_time) {
 
 			delete(c);
 		}
-
-	/*	// Boundary Collisions
-		for(unsigned k = 0; k < boundaries.size(); k++) {
-			if(checkCollision(*entities[i], boundaries[k])){
-					respond(entities[i], boundaries[k]);
-			}
-		}
-		*/
 
 		checkInBounds(entities[i]);
 
@@ -159,6 +149,12 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 	return NULL;
 }
 
+
+/*
+ * Evaulates whether a physical response is neccessary for the collison and 
+ * takes care of gameplay logic for the specific collisions
+ * returns true if a response is neccessary
+ */
 bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 	ServerEntity * one, * two;
 	bool rtn = true; // true if going to calculate a physics response
@@ -206,20 +202,7 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		S_TractorBeam * beam = (S_TractorBeam *)one;
 		ServerEntity * entity = two;
 
-		if(beam->m_isOn){
-		
-			if(entity->m_type == SHIP && beam->m_ship == entity || entity->m_type == MOTHERSHIP || entity->m_type == EXTRACTOR || (entity->m_type == RESOURCE && ((S_Resource *)entity)->m_carrier != NULL)) rtn = false; // tmp
-			// If is already locked check if closer
-			else if(beam->isLocked()) {	
-				if(beam->getCurrentDistance() > D3DXVec3Length(&beam->getDistanceVectorOf(entity->m_pos))){
-					beam->lockOn(entity);
-				}
-			}
-			// nothing locked so lock on
-			else {	
-				beam->lockOn(entity);
-			}
-		}
+		beam->interact(entity); //lock on check 
 		rtn = false; // could give them the immovable tag 
 	}
 
@@ -276,59 +259,21 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	}
 }
 
+
 /*
-bool PhysicsWorld::checkCollision(ServerEntity& a, Boundary& b){
-
-    D3DXVECTOR3 v(a.m_pos - b.m_point);
-    float dis(D3DXVec3Dot(&v, &b.m_normal));
-
-    if(dis > a.m_radius)
-    {
-        return false;
-    }
-
-    return true;
-}
-
-void PhysicsWorld::respond(ServerEntity * a, Boundary b) {
-	D3DXVECTOR3 n = b.m_normal;
-
-	//D3DXVECTOR3 v1 = a->m_velocity;
-	//float a1 = D3DXVec3Dot(&v1,&n);
-
-	//D3DXVECTOR3 nv1 = v1 - 2*n*a1;
-
-	D3DXVECTOR3 dir = -(D3DXVECTOR3(0,0,0) + a->m_pos);
-	if(a->m_type == ASTEROID) {
-		//a->m_destroy = true;
-		a->reset();
-		a->applyLinearImpulse(dir*100000);
-	}
-	else if(a->m_type == SHIP) {
-		a->applyLinearImpulse(dir*10000);
-	}
-	///else if(a->m_type == RESOURCE) {
-	///	a->m_destroy = true;
-	//}
-	//a->m_velocity = nv1/lower;
-	//a->m_pos+= a->m_velocity;
-}*/
-
+ * Checks whether an entity is within the sphere boundary and adjusts it's 
+ * location and properties if out of bounds
+ */
 void PhysicsWorld::checkInBounds(ServerEntity * a) {
-	if(abs(D3DXVec3Length(&a->m_pos)) +a->m_radius > m_worldRadius) {
+	float asteroidWorldRadius = m_worldRadius + 100;
+	if(abs(D3DXVec3Length(&a->m_pos)) +a->m_radius > m_worldRadius && a->m_type == SHIP) {
 		// Out of Bounds
-		if(a->m_type == ASTEROID){
-			a->m_momentum = D3DXVECTOR3(0,0,0);
-			a->m_angular_momentum = D3DXVECTOR3(0,0,0);
+		D3DXVECTOR3 norm;
+		D3DXVec3Normalize(&norm, &-a->m_pos);
+		a->applyLinearImpulse(norm*10000);
 
-			D3DXVECTOR3 norm;
-			D3DXVec3Normalize(&norm, &-a->m_pos);
-			a->applyLinearImpulse(norm*10000);
-		}
-		else if(a->m_type == SHIP) {
-			D3DXVECTOR3 norm;
-			D3DXVec3Normalize(&norm, &-a->m_pos);
-			a->applyLinearImpulse(norm*10000);
-		}
+	}
+	else if(abs(D3DXVec3Length(&a->m_pos)) > asteroidWorldRadius && a->m_type == ASTEROID) {
+		((S_Asteroid *)a)->reCreateAsteroid(asteroidWorldRadius);
 	}
 }

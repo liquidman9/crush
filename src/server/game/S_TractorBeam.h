@@ -52,6 +52,8 @@ public:
 	void setIsPulling(bool);
 	bool getIsPulling();
 	void setIsOn(bool);
+
+	bool interact(ServerEntity *);
 	
 	// For applying impulses, updating data, etc
 	void updateData();
