@@ -755,7 +755,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	}
 
 	//Update the sound engine on the changes
-	playSounds();
+	//playSounds();
 }
 
 void GameResources::resetGameState() {
