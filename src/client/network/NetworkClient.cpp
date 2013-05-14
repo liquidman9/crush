@@ -161,7 +161,7 @@ void NetworkClient::updateGameState() {
 
 		unsigned int expected_size;
 		if(!error) {
-			expected_size = m_gameState.getExpectedSize(buff, total_size);
+			expected_size = getSize(buff);
 		}
 
 		while(!error && total_size < expected_size) {
@@ -170,19 +170,21 @@ void NetworkClient::updateGameState() {
 				error = true;
 			}
 			total_size += recv_len;
-			expected_size = m_gameState.getExpectedSize(local_buf, total_size);
+			expected_size = getSize(local_buf);
 		}
 
 		if(!error) {
-			unsigned int size;
-			auto decodeBuff = decodeSendBuff(buff, getSize(buff), size); 
-			remaining_data = local_gs.decode(decodeBuff, size);
+			unsigned int size;			
+			auto decodeBuff = decodeSendBuff(buff, getSize(buff), size); 			
+			local_gs.decode(decodeBuff, size);
 			EnterCriticalSection(&m_cs);
 			if(!(m_stateAvailable && m_gameState.size() == 0)) {
 				m_gameState = local_gs;
 			}			
 			m_stateAvailable = true;
 			LeaveCriticalSection(&m_cs);
+
+			remaining_data =  total_size - getSize(buff);
 			assert(remaining_data >= 0);
 			if(remaining_data > 0) {
 				memcpy(buff, buff + (total_size - remaining_data), remaining_data);

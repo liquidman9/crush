@@ -61,21 +61,7 @@ Network::~Network(void) {
 #ifdef ENABLE_DELTA
 char * Network::encodeDelta(const char* new_data, unsigned int &size) {
 	assert(new_data != NULL);
-	//if(m_oldState == NULL) {
-	//	//allocate return buffer
-	//	unsigned int buff_size = (unsigned int) ceil((float)size/8) 
-	//		+ sizeof(BITFIELD_CONTAINER) + size;
-	//	char * buff = new char[buff_size];
-	//	m_oldState = new char[size];
-	//	memcpy(m_oldState, new_data, size);
-	//	auto rtn = m_deltaField.encode(buff);
-	//	memcpy(buff + rtn, m_oldState, size);
-	//	size += rtn;
-	//	return buff;
-	//} else {
-	//	//m_deltaField.setBitAt(0, false);
-	//}
-
+	m_deltaField.clear();
 	if(m_oldSize < size) {
 		char * tmp = new char[size];
 		memcpy(tmp, m_oldState, m_oldSize);
@@ -101,6 +87,7 @@ char * Network::encodeDelta(const char* new_data, unsigned int &size) {
 		}
 		m_oldSize = size;
 	}
+	
 	//allocate return buffer
 	unsigned int buff_size = (unsigned int) ceil((float)m_deltaField.size()/8) 
 		+ sizeof(BITFIELD_CONTAINER) + m_oldSize + sizeof(unsigned int);
@@ -161,6 +148,7 @@ char * Network::decodeDelta(const char *buff, unsigned int &size) {
 		}
 		char *rtn_buff = new char[m_deltaField.size()];
 		memcpy(rtn_buff, m_oldState, m_deltaField.size());
+		//m_oldSize = m_deltaField.size();
 		size = m_deltaField.size();
 		return rtn_buff;
 	}

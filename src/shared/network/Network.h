@@ -68,33 +68,6 @@ public:
 	Network(unsigned short port);
 	virtual ~Network(void);
 
-#ifdef ENABLE_DELTA
-	BitField m_deltaField;
-	char * m_oldState;
-	unsigned int m_oldSize;
-	char * encodeDelta(const char* new_data, unsigned int &size);
-	char * decodeDelta(const char *, unsigned int &size);
-	void clearDelta();
-#endif
-
-#ifdef ENABLE_COMPRESSION
-	//compresses input char array of passed size, returns a new buffer and updates size
-	char * compress(const char *, unsigned int &size);
-	//decompresses input char array of passed size and returns a new pointer with the new value of size
-	char * decompress(const char *, unsigned int &size);
-	void setHeader(char * buff, unsigned int c_size, unsigned int d_size);
-	void loadHeader(const char* buff, unsigned int &c_len, unsigned int &d_size);
-	unsigned int sizeofHeader();
-#endif
-	//encodes buffer of in_size and returns new buffer with out_size
-	const char * encodeSendBuff(const char *haed, unsigned int in_size, unsigned int &out_size);
-	//decodes buffer of out_size and returns new buffer with out_size
-	const char * decodeSendBuff(const char *head, unsigned int in_size, unsigned int &out_size);
-	unsigned int getSize(const char *);
-
-
-
-
 	const Network& operator=(const Network &rhs) {
 		if(this == &rhs) {
 			return *this;
@@ -122,6 +95,31 @@ public:
 		short rhs_port = rhs.m_sockaddr.sin_port;
 		return this_ip == rhs_ip && this_port == rhs_port; 
 	}
+
+	protected:
+#ifdef ENABLE_DELTA
+	BitField m_deltaField;
+	char * m_oldState;
+	unsigned int m_oldSize;
+	char * encodeDelta(const char* new_data, unsigned int &size);
+	char * decodeDelta(const char *, unsigned int &size);
+	void clearDelta();
+#endif
+
+#ifdef ENABLE_COMPRESSION
+	//compresses input char array of passed size, returns a new buffer and updates size
+	char * compress(const char *, unsigned int &size);
+	//decompresses input char array of passed size and returns a new pointer with the new value of size
+	char * decompress(const char *, unsigned int &size);
+	void setHeader(char * buff, unsigned int c_size, unsigned int d_size);
+	void loadHeader(const char* buff, unsigned int &c_len, unsigned int &d_size);
+	unsigned int sizeofHeader();
+#endif
+	//encodes buffer of in_size and returns new buffer with out_size
+	const char * encodeSendBuff(const char *haed, unsigned int in_size, unsigned int &out_size);
+	//decodes buffer of out_size and returns new buffer with out_size
+	const char * decodeSendBuff(const char *head, unsigned int in_size, unsigned int &out_size);
+	unsigned int getSize(const char *);
 
 private:
 	Network(struct sockaddr_in);

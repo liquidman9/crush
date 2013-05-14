@@ -140,24 +140,9 @@ public:
 	}
 
 private:
-	unsigned int getExpectedSize(const char* head, const unsigned int size) const {
-		assert(size >= gsMinSize());
-		return getRecvSize(head);
-	}
 
-	int getLastCompleteGS(const char* &head, const unsigned int size) const {
-		auto orig_head = head;	
-		assert(size >= gsMinSize());
-		auto gs_size = getRecvSize(head);
-		return size - gs_size;
-	}
-
-	int decode(const char *head, unsigned int size) {
-		auto orig_head = head;
-		auto rtn = getLastCompleteGS(head, size);
-		if(rtn < 0) {
-			return rtn;
-		}
+	void decode(const char *head, unsigned int size) {
+		auto orig_head = head;		
 		memcpy((char* ) &m_meta, head, sizeof(m_meta));
 		auto gs_size = m_meta.size;
 		const char* cur_head = head + sizeof(m_meta);
@@ -203,7 +188,6 @@ private:
 				break;
 			}
 		}
-		return rtn;
 	}
 
 	const char * getSendBuff() const {
