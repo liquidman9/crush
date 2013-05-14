@@ -145,16 +145,10 @@ void NetworkClient::updateGameState() {
 			error = true;
 		}
 
-		auto test = m_gameState.getRecvSize(buff);
-
-		if(error && WSAGetLastError() == WSAETIMEDOUT) {
-			cerr << "conntection to the server timedout" << endl;
-		}
-
 		unsigned int total_size = recv_len + remaining_data;
 		while(!error && total_size < m_gameState.gsMinSize()) {
 			recv_len = recvFromServer(local_buf+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
-			if(recv_len < 0) { 
+			if(recv_len < 0) {
 				error = true;
 			}
 			total_size += recv_len;
@@ -207,7 +201,7 @@ int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned 
 	}
 	int recv_len = 0;
 	do {
-		if (((recv_len = recv(m_sock, local_buf, size, 0)) == SOCKET_ERROR)) {
+		if ((recv_len = recv(m_sock, local_buf, size, 0)) == SOCKET_ERROR) {
 			if(WSAGetLastError() == WSAEWOULDBLOCK) {
 				if(remaining_data != 0) {
 					recv_len = 0;
