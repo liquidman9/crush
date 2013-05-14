@@ -64,10 +64,12 @@ public:
 	static float playerCamScale;
 	static int playerCamScaleLevel;
 	static C_Ship * playerShip;
+	static C_Mothership * playerMothership;
 	static int playerNum;
 	static LPD3DXSPRITE pd3dSprite;
 	static LPD3DXFONT GameResources::pd3dFont;
 	static LPDIRECT3DTEXTURE9 shipEIDTexture;
+	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
 	static LPDIRECT3DTEXTURE9 EnginePartTexture;
 	static ParticleSystem * partSystem;
