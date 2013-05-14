@@ -32,7 +32,8 @@ public:
 
 	void collision(float delta_time);
 	void update(float delta_time);
-	Collision * checkCollision(ServerEntity&,ServerEntity&);	bool checkCollision(ServerEntity&, Boundary&);
+	Collision * checkCollision(ServerEntity&,ServerEntity&);	
+	bool checkCollision(ServerEntity&, Boundary&);
 	bool typeResponse(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, ServerEntity *);
 	void respond(ServerEntity *, Boundary);

@@ -10,7 +10,7 @@ int ServerEntity::s_id_gen = 0;
 ServerEntity::ServerEntity() :
 	m_mass(1),
 	m_mass_inverse(1),
-	m_rot_inertia(*D3DXMatrixScaling(&m_rot_inertia, 1.0f, 1.0f, 1.0f)),
+	m_rot_inertia(*D3DXMatrixIdentity(&D3DXMATRIX())),
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
 	m_immovable(false),
 	m_resourceSpots(0),
@@ -25,10 +25,10 @@ ServerEntity::ServerEntity() :
 { }
 
 
-ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia) :
+ServerEntity::ServerEntity(float mass, D3DXMATRIX rot_inertia) :
 	m_mass(mass),
 	m_mass_inverse(1/mass),
-	m_rot_inertia(*D3DXMatrixScaling(&m_rot_inertia, rot_inertia.x, rot_inertia.y, rot_inertia.z)),
+	m_rot_inertia(rot_inertia),
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
 	m_immovable(false),
 	m_resourceSpots(0),
@@ -40,18 +40,17 @@ ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia) :
 	m_angular_momentum(shared::utils::VEC3_ZERO),
 	t_impulse(shared::utils::VEC3_ZERO),
 	t_angular_impulse(shared::utils::VEC3_ZERO)
-{ 
+{
 	recalculateRelativeValues();
 }
 
 
-ServerEntity::ServerEntity(float mass, D3DXVECTOR3 rot_inertia, float length, float elastic) :
+ServerEntity::ServerEntity(float mass, float length, D3DXMATRIX rot_inertia) :
 	m_mass(mass),
 	m_mass_inverse(1/mass),
-	m_rot_inertia(*D3DXMatrixScaling(&m_rot_inertia, rot_inertia.x, rot_inertia.y, rot_inertia.z)),
+	m_rot_inertia(rot_inertia),
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
 	m_length(length),
-	m_elastic(elastic),
 	m_immovable(false),
 	m_resourceSpots(0),
 	m_destroy(false),
@@ -93,9 +92,9 @@ void ServerEntity::applyImpulse(D3DXVECTOR3 impulse, D3DXVECTOR3 point) {
 	D3DXVec3Cross(&angular_impulse, &vector_to_point, &impulse); // Cross product finds torque
 	t_angular_impulse += angular_impulse;
 	if (DEBUG) {
-		cout << "Pos: "; shared::utils::printVec(m_pos); cout << endl;
-		cout << "Point: "; shared::utils::printVec(point); cout << endl;
-		cout << "Angular impulse: "; shared::utils::printVec(angular_impulse); cout << endl;
+		cout << "Pos: " << m_pos << endl;
+		cout << "Point: " << point << endl;
+		cout << "Angular impulse: " << angular_impulse << endl;
 	}
 }
 
@@ -130,13 +129,12 @@ void ServerEntity::recalculateRelativeValues() {
 void ServerEntity::update(float delta_time) {
 	// Apply current frame's physics
 	// Apply impulse
-
 	m_momentum += t_impulse;
 	m_angular_momentum += t_angular_impulse;
 	
 	// Reset temporary values
-	t_impulse = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	t_angular_impulse = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	t_impulse = shared::utils::VEC3_ZERO;
+	t_angular_impulse = shared::utils::VEC3_ZERO;
 
 	// Calculate velocity/angular velocity (second-order dependent values)
 	m_velocity = m_momentum * m_mass_inverse;
@@ -193,7 +191,7 @@ void ServerEntity::reset() {
 
 void ServerEntity::print() {
 	cout << "Type: " << (int)m_type << endl;
-	cout << "Pos: "; shared::utils::printVec(m_pos); cout << endl;
+	cout << "Pos: " << m_pos << endl;
 	cout << "Velocity: " << D3DXVec3Length(&m_velocity) << endl;
 	cout << "Rotation: " << D3DXVec3Length(&m_angular_velocity) << endl;
 }

@@ -14,7 +14,7 @@
 #include <d3dx9.h>
 #include <iostream>
 #include <memory>
-#include<math.h>
+#include <math.h>
 
 // Project includes
 #include <shared/network/Sendable.h>
@@ -62,7 +62,7 @@ public:
 	D3DXVECTOR3 m_pBack;
 	float m_radius;
 
-	// These two constructors are DEPRECATED
+	// This constructors is DEPRECATED
 	Entity(Type type);
 
 	// Constructors

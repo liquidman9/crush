@@ -14,14 +14,10 @@
 #include <server/game/ServerEntity.h>
 #include <shared/InputState.h>
 
-
+#define SHIP_PLAYERNUM_TYPE char
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
-
-#define SHIP_PLAYERNUM_TYPE char
-
-
 
 class S_Resource : public Resource, public ServerEntity{ //switch back to capsule
 
@@ -44,7 +40,7 @@ public:
 	S_Resource(D3DXVECTOR3, Quaternion);
 
 	// Methods
-	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 	void travel();
 	void update(float delta_time);
 };

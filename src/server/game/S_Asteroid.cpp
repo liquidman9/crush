@@ -8,39 +8,35 @@
 // Project includes
 #include <shared/game/Entity.h>
 #include <server/game/S_Asteroid.h>
+#include <server/Globals.h>
 
-
+using namespace shared::utils;
 using namespace server::entities::asteroid;
-int server::entities::asteroid::numAsteroids = 50;
-float server::entities::asteroid::startMass = 0.25f;
-int server::entities::asteroid::rangeMass = 20;
-float server::entities::asteroid::startPos = -200.0f;
-int server::entities::asteroid::rangePos = 400;
-float server::entities::asteroid::scaleToRadius = 2.0f;
-float server::entities::asteroid::radiusToMass = 250.0f;
-
-
-
-S_Asteroid::S_Asteroid() :
-	Entity(ASTEROID),
-	Asteroid(),
-	ServerEntity(m_mass = ((m_radius = (m_scale = (rand() % rangeMass) + startMass)*scaleToRadius) * radiusToMass), calculateRotationalInertia(m_mass), 1.0, 1.0)
-{
-	m_radius = (m_scale)*scaleToRadius;
-}
 
 S_Asteroid::S_Asteroid(D3DXVECTOR3 pos, Quaternion orientation, float scale) :
 	Entity(genId(), ASTEROID, pos, orientation),
-	Asteroid(),
-	ServerEntity(m_mass = ((m_radius = (m_scale = scale)*scaleToRadius) * radiusToMass), calculateRotationalInertia(m_mass), 1.0, 1.0)
+	Asteroid(scale),
+	ServerEntity(calculateMass(m_radius = scale *scaleToRadius, density), m_radius, calculateRotationalInertia(calculateMass(scale * scaleToRadius, density)))
 {	
 	m_radius = (m_scale)*scaleToRadius;
-	cout<<"Mass: "<<m_mass<<" Radius: "<<m_radius<<" Scale: "<<m_scale<<endl;
+	cout << "Mass: "<< m_mass<< " Radius: " << m_radius << " Scale: " << m_scale << endl;
+	//cout << m_rot_inertia << endl;
+}
+
+float S_Asteroid::calculateMass(float radius, float density) {
+	return (float)(density * 4/3 * PI * pow(radius, 3));
+}
+
+D3DXMATRIX S_Asteroid::calculateRotationalInertia(float mass) {
+	float radius_squared = m_radius * m_radius;
+	return *D3DXMatrixScaling(&D3DXMATRIX(), (2.0f / 5.0f) * mass * radius_squared,
+											 (2.0f / 5.0f) * mass * radius_squared,
+											 (2.0f / 5.0f) * mass * radius_squared);
 }
 
 // assumes srand() call
 float S_Asteroid::generateSize() {
-	return (rand() % server::entities::asteroid::rangeMass) + server::entities::asteroid::startMass;
+	return shared::utils::rand_float(server::world::asteroids_scale_start, server::world::asteroids_scale_range);
 }
 
 void S_Asteroid::reCreateAsteroid(float boundaryRadius) {
@@ -48,7 +44,7 @@ void S_Asteroid::reCreateAsteroid(float boundaryRadius) {
 
 	m_scale = generateSize();
 	m_radius = m_scale*scaleToRadius;
-	m_mass = m_radius*radiusToMass;
+	m_mass = calculateMass(m_radius, density);
 	m_mass_inverse = 1/m_mass;
 	D3DXVECTOR3 rot_inertia = calculateRotationalInertia(m_mass);
 	m_rot_inertia = *D3DXMatrixScaling(&m_rot_inertia, rot_inertia.x, rot_inertia.y, rot_inertia.z);
@@ -66,9 +62,9 @@ void S_Asteroid::reCreateAsteroid(float boundaryRadius) {
 
 
 	// Calculate Position
-	float r = boundaryRadius - 1.0;
+	float r = boundaryRadius - 1.0f;
 	float x, y, z, tmp1, tmp2;
-	z = ((((float)rand())/((float)RAND_MAX))*2)-1;
+	z = shared::utils::rand_float(-1.0f, 2.0f);
 	tmp1 = sqrt(1 - z*z);
 	tmp2 = (((float)rand())/((float)RAND_MAX))*2*3.14159265359;
 	x = tmp1 * cos(tmp2);
@@ -88,11 +84,3 @@ void S_Asteroid::reCreateAsteroid(float boundaryRadius) {
 
 
 }
-
-D3DXVECTOR3 S_Asteroid::calculateRotationalInertia(float mass){
-	float radius_squared = m_radius;
-	return D3DXVECTOR3( (2.0f / 5.0f) * mass * radius_squared,
-						(2.0f / 5.0f) * mass * radius_squared,
-						(2.0f / 5.0f) * mass * radius_squared);
-};
-

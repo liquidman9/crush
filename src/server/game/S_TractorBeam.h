@@ -14,37 +14,19 @@
 #include <shared/game/TractorBeam.h>
 #include <server/game/ServerEntity.h>
 #include <server/game/S_Ship.h>
-#include <shared/InputState.h>
+#include <server/Globals.h>
 
 class S_Ship;
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
-
-namespace server {
-	namespace entities {
-		namespace tractorbeam {
-			static const string CONFIG_PREFIX = "tractorbeam_";
-
-			extern float gravity;
-			extern float length;
-
-			inline void initFromConfig() {
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "gravity", gravity);
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "length", length);
-			}
-		}
-	}
-}
-
-
 class S_TractorBeam : public TractorBeam, public ServerEntity{ 
 private:
 	bool m_isPulling;
 public:
 	// Fields
-	float m_gravity;
+	float m_power;
 
 	ServerEntity * m_object;
 	S_Ship * m_ship; 
@@ -81,7 +63,7 @@ public:
 	// Overwrite, since doesnt do anything during normal cycle
 	void update(float delta_time);
 
-	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 };
 
 #pragma warning( pop )

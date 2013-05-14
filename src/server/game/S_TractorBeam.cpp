@@ -16,16 +16,13 @@ using namespace server::entities::tractorbeam;
 
 using namespace server::entities::tractorbeam;
 
-float server::entities::tractorbeam::gravity = 5.0f;
-float server::entities::tractorbeam::length = 350.0f;
-
 S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	Entity(genId(), TRACTORBEAM, D3DXVECTOR3(0,0,0), Quaternion(0,0,0,1)),
 	TractorBeam(ship->m_playerNum),
-	ServerEntity(1000, D3DXVECTOR3(1, 1, 1), length, 1.0),
+	ServerEntity(1000, length, calculateRotationalInertia(1)),
 	m_strength(0),
 	m_isPulling(true),
-	m_gravity(gravity),
+	m_power(power),
 	m_isColliding(false),
 	m_isHolding(false),
 	m_heldDistance(0.0f)
@@ -113,23 +110,22 @@ void S_TractorBeam::calculateForce() {
 		D3DXVECTOR3 disV = getCurrentDirection();
 		float disL = getCurrentDistance();
 		
-		D3DXVECTOR3 force = m_strength*(m_gravity*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
+		D3DXVECTOR3 force = m_strength*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
 
 		if(m_isPulling) {
 			// Check for extreme force that pulls the object in the opposite direction
 			D3DXVECTOR3 shipMomentumTest, objectMomentumTest, shipVelocityTest, objectVelocityTest, shipPositionTest, objectPositionTest;
 			shipMomentumTest = m_ship->m_momentum + m_ship->t_impulse + (force*.01f);
 			shipVelocityTest = shipMomentumTest * m_ship->m_mass_inverse;
-			shipPositionTest = m_ship->m_pos + shipVelocityTest * (1.0/60.0f);
+			shipPositionTest = m_ship->m_pos + shipVelocityTest * (1.0f/60.0f);
 
 			objectMomentumTest = m_object->m_momentum + m_object->t_impulse + (-force*.01f);
 			objectVelocityTest = objectMomentumTest * m_object->m_mass_inverse;
-			objectPositionTest = m_object->m_pos + objectVelocityTest * (1.0/60.0f);
+			objectPositionTest = m_object->m_pos + objectVelocityTest * (1.0f/60.0f);
 
 			D3DXVECTOR3 disB = getCurrentDistanceVector();
 			D3DXVECTOR3 disA = objectPositionTest - shipPositionTest;
-			float angleDiff = acos(D3DXVec3Dot(&disA,&disB)/(D3DXVec3Length(&disB)*D3DXVec3Length(&disA)))*180.0/3.14159265;
-			
+			float angleDiff = acos(D3DXVec3Dot(&disA,&disB)/(D3DXVec3Length(&disB)*D3DXVec3Length(&disA)))*180.0f/PI;
 
 			// If at the point to be held
 			if(angleDiff > 3.0 || m_isColliding || m_isHolding){
@@ -237,11 +233,7 @@ void S_TractorBeam::update(float delta_time) {
 	// do nothing during regular update cycle (not affected by physics)
 }
 
-D3DXVECTOR3 S_TractorBeam::calculateRotationalInertia(float mass){
-	float radius_squared = 50;
-	float height_squared = 50;
-	return D3DXVECTOR3( (1.0f / 12.0f) * mass * (3 * radius_squared + height_squared),
-						(0.5f) * mass * radius_squared,
-						(1.0f / 12.0f) * mass * (3 * radius_squared + height_squared));
+D3DXMATRIX S_TractorBeam::calculateRotationalInertia(float mass){
+	return *D3DXMatrixIdentity(&D3DXMATRIX());
 };
 

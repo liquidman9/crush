@@ -15,21 +15,7 @@
 #include <server/game/S_Resource.h>
 #include <server/game/S_Ship.h>
 #include <server/game/ServerEntity.h>
-#include <shared/InputState.h>
-
-namespace server {
-	namespace entities {
-		namespace mothership {
-			static const string CONFIG_PREFIX = "mothership_";
-
-			extern float mass;
-
-			inline void initFromConfig() {
-				ConfigSettings::config->getValue(CONFIG_PREFIX + "mass", mass);
-			}
-		}
-	}
-}
+#include <server/Globals.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
@@ -45,7 +31,7 @@ public:
 	S_Mothership(D3DXVECTOR3, Quaternion, int);
 
 	// Methods
-	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 	bool interact(S_Ship * ship);
 	void update(float delta_time);
 

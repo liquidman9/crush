@@ -21,19 +21,19 @@ public:
 	static const int s_msReset = 30000; 
 
 	// Fields
-	long m_timer;
+	long long m_timer;
 	S_Resource *m_ore;
 
 	// Constructors
 	S_Extractor(D3DXVECTOR3, Quaternion);
 
 	// Methods
-	void setStart(long);
-	bool checkRespawn(long);
+	void setStart(long long);
+	bool checkRespawn(long long);
 	S_Resource * respawn();
 	S_Resource * transfer();
 
-	virtual D3DXVECTOR3 calculateRotationalInertia(float mass);
+	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 	void update(float delta_time);
 };
 

@@ -83,8 +83,10 @@ void NetworkServer::initializeSocket() {
 
 void NetworkServer::broadcastGameStateWorker() {
 	vector<map<unsigned int, SOCKET>::iterator> removeList;
+	vector<unsigned int> removeList_lookup;
 	unsigned int curr_clients = 0;
 	GameState<Entity> e;
+	map <unsigned int, SOCKET> l_connectedClients = m_connectedClients;
 	for(;;){		
 		//send to every client currently connected
 		EnterCriticalSection(&m_cs1);		
@@ -109,18 +111,33 @@ void NetworkServer::broadcastGameStateWorker() {
 		//prep empty gamestate send if necessary
 
 		EnterCriticalSection(&m_cs);
-		for(auto it = m_connectedClients.begin();
-			it != m_connectedClients.end(); it++) {
+		l_connectedClients = m_connectedClients;
+		LeaveCriticalSection(&m_cs);
+
+		for(auto it = l_connectedClients.begin();
+			it != l_connectedClients.end(); it++) {
 				if(!sendToClient(send_buff, size, it->first, it->second)) {
 					//client can't be reached
-					removeList.push_back(it);
+					removeList_lookup.push_back(it->first);
 				}
 		}
-		//remove clients who cannot be reached
+
+
+		EnterCriticalSection(&m_cs);
+		for(auto it = removeList_lookup.begin(); it != removeList_lookup.end(); it++){
+			auto r = m_connectedClients.find(*it);
+			if(r != m_connectedClients.end()) {
+				removeList.push_back(r);
+			}
+		}
 		removeClients(removeList);
 		LeaveCriticalSection(&m_cs);
-		removeList.clear();
 
+		//remove clients who cannot be reached
+		//removeClients(removeList);
+		//LeaveCriticalSection(&m_cs);
+		removeList.clear();
+		removeList_lookup.clear();
 		delete []gs_send_buff;	
 		delete []send_buff;
 	}
@@ -143,14 +160,29 @@ void NetworkServer::broadcastGameState(GameState<Entity> const &state) {
 }
 
 bool NetworkServer::sendToClient(const char * const buff, const int size, const unsigned int client,  SOCKET &s) {
+	static fd_set fds;
+	static timeval timeout = {TIMEOUT, 0};
+	FD_ZERO(&fds);
+	FD_SET(s, &fds);
 	int send_len;
+	int error;
 	do {
-	if((send_len = send(s, buff, size, 0) == SOCKET_ERROR) && WSAGetLastError() != WSAEWOULDBLOCK) {
-		cerr << "failed to send to client " + to_string((long long)client)
-			+ ". Error code : " + to_string((long long) WSAGetLastError()) << endl;
-		return false;
-	}
-	} while (WSAGetLastError() == WSAEWOULDBLOCK);
+		if((send_len = send(s, buff, size, 0) == SOCKET_ERROR) && WSAGetLastError() != WSAEWOULDBLOCK) {
+			cerr << "failed to send to client " + to_string((long long)client)
+				+ ". Error code : " + to_string((long long) WSAGetLastError()) << endl;
+			return false;
+		}
+		if((error = WSAGetLastError()) == WSAEWOULDBLOCK) {
+			int r;
+			if((r = select(NULL, &fds, NULL, NULL, &timeout)) == SOCKET_ERROR) {
+				cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+			} else if (r == 0) {
+				cerr << "connection to client " << client << ": " << "timed out" << endl;
+				//	throw runtime_error("connection to the server timed out");
+			} 
+
+		}
+	} while (error == WSAEWOULDBLOCK);
 	return true;
 }
 

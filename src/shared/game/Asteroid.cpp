@@ -7,7 +7,7 @@
 
 Asteroid::Asteroid() :
 	Entity(ASTEROID),
-	m_scale(0)
+	m_scale(1.0f)
 {
 }
 
