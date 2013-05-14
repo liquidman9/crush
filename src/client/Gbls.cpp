@@ -45,7 +45,8 @@ std::wstring Gbls::skyboxTextureFilepath_Left = L"SkyBox_Left.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Right = L"SkyBox_Right.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Top = L"SkyBox_Top.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
-std::wstring Gbls::shipEIDTextureFilepath = L"Arrow.png";
+std::wstring Gbls::shipEIDTextureFilepath = L"arrow.png";
+std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
 std::wstring Gbls::enginePartTexFilepath = L"particle02.bmp"; 
 std::wstring Gbls::fontStyle = L"Ariel";
@@ -184,6 +185,9 @@ void Gbls::initFromConfig() {
 	}
 	if(conf.getValue("shipEIDTextureFilepath", tmpString)) {
 		shipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("mothershipEIDTextureFilepath", tmpString)) {
+		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 	if(conf.getValue("tBeamPartTexFilepath", tmpString)) {
 		tBeamPartTexFilepath = wstring(tmpString.begin(), tmpString.end());

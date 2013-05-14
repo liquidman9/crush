@@ -21,8 +21,6 @@
 #include <client/graphics/Renderable.h>
 #include <shared/util/SharedUtils.h>
 
-#define ENABLE_DELTAS
-
 using namespace std;
 
 typedef D3DXQUATERNION Quaternion;
@@ -77,14 +75,9 @@ public:
 
 	// Methods
 	const int getID() const { return m_id; };
-	virtual unsigned int encode(char *);
-	virtual unsigned int decode(char *);
+	virtual unsigned int encode(char *) const;
+	virtual unsigned int decode(const char *);
 	virtual const unsigned int size() const { return m_size; };
-#ifdef ENABLE_DELTA
-	virtual const unsigned int deltaSize() const { 
-		return this->m_size + (int) ceil((float) this->m_size/(sizeof(char)*8)) + sizeof(BITFIELD_CONTAINER);
-	}
-#endif
 	virtual void update(shared_ptr<Entity> source);
 	//virtual void update(Entity* source);
 

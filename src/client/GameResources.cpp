@@ -44,9 +44,11 @@ Camera* GameResources::curCam = &debugCam;
 float GameResources::playerCamScale = 1.0f;
 int GameResources::playerCamScaleLevel = 0;
 C_Ship* GameResources::playerShip = NULL;
+C_Mothership* GameResources::playerMothership = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
-LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture = NULL; 
+LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
@@ -270,6 +272,12 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 
+	// load ship arrow spirte
+	hres = loadTexture(&mothershipEIDTexture, Gbls::mothershipEIDTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
 	// load tractor beam particle spirte
 	hres = loadTexture(&tBeamPartTexture, Gbls::tBeamPartTexFilepath);
 	if (FAILED(hres)) {
@@ -289,6 +297,10 @@ void GameResources::releaseAdditionalTextures() {
 	if (tBeamPartTexture) {
 		tBeamPartTexture->Release();
 		tBeamPartTexture = NULL;
+	}
+	if (mothershipEIDTexture) {
+		mothershipEIDTexture->Release();
+		mothershipEIDTexture = NULL;
 	}
 	if (shipEIDTexture) {
 		shipEIDTexture->Release();
@@ -423,7 +435,9 @@ void GameResources::drawAllEID() {
 		for (UINT i = 0; i < eIDList.size(); i++) {
 			//TODO add this back in when ID's work correctly
 			if(debugCamOn || eIDList[i]->targetEntity != playerShip) {
-				eIDList[i]->draw(curCam, pd3dSprite);
+				//if (eIDList[i]->targetEntity != motherShip || playership->HAS_RESOURCE) {
+					eIDList[i]->draw(curCam, pd3dSprite);
+				//}
 			}
 		}
 		pd3dSprite->End();
@@ -746,6 +760,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
 void GameResources::resetGameState() {
 	playerShip = NULL;
+	playerMothership = NULL;
 	shipList.clear();
 	asteroidList.clear();
 	mothershipList.clear();
@@ -819,6 +834,16 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		{
 		C_Mothership * tmp = new C_Mothership(newEnt);
 		mothershipList.push_back(tmp);
+		if (tmp->m_playerNum == playerNum) {
+			playerMothership = tmp;
+			EntityIdentifier * mShipEID = new EntityIdentifier();
+			mShipEID->targetEntity = tmp;
+			mShipEID->m_onScreenSprite.setTexture(mothershipEIDTexture);
+			mShipEID->m_onScreenSprite.setCenterToTextureMidpoint();
+			mShipEID->m_offScreenSprite.setTexture(mothershipEIDTexture);
+			mShipEID->m_offScreenSprite.setCenterToTextureMidpoint();
+			eIDList.push_back(mShipEID);
+		}
 		ret = tmp;
 		}
 		break;

@@ -60,7 +60,7 @@ ostream& operator<<(ostream& os, const Entity& e) {
 }
 
 
-unsigned int Entity::encode(char *tmp) {
+unsigned int Entity::encode(char *tmp) const {
 	send_struct s;
 	s.type = m_type;
 	s.id = m_id;
@@ -71,37 +71,14 @@ unsigned int Entity::encode(char *tmp) {
 	s.pFront = m_pFront;
 	s.radius = m_radius;
 
-	//char * tmp = new char[sizeof(Entity)];
-	//// Encode type
-	//*(ENUM_TYPE *) tmp = m_type;
-	//// Encode id
-	//*(int *) (tmp + sizeof(ENUM_TYPE)) = m_id;
-	//// Encode pos
-	//*(D3DXVECTOR3 *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE)) = m_pos;
-	//// Encode orientation
-	//*(Quaternion *) (tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3)) = m_orientation;
-
 	//char* tmp = new char[sizeof(send_struct)];
 	memcpy(tmp, (const char *) &s, sizeof(send_struct));
 
 	return sizeof(send_struct);
 }
 
-unsigned int Entity::decode(char * tmp) {
+unsigned int Entity::decode(const char * tmp) {
 	send_struct s;
-	unsigned int rtn = sizeof(send_struct);
-#ifdef ENABLE_DELTA
-	rtn = decodeDelta(tmp);
-	/*if (Sendable::isNewObject(tmp)){
-		tmp += rtn1;
-		rtn += rtn1;
-	} else {
-		rtn = rtn1;
-	}*/
-	/*tmp += Sendable::skipDeltaInfo(tmp);*/
-	tmp = m_oldState;
-#endif
-	
 	memcpy((char *) &s, tmp, sizeof(send_struct));
 	m_id = s.id;
 	m_pos = s.pos;
@@ -110,14 +87,8 @@ unsigned int Entity::decode(char * tmp) {
 	m_pFront = s.pFront;
 	m_pBack = s.pBack;
 	m_radius = s.radius;
-	return rtn;
+	return sizeof(send_struct);
 
-	// Decode Position
-	/*m_id = *(int *) (tmp + sizeof(ENUM_TYPE));
-	m_pos = *(D3DXVECTOR3*)(tmp + sizeof(m_id) + sizeof(ENUM_TYPE));
-	m_orientation = *(Quaternion*)(tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3));*/
-	/*memcpy(&m_pos,tmp + sizeof(m_id) + sizeof(ENUM_TYPE), sizeof(D3DXVECTOR3));
-	memcpy(&m_orientation, tmp + sizeof(m_id) + sizeof(ENUM_TYPE) + sizeof(D3DXVECTOR3), sizeof(Quaternion));*/
 }
 
 void Entity::update(shared_ptr<Entity> source) {

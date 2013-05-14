@@ -62,8 +62,7 @@ class InputState : public Sendable {
 	static const unsigned int m_size = sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+
 		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType);
 
-	virtual unsigned int encode(char * tmp) {
-		//char * tmp = new char[m_size];
+	virtual unsigned int encode(char *tmp) const {
 		*(TBType *) tmp = tractBeam;
 		*(ThrustType *) (tmp+sizeof(TBType)) = thrust;
 		*(TurnType *) (tmp+sizeof(TBType)+sizeof(ThrustType)) = turn;
@@ -71,10 +70,10 @@ class InputState : public Sendable {
 		*(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)) = brake;
 		*(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)) = reorient;
 		*(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)) = push;
-		return size();
+		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType);
 	};
 
-	virtual unsigned int decode(char * tmp) {
+	virtual unsigned int decode(const char * tmp) {
 		tractBeam = *(TBType *)tmp;
 		thrust = *(ThrustType *)(tmp+sizeof(TBType));
 		turn = *(TurnType *) (tmp+sizeof(TBType)+sizeof(ThrustType));
@@ -82,7 +81,7 @@ class InputState : public Sendable {
 		brake = *(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType));
 		reorient = *(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType));
 		push = *(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType));
-		return size();
+		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType);
 	};
 
 	//Returns the size of all server aware input state data when encoded
