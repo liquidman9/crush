@@ -110,8 +110,6 @@ void Server::setUpAsteroids() {
 
 		}
 
-		float max_vel = 5.0f;
-		float max_rot = PI / 4.0f;
 		D3DXVECTOR3 initial_vel = Vec3RandRange(-asteroids_vel_range/2, asteroids_vel_range) * newAsteroid->m_mass,
 					initial_rot_vel = Vec3RandRange(-asteroids_rot_vel_range/2, asteroids_rot_vel_range);
 		D3DXVECTOR4 temp;
@@ -120,6 +118,7 @@ void Server::setUpAsteroids() {
 
 		newAsteroid->applyLinearImpulse(initial_vel);
 		newAsteroid->applyAngularImpulse(initial_rot_vel);
+
 		m_gameState.push_back(newAsteroid);
 		m_world.entities.push_back(newAsteroid);
 	}

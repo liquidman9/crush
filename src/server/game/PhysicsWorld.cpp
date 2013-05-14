@@ -26,10 +26,10 @@ void PhysicsWorld::collision(float delta_time) {
 		for(unsigned j = i+1; j < entities.size(); j++)
 		{
 			Collision * c;
-				if ((c = checkCollision(*entities[i], *entities[j])) != NULL)
-					// Object Specific Logic
-					if(typeResponse(entities[i], entities[j]))
-						c->resolve();
+			if ((c = checkCollision(*entities[i], *entities[j])) != NULL)
+				// Object Specific Logic
+				if(typeResponse(entities[i], entities[j]))
+					c->resolve();
 
 			delete(c);
 		}
@@ -54,7 +54,46 @@ void PhysicsWorld::update(float delta_time) {
 	}
 }
 
+float dotPoints(D3DXVECTOR3 m, D3DXVECTOR3 n, D3DXVECTOR3 o, D3DXVECTOR3 p) {
+	return D3DXVec3Dot(&(m-n), &(o-p));
+}
 
+Collision * PhysicsWorld::checkCollision(ServerEntity & a, ServerEntity & b) {
+	D3DXVECTOR3 p1 = a.m_pFront, p2 = a.m_pBack, p3 = b.m_pFront, p4 = b.m_pBack;
+
+	// Distance along A to closest point to B
+	float mu_a = shared::utils::clamp((dotPoints(p1, p3, p4, p3) * dotPoints(p4, p3, p2, p1) - dotPoints(p1, p3, p2, p1) * dotPoints(p4, p3, p4, p3)) / 
+									  (dotPoints(p2, p1, p2, p1) * dotPoints(p4, p3, p4, p3) - dotPoints(p4, p3, p2, p1) * dotPoints(p4, p3, p2, p1)),
+									  0.0f, 1.0f);
+
+	// Distance along B to closest point to A
+	float mu_b = shared::utils::clamp((dotPoints(p1, p3, p4, p3) + mu_a * dotPoints(p4, p3, p2, p1)) / dotPoints(p4, p3, p4, p3),
+									  0.0f, 1.0f);
+	
+	// Closest points on each line
+	D3DXVECTOR3 p_a = p1 + mu_a * (p2 - p1);
+	D3DXVECTOR3 p_b = p3 + mu_b * (p4 - p3);
+
+	// Vector between closest points
+	D3DXVECTOR3 delta_ab = p_a - p_b;
+
+	Collision * ret = NULL;
+
+	if(D3DXVec3Length(&delta_ab) < a.m_radius + b.m_radius)
+	{
+		if ((a.m_type == SHIP || b.m_type == SHIP) && (a.m_type != TRACTORBEAM && b.m_type != TRACTORBEAM)) {
+			cout << "Type: " << (int)a.m_type << " and " << (int)b.m_type << endl;
+			cout << "Mu_a: " << mu_a << " and Mu_b: " << mu_b << endl;
+			printf("%f < %f?\n", D3DXVec3Length(&delta_ab), a.m_radius + b.m_radius);
+		}
+
+		ret =  Collision::generateCollision(&a, &b, p_a, p_b);
+	}
+
+	return ret;
+}
+
+/*
 Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 	D3DXVECTOR3 lengthA = (a.m_pFront - a.m_pBack); 
 	D3DXVECTOR3 lengthB = (b.m_pFront - b.m_pBack); 
@@ -140,14 +179,15 @@ Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
 
 	D3DXVECTOR3 dP = lengthBs + (sc * lengthA) - (tc * lengthB);	// a(sc) - b(tc) 
 
-	//printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
-
 	if(D3DXVec3Length(&dP) < a.m_radius + b.m_radius)
 	{
+		if ((a.m_type == SHIP || b.m_type == SHIP) && (a.m_type != TRACTORBEAM && b.m_type != TRACTORBEAM))
+			printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
 		return Collision::generateCollision(&a, &b, (a.m_pBack + sc * lengthA), (b.m_pBack + tc * lengthB));
 	}
 	return NULL;
 }
+*/
 
 
 /*

@@ -171,8 +171,6 @@ void ServerEntity::move(D3DXVECTOR3 vector){
 }
 
 void ServerEntity::reset() {
-	cout << "Resetting!" << endl;
-
 	// Derived Variables
 	m_velocity = zero_vec;
 	m_angular_velocity = zero_vec;

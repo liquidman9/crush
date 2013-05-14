@@ -36,8 +36,8 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 
 void Collision::resolve()
 {
-	float e_coll = 0.9f;
-	float u_fr = 0.5f;
+	float e_coll = 0.8f;
+	float u_fr = 0.6f;
 	D3DXVECTOR4 temp;
 	// calculate point of impact
 	D3DXVECTOR3 collision_normal, poi, delta_pos;

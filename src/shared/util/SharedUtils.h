@@ -31,6 +31,10 @@ namespace shared {
 		static const float FP_ZERO = 0.000001f;
 		static const D3DXVECTOR3 VEC3_ZERO(0.0f, 0.0f, 0.0f);
 
+		inline float clamp(float f, float min_v, float max_v) {
+			return min(max_v, (max(min_v, f)));
+		}
+
 		inline float absMin(float a, float b) {
 			return abs(a) < abs(b) ? a : b;
 		};
