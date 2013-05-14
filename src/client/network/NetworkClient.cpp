@@ -33,12 +33,13 @@ void NetworkClient::initializeSocket() {
 		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
 	}
 	m_timeOut = TIMEOUT;
-	m_timeOut *= 1000;
 	ConfigSettings::config->getValue("network_timeout", m_timeOut);
+	m_timeOut *= 1000; 
 	if(setsockopt( m_sock, SOL_SOCKET, SO_RCVTIMEO, (const char *) &m_timeOut, sizeof( m_timeOut )) ) {
 		runtime_error e("Could not set timeout : " + to_string((long long) WSAGetLastError()));
 		throw e;
 	}
+	m_timeOut /= 1000;
 }
 
 void NetworkClient::bindToServer(string ip, unsigned short port, const string &client_name) {
@@ -196,7 +197,7 @@ void NetworkClient::updateGameState() {
 
 int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned int remaining_data) {
 	static fd_set fds;
-	static timeval timeout = {m_timeOut/1000, 0};
+	static timeval timeout = {m_timeOut, 0};
 	static bool init = false;
 	bool error = false;
 	if(!init) {

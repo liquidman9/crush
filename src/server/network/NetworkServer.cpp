@@ -174,7 +174,7 @@ bool NetworkServer::sendToClient(const char * const buff, const int size, const 
 		}
 		if((error = WSAGetLastError()) == WSAEWOULDBLOCK) {
 			int r;
-			if((r = select(NULL, &fds, NULL, NULL, &timeout)) == SOCKET_ERROR) {
+			if((r = select(NULL, NULL, &fds, NULL, &timeout)) == SOCKET_ERROR) {
 				cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 			} else if (r == 0) {
 				cerr << "connection to client " << client << ": " << "timed out" << endl;
