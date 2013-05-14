@@ -192,3 +192,5 @@ pip-log.txt
 *.png
 *.dds
 *.bmp
+*.wav
+*.log
