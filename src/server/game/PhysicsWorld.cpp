@@ -6,7 +6,7 @@
 #include <server/game/PhysicsWorld.h>
 
 // defines
-#define NEAR_ZERO 0.00001
+#define NEAR_ZERO 0.0001
 
 ostream& operator<<(ostream& os, const D3DXVECTOR3 &v) {
 	os << "<" << v.x << ", " << v.y << ", " << v.z << ">";
@@ -58,9 +58,116 @@ float dotPoints(D3DXVECTOR3 m, D3DXVECTOR3 n, D3DXVECTOR3 o, D3DXVECTOR3 p) {
 	return D3DXVec3Dot(&(m-n), &(o-p));
 }
 
+/*
+float squareDist(D3DXVECTOR3 p1, D3DXVECTOR3 q1, D3DXVECTOR3 p2, D3DXVECTOR3 q2, float & s, float & t, D3DXVECTOR3 & c1, D3DXVECTOR3 & c2)
+{
+	D3DXVECTOR3 d1 = q1 - p1;
+	D3DXVECTOR3 d2 = q2 - p2;
+	D3DXVECTOR3 dB = p1 - p2;
+	D3DXVECTOR3 dist;
+
+	// a is squared length of line of a, e is squared length of line of b
+	float a = D3DXVec3Dot(&d1, &d1);
+	float e = D3DXVec3Dot(&d2, &d2);
+	float f = D3DXVec3Dot(&d2, &dB);
+
+	// Check if both a and b are spheres/lines have length 0
+	if(a <= NEAR_ZERO && e <= NEAR_ZERO) 
+	{
+		s = t = 0.0f;
+		c1 = p1;
+		c2 = p2;
+		dist = c1 - c2;
+		return D3DXVec3Dot(&dist, &dist);
+	}
+
+	// Check if a is a sphere
+	if(a <= NEAR_ZERO) 
+	{
+		s = 0.0f;
+		t = f / e;
+		t = shared::utils::clamp(t, 0.0f, 1.0f);
+	}
+
+	// a is not a sphere
+	else 
+	{
+		
+		float c = D3DXVec3Dot(&d1, &dB);
+
+		// Check if b is a sphere
+		if(e <= NEAR_ZERO) 
+		{
+			t = 0.0f;
+			s = shared::utils::clamp(-c / a, 0.0f, 1.0f);
+		}
+
+		// b is not a sphere
+		else 
+		{
+			float b = D3DXVec3Dot(&d1, &d2);
+			float denom = (a * e) - (b * b);
+
+			// if the lines aren't parallel, compute the closest point on a to b and clamp. otherwise s = 0
+			if(denom <= NEAR_ZERO)
+				s = shared::utils::clamp(((b * f) - (c * e) / denom), 0.0f, 1.0f);
+
+			else
+				s = 0.0f;
+
+			// compute the point on b to s of a
+			t = (b * s + f) / e;
+
+			// check if t is in [0, 1]. if not clamp t and recompute s for the new value of t
+			if(t < 0.0f) 
+			{
+				t = 0.0f;
+				s = shared::utils::clamp(-c / a, 0.0f, 1.0f);
+			}
+
+			else if (t > 1.0f) 
+			{
+				t = 1.0f;
+				s = shared::utils::clamp((b - c) / a, 0.0f, 1.0f);
+			}
+		}
+	}
+
+	c1 = p1 + d1 * s;
+	c2 = p2 + d2 * t;
+	dist = c1 - c2;
+
+	return D3DXVec3Dot(&dist, &dist);
+}
+
+
+Collision * PhysicsWorld::checkCollision(ServerEntity & a, ServerEntity & b)
+{
+	float s, t;
+	D3DXVECTOR3 c1, c2;
+
+	float distanceSquare = squareDist(a.m_pFront, a.m_pBack, b.m_pFront, b.m_pBack, s, t, c1, c2);
+	float radiiSquare = a.m_radius + b.m_radius;
+	radiiSquare *= radiiSquare; 
+
+	if(distanceSquare <= radiiSquare)
+	{
+		/*
+		if ((a.m_type == SHIP || b.m_type == SHIP) && (a.m_type != TRACTORBEAM && b.m_type != TRACTORBEAM))
+			printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
+		
+
+		return Collision::generateCollision(&a, &b, c1, c2);
+	}
+
+	return NULL;
+}
+*/
+
+
 Collision * PhysicsWorld::checkCollision(ServerEntity & a, ServerEntity & b) {
 	D3DXVECTOR3 p1 = a.m_pFront, p2 = a.m_pBack, p3 = b.m_pFront, p4 = b.m_pBack;
-
+	
 	// Distance along A to closest point to B
 	float mu_a = shared::utils::clamp((dotPoints(p1, p3, p4, p3) * dotPoints(p4, p3, p2, p1) - dotPoints(p1, p3, p2, p1) * dotPoints(p4, p3, p4, p3)) / 
 									  (dotPoints(p2, p1, p2, p1) * dotPoints(p4, p3, p4, p3) - dotPoints(p4, p3, p2, p1) * dotPoints(p4, p3, p2, p1)),
@@ -92,6 +199,7 @@ Collision * PhysicsWorld::checkCollision(ServerEntity & a, ServerEntity & b) {
 
 	return ret;
 }
+
 
 /*
 Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){
