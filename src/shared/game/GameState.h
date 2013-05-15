@@ -30,6 +30,7 @@ public:
 
 	GameState(void):m_entities(){
 		m_size = gsMinSize();
+		memset(&m_meta,-1,sizeof(m_meta));
 	};
 
 	GameState(GameState const & g): m_entities(g.m_entities), m_meta(g.m_meta) {
@@ -147,7 +148,7 @@ private:
 		m_size = *(unsigned int *) head;
 		head += sizeof(m_size);
 		memcpy((char* ) &m_meta, head, sizeof(m_meta));
-		auto gs_size = m_size - sizeof(unsigned int) - sizeof(m_meta);
+		auto gs_size = m_size - sizeof(m_size) - sizeof(m_meta);
 		const char* cur_head = head + sizeof(m_meta);
 		Entity *ep = NULL;
 		clear();		
@@ -209,7 +210,7 @@ private:
 	}
 
 	unsigned gsMinSize() const {
-		return sizeof(m_meta) + sizeof(unsigned int);
+		return sizeof(m_meta) + sizeof(m_size);
 	}
 
 	struct gameStateMeta {	

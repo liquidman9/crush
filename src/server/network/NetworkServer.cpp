@@ -177,13 +177,17 @@ bool NetworkServer::sendToClient(const char * const buff, const int size, const 
 	do {
 		if((send_len = send(s, buff, size, 0)) == SOCKET_ERROR) {
 			if(WSAGetLastError() == WSAEWOULDBLOCK) {
+#ifdef ENABLE_DELTA
 				int r;
 				if((r = select(NULL, NULL, &fds, NULL, &timeout)) == SOCKET_ERROR) {
 					cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 				} else if (r == 0) {
 					cerr << "connection to client " << client << ": " << "timed out" << endl;
 					//	throw runtime_error("connection to the server timed out");
-				}  
+				} 
+#else
+				sent = true;
+#endif
 			} else {
 				cerr << "failed to send to client " + to_string((long long)client)
 					+ ". Error code : " + to_string((long long) WSAGetLastError()) << endl;
@@ -191,7 +195,7 @@ bool NetworkServer::sendToClient(const char * const buff, const int size, const 
 			}
 			sent = true;
 		}
-	}while (!sent);
+	} while (!sent);
 	return true;
 }
 
