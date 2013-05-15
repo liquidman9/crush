@@ -138,7 +138,7 @@ void NetworkServer::broadcastGameStateWorker() {
 				removeList.push_back(r);
 			}
 		}
-		removeClients(removeList);
+		if(!removeList.empty())	removeClients(removeList);
 		LeaveCriticalSection(&m_cs);
 
 		//remove clients who cannot be reached
@@ -226,7 +226,7 @@ EventBuff_t NetworkServer::getEvents() {
 			}
 	}
 	//remove clients that aren't reachable
-	removeClients(removeList);
+	if(!removeList.empty())	removeClients(removeList);
 	LeaveCriticalSection(&m_cs);
 
 	return rtn;
@@ -246,8 +246,12 @@ void NetworkServer::removeClients(const vector<map<unsigned int, SOCKET>::iterat
 		if(cid != m_clientIDs.end()) {
 			m_clientIDs.erase(cid);
 		}
-		m_clientCount--;
-		m_connectedClients.erase(*it);
+	
+		auto cci = m_connectedClients.find((*it)->first);
+		if(cci != m_connectedClients.end()) {
+			m_connectedClients.erase(*it);
+			m_clientCount--;
+		}
 	}
 }
 
