@@ -170,14 +170,14 @@ void NetworkServer::broadcastGameState(GameState<Entity> const &state) {
 bool NetworkServer::sendToClient(const char * const buff, const int size, const unsigned int client,  SOCKET &s) {
 	static fd_set fds;
 	static timeval timeout = {TIMEOUT, 0};
-	FD_ZERO(&fds);
-	FD_SET(s, &fds);
 	int send_len;
 	bool sent = false;
 	do {
 		if((send_len = send(s, buff, size, 0)) == SOCKET_ERROR) {
 			if(WSAGetLastError() == WSAEWOULDBLOCK) {
 #ifdef ENABLE_DELTA
+				FD_ZERO(&fds);
+				FD_SET(s, &fds);
 				int r;
 				if((r = select(NULL, NULL, &fds, NULL, &timeout)) == SOCKET_ERROR) {
 					cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;

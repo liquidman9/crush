@@ -124,14 +124,14 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 }
 
 void NetworkClient::sendToServer(Event* e) {
-		char* encoded = new char[e->size()];
-		unsigned int s = e->encode(encoded);
-		assert(s == e->size());
-		if(send(m_sock, encoded,s, 0) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
-			runtime_error e("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
-			throw e;
-		}
-		delete []encoded;
+	char* encoded = new char[e->size()];
+	unsigned int s = e->encode(encoded);
+	assert(s == e->size());
+	if(send(m_sock, encoded,s, 0) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
+		runtime_error e("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
+		throw e;
+	}
+	delete []encoded;
 }
 
 void NetworkClient::updateGameState() {
@@ -199,13 +199,8 @@ int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned 
 	assert(size + remaining_data <= MAX_PACKET_SIZE);
 	static fd_set fds;
 	static timeval timeout = {m_timeOut, 0};
-	static bool init = false;
 	bool error = false;
-	if(!init) {
-		FD_ZERO(&fds);
-		FD_SET(m_sock, &fds);
-		init = true;
-	}
+
 	int recv_len = 0;
 	do {
 		if ((recv_len = recv(m_sock, local_buf, size, 0)) == SOCKET_ERROR) {
@@ -214,6 +209,8 @@ int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned 
 					recv_len = 0;
 					break;
 				} else {
+					FD_ZERO(&fds);
+					FD_SET(m_sock, &fds);
 					int r;
 					if((r = select(NULL, &fds, NULL, NULL, &timeout)) == SOCKET_ERROR) {
 						cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
