@@ -134,7 +134,7 @@ void S_Ship::applyDamping() {
 
 }
 void S_Ship::updateHeldObject(){
-	m_tractorBeam->m_object->m_pos = m_pos + m_tractorBeam->getCurrentDirection()*m_tractorBeam->m_heldDistance;//(m_radius > m_tractorBeam->m_object->m_radius? m_radius: m_tractorBeam->m_object->m_radius); 
+	//m_tractorBeam->m_object->m_pos = m_pos + m_tractorBeam->getCurrentDirection()*m_tractorBeam->m_heldDistance;//(m_radius > m_tractorBeam->m_object->m_radius? m_radius: m_tractorBeam->m_object->m_radius); 
 }
 
 void S_Ship::update(float delta_time) {
