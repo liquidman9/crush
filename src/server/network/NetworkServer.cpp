@@ -193,6 +193,7 @@ bool NetworkServer::sendToClient(const char * const buff, const int size, const 
 					+ ". Error code : " + to_string((long long) WSAGetLastError()) << endl;
 				return false;
 			}
+		} else {
 			sent = true;
 		}
 	} while (!sent);

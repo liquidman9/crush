@@ -188,7 +188,7 @@ void NetworkClient::updateGameState() {
 			remaining_data =  total_size - getSize(buff);
 			assert(remaining_data >= 0);
 			if(remaining_data > 0) {
-				memcpy(buff, buff + (total_size - remaining_data), remaining_data);
+				memcpy(buff, buff + getSize(buff), remaining_data);
 			}
 			delete []decodeBuff;
 		}		
@@ -210,7 +210,7 @@ int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned 
 	do {
 		if ((recv_len = recv(m_sock, local_buf, size, 0)) == SOCKET_ERROR) {
 			if(WSAGetLastError() == WSAEWOULDBLOCK) {
-				if(remaining_data != 0) {
+				if(remaining_data >= GameState<Entity>::minSize()) {
 					recv_len = 0;
 					break;
 				} else {

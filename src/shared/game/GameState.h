@@ -141,6 +141,11 @@ public:
 		m_entities.clear();
 	}
 
+	static unsigned int  minSize() {
+		//size of m_meta and size of m_size
+		return sizeof(gameStateMeta) + sizeof(unsigned int);
+	}
+
 private:
 
 	void decode(const char *head, unsigned int size) {
@@ -210,7 +215,7 @@ private:
 	}
 
 	unsigned gsMinSize() const {
-		return sizeof(m_meta) + sizeof(m_size);
+		return minSize();
 	}
 
 	struct gameStateMeta {	

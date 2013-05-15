@@ -27,8 +27,8 @@ typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;
 #define DEFAULT_PORT 8889
 #define MAX_PACKET_SIZE 65507
 #define TIMEOUT 5 //(in seconds)
-//#define ENABLE_DELTA
-//#define ENABLE_COMPRESSION
+#define ENABLE_DELTA
+#define ENABLE_COMPRESSION
 
 #ifdef ENABLE_COMPRESSION
 #include<shared/network/minilzo.h>
