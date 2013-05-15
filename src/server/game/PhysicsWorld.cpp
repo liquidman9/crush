@@ -58,7 +58,6 @@ float dotPoints(D3DXVECTOR3 m, D3DXVECTOR3 n, D3DXVECTOR3 o, D3DXVECTOR3 p) {
 	return D3DXVec3Dot(&(m-n), &(o-p));
 }
 
-/*
 float squareDist(D3DXVECTOR3 p1, D3DXVECTOR3 q1, D3DXVECTOR3 p2, D3DXVECTOR3 q2, float & s, float & t, D3DXVECTOR3 & c1, D3DXVECTOR3 & c2)
 {
 	D3DXVECTOR3 d1 = q1 - p1;
@@ -140,7 +139,6 @@ float squareDist(D3DXVECTOR3 p1, D3DXVECTOR3 q1, D3DXVECTOR3 p2, D3DXVECTOR3 q2,
 	return D3DXVec3Dot(&dist, &dist);
 }
 
-
 Collision * PhysicsWorld::checkCollision(ServerEntity & a, ServerEntity & b)
 {
 	float s, t;
@@ -155,16 +153,16 @@ Collision * PhysicsWorld::checkCollision(ServerEntity & a, ServerEntity & b)
 		/*
 		if ((a.m_type == SHIP || b.m_type == SHIP) && (a.m_type != TRACTORBEAM && b.m_type != TRACTORBEAM))
 			printf("%f < %f?\n", D3DXVec3Length(&dP), a.m_radius + b.m_radius);
-		
+		*/	
 
 		return Collision::generateCollision(&a, &b, c1, c2);
 	}
 
 	return NULL;
 }
-*/
 
 
+/*
 Collision * PhysicsWorld::checkCollision(ServerEntity & a, ServerEntity & b) {
 	D3DXVECTOR3 p1 = a.m_pFront, p2 = a.m_pBack, p3 = b.m_pFront, p4 = b.m_pBack;
 	
@@ -199,7 +197,6 @@ Collision * PhysicsWorld::checkCollision(ServerEntity & a, ServerEntity & b) {
 
 	return ret;
 }
-
 
 /*
 Collision * PhysicsWorld::checkCollision(ServerEntity& a, ServerEntity& b){

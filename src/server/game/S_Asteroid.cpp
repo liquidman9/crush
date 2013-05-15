@@ -16,7 +16,7 @@ using namespace server::entities::asteroid;
 S_Asteroid::S_Asteroid(D3DXVECTOR3 pos, Quaternion orientation, float scale) :
 	Entity(genId(), ASTEROID, pos, orientation),
 	Asteroid(scale),
-	ServerEntity(calculateMass(m_radius = scale *scaleToRadius, density), m_radius, calculateRotationalInertia(calculateMass(scale * scaleToRadius, density)))
+	ServerEntity(calculateMass(m_radius = scale *scaleToRadius, density), 0.0f, calculateRotationalInertia(calculateMass(scale * scaleToRadius, density)))
 {	
 	m_radius = (m_scale)*scaleToRadius;
 	cout << "Mass: "<< m_mass<< " Radius: " << m_radius << " Scale: " << m_scale << endl;
