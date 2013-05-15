@@ -70,7 +70,7 @@ class InputState : public Sendable {
 		*(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)) = brake;
 		*(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)) = reorient;
 		*(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)) = push;
-		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType);
+		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType);
 	};
 
 	virtual unsigned int decode(const char * tmp) {
@@ -81,7 +81,7 @@ class InputState : public Sendable {
 		brake = *(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType));
 		reorient = *(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType));
 		push = *(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType));
-		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType);
+		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType);
 	};
 
 	//Returns the size of all server aware input state data when encoded

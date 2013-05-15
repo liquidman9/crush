@@ -53,12 +53,10 @@ void S_Ship::init() {
 void S_Ship::addPlayerInput(InputState input) {
 	
 	if(input.getPushBurst()) {
-
 		m_tractorBeam->setIsOn(true);
 		m_tractorBeam->setIsPulling(false);
 	}
 	else if(input.getTractorBeam() != 0) {
-
 		m_tractorBeam->setIsOn(true);
 		m_tractorBeam->setIsPulling(true);
 		m_tractorBeam->m_strength = (float) input.getTractorBeam();
