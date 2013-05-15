@@ -215,7 +215,8 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 				return false; // tmp
 		// If is already locked check if closer
 		else if(isLocked()) {	
-			if(getCurrentDistance() > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))){
+			if(entity != m_object && D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos)) > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))){
+				cout<<D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos))<<" vs "<<D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))<<endl;
 				lockOn(entity);
 			}
 		}
