@@ -35,6 +35,7 @@ public:
 	bool m_isColliding;
 	bool m_isHolding;
 	float m_heldDistance; //temp
+	bool m_heldToggle;
 
 	// Constructors
 	S_TractorBeam(S_Ship *);

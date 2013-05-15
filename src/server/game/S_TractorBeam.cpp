@@ -25,7 +25,8 @@ S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	m_power(power),
 	m_isColliding(false),
 	m_isHolding(false),
-	m_heldDistance(0.0f)
+	m_heldDistance(0.0f),
+	m_heldToggle(false)
 {
 	m_radius = m_sentRadius;
 	m_object = NULL;
@@ -128,7 +129,7 @@ void S_TractorBeam::calculateForce() {
 			float angleDiff = acos(D3DXVec3Dot(&disA,&disB)/(D3DXVec3Length(&disB)*D3DXVec3Length(&disA)))*180.0f/PI;
 
 			// If at the point to be held
-			if(angleDiff > 3.0 || m_isColliding || m_isHolding){
+			if(angleDiff > 2 || m_isColliding || m_isHolding){
 				// Resources are not held by tractor beam once they collide with the ship
 				if(m_object->m_type == RESOURCE) {
 					if(m_ship->interact((S_Resource *)m_object)) cout << "Resource not gathered- error?"<<endl;
@@ -139,10 +140,40 @@ void S_TractorBeam::calculateForce() {
 					}
 				}
 				else {
-					if(!m_isHolding) m_heldDistance = disL; // Set permanent holding distance
+					/*if(!m_isHolding) m_heldDistance = disL; // Set permanent holding distance
 					m_object->m_momentum = D3DXVECTOR3(0.0f,0.0f,0.0f);
 					m_object->t_impulse = D3DXVECTOR3(0.0f,0.0f,0.0f); // zero out physics (position is set in the Ship's update)
+					m_isHolding = true;*/
+					//D3DXVECTOR3 momentum;
+					//m_object->m_momentum = D3DXVECTOR3(0.0f,0.0f,0.0f);
+					//m_object->t_impulse = D3DXVECTOR3(0.0f,0.0f,0.0f);
+				
+					//m_ship->m_momentum = D3DXVECTOR3(0.0f,0.0f,0.0f);
+					//m_ship->t_impulse = D3DXVECTOR3(0.0f,0.0f,0.0f);
+
+				m_ship->applyLinearImpulse(-force * .01f);
+				m_object->applyLinearImpulse(force * .01f);
+					
+
+					/*
+					if(!m_isHolding) {
+						m_heldDistance = disL;
+					}
+
+					D3DXVECTOR3 toggleForce = 1*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(m_heldDistance, 2));
+
+					if(m_heldToggle) {
+						m_ship->applyLinearImpulse(*toggleForce * .01f);
+						m_object->applyLinearImpulse(-*toggleForce * .01f);
+					}
+					else {
+						m_ship->applyLinearImpulse(-*toggleForce * .01f);
+						m_object->applyLinearImpulse(*toggleForce * .01f);
+					}
+
 					m_isHolding = true;
+
+					m_heldToggle = !m_heldToggle;*/
 				}
 			}
 			// Apply normal pulling force
