@@ -135,7 +135,7 @@ void NetworkServer::broadcastGameStateWorker() {
 		for(auto it = removeList_lookup.begin(); it != removeList_lookup.end(); it++){
 			auto r = m_connectedClients.find(*it);
 			if(r != m_connectedClients.end()) {
-				removeList.push_back(r);
+ 				removeList.push_back(r);
 			}
 		}
 		if(!removeList.empty())	removeClients(removeList);
@@ -212,21 +212,20 @@ EventBuff_t NetworkServer::getEvents() {
 	EnterCriticalSection(&m_cs);
 	for(auto it = m_connectedClients.begin();
 		it != m_connectedClients.end(); it++) {
-
 			if ((recv_len = recv(it->second, local_buf, MAX_PACKET_SIZE, 0)) == SOCKET_ERROR
 				&& WSAGetLastError() != WSAEWOULDBLOCK) {
 					cerr << "recv() from client " << it->first << " failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 					error = true;		
 			}
-			if(error || recv_len == 0) {
+			//if(error || recv_len == 0) {
 				//cannot reach client, close the connection
-				removeList.push_back(it);
-			} else if (recv_len > 0) {
+			//	removeList.push_back(it);
+			else if (recv_len > 0) {
 				decodeEvents(local_buf, recv_len, rtn, it->first);
 			}
 	}
 	//remove clients that aren't reachable
-	if(!removeList.empty())	removeClients(removeList);
+	//if(!removeList.empty())	removeClients(removeList);
 	LeaveCriticalSection(&m_cs);
 
 	return rtn;
@@ -281,9 +280,9 @@ void NetworkServer::acceptNewClient()
 			}
 
 			unsigned int i = max_clients;
-			unsigned int tmp_client_count = m_clientCount;
+			unsigned int tmp_client_count = m_connectedClients.size();
 			// find clientID for new client
-			if (m_clientCount < max_clients - 1) {
+			if (tmp_client_count < max_clients - 1) {
 				for (i = 0; i < max_clients; i++) {
 					if(m_connectedClients.find(i) == m_connectedClients.end()) {							
 						tmp_client_count++;
@@ -333,10 +332,11 @@ void NetworkServer::acceptNewClient()
 #ifdef ENABLE_DELTA
 				m_clear_delta = true;
 #endif
-				m_clientCount = tmp_client_count;
+				//m_clientCount = tmp_client_count;
 				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				m_clientIDs.insert(pair<unsigned int, string>(i, string(client_name)));
+				m_clientCount = m_connectedClients.size();
 				LeaveCriticalSection(&m_cs1);
 				LeaveCriticalSection(&m_cs);
 				cout << "New client " << i << " connected." << endl;
