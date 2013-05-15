@@ -66,6 +66,7 @@ private:
 	void bindToServer(Network const &, const string &);
 	unsigned int m_dropped;
 	int m_timeOut;
+	char * m_recvBuff;
 
 
 	//thread stuff

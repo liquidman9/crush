@@ -29,14 +29,15 @@ class GameState
 public:
 
 	GameState(void):m_entities(){
-		m_meta.size = sizeof(gameStateMeta);
+		m_size = gsMinSize();
 	};
 
 	GameState(GameState const & g): m_entities(g.m_entities), m_meta(g.m_meta) {
+		m_size = g.m_size;	
 	};
 
 	void push_back(E *e) {
-		m_meta.size += e->size();
+		m_size += e->size();
 		m_entities.push_back(shared_ptr<E>(e));
 	};
 
@@ -45,7 +46,7 @@ public:
 	}
 
 	unsigned int sendSize() const {
-		return m_meta.size;
+		return m_size;
 	}
 
 	shared_ptr<E> operator[](unsigned int i) {
@@ -106,7 +107,7 @@ public:
 
 	scoreList_t getScore() {
 		scoreList_t rtn;
-		for(unsigned int i = 0; i < 4; i--) {
+		for(unsigned int i = 0; i < 4; i++) {
 			if(m_meta.score[i] >= 0) {
 				rtn.push_back(pair<unsigned int, int>(i, m_meta.score[i]));
 			}
@@ -128,7 +129,7 @@ public:
 
 	void clear() {
 		m_entities.clear();
-		m_meta.size = sizeof(gameStateMeta);
+		m_size = gsMinSize();
 	}
 
 	bool empty() const {
@@ -142,14 +143,16 @@ public:
 private:
 
 	void decode(const char *head, unsigned int size) {
-		auto orig_head = head;		
+		auto orig_head = head;	
+		m_size = *(unsigned int *) head;
+		head += sizeof(m_size);
 		memcpy((char* ) &m_meta, head, sizeof(m_meta));
-		auto gs_size = m_meta.size;
+		auto gs_size = m_size - sizeof(unsigned int) - sizeof(m_meta);
 		const char* cur_head = head + sizeof(m_meta);
 		Entity *ep = NULL;
 		clear();		
 		Type a;
-		for(unsigned int cur_size = 0; cur_size < gs_size - sizeof(m_meta); cur_size += ep->size() ){
+		for(unsigned int cur_size = 0; cur_size < gs_size; cur_size += ep->size() ){
 			ep = NULL;
 			a = *(Type*) (cur_head + cur_size);
 			switch(a) {
@@ -191,9 +194,10 @@ private:
 	}
 
 	const char * getSendBuff() const {
-		char *send_buff = new char[m_meta.size];
-		memcpy(send_buff,(char*) &m_meta, sizeof(m_meta));
-		int total_size = sizeof(m_meta);
+		char *send_buff = new char[m_size];
+		 *(unsigned int*) send_buff = m_size;
+		memcpy(send_buff+sizeof(m_size),(char*) &m_meta, sizeof(m_meta));
+		int total_size = sizeof(m_meta) + sizeof(m_size);
 		for(unsigned int i = 0; i < m_entities.size(); i++) {
 			total_size += m_entities[i]->encode(send_buff+total_size);
 		}
@@ -205,16 +209,16 @@ private:
 	}
 
 	unsigned gsMinSize() const {
-		return sizeof(m_meta);
+		return sizeof(m_meta) + sizeof(unsigned int);
 	}
 
-	struct gameStateMeta {
-		unsigned int size;
+	struct gameStateMeta {	
 		int time;
 		int score[4];
 		char winner;
 	} m_meta;
 
+	unsigned int m_size;
 	//static string m_serverMessages[3];
 
 	vector<shared_ptr<E> > m_entities;

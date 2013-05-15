@@ -171,7 +171,7 @@ char * Network::compress(const char *head, unsigned int &size) {
 			init = true;
 		}
 		char *out_tmp = new char[2*size];
-		unsigned char scratch [LZO1X_1_MEM_COMPRESS];
+		unsigned char* scratch = new unsigned char[LZO1X_1_MEM_COMPRESS];
 		unsigned char* in = (unsigned char *) head;
 		unsigned char* out = (unsigned char*) (out_tmp + sizeofHeader());
 		lzo_uint in_len = size;
@@ -179,6 +179,7 @@ char * Network::compress(const char *head, unsigned int &size) {
 		lzo1x_1_compress(in,in_len,out,&out_len,scratch);
 		setHeader(out_tmp,out_len,in_len);
 		size = getSize(out_tmp);
+		delete []scratch;
 		return out_tmp;
 }
 
@@ -319,7 +320,7 @@ void BitField::clear() {
 unsigned int BitField::encode(char * buff) {
 	*(BITFIELD_CONTAINER *) buff = (BITFIELD_CONTAINER) m_field.size();
 	buff += sizeof(BITFIELD_CONTAINER);
-	unsigned int size = m_field.size()/8 + (m_field.size()%8 ? 1 : 0);
+	unsigned int size = (unsigned int) ceil(m_field.size()/8.0);
 	for(unsigned int i = 0; i < size; ++i) {
 		for(unsigned int k = 0; k < sizeof(char)*8 && (i*8+k) < m_field.size(); ++k) {
 			unsigned int tmp = (i*8+k);
@@ -336,7 +337,7 @@ unsigned int BitField::encode(char * buff) {
 unsigned int BitField::decode(const char *buff) {
 	unsigned int rtn =  *(BITFIELD_CONTAINER *) buff;
 	buff += sizeof(BITFIELD_CONTAINER);
-	unsigned int size = rtn/8 + (rtn%8 ? 1 : 0); 
+	unsigned int size = (unsigned int) ceil(rtn/8.0); 
 	for(unsigned int i = 0; i < size; i++) {
 		for(unsigned int k = 0; k < sizeof(char)*8; ++k) {
 			if(i == size -1 && k == rtn%8) {

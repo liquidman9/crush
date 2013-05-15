@@ -66,13 +66,16 @@ private:
 	map <unsigned int, string> m_clientIDs;
 	map <unsigned int, string> m_newClients;
 	vector<unsigned int> m_disconClients;
+#ifdef ENABLE_DELTA
+	volatile bool m_clear_delta;
+#endif
 	
 	//thread stuff
 	CRITICAL_SECTION m_cs;
 	CRITICAL_SECTION m_cs1;
 	CONDITION_VARIABLE m_workerReady;
 	CONDITION_VARIABLE m_broadcastReady;
-	bool m_sendAvailable;
+	volatile bool m_sendAvailable;
 
 	HANDLE m_hThread;
 	HANDLE m_hThread1;

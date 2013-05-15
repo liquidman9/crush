@@ -62,7 +62,8 @@ ostream& operator<<(ostream& os, const Entity& e) {
 
 unsigned int Entity::encode(char *tmp) const {
 	send_struct s;
-	s.type = m_type;
+	*(ENUM_TYPE*) tmp = m_type;
+	tmp += sizeof(ENUM_TYPE);
 	s.id = m_id;
 	s.pos = m_pos;
 	s.orientation = m_orientation;
@@ -74,11 +75,12 @@ unsigned int Entity::encode(char *tmp) const {
 	//char* tmp = new char[sizeof(send_struct)];
 	memcpy(tmp, (const char *) &s, sizeof(send_struct));
 
-	return sizeof(send_struct);
+	return sizeof(send_struct) + sizeof(ENUM_TYPE);
 }
 
 unsigned int Entity::decode(const char * tmp) {
 	send_struct s;
+	tmp += sizeof(ENUM_TYPE);
 	memcpy((char *) &s, tmp, sizeof(send_struct));
 	m_id = s.id;
 	m_pos = s.pos;
@@ -87,7 +89,7 @@ unsigned int Entity::decode(const char * tmp) {
 	m_pFront = s.pFront;
 	m_pBack = s.pBack;
 	m_radius = s.radius;
-	return sizeof(send_struct);
+	return sizeof(send_struct) + sizeof(ENUM_TYPE);
 
 }
 

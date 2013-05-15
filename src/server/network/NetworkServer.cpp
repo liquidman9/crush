@@ -11,7 +11,9 @@ Network(),
 	m_clientCount(0)
 {
 	WSADATA wsa;
-	WSAStartup(MAKEWORD(2,2),&wsa);
+	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
+		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
+	}
 	initializeSocket();
 	bindSocket();
 	startListening();
@@ -23,7 +25,9 @@ Network(ip, port),
 	m_clientCount(0) 
 {
 	WSADATA wsa;
-	WSAStartup(MAKEWORD(2,2),&wsa);
+	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
+		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
+	}
 	initializeSocket();
 	bindSocket();
 	startListening();
@@ -35,8 +39,9 @@ Network(port),
 	m_clientCount(0)
 {
 	WSADATA wsa;
-	WSAStartup(MAKEWORD(2,2),&wsa);
-
+	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
+		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
+	}
 	initializeSocket();
 	bindSocket();
 	startListening();
@@ -82,6 +87,9 @@ void NetworkServer::initializeSocket() {
 }
 
 void NetworkServer::broadcastGameStateWorker() {
+#ifdef ENABLE_DELTA
+	m_clear_delta = false;
+#endif 
 	vector<map<unsigned int, SOCKET>::iterator> removeList;
 	vector<unsigned int> removeList_lookup;
 	unsigned int curr_clients = 0;
@@ -95,10 +103,10 @@ void NetworkServer::broadcastGameStateWorker() {
 		}
 		m_sendAvailable = false;
 
-#ifdef ENABLE_DELTA //todo fix multiple clients connecting
-		if(curr_clients != m_connectedClients.size()) {
-			curr_clients = m_connectedClients.size();
+#ifdef ENABLE_DELTA
+		if(m_clear_delta) {
 			clearDelta();
+			m_clear_delta = false;
 		}
 #endif
 		//get send buff and size
@@ -313,6 +321,9 @@ void NetworkServer::acceptNewClient()
 				//insert new client into connected clients
 				EnterCriticalSection(&m_cs);
 				EnterCriticalSection(&m_cs1);
+#ifdef ENABLE_DELTA
+				m_clear_delta = true;
+#endif
 				m_clientCount = tmp_client_count;
 				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));

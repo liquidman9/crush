@@ -1,29 +1,32 @@
 #include <client/network/NetworkClient.h>
 
-NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_dropped(0) {
+NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
 	}
 	InitializeCriticalSection(&m_cs);
 	initializeSocket();
+	m_recvBuff = new char[MAX_PACKET_SIZE];
 }
 
-NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false), m_dropped(0) {
+NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
 	}
 	InitializeCriticalSection(&m_cs);
 	initializeSocket();
+	m_recvBuff = new char[MAX_PACKET_SIZE];
 }
 
-NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailable(false), m_dropped(0) {
+NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
 	}
 	InitializeCriticalSection(&m_cs);
 	initializeSocket();
+	m_recvBuff = new char[MAX_PACKET_SIZE];
 }
 
 
@@ -121,32 +124,40 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 }
 
 void NetworkClient::sendToServer(Event* e) {
-	char* encoded = new char[e->size()];
-	unsigned int s = e->encode(encoded);
-	if(send(m_sock, encoded,s, 0) == SOCKET_ERROR) {
-		runtime_error e("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
-		throw e;
+	try {
+		char* encoded = new char[e->size()];
+		unsigned int s = e->encode(encoded);
+		assert(s == e->size());
+		if(send(m_sock, encoded,s, 0) == SOCKET_ERROR) {
+			runtime_error e("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
+			throw e;
+		}
+		delete []encoded;
+	} catch (exception ex) {
+		string s = ex.what();
+
 	}
-	delete []encoded;
 }
 
 void NetworkClient::updateGameState() {
-	char buff[MAX_PACKET_SIZE];
+	char* buff = m_recvBuff;
 	char *local_buf;
 	int remaining_data = 0;
 
 	GameState<Entity> local_gs;
 	while(1) {
 		local_buf = buff + remaining_data;
+		unsigned int total_size = remaining_data;
 		bool error = false;
 
-		int recv_len = recvFromServer(local_buf, MAX_PACKET_SIZE-remaining_data, remaining_data);
+		int recv_len = recvFromServer(local_buf, MAX_PACKET_SIZE-total_size, remaining_data);
 		if(recv_len < 0) {
 			error = true;
 		}
-
-		unsigned int total_size = recv_len + remaining_data;
-		while(!error && total_size < m_gameState.gsMinSize()) {
+		if(!error) {
+			total_size += recv_len;
+		}
+		while(!error && total_size < m_gameState.gsMinSize() && total_size != MAX_PACKET_SIZE) {
 			recv_len = recvFromServer(local_buf+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
 			if(recv_len < 0) {
 				error = true;
@@ -159,7 +170,7 @@ void NetworkClient::updateGameState() {
 			expected_size = getSize(buff);
 		}
 
-		while(!error && total_size < expected_size) {
+		while(!error && total_size < expected_size && total_size != MAX_PACKET_SIZE) {
 			recv_len = recvFromServer(local_buf+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
 			if(recv_len < 0) { 
 				error = true;
@@ -190,6 +201,7 @@ void NetworkClient::updateGameState() {
 }
 
 int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned int remaining_data) {
+	assert(size + remaining_data <= MAX_PACKET_SIZE);
 	static fd_set fds;
 	static timeval timeout = {m_timeOut, 0};
 	static bool init = false;
@@ -206,14 +218,15 @@ int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned 
 				if(remaining_data != 0) {
 					recv_len = 0;
 					break;
+				} else {
+					int r;
+					if((r = select(NULL, &fds, NULL, NULL, &timeout)) == SOCKET_ERROR) {
+						cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
+					} else if (r == 0) {
+						cerr << "connection to the server timed out" << endl;
+						//	throw runtime_error("connection to the server timed out");
+					} 
 				}
-				int r;
-				if((r = select(NULL, &fds, NULL, NULL, &timeout)) == SOCKET_ERROR) {
-					cerr << "select failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
-				} else if (r == 0) {
-					cerr << "connection to the server timed out" << endl;
-				//	throw runtime_error("connection to the server timed out");
-				} 
 			} else {
 				cerr << "recvfrom() failed with error code : " + to_string((long long) WSAGetLastError()) << endl;
 				error = true;
@@ -241,4 +254,5 @@ NetworkClient::~NetworkClient(void) {
 	CloseHandle(m_hThread);
 	closesocket(m_sock);	
 	WSACleanup();
+	if(m_recvBuff) delete []m_recvBuff;
 }

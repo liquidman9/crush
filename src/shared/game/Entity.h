@@ -33,7 +33,6 @@ enum Type : char { ENTITY, SHIP, MOTHERSHIP, ASTEROID, RESOURCE, TRACTORBEAM, EX
 class Entity : public Sendable {
 private:
 	struct send_struct {
-		ENUM_TYPE type;
 		Quaternion orientation;
 		D3DXVECTOR3 pos;
 		D3DXVECTOR3 velocity;		
@@ -44,7 +43,7 @@ private:
 	};
 
 protected:
-	static const unsigned int m_size = sizeof(send_struct);
+	static const unsigned int m_size = sizeof(send_struct) + sizeof(ENUM_TYPE);
 	// THIS CONSTRUCTOR SHOULD NEVER BE DIRECTLY CALLED.
 	Entity();
 
