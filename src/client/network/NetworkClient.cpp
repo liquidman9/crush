@@ -124,19 +124,14 @@ void NetworkClient::bindToServer(Network const &n, const string &client_name) {
 }
 
 void NetworkClient::sendToServer(Event* e) {
-	try {
 		char* encoded = new char[e->size()];
 		unsigned int s = e->encode(encoded);
 		assert(s == e->size());
-		if(send(m_sock, encoded,s, 0) == SOCKET_ERROR) {
+		if(send(m_sock, encoded,s, 0) == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
 			runtime_error e("sendto() failed with error code : " + to_string((long long) WSAGetLastError()));
 			throw e;
 		}
 		delete []encoded;
-	} catch (exception ex) {
-		string s = ex.what();
-
-	}
 }
 
 void NetworkClient::updateGameState() {

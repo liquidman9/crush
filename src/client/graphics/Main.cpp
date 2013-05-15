@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			//DWORD count = 0;
 
 			GameState<Entity> newGameState;
-			
+
 			float framesRendered = 0.0f;
 			float updatesReceived = 0.0f;
 
@@ -83,10 +83,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
 
 #ifndef MYNETWORKOFF  // defined in Gbls
-				if (!GameResources::debugCamOn) {
-					nc.sendToServer(&(input.input));
+				try {
+					if (!GameResources::debugCamOn) {
+						nc.sendToServer(&(input.input));
+					}
+				} catch (runtime_error &e) {
+					cerr << e.what() << endl;
+					bool exception_occured_check_error_log = false;
+					assert(exception_occured_check_error_log);
 				}
-
 
 				// Get game state from network
 				if(nc.newStateAvailable()) {
@@ -100,7 +105,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 					}
 				}
 #endif
-						
+
 				framesRendered++;
 				Gbls::percentMissedFrames = framesRendered - updatesReceived;
 				// Process all pending window messages
