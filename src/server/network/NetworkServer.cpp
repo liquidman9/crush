@@ -298,7 +298,7 @@ void NetworkServer::acceptNewClient()
 			} else {
 
 				//send clientID
-				int clientID = tmp_client_count - 1;
+				int clientID = i;
 				if(send(ClientSocket, (const char *) &(clientID), sizeof(m_clientCount), 0) == SOCKET_ERROR){
 					//LOOK HERE IF THERE ARE PROBLEMS CONNECTING
 					cerr << "Error sending client id : " + to_string((long long) WSAGetLastError()) << endl;
