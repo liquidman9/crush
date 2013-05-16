@@ -26,7 +26,9 @@ S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	m_isColliding(false),
 	m_isHolding(false),
 	m_heldDistance(0.0f),
-	m_heldToggle(false)
+	m_totalPulling(0,0,0),
+	m_shipLastCorrection(0.0,0.0,0.0),
+	m_objectLastCorrection(0.0,0.0,0.0)
 {
 	m_radius = m_sentRadius;
 	m_object = NULL;
@@ -44,6 +46,7 @@ bool S_TractorBeam::isLocked() {
 
 void S_TractorBeam::lockOn(ServerEntity * entity) {
 	if(m_object != entity) {
+		m_totalPulling = D3DXVECTOR3(0.0,0.0,0.0);
 		m_isHolding = false; //tmppp
 		m_isColliding = false;
 	}
@@ -107,6 +110,7 @@ void S_TractorBeam::calculateForce() {
 	// 1 is Ship, 2 is Object, thus pull - object, push + object
 	float dis = getCurrentDistance();
 
+
 	if(isLocked()) {
 		D3DXVECTOR3 disV = getCurrentDirection();
 		float disL = getCurrentDistance();
@@ -128,6 +132,7 @@ void S_TractorBeam::calculateForce() {
 			D3DXVECTOR3 disA = objectPositionTest - shipPositionTest;
 			float angleDiff = acos(D3DXVec3Dot(&disA,&disB)/(D3DXVec3Length(&disB)*D3DXVec3Length(&disA)))*180.0f/PI;
 
+
 			// If at the point to be held
 			if(angleDiff > 2 || m_isColliding || m_isHolding){
 				// Resources are not held by tractor beam once they collide with the ship
@@ -140,48 +145,88 @@ void S_TractorBeam::calculateForce() {
 					}
 				}
 				else {
-					/*if(!m_isHolding) m_heldDistance = disL; // Set permanent holding distance
-					m_object->m_momentum = D3DXVECTOR3(0.0f,0.0f,0.0f);
-					m_object->t_impulse = D3DXVECTOR3(0.0f,0.0f,0.0f); // zero out physics (position is set in the Ship's update)
-					m_isHolding = true;*/
-					//D3DXVECTOR3 momentum;
-					//m_object->m_momentum = D3DXVECTOR3(0.0f,0.0f,0.0f);
-					//m_object->t_impulse = D3DXVECTOR3(0.0f,0.0f,0.0f);
-				
-					//m_ship->m_momentum = D3DXVECTOR3(0.0f,0.0f,0.0f);
-					//m_ship->t_impulse = D3DXVECTOR3(0.0f,0.0f,0.0f);
 
-				m_ship->applyLinearImpulse(-force * .01f);
-				m_object->applyLinearImpulse(force * .01f);
-					
-
-					/*
 					if(!m_isHolding) {
-						m_heldDistance = disL;
-					}
+						m_heldDistance = disL; // Set permanent holding distance
+						m_shipLastCorrection = shared::utils::VEC3_ZERO;
+						m_objectLastCorrection = shared::utils::VEC3_ZERO;
 
-					D3DXVECTOR3 toggleForce = 1*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(m_heldDistance, 2));
+						// Equal out momentums (lock)
+						D3DXVECTOR3 vel = ((m_ship->t_impulse + m_ship->m_momentum) + (m_object->m_momentum  + m_object->t_impulse))/(m_ship->m_mass + m_object->m_mass);
+						m_object->m_momentum = vel*m_object->m_mass;
+						m_ship->m_momentum = vel*m_ship->m_mass;
 
-					if(m_heldToggle) {
-						m_ship->applyLinearImpulse(*toggleForce * .01f);
-						m_object->applyLinearImpulse(-*toggleForce * .01f);
+
+						// Zero outs probably temporary
+						m_object->m_momentum = shared::utils::VEC3_ZERO;
+						m_ship->m_momentum =shared::utils::VEC3_ZERO;
+						m_object->t_impulse =shared::utils::VEC3_ZERO;
+						m_ship->t_impulse = shared::utils::VEC3_ZERO;
 					}
-					else {
-						m_ship->applyLinearImpulse(-*toggleForce * .01f);
-						m_object->applyLinearImpulse(*toggleForce * .01f);
+					else{
+						float deltaTime = (float) 1.0/60.0f;
+
+						float totalMass = m_ship->m_mass + m_object->m_mass;
+						D3DXVECTOR3 center = ((m_object->m_mass/totalMass)*(m_object->m_pos-m_ship->m_pos)) + m_ship->m_pos;
+						float shipMassLength = m_heldDistance*(m_object->m_mass/(m_ship->m_mass + m_object->m_mass)) ;
+						float objectMassLength = m_heldDistance*(m_ship->m_mass/(m_ship->m_mass + m_object->m_mass)) ;
+						D3DXVECTOR3 rShip = center - m_ship->m_pos;
+						D3DXVECTOR3 rObj = m_object->m_pos -center;
+
+						//m_ship->m_momentum -= m_shipLastCorrection;
+						m_object->m_momentum -= m_objectLastCorrection;  // bug with larger than you asteroids flings you out of range
+
+						D3DXVECTOR3 shipImp = m_ship->getDamping();
+					    D3DXVECTOR3 velShip = ((shipImp)*m_ship->m_mass_inverse);
+					    D3DXVECTOR3 velObject =  ((m_object->t_impulse)*m_object->m_mass_inverse);
+
+						// Predicting Position
+						D3DXVECTOR3 posShip = m_ship->m_pos + (m_ship->m_momentum + (velShip*m_ship->m_mass))*m_ship->m_mass_inverse*deltaTime;
+						D3DXVECTOR3 posObject = m_object->m_pos + (m_object->m_momentum+ (velObject*m_object->m_mass))*m_object->m_mass_inverse*deltaTime;
+
+						D3DXVECTOR3 newDis = posObject-posShip;
+						D3DXVECTOR3 newDir = posObject - posShip;
+						D3DXVec3Normalize(&newDir, &newDir);
+
+						// Calculate new center of mass
+						center += ((m_object->m_momentum + (velObject*m_object->m_mass))*m_object->m_mass + (m_ship->m_momentum + (velShip*m_ship->m_mass)*m_ship->m_mass))/pow(totalMass,2); 
+									
+						D3DXVECTOR3 newRShip, newRObject;
+						D3DXVec3Normalize(&newRObject,&(posObject - posShip));
+						newRShip = - newRObject;
+					
+						// Desired Position
+						D3DXVECTOR3 dPosShip = center + (newRShip)*shipMassLength; 
+						D3DXVECTOR3 dPosObject = center + (newRObject)*objectMassLength;
+
+
+						D3DXVECTOR3 adjustShip = (dPosShip - posShip)/deltaTime;
+						D3DXVECTOR3 adjustObj = (dPosObject - posObject)/deltaTime;
+
+						m_ship->applyLinearImpulse(adjustShip*m_ship->m_mass);
+						m_object->applyLinearImpulse(adjustObj*m_object->m_mass);
+						
+						m_shipLastCorrection = adjustShip*m_ship->m_mass;
+						m_objectLastCorrection = adjustObj*m_object->m_mass;
+
 					}
+				
 
 					m_isHolding = true;
-
-					m_heldToggle = !m_heldToggle;*/
 				}
+
+				
 			}
 			// Apply normal pulling force
 			else {
 				m_ship->applyLinearImpulse(force * .01f);
 				m_object->applyLinearImpulse(-force * .01f);
 
+
+
+				m_totalPulling = m_totalPulling + force;
 			}
+					
 		}
 		// Push
 		else {
@@ -193,6 +238,7 @@ void S_TractorBeam::calculateForce() {
 		}
 	}
 
+	m_isColliding = false;
 }
 
 
@@ -246,7 +292,7 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 				return false; // tmp
 		// If is already locked check if closer
 		else if(isLocked()) {	
-			if(entity != m_object && D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos)) > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))){
+			if(entity != m_object && !m_isHolding && D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos)) > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))){
 				cout<<D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos))<<" vs "<<D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))<<endl;
 				lockOn(entity);
 			}

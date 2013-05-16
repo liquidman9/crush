@@ -126,7 +126,7 @@ void Collision::resolve()
 		jN += friction * tangent;
 	}
 
-	if (true && (m_a->m_type == SHIP && m_b->m_type == MOTHERSHIP) || (m_a->m_type == ASTEROID && m_b->m_type == SHIP)) {
+	if (false ){//&& (m_a->m_type == SHIP && m_b->m_type == MOTHERSHIP) || (m_a->m_type == ASTEROID && m_b->m_type == SHIP)) {
 		cout << endl << "Collision Info:" << endl;
 		cout << "A type: " << (int)m_a->m_type << endl;
 		cout << "B type: " << (int)m_b->m_type << endl;

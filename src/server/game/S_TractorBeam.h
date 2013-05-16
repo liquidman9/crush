@@ -35,7 +35,9 @@ public:
 	bool m_isColliding;
 	bool m_isHolding;
 	float m_heldDistance; //temp
-	bool m_heldToggle;
+	D3DXVECTOR3 m_totalPulling;
+
+	D3DXVECTOR3 m_shipLastCorrection, m_objectLastCorrection;
 
 	// Constructors
 	S_TractorBeam(S_Ship *);
