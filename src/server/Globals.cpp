@@ -37,7 +37,7 @@ namespace server {
 		}
 
 		namespace mothership {
-			float mass = 20000000.0f;
+			float mass = 2000000000.0f;
 		}
 	}
 }

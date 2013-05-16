@@ -8,7 +8,7 @@
 S_Extractor::S_Extractor(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), EXTRACTOR, pos, orientation),
 	Extractor(),
-	ServerEntity(20000000.0f, 5.0f, calculateRotationalInertia(20000000.0f)),
+	ServerEntity(2000000000.0f, 5.0f, calculateRotationalInertia(2000000000.0f)),
 	m_ore(NULL),
 	m_timer(0)
 {	
