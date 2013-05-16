@@ -144,7 +144,7 @@ void S_TractorBeam::calculateForce() {
 						m_isHolding = false; //make method
 					}
 				}
-				else {
+				else if (m_object->m_type != SHIP){ // can not "hold" a ship?
 
 					if(!m_isHolding) {
 						m_heldDistance = disL; // Set permanent holding distance

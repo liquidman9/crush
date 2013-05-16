@@ -228,7 +228,7 @@ bool S_Ship::interact(S_Asteroid * asteroid) {
 bool S_Ship::interact(S_Ship * ship) {
 	if(m_tractorBeam->m_object != NULL && m_tractorBeam->m_object == ship){
 		m_tractorBeam->m_isColliding = true;
-		return false;
+		return true;  // can not "hold" a ship?
 	}
 	if(m_resource != NULL) {
 		S_Resource * tmp = m_resource;
