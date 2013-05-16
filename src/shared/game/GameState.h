@@ -18,6 +18,7 @@
 #include <shared/game/Resource.h>
 #include <shared/game/Asteroid.h>
 #include <shared/game/Extractor.h>
+#include <shared/game/Powerup.h>
 
 #define GS_MAX_MSG_SIZE 25
 
@@ -189,6 +190,11 @@ private:
 				break;
 			case EXTRACTOR:
 				ep = new Extractor();
+				ep->decode(cur_head + cur_size);
+				this->push_back(ep);
+				break;
+			case POWERUP:
+				ep = new Powerup();
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
 				break;

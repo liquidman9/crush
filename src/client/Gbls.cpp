@@ -36,6 +36,8 @@ std::wstring Gbls::resourceMeshFilepath;
 Mesh Gbls::resourceMesh;
 std::wstring Gbls::extractorMeshFilepath;
 Mesh Gbls::extractorMesh;
+std::wstring Gbls::powerupMeshFilepath;
+Mesh Gbls::powerupMesh;
 
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;
@@ -159,6 +161,14 @@ void Gbls::initFromConfig() {
 			extractorMeshFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 	extractorMesh.setScaleRotate(1, 0, 0, 0);
+
+	/* Powerup */
+	if(!conf.getValue("powerupMeshFilepath", tmpString)) {  //default
+			powerupMeshFilepath = L"tiger.x";
+	} else {  //assign to wstring
+			powerupMeshFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	powerupMesh.setScaleRotate(1, 0, 0, 0);
 
 	/* Debug Cam */
 	conf.getValue("debugCamMoveSpeed", debugCamMoveSpeed);

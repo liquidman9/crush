@@ -366,6 +366,12 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
 	}
 
+	// Powerup Temp - until is given some implementation
+	if(((one = a)->m_type == POWERUP)|| ((one = b)->m_type == POWERUP)){
+		rtn = false;
+	}
+
+
 	//Extractor and Ship
 	if(((one = a)->m_type == EXTRACTOR && (two = b)->m_type == SHIP)|| ((one = b)->m_type == EXTRACTOR && (two = a)->m_type == SHIP)){
 		rtn = false; // temporarily disabling reaction between ship and extractor

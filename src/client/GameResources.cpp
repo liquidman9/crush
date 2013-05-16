@@ -14,6 +14,7 @@
 #include <client/GameResources.h>
 #include <client/Gbls.h>
 #include <client/graphics/Skybox.h>
+#include <client/graphics/entities/C_Powerup.h>
 #include <client/graphics/entities/C_Resource.h>
 #include <client/graphics/entities/C_TractorBeam.h>
 #include <client/graphics/entities/C_Mothership.h>
@@ -173,6 +174,8 @@ void GameResources::releaseResources() {
 	//Gbls::tractorBeamMesh.Destroy();
 	Gbls::extractorMesh.Destroy();
 	Gbls::resourceMesh.Destroy();
+	Gbls::powerupMesh.Destroy();
+
 	for(int i = 0; i < Gbls::numAsteroidMeshes; i++) {
 		Gbls::asteroidMesh[0].Destroy();
 	}
@@ -238,6 +241,9 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	if(FAILED(hres = Gbls::extractorMesh.Create(Gbls::extractorMeshFilepath)))
 			return hres;
+	if(FAILED(hres = Gbls::powerupMesh.Create(Gbls::powerupMeshFilepath)))
+			return hres;
+
 	//if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
 	//		return hres;
 
@@ -857,6 +863,13 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case EXTRACTOR :
 		{
 		C_Extractor * tmp = new C_Extractor(newEnt);
+		//resourceList.push_back(tmp);
+		ret = tmp;
+		}
+		break;
+	case POWERUP :
+		{
+		C_Powerup * tmp = new C_Powerup(newEnt);
 		//resourceList.push_back(tmp);
 		ret = tmp;
 		}

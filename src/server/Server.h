@@ -14,6 +14,7 @@
 #include <server/game/S_TractorBeam.h>
 #include <server/game/S_Mothership.h>
 #include <server/game/S_Extractor.h>
+#include <server/game/S_Powerup.h>
 #include <server/game/PhysicsWorld.h>
 #include <shared/ConfigSettings.h>
 

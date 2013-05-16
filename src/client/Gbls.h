@@ -37,6 +37,7 @@ public:
 	//static Mesh tractorBeamMesh;
 	static Mesh resourceMesh;
 	static Mesh extractorMesh;
+	static Mesh powerupMesh; // probably would be changed to multiple
 	
 	static float debugCamMaxPitch;
 	static float debugCamMinPitch;
@@ -57,6 +58,7 @@ public:
 	//static std::wstring tractorBeamMeshFilepath;
 	static std::wstring resourceMeshFilepath;
 	static std::wstring extractorMeshFilepath;
+	static std::wstring powerupMeshFilepath;
 	
 	static std::wstring skyboxTextureFilepath_Front;
 	static std::wstring skyboxTextureFilepath_Back;

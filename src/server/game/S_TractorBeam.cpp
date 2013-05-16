@@ -286,6 +286,7 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 	if(m_isOn){
 		
 		if(entity->m_type == SHIP && m_ship == entity || 
+			entity->m_type == POWERUP || // temp until given implementation will proabbly work like resource except consumed at collision
 			entity->m_type == MOTHERSHIP || 
 			entity->m_type == EXTRACTOR || 
 			(entity->m_type == RESOURCE && ((S_Resource *)entity)->m_carrier != NULL)) 
