@@ -57,13 +57,14 @@ void S_Ship::addPlayerInput(InputState input) {
 		m_tractorBeam->setIsOn(true);
 		m_tractorBeam->setIsPulling(false);
 	}
-	else if(input.getTractorBeam() != 0) {
+	// Once holding on an object it is hooked so no longer need to be pulling
+	else if(input.getTractorBeam() != 0 && !m_tractorBeam->m_isHolding) { 
 
 		m_tractorBeam->setIsOn(true);
 		m_tractorBeam->setIsPulling(true);
 		m_tractorBeam->m_strength = (float) input.getTractorBeam();
 	}
-	else {
+	else if(!m_tractorBeam->m_isHolding){
 		m_tractorBeam->setIsOn(false);
 	}
 
