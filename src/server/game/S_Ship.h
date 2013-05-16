@@ -53,6 +53,7 @@ public:
 	void init();
 	void addPlayerInput(InputState);
 	void applyDamping();
+	D3DXVECTOR3 getDamping();
 	void calcTractorBeam();
 	void updateHeldObject();
 

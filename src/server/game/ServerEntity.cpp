@@ -1,7 +1,8 @@
 #include <shared/game/Entity.h>
 #include <server/game/ServerEntity.h>
 #include <shared/util/SharedUtils.h>
-
+#include <server/game/S_Ship.h>
+#include <server/game/S_TractorBeam.h>
 float FP_ZERO = 0.000001f;
 D3DXVECTOR3 zero_vec(0.0f, 0.0f, 0.0f);
 
@@ -148,7 +149,7 @@ void ServerEntity::update(float delta_time) {
 	} else {
 		m_orientation_delta = Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
 	}
-
+	
 	// Moves according to last frame's values
 	m_pos += m_velocity * delta_time;
 	m_orientation += (m_orientation_delta * delta_time);

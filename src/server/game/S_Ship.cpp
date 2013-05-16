@@ -90,10 +90,35 @@ void S_Ship::addPlayerInput(InputState input) {
 	}
 }
 
-void S_Ship::applyDamping() {
+D3DXVECTOR3 S_Ship::getDamping() {
+	D3DXVECTOR3 shipImp = t_impulse;
+	float mag_velocity = D3DXVec3Length(&m_velocity), mag_angular_velocity = D3DXVec3Length(&m_angular_velocity);
+	if (mag_velocity > FP_ZERO) {
+		// Linear stabilizer
+		D3DXVECTOR3 lin_stabilizer_vec(-m_momentum);
+		D3DXVec3Normalize(&lin_stabilizer_vec, &lin_stabilizer_vec);
 
+		if (m_thrusting) {
+			// Thrusting, we only want to reduce the impulse
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_forward_impulse;
+			float damping_factor = (mag_velocity / m_max_velocity);
+			shipImp += lin_stabilizer_force * damping_factor;
+		} else {
+			// Not thrusting, we need to slow down as quickly as possible
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_braking_impulse;
+			shipImp += Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum);
+		}
+	}
+
+	return shipImp;
+}
+
+
+void S_Ship::applyDamping() {
+		
 	// Linear damping
 	float mag_velocity = D3DXVec3Length(&m_velocity), mag_angular_velocity = D3DXVec3Length(&m_angular_velocity);
+//if(!m_tractorBeam->m_isHolding){
 	if (mag_velocity > FP_ZERO) {
 		// Linear stabilizer
 		D3DXVECTOR3 lin_stabilizer_vec(-m_momentum);
@@ -110,6 +135,7 @@ void S_Ship::applyDamping() {
 			applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum));
 		}
 	}
+//}
 
 	// Rotation damping
 	if (mag_angular_velocity > FP_ZERO) {
@@ -138,11 +164,14 @@ void S_Ship::updateHeldObject(){
 }
 
 void S_Ship::update(float delta_time) {
+	
+
 	applyDamping();
 	
 	ServerEntity::update(delta_time);
 	if(m_tractorBeam->m_isHolding)
 		updateHeldObject();
+
 }
 
 void S_Ship::calcTractorBeam() {
