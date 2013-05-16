@@ -174,7 +174,7 @@ void S_TractorBeam::calculateForce() {
 						D3DXVECTOR3 rObj = m_object->m_pos -center;
 
 						//m_ship->m_momentum -= m_shipLastCorrection;
-						m_object->m_momentum -= m_objectLastCorrection;  // bug with larger than you asteroids flings you out of range
+						//m_object->m_momentum -= m_objectLastCorrection; 
 
 						D3DXVECTOR3 shipImp = m_ship->getDamping();
 					    D3DXVECTOR3 velShip = ((shipImp)*m_ship->m_mass_inverse);
@@ -187,10 +187,13 @@ void S_TractorBeam::calculateForce() {
 						D3DXVECTOR3 newDis = posObject-posShip;
 						D3DXVECTOR3 newDir = posObject - posShip;
 						D3DXVec3Normalize(&newDir, &newDir);
+				
 
 						// Calculate new center of mass
-						center += ((m_object->m_momentum + (velObject*m_object->m_mass))*m_object->m_mass + (m_ship->m_momentum + (velShip*m_ship->m_mass)*m_ship->m_mass))/pow(totalMass,2); 
-									
+						center += ((m_object->m_momentum + (velObject*m_object->m_mass)*m_object->m_mass) + (m_ship->m_momentum + (velShip*m_ship->m_mass)*m_ship->m_mass))/pow(totalMass,2); 
+						//center += ((m_object->m_momentum + (velObject*m_object->m_mass))*m_object->m_mass + (m_ship->m_momentum + (velShip*m_ship->m_mass)*m_ship->m_mass))/pow(totalMass,2); 
+						//center += ((m_object->m_momentum + (velObject*m_object->m_mass))*m_object->m_mass + (m_ship->m_momentum + (velShip*m_ship->m_mass))*m_ship->m_mass)/pow(totalMass,2); 
+					
 						D3DXVECTOR3 newRShip, newRObject;
 						D3DXVec3Normalize(&newRObject,&(posObject - posShip));
 						newRShip = - newRObject;
@@ -206,8 +209,8 @@ void S_TractorBeam::calculateForce() {
 						m_ship->applyLinearImpulse(adjustShip*m_ship->m_mass);
 						m_object->applyLinearImpulse(adjustObj*m_object->m_mass);
 						
-						m_shipLastCorrection = adjustShip*m_ship->m_mass;
-						m_objectLastCorrection = adjustObj*m_object->m_mass;
+						//m_shipLastCorrection = adjustShip*m_ship->m_mass;
+						//m_objectLastCorrection = adjustObj*m_object->m_mass;
 
 					}
 				
