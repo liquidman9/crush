@@ -1,10 +1,12 @@
 /*
- * S_Ship.cpp
+ * Collision.cpp
  */
 
 // Project includes
 #include <server/game/Collision.h>
 #include <shared/util/SharedUtils.h>
+#include <shared/CollisionGEvent.h>
+
 
 Collision::Collision() {
 	m_a = m_b = NULL;
@@ -44,7 +46,7 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 
 }
 
-void Collision::resolve()
+CollisionGEvent * Collision::resolve()
 {
 	float e_coll = 0.8f;
 	float u_fr = 0.6f;
@@ -145,6 +147,5 @@ void Collision::resolve()
 	m_a->applyImpulse(jN, m_poi);
 	m_b->applyImpulse(-jN, m_poi);
 
-	
-
+	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi);
 }

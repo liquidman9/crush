@@ -19,6 +19,7 @@
 #include <shared/game/Asteroid.h>
 #include <shared/game/Extractor.h>
 #include <shared/game/Powerup.h>
+#include <shared/CollisionGEvent.h>
 
 #define GS_MAX_MSG_SIZE 25
 
@@ -41,6 +42,12 @@ public:
 	void push_back(E *e) {
 		m_size += e->size();
 		m_entities.push_back(shared_ptr<E>(e));
+	};
+
+	void push_back_event(GEvent * e)
+	{
+		m_size += e->size();
+		m_events.push_back(shared_ptr<GEvent>(e));
 	};
 
 	unsigned int size() const {
@@ -131,6 +138,7 @@ public:
 
 	void clear() {
 		m_entities.clear();
+		m_events.clear();
 		m_size = gsMinSize();
 	}
 
@@ -157,6 +165,7 @@ private:
 		auto gs_size = m_size - sizeof(m_size) - sizeof(m_meta);
 		const char* cur_head = head + sizeof(m_meta);
 		Entity *ep = NULL;
+		GEvent *gp = NULL;
 		clear();		
 		Type a;
 		for(unsigned int cur_size = 0; cur_size < gs_size; cur_size += ep->size() ){
@@ -198,6 +207,12 @@ private:
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
 				break;
+			case COLLISIONEVENT:
+				cerr << "Collision received!";
+				gp = new CollisionGEvent();
+				gp->decode(cur_head + cur_size);
+				this->push_back_event(gp);
+				break;
 			default:
 				cerr << "ERROR decoding entity state. Unknown type: " << (int) (*(ENUM_TYPE*)( cur_head + cur_size)) << endl;
 				break;
@@ -212,6 +227,9 @@ private:
 		int total_size = sizeof(m_meta) + sizeof(m_size);
 		for(unsigned int i = 0; i < m_entities.size(); i++) {
 			total_size += m_entities[i]->encode(send_buff+total_size);
+		}
+		for(unsigned int i = 0; i < m_events.size(); i++) {
+			total_size += m_events[i]->encode(send_buff+total_size);
 		}
 		return send_buff;
 	}
@@ -234,6 +252,7 @@ private:
 	//static string m_serverMessages[3];
 
 	vector<shared_ptr<E> > m_entities;
+	vector<shared_ptr<GEvent> > m_events;
 	friend class NetworkServer;
 	friend class NetworkClient;
 	friend class Server;

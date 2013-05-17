@@ -1,17 +1,17 @@
 /*
- * CollisionEvent.h
+ * CollisionGEvent.h
  */
 
-#ifndef COLLISIONEVENT_H_INCLUDED
-#define COLLISIONEVENT_H_INCLUDED
+#ifndef COLLISIONGEVENT_H_INCLUDED
+#define COLLISIONGEVENT_H_INCLUDED
 
 // Global includes
 #include <d3dx9.h>
 
 // Project includes
-#include <shared/Event.h>
+#include <shared/GEvent.h>
 
-class CollisionEvent : public Event {
+class CollisionGEvent : public GEvent {
 private:
 	struct send_struct 
 	{
@@ -30,12 +30,13 @@ public:
 
 
 	// Constructors
-	CollisionEvent();
-	CollisionEvent(int id_a, int id_b, D3DXVECTOR3 poi);
+	CollisionGEvent();
+	CollisionGEvent(int id_a, int id_b, D3DXVECTOR3 poi);
 
 	// Methods
 	virtual unsigned int encode(char *) const;
 	virtual unsigned int decode(const char *);
+	virtual const unsigned int size() const { return m_size; };
 };
 
 #endif

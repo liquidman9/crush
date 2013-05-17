@@ -29,7 +29,7 @@ void PhysicsWorld::collision(float delta_time) {
 			if ((c = checkCollision(*entities[i], *entities[j])) != NULL)
 				// Object Specific Logic
 				if(typeResponse(entities[i], entities[j]))
-					c->resolve();
+					state->push_back_event(c->resolve());
 
 			delete(c);
 		}

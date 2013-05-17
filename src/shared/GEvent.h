@@ -1,14 +1,12 @@
 /*
- * Event.h
+ * GEvent.h
  */
 
 // Project includes
 #include <shared/network/Sendable.h>
 
-#define ENUM_TYPE char
-enum Type : char {COLLISION};
 
-class Event : public Sendable {
+class GEvent : public Sendable {
 private:
 	struct send_struct 
 	{
@@ -18,16 +16,16 @@ private:
 protected:
 	static const unsigned int m_size = sizeof(send_struct);
 	// THIS CONSTRUCTOR SHOULD NEVER BE DIRECTLY CALLED.
-	Event();
+	GEvent();
 
 public:
 	Type m_type;
 
 	// Constructor
-	Event(Type type);
+	GEvent(Type type);
 
 	// Destructor
-	virtual ~Event();
+	virtual ~GEvent();
 
 	virtual unsigned int encode(char *) const;
 	virtual unsigned int decode(const char *);

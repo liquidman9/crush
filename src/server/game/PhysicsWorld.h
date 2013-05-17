@@ -16,6 +16,7 @@
 #include <server/game/S_Mothership.h>
 #include <server/game/Boundary.h>
 #include <server/game/Collision.h>
+#include <shared/game/GameState.h>
 
 
 #pragma comment(lib,"D3dx9.lib")
@@ -25,6 +26,7 @@ using namespace std;
 class PhysicsWorld {
 public:
 	float m_worldRadius;
+	GameState<Entity> * state;
 	vector<ServerEntity *> entities;
 	vector<Boundary> boundaries;
 	vector<D3DXVECTOR3> forceVectors;

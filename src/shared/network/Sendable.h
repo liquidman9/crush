@@ -5,7 +5,8 @@
 
 
 
-
+#define ENUM_TYPE char
+enum Type : char { ENTITY, SHIP, MOTHERSHIP, ASTEROID, RESOURCE, TRACTORBEAM, EXTRACTOR, POWERUP, COLLISIONEVENT};
 
 class Sendable
 {

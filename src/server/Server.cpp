@@ -137,6 +137,7 @@ void Server::initializeGameState() {
 	m_playerMap.clear();
 	m_mothershipMap.clear();
 	m_world.entities.clear();
+	m_world.state = & m_gameState;
 	addNewClients(m_server.getConnectedClientIDs());
 	
 
@@ -222,6 +223,7 @@ void Server::loop() {
 		
 		if(m_pause) {
 			m_server.broadcastGameState(m_gameState);
+			m_gameState.m_events.clear();
 			endOfTick();
 			continue;
 		}

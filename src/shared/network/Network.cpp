@@ -198,7 +198,7 @@ char * Network::decompress(const char *head, unsigned int &size) {
 	//skip over stored compressed_size
 	auto r = lzo1x_decompress((unsigned char*)head,c_len,d_out,&d_len,NULL);
 	if(r != LZO_E_OK) {
-		cerr << "OH GOD WE GUNNA CRASH (decompress failed)" << endl;
+		cerr << "OH GOD WE GUNNA CRASH (decompress failed) " << r << endl;
 	}
 	size = d_len;
 	return (char *) d_out;
