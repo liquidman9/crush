@@ -52,6 +52,7 @@ void NetworkServer::initializeThreads() {
 	m_sendAvailable = false;
 	InitializeCriticalSection(&m_cs);
 	InitializeCriticalSection(&m_cs1);
+	InitializeCriticalSection(&m_cs2);
 	InitializeConditionVariable(&m_workerReady);
 	InitializeConditionVariable(&m_broadcastReady);
 
@@ -64,7 +65,7 @@ void NetworkServer::initializeThreads() {
 		&threadID );
 
 	threadID = 1;
-	m_hThread = (HANDLE)_beginthreadex( NULL, // security
+	m_hThread1 = (HANDLE)_beginthreadex( NULL, // security
 		0,             // stack size
 		NetworkServer::ThreadStaticEntryPoint1,// entry-point-function
 		this,           // arg list holding the "this" pointer
@@ -101,6 +102,7 @@ void NetworkServer::broadcastGameStateWorker() {
 		while(!m_sendAvailable) {
 			SleepConditionVariableCS(&m_broadcastReady, &m_cs1, INFINITE);
 		}
+		EnterCriticalSection(&m_cs2);
 		m_sendAvailable = false;
 
 #ifdef ENABLE_DELTA
@@ -112,13 +114,18 @@ void NetworkServer::broadcastGameStateWorker() {
 		//get send buff and size
 		auto gs_send_buff = m_sendGS.getSendBuff();
 		unsigned int size;
+		auto tmp = m_sendGS.sendSize();
 		auto send_buff = encodeSendBuff(gs_send_buff, m_sendGS.sendSize(), size);
+		
+		
 		LeaveCriticalSection(&m_cs1);
-		WakeConditionVariable(&m_workerReady);
-
-		//prep empty gamestate send if necessary
-
 		EnterCriticalSection(&m_cs);
+		LeaveCriticalSection(&m_cs2);
+		//signal main loop
+		WakeConditionVariable(&m_workerReady);
+#ifdef ENABLE_DELTA
+		assert(!m_clear_delta);
+#endif
 		l_connectedClients = m_connectedClients;
 		LeaveCriticalSection(&m_cs);
 
@@ -137,13 +144,11 @@ void NetworkServer::broadcastGameStateWorker() {
 			if(r != m_connectedClients.end()) {
  				removeList.push_back(r);
 			}
-		}
+		}		
+		//remove clients who cannot be reached
 		if(!removeList.empty())	removeClients(removeList);
 		LeaveCriticalSection(&m_cs);
 
-		//remove clients who cannot be reached
-		//removeClients(removeList);
-		//LeaveCriticalSection(&m_cs);
 		removeList.clear();
 		removeList_lookup.clear();
 		delete []gs_send_buff;	
@@ -327,18 +332,23 @@ void NetworkServer::acceptNewClient()
 				setsockopt( ClientSocket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
 
 				//insert new client into connected clients
+				EnterCriticalSection(&m_cs2);
 				EnterCriticalSection(&m_cs);
 				EnterCriticalSection(&m_cs1);
+				
 #ifdef ENABLE_DELTA
+				/*while(m_sendAvailable) {
+					SleepConditionVariableCS(&m_workerReady, &m_cs1, INFINITE);
+				}*/
 				m_clear_delta = true;
 #endif
-				//m_clientCount = tmp_client_count;
 				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				m_clientIDs.insert(pair<unsigned int, string>(i, string(client_name)));
 				m_clientCount = m_connectedClients.size();
 				LeaveCriticalSection(&m_cs1);
 				LeaveCriticalSection(&m_cs);
+				LeaveCriticalSection(&m_cs2);
 				cout << "New client " << i << " connected." << endl;
 			}
 		}
