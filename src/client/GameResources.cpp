@@ -844,9 +844,9 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 				entityMap[id] = createEntity(newGameState[i].get());
 			} else {
 				entityMap[id]->update(newGameState[i]);
-				entityMap[id]->updateWorldMat();
 				//entityMap[id]->updated = true; 	//used for individual deletes if we ever implement that
 			}
+			entityMap[id]->updateWorldMat();
 		}
 	}
 
