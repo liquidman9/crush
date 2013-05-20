@@ -15,7 +15,7 @@
 
 class C_Extractor : public Extractor, public C_Entity {
 public:
-	Mesh* m_pMesh;
+	//Mesh* m_pMesh;
 
 	C_Extractor();
 	C_Extractor(Entity *);

@@ -15,11 +15,12 @@
 
 class C_Asteroid : public Asteroid, public C_Entity {
 public:
-	Mesh* m_pMesh;
+	//Mesh* m_pMesh;
 
 	C_Asteroid();
 	C_Asteroid(Entity *);
 	void draw();
+	void updateWorldMat();
 };
 
 #pragma warning( pop )

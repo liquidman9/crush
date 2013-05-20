@@ -15,7 +15,7 @@
 
 class C_TractorBeam : public TractorBeam, public C_Entity {
 public:
-	Mesh* m_pMesh;
+	//Mesh* m_pMesh;
 
 	C_TractorBeam();
 	C_TractorBeam(Entity *);

@@ -33,14 +33,15 @@ vector<C_Ship*> GameResources::shipList;
 vector<C_Mothership*> GameResources::mothershipList;
 vector<C_TractorBeam*> GameResources::tractorBeamList;
 vector<C_Resource*> GameResources::resourceList;
+vector<C_Extractor*> GameResources::extractorList;
 vector<C_Asteroid*> GameResources::asteroidList;
 vector<EntityIdentifier*> GameResources::eIDList;
 vector<EnginePGroup *> GameResources::enginePGroupList;
 std::map<int, C_Entity*> GameResources::entityMap;
-bool GameResources::debugCamOn = true;
+bool GameResources::debugCamOn = false;
 Camera GameResources::debugCam;
 Camera GameResources::playerCam;
-Camera* GameResources::curCam = &debugCam;
+Camera* GameResources::curCam = &playerCam;
 float GameResources::playerCamScale = 1.0f;
 int GameResources::playerCamScaleLevel = 0;
 C_Ship* GameResources::playerShip = NULL;
@@ -69,11 +70,62 @@ std::wstring GameResources::timeStr;
 std::wstring GameResources::playerNameStr[4];
 int GameResources::playerScore[4];
 SoundManager GameResources::sound;
+ID3DXEffect * GameResources::pEffect;
+
+//for testing
+#define CUSTOMFVF (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
+struct CUSTOMVERTEX {FLOAT X, Y, Z, RHW; DWORD COLOR;};
+static LPDIRECT3DVERTEXBUFFER9 v_buffer;
+
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
 	
-	curCam = &debugCam;
+	curCam = &playerCam;
+	debugCamOn = false;
+
+    // create the vertices using the CUSTOMVERTEX struct
+    CUSTOMVERTEX vertices[] =
+    {
+        { 400.0f, 62.5f, 0.5f, 1.0f, D3DCOLOR_XRGB(0, 0, 255), },
+        { 650.0f, 500.0f, 0.5f, 1.0f, D3DCOLOR_XRGB(0, 255, 0), },
+        { 150.0f, 500.0f, 0.5f, 1.0f, D3DCOLOR_XRGB(255, 0, 0), },
+    };
+
+    // create a vertex buffer interface called v_buffer
+	Gbls::pd3dDevice->CreateVertexBuffer(3*sizeof(CUSTOMVERTEX),
+                               0,
+                               CUSTOMFVF,
+                               D3DPOOL_MANAGED,
+                               &v_buffer,
+                               NULL);
+
+    VOID* pVoid;    // a void pointer
+
+    // lock v_buffer and load the vertices into it
+    v_buffer->Lock(0, 0, (void**)&pVoid, 0);
+    memcpy(pVoid, vertices, sizeof(vertices));
+    v_buffer->Unlock();
+
+
+	//init effect file
+	DWORD shaderFlags = 0;
+    //shaderFlags |= D3DXSHADER_FORCE_VS_SOFTWARE_NOOPT;
+    //shaderFlags |= D3DXSHADER_FORCE_PS_SOFTWARE_NOOPT;
+    shaderFlags |= D3DXSHADER_NO_PRESHADER;
+
+	hres = D3DXCreateEffectFromFile(Gbls::pd3dDevice,
+        L"shaders/CRUSH_Default.fx", 
+        NULL, // CONST D3DXMACRO* pDefines,
+        NULL, // LPD3DXINCLUDE pInclude,
+        shaderFlags, 
+		NULL, // LPD3DXEFFECTPOOL pPool,
+        &pEffect,
+        NULL );
+	if (FAILED(hres)) {
+		MessageBox( NULL, L"Failed to load effect file", L"CRUSH.exe", MB_OK );
+		return hres;
+	}
 
 	// Initialize the skybox
 	hres = Skybox::initSkybox();
@@ -209,7 +261,8 @@ HRESULT GameResources::reInitState() {
 	partSystem->init(Gbls::pd3dDevice);
 
 	//set backface cullling off TODO remove after models are fixed
-	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 
 	
 	return S_OK;
@@ -486,13 +539,74 @@ void GameResources::drawStaticHudElements() {
 	if(SUCCEEDED(hres))
 	{
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
-		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f));
-		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f));
-		placeTextCenterFloor((L"Player 3\n" + std::to_wstring((long long)playerScore[2])).c_str(), Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f));
-		placeTextCenterFloor((L"Player 4\n" + std::to_wstring((long long)playerScore[3])).c_str(), Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f));
+		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
+		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
+		placeTextCenterFloor((L"Player 3\n" + std::to_wstring((long long)playerScore[2])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f)));
+		placeTextCenterFloor((L"Player 4\n" + std::to_wstring((long long)playerScore[3])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f)));
 		// End sprite rendering
 		pd3dSprite->End();
 	}
+}
+
+void GameResources::drawModel(C_Entity * cEnt) {
+	D3DXMATRIX tmp;
+	pEffect->SetMatrix("World", &cEnt->worldMat);
+	float det = D3DXMatrixDeterminant(&cEnt->worldMat);
+	D3DXMatrixTranspose(&tmp, D3DXMatrixInverse(&tmp, &det, &cEnt->worldMat));
+	
+	pEffect->SetMatrix("WorldInverseTranspose", &tmp);
+	pEffect->SetTexture("ModelTexture", cEnt->m_pMesh->m_pMeshTextures[0]);
+	pEffect->CommitChanges();
+	cEnt->m_pMesh->m_pMesh->DrawSubset(0);
+}
+
+void GameResources::drawAllModels() {
+	
+	Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	
+	D3DXMATRIX tmp;
+	pEffect->SetMatrix("View", curCam->getViewMatrix(tmp));
+	pEffect->SetMatrix("Projection", curCam->getProjMatrix(tmp)); 
+	D3DXVECTOR4 viewVec = curCam->m_vAt - curCam->m_vEye;
+	D3DXVec4Normalize(&viewVec, &viewVec);
+	pEffect->SetVector("ViewVector", &viewVec);
+	
+    pEffect->SetTechnique( "Shiny" );
+	UINT cPasses;
+	pEffect->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffect->BeginPass(iPass);
+		for (UINT i = 0; i < shipList.size(); i++) {
+			drawModel(shipList[i]);
+		}
+		for (UINT i = 0; i < mothershipList.size(); i++) {
+			drawModel(mothershipList[i]);
+		}
+		for (UINT i = 0; i < resourceList.size(); i++) {
+			drawModel(resourceList[i]);
+		}
+		for (UINT i = 0; i < extractorList.size(); i++) {
+			drawModel(extractorList[i]);
+		}
+		pEffect->EndPass();
+	}
+	pEffect->End();
+
+	
+    pEffect->SetTechnique( "Dull" );
+	pEffect->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffect->BeginPass(iPass);
+		for (UINT i = 0; i < asteroidList.size(); i++) {
+			drawModel(asteroidList[i]);
+		}
+		pEffect->EndPass();
+	}
+	pEffect->End();
+
+	Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
 
 void GameResources::drawAll()
@@ -503,7 +617,7 @@ void GameResources::drawAll()
 	// Loop through all lists. Set up shaders, etc, as needed for each.
 	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
     {
-		(*ii).second->draw();
+		//(*ii).second->draw();
 	}
 
 	if (renderCBWireframe) {
@@ -513,11 +627,11 @@ void GameResources::drawAll()
 		{
 			drawCollisionBounds((*ii).second->m_pFront, (*ii).second->m_pBack, (*ii).second->m_radius);
 		}
+		Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
 	}
 	
-	Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
-	//drawCollisionBounds(D3DXVECTOR3(10, 0, 0), D3DXVECTOR3(10, 10, 10), 2.0f);
-	
+	drawAllModels();
+
 	// Render tractor beams
 	drawAllTractorBeams();
 	
@@ -565,6 +679,8 @@ void GameResources::switchCamera() {
 	} else {
 		curCam = &playerCam;
 	}
+	curCam->updateView();
+	curCam->updateProjection();
 }
 
 void GameResources::switchPlayerCameraScale() {
@@ -708,16 +824,6 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 		//}
 	}
 
-	//for( UINT i = 0; i < scores.size(); ++i)
-	//{
-	//	UINT pNum = scores[i].first;
-	//	if (pNum >= 1 && pNum <= 4) {
-	//		playerScore[pNum-1] = scores[i].second;
-	//	}
-	//}
-
-
-
 	if (newGameState.size() == 0) {
 		resetGameState();
 	} else {
@@ -728,6 +834,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 				entityMap[id] = createEntity(newGameState[i].get());
 			} else {
 				entityMap[id]->update(newGameState[i]);
+				entityMap[id]->updateWorldMat();
 				//entityMap[id]->updated = true; 	//used for individual deletes if we ever implement that
 			}
 		}
@@ -857,7 +964,7 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case EXTRACTOR :
 		{
 		C_Extractor * tmp = new C_Extractor(newEnt);
-		//resourceList.push_back(tmp);
+		extractorList.push_back(tmp);
 		ret = tmp;
 		}
 		break;

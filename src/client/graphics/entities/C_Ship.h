@@ -15,7 +15,7 @@
 
 class C_Ship : public Ship, public C_Entity {
 public:
-	Mesh* m_pMesh;
+	//Mesh* m_pMesh;
 
 	C_Ship();
 	C_Ship(Entity *);

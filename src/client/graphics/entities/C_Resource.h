@@ -15,7 +15,7 @@
 
 class C_Resource : public Resource, public C_Entity {
 public:
-	Mesh* m_pMesh;
+	//Mesh* m_pMesh;
 
 	C_Resource();
 	C_Resource(Entity *);
