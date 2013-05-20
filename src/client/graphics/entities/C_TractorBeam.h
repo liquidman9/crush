@@ -19,7 +19,7 @@ public:
 
 	C_TractorBeam();
 	C_TractorBeam(Entity *);
-	void draw();
+	//void draw();
 };
 
 #pragma warning( pop )

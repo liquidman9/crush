@@ -19,7 +19,7 @@ public:
 
 	C_Resource();
 	C_Resource(Entity *);
-	void draw();
+	//void draw();
 };
 
 #pragma warning( pop )

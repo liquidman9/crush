@@ -34,7 +34,8 @@ vector<C_Ship*> GameResources::shipList;
 vector<C_Mothership*> GameResources::mothershipList;
 vector<C_TractorBeam*> GameResources::tractorBeamList;
 vector<C_Resource*> GameResources::resourceList;
-vector<C_Extractor*> GameResources::extractorList;
+vector<C_Extractor*> GameResources::extractorList; 
+vector<C_Powerup*> GameResources::powerupList;
 vector<C_Asteroid*> GameResources::asteroidList;
 vector<EntityIdentifier*> GameResources::eIDList;
 vector<EnginePGroup *> GameResources::enginePGroupList;
@@ -595,6 +596,9 @@ void GameResources::drawAllModels() {
 		for (UINT i = 0; i < extractorList.size(); i++) {
 			drawModel(extractorList[i]);
 		}
+		for (UINT i = 0; i < powerupList.size(); i++) {
+			drawModel(powerupList[i]);
+		}
 		pEffect->EndPass();
 	}
 	pEffect->End();
@@ -977,7 +981,7 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case POWERUP :
 		{
 		C_Powerup * tmp = new C_Powerup(newEnt);
-		//resourceList.push_back(tmp);
+		powerupList.push_back(tmp);
 		ret = tmp;
 		}
 		break;

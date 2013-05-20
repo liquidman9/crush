@@ -19,7 +19,7 @@ public:
 
 	C_Extractor();
 	C_Extractor(Entity *);
-	void draw();
+	//void draw();
 };
 
 #pragma warning( pop )

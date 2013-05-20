@@ -19,7 +19,7 @@ public:
 
 	C_Asteroid();
 	C_Asteroid(Entity *);
-	void draw();
+	//void draw();
 	void updateWorldMat();
 };
 

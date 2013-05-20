@@ -31,26 +31,27 @@ C_Asteroid::C_Asteroid(Entity * newEnt) :
 	}
 }
 
-void C_Asteroid::draw()
-{
 
-	// Scale Asteroid
-	D3DXMATRIX matScale;
-	D3DXMatrixScaling(&matScale, m_scale, m_scale, m_scale);
-	
-	// Translate Asteroid to correct possition
-	D3DXMATRIX matTranslate;
-	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
-
-	// Rotation with quaternion
-	D3DXMATRIX matRotate;
-	D3DXQUATERNION temp_q;
-	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
-
-	// Apply transforms
-	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matScale*matRotate*matTranslate));
-	m_pMesh->draw();
-}
+//void C_Asteroid::draw()
+//{
+//
+//	// Scale Asteroid
+//	D3DXMATRIX matScale;
+//	D3DXMatrixScaling(&matScale, m_scale, m_scale, m_scale);
+//	
+//	// Translate Asteroid to correct possition
+//	D3DXMATRIX matTranslate;
+//	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
+//
+//	// Rotation with quaternion
+//	D3DXMATRIX matRotate;
+//	D3DXQUATERNION temp_q;
+//	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
+//
+//	// Apply transforms
+//	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matScale*matRotate*matTranslate));
+//	m_pMesh->draw();
+//}
 
 void C_Asteroid::updateWorldMat() {
 	

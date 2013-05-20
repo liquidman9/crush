@@ -28,6 +28,7 @@
 #include <client/graphics/entities/C_Asteroid.h>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_Entity.h>
+#include <client/graphics/entities/C_Powerup.h>
 #include <client/graphics/ParticleSystem.h>
 #include <client/graphics/TBeamPGroup.h>
 #include <client/graphics/EnginePGroup.h>
@@ -52,6 +53,7 @@ public:
 	static vector<C_TractorBeam*> tractorBeamList;
 	static vector<C_Resource*> resourceList;
 	static vector<C_Extractor*> extractorList;
+	static vector<C_Powerup*> powerupList;
 	static vector<EntityIdentifier*> eIDList;
 	static vector<EnginePGroup *> enginePGroupList;
 	static const float PLAYER_CAM_DISTANCE;

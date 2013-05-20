@@ -19,7 +19,7 @@ public:
 
 	C_Ship();
 	C_Ship(Entity *);
-	void draw();
+	//void draw();
 };
 
 #pragma warning( pop )

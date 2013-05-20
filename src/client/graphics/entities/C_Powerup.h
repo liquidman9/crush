@@ -15,11 +15,9 @@
 
 class C_Powerup : public Powerup, public C_Entity {
 public:
-	Mesh* m_pMesh;
-
 	C_Powerup();
 	C_Powerup(Entity *);
-	void draw();
+	//void draw();
 };
 
 #pragma warning( pop )

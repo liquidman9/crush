@@ -19,7 +19,7 @@ public:
 
 	C_Mothership();
 	C_Mothership(Entity *);
-	void draw();
+	//void draw();
 };
 
 #pragma warning( pop )

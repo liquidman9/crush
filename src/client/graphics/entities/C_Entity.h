@@ -9,7 +9,7 @@
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Renderable.h>
 
-class C_Entity : public virtual Entity, public virtual Renderable {
+class C_Entity : public virtual Entity {
 public:
 	Mesh* m_pMesh;
 	D3DXMATRIX worldMat;
