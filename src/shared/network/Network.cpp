@@ -181,7 +181,7 @@ char * Network::compress(const char *head, unsigned int &size) {
 		unsigned char* out = (unsigned char*) (out_tmp + sizeofHeader());
 		lzo_uint in_len = size;
 		lzo_uint out_len;
-		auto r = lzo1x_1_compress(in,in_len,out,&out_len,scratch);
+		lzo1x_1_compress(in,in_len,out,&out_len,scratch);
 		setHeader(out_tmp,out_len,in_len);
 		size = getSize(out_tmp);
 		delete []scratch;
