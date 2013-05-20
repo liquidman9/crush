@@ -8,6 +8,7 @@
 // Project includes
 #include <server/network/NetworkServer.h>
 #include <shared/InputState.h>
+#include <server/game/PowerupSource.h>
 #include <server/game/S_Ship.h>
 #include <server/game/S_Asteroid.h>
 #include <server/game/S_Resource.h>
@@ -72,6 +73,8 @@ private:
 
 	void setUpBoundaries();
 
+	void setUpPowerups();
+
 	//add any new clients that have conntected
 	void addNewClients(vector<pair<unsigned int, string>> const &cc);
 	
@@ -123,6 +126,7 @@ private:
 	PlayerMap_t m_playerMap;
 	MothershipMap_t m_mothershipMap;
 	S_Extractor * m_extractor;
+	PowerupSource * m_powerupSource;
 	long long m_startTick;
 	long long m_endClock;
 	int m_timeLimit;

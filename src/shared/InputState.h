@@ -11,7 +11,7 @@
 //Declare the types of each input
 typedef unsigned char TBType, ThrustType;
 typedef short TurnType, PitchType;
-typedef bool BrakeType, ReType, PushType;
+typedef bool BrakeType, ReType, PushType, PowerupType;
 
 class InputState : public Sendable {
 	public:
@@ -22,6 +22,7 @@ class InputState : public Sendable {
 	BrakeType brake;
 	ReType reorient;
 	PushType push;
+	PowerupType powerup;
 
 	//Returns the current thrust value, normalized from 0 to 1
 	double getThrust() {
@@ -58,9 +59,14 @@ class InputState : public Sendable {
 		return push;
 	}
 
+	// Returns true if the player is pressing the use powerup button
+	bool getPowerup() {
+		return powerup;
+	}
+
 	//The size of the server aware input state data
 	static const unsigned int m_size = sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+
-		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType);
+		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType) +sizeof(PowerupType);
 
 	virtual unsigned int encode(char *tmp) const {
 		*(TBType *) tmp = tractBeam;
@@ -70,7 +76,8 @@ class InputState : public Sendable {
 		*(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)) = brake;
 		*(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)) = reorient;
 		*(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)) = push;
-		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType);
+		*(PowerupType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)) = powerup;
+		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(PowerupType);
 	};
 
 	virtual unsigned int decode(const char * tmp) {
@@ -81,7 +88,8 @@ class InputState : public Sendable {
 		brake = *(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType));
 		reorient = *(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType));
 		push = *(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType));
-		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType);
+		powerup = *(PowerupType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PowerupType));
+		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(PowerupType);
 	};
 
 	//Returns the size of all server aware input state data when encoded

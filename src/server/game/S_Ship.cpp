@@ -70,10 +70,9 @@ void S_Ship::addPlayerInput(InputState input) {
 	}
 
 
-	/* Need Control
-	if(m_powerup != NULL && m_powerup->m_stateType == HOLDING && input.getPowerUpButton) {
+	if(m_powerup != NULL && m_powerup->m_stateType == HOLDING && input.getPowerup()) {
 		m_powerup->start();
-	}*/
+	}
 
 	m_thruster = input.getThrust();
 	// Linear thrust calculations
@@ -174,7 +173,7 @@ void S_Ship::updateHeldObject(){
 void S_Ship::update(float delta_time) {
 	
 	if(m_powerup != NULL && m_powerup->m_stateType == CONSUMED){
-		if(m_powerup->check(delta_time)){
+		if(m_powerup->check(GetTickCount())){
 			m_powerup->end();
 		}
 	}

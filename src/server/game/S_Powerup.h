@@ -30,7 +30,7 @@ public:
 	// Fields
 	S_Ship * m_holder;
 	long m_totalTimeLength;
-	long m_currentTimeLength;
+	long m_startTime;
 
 	// Constructors
 	S_Powerup(D3DXVECTOR3, Quaternion, PowerType type);

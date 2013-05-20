@@ -7,8 +7,8 @@
 
 Powerup::Powerup() :
 	Entity(POWERUP),
-	m_powerType((PowerType)0),
-	m_stateType((StateType)0),
+	m_powerType(SPEEDUP),
+	m_stateType(WAITING),
 	m_playerNum(-1)
 {
 }
@@ -17,7 +17,7 @@ Powerup::Powerup() :
 Powerup::Powerup(PowerType type) :
 	Entity(POWERUP),
 	m_powerType(type),
-	m_stateType(SPAWNED),
+	m_stateType(WAITING),
 	m_playerNum(-1)
 {
 }

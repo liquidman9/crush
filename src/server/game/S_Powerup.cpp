@@ -10,7 +10,7 @@
 #include <server/game/S_Powerup.h>
 
 float impulseIncrease = 1000.0f;
-float maxIncrease = 25.0f;
+float maxIncrease = 50.0f;
 
 S_Powerup::S_Powerup(D3DXVECTOR3 pos, Quaternion orientation, PowerType type) :
 	Entity(genId(), POWERUP, pos, orientation),
@@ -18,7 +18,7 @@ S_Powerup::S_Powerup(D3DXVECTOR3 pos, Quaternion orientation, PowerType type) :
 	ServerEntity(10, 1.0, calculateRotationalInertia(10)),
 	m_holder(NULL),
 	m_totalTimeLength(7000),
-	m_currentTimeLength(0)
+	m_startTime(0)
 {	
 }
 
@@ -30,8 +30,7 @@ D3DXMATRIX S_Powerup::calculateRotationalInertia(float mass){
 };
 
 bool S_Powerup::check(long time) {
-	m_currentTimeLength += time;
-	if(m_currentTimeLength >= m_totalTimeLength) return true;
+	if(time - m_startTime >= m_totalTimeLength) return true;
 	else return false;
 }
 
@@ -45,7 +44,7 @@ void S_Powerup::pickUp(S_Ship * ship) {
 }
 
 void S_Powerup::start() {
-	m_currentTimeLength = 0;
+	m_startTime = GetTickCount();
 	m_playerNum = m_holder->m_playerNum;
 	m_stateType = CONSUMED;
 
@@ -54,7 +53,7 @@ void S_Powerup::start() {
 	switch(m_powerType){
 	case SPEEDUP:
 		m_holder->setFowardImpulse(m_holder->getForwardImpulse() + impulseIncrease);
-		m_holder->setFowardImpulse(m_holder->getMaxVelocity() + maxIncrease);
+		m_holder->setMaxVelocity(m_holder->getMaxVelocity() + maxIncrease);
 		break;
 	case PULSE:
 		break;
@@ -73,7 +72,7 @@ void S_Powerup::end() {
 	switch(m_powerType){
 	case SPEEDUP:
 		m_holder->setFowardImpulse(m_holder->getForwardImpulse() - impulseIncrease);
-		m_holder->setFowardImpulse(m_holder->getMaxVelocity() - maxIncrease);
+		m_holder->setMaxVelocity(m_holder->getMaxVelocity() - maxIncrease);
 		break;
 	case PULSE:
 		break;
@@ -89,8 +88,8 @@ void S_Powerup::end() {
 	m_holder = NULL;
 	m_destroy = true;
 	m_playerNum = -1;
-	m_currentTimeLength = 0;
-	m_stateType = FINISHED;
+	m_startTime = GetTickCount();
+	m_stateType = WAITING;
 }
 
 void S_Powerup::update(float delta_time){

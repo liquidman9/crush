@@ -131,6 +131,20 @@ void Server::setUpBoundaries() {
 
 }
 
+void Server::setUpPowerups() {
+
+	vector<D3DXVECTOR3> points;
+	points.push_back(D3DXVECTOR3(0,100,0));
+	points.push_back(D3DXVECTOR3(0,-100,0));
+
+	m_powerupSource = new PowerupSource(points, milliseconds_now());
+
+	for(int i = 0; i < m_powerupSource->m_powerups.size(); i++) {
+		m_gameState.push_back(m_powerupSource->m_powerups[i]);
+		m_world.entities.push_back(m_powerupSource->m_powerups[i]);
+	}
+}
+
 void Server::initializeGameState() {
 	m_gameState.clear();
 	m_server.broadcastGameState(m_gameState);
@@ -142,12 +156,7 @@ void Server::initializeGameState() {
 
 	setUpBoundaries();
 
-	// TEMP
-	D3DXVECTOR3 m_pos1(0,20,0);
-	Quaternion m_dir1(0.0, 0.0, 0.0, 1.0);
-	S_Powerup *power = new S_Powerup(m_pos1, m_dir1, SPEEDUP);
-	m_gameState.push_back(power);
-	m_world.entities.push_back(power);
+
 }
 
 
@@ -211,6 +220,7 @@ void Server::loop() {
 			reloadConfig();
 			setUpExtractor();
 			setUpAsteroids();
+			setUpPowerups();
 		
 			cout << "CRUSH Server has started" << endl;
 			m_start = false;
@@ -260,7 +270,7 @@ void Server::loop() {
 			m_gameState.push_back(res);
 			m_world.entities.push_back(res);
 		}
-
+		m_powerupSource->update(milliseconds_now());
 		m_world.collision(loopCycle);
 
 

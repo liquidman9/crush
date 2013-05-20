@@ -17,7 +17,7 @@
 enum PowerType : char { SPEEDUP, PULSE, FIELD, SHIELD};
 
 #define STATE_TYPE char
-enum StateType : char { SPAWNED, HOLDING, CONSUMED, FINISHED};
+enum StateType : char { WAITING, SPAWNED, HOLDING, CONSUMED};
 
 class Powerup : public virtual Entity {
 private:
