@@ -883,6 +883,8 @@ void GameResources::resetGameState() {
 	mothershipList.clear();
 	tractorBeamList.clear();
 	resourceList.clear();
+	extractorList.clear();
+	powerupList.clear();
 	for (UINT i = 0; i < eIDList.size(); i++) {
 		delete eIDList[i];
 	}
