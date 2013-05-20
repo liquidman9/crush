@@ -15,7 +15,7 @@
 
 class C_Mothership : public Mothership, public C_Entity {
 public:
-	Mesh* m_pMesh;
+	//Mesh* m_pMesh;
 
 	C_Mothership();
 	C_Mothership(Entity *);

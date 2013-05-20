@@ -51,6 +51,7 @@ public:
 	static vector<C_Mothership*> mothershipList;
 	static vector<C_TractorBeam*> tractorBeamList;
 	static vector<C_Resource*> resourceList;
+	static vector<C_Extractor*> extractorList;
 	static vector<EntityIdentifier*> eIDList;
 	static vector<EnginePGroup *> enginePGroupList;
 	static const float PLAYER_CAM_DISTANCE;
@@ -78,6 +79,7 @@ public:
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
 	static SoundManager sound;
+	static ID3DXEffect * pEffect;
 
 	// for debugging collisions
 	static bool renderCBWireframe;
@@ -122,6 +124,8 @@ public:
 	static HRESULT initLights();
 	//static HRESULT initSprites();
 	static void drawAll();
+	static void drawModel(C_Entity * cEnt);
+	static void drawAllModels();
 	static void drawAllTractorBeams();
 	static void drawAllEngines();
 	static void drawAllEID();

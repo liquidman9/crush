@@ -22,6 +22,7 @@ public:
 	HRESULT Create(std::wstring filepath);
 	void Destroy();
 	void draw();
+	//void drawWithEffect();
 
 	void setScaleRotate(float scaleFactor, float degX, float degY, float degZ);
 
