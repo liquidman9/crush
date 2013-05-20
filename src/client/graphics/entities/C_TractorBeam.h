@@ -8,7 +8,6 @@
 // Project includes
 #include <shared/game/TractorBeam.h>
 #include <client/graphics/entities/C_Entity.h>
-#include <client/graphics/Renderable.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )

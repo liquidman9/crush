@@ -7,7 +7,6 @@
 
 #include <shared/game/Ship.h>
 #include <client/graphics/Mesh.h>
-#include <client/graphics/Renderable.h>
 
 class C_Entity : public virtual Entity {
 public:

@@ -14,7 +14,6 @@
 // Project includes
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Camera.h>
-#include <client/graphics/Renderable.h>
 #include <shared/game/Entity.h>
 //typedef vector<shared_ptr<Entity>> GameState;
 #include <shared/game/GameState.h>

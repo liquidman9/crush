@@ -18,7 +18,6 @@
 
 // Project includes
 #include <shared/network/Sendable.h>
-#include <client/graphics/Renderable.h>
 #include <shared/util/SharedUtils.h>
 
 using namespace std;
