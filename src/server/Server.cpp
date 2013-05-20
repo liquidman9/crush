@@ -145,7 +145,7 @@ void Server::initializeGameState() {
 	// TEMP
 	D3DXVECTOR3 m_pos1(0,20,0);
 	Quaternion m_dir1(0.0, 0.0, 0.0, 1.0);
-	S_Powerup *power = new S_Powerup(m_pos1, m_dir1);
+	S_Powerup *power = new S_Powerup(m_pos1, m_dir1, SPEEDUP);
 	m_gameState.push_back(power);
 	m_world.entities.push_back(power);
 }

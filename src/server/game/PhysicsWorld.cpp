@@ -371,6 +371,12 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 		rtn = false;
 	}
 
+	if(((one = a)->m_type == POWERUP && (two = b)->m_type == SHIP)|| ((one = b)->m_type == POWERUP && (two = a)->m_type == SHIP)){
+		S_Powerup * power = (S_Powerup *)one;
+		S_Ship * ship = (S_Ship *)two;
+		ship->interact(power);
+		rtn = false;
+	}
 
 	//Extractor and Ship
 	if(((one = a)->m_type == EXTRACTOR && (two = b)->m_type == SHIP)|| ((one = b)->m_type == EXTRACTOR && (two = a)->m_type == SHIP)){

@@ -10,16 +10,28 @@
 
 // Project includes
 #include <shared/game/Entity.h>
+#include <shared/game/Ship.h>
  
 // Defines
+#define POWER_TYPE char
+enum PowerType : char { SPEEDUP, PULSE, FIELD, SHIELD};
+
+#define STATE_TYPE char
+enum StateType : char { SPAWNED, HOLDING, CONSUMED, FINISHED};
 
 class Powerup : public virtual Entity {
 private:
-	static const unsigned int m_size = Entity::m_size;
+	static const unsigned int m_size = Entity::m_size + sizeof(POWER_TYPE) + sizeof(STATE_TYPE) + sizeof(SHIP_PLAYERNUM_TYPE);
 
 public:
-	// Constructors
+	PowerType m_powerType;
+	StateType m_stateType;
+	SHIP_PLAYERNUM_TYPE m_playerNum;
+
 	Powerup();
+
+	// Constructors
+	Powerup(PowerType type);
 
 	// Methods
 	virtual unsigned int encode(char *) const;

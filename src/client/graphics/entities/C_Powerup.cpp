@@ -22,6 +22,9 @@ C_Powerup::C_Powerup(Entity * newEnt) :
 	if (srcPowerup != NULL) {
 		m_pos = srcPowerup->m_pos;
 		m_orientation = srcPowerup->m_orientation;
+		m_powerType = srcPowerup->m_powerType;
+		m_stateType = srcPowerup->m_stateType;
+		m_playerNum = srcPowerup->m_playerNum;
 		m_pMesh = &Gbls::powerupMesh;
 	} else {
 		cerr << "SEVERE : Unable to create Client Powerup!" << endl;
