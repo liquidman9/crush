@@ -8,7 +8,7 @@
 S_Extractor::S_Extractor(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), EXTRACTOR, pos, orientation),
 	Extractor(),
-	ServerEntity(2000000000.0f, 5.0f, calculateRotationalInertia(2000000000.0f)),
+	ServerEntity(20000000.0f, 5.0f, calculateRotationalInertia(2000000000.0f)),
 	m_ore(NULL),
 	m_timer(0)
 {	
@@ -62,6 +62,7 @@ D3DXMATRIX S_Extractor::calculateRotationalInertia(float mass){
 
 
 void S_Extractor::update(float delta_time){
-	ServerEntity::update(delta_time);
+	// Should not be movable
+	//ServerEntity::update(delta_time);
 	
 }
