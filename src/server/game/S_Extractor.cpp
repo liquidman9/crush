@@ -14,7 +14,7 @@ using namespace shared::utils;
 S_Extractor::S_Extractor(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), EXTRACTOR, pos, orientation),
 	Extractor(),
-	ServerEntity(2000000000.0f, 5.0f, calculateRotationalInertia(2000000000.0f)),
+	ServerEntity(2000000000.0f, (m_length = 5.0f), calculateRotationalInertia(2000000000.0f)),
 	m_cur_resource(NULL),
 	m_timer(resource_respawn_time)
 { }
@@ -43,6 +43,7 @@ void S_Extractor::respawn()
 	D3DXVECTOR3 loc = D3DXVECTOR3(rand_float(-0.1f, 0.2f), rand_float(0.9f, 0.1f) , rand_float(-0.1f, 0.2f));
 	D3DXVec3Normalize(&loc, &loc);
 	m_cur_resource = new S_Resource(m_pos + loc * (m_length * 2 + m_radius * 2), Quaternion(0.0f, 0.0f, 0.0f, 1.0f));
+
 	m_cur_resource->m_carrier = this;
 	m_timer = resource_respawn_time;
 	respawned = true;

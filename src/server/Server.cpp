@@ -67,11 +67,15 @@ void Server::reloadConfig() {
 void Server::setUpExtractor() {
 	D3DXVECTOR3 m_pos1(0,0,0);
 	Quaternion m_dir1(0.0, 0.0, 0.0, 1.0);
+
 	m_extractor = new S_Extractor( m_pos1,m_dir1);
 	m_extractor->respawn();
+
+
 	m_gameState.push_back(m_extractor);
 	m_world.entities.push_back(m_extractor);
 	S_Resource * res = m_extractor->getResource();
+
 	m_gameState.push_back(res);
 	m_world.entities.push_back(res);
 

@@ -41,7 +41,7 @@ Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation) :
 	m_orientation(orientation),
 	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(type),
-	m_radius(3)
+	m_radius(1)
 { }
 
 Entity::Entity(Entity const &e) :

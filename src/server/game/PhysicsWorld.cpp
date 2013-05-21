@@ -14,11 +14,13 @@ void PhysicsWorld::collision(float delta_time) {
 		for(unsigned j = i+1; j < entities.size(); j++)
 		{
 			Collision * c;
-			if ((c = checkCollision(*entities[i], *entities[j])) != NULL)
+			if ((c = checkCollision(*entities[i], *entities[j])) != NULL){
 				// Object Specific Logic
-				if(typeResponse(entities[i], entities[j]))
+				
+				if(typeResponse(entities[i], entities[j])){
 					c->resolve();
-
+				}
+			}
 			delete(c);
 		}
 
