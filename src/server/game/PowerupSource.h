@@ -22,13 +22,13 @@ class PowerupSource {
 public:
 
 	vector<pair<S_Powerup *, D3DXVECTOR3>> m_spawnPoints;
-	vector<long> m_startTimes;
+	vector<long long> m_startTimes;
 
 	vector<S_Powerup *> m_powerups;
 
 	
-	PowerupSource(vector<D3DXVECTOR3>, long);
-	void update(long);
+	PowerupSource(vector<D3DXVECTOR3>, long long);
+	void update(long long);
 };
 
 #pragma warning( pop )

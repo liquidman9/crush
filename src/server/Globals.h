@@ -22,6 +22,11 @@ namespace server {
 	namespace world {
 		static const string CONFIG_PREFIX = "world_";
 
+		extern float size;
+
+		extern float mothership_distance_from_center;
+		extern float ship_spawn_distance_from_center;
+
 		extern float asteroids_num;
 		extern float asteroids_pos_start;
 		extern float asteroids_pos_range;
@@ -32,6 +37,11 @@ namespace server {
 		
 		// INIT WORLD PROPERTIES
 		inline void initFromConfig(string prefix) {
+			ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "world_size", size);
+
+			ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "mothership_distance_from_center", mothership_distance_from_center);
+			ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "ship_spawn_distance_from_center", ship_spawn_distance_from_center);
+
 			ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "asteroids_num", asteroids_num);
 			ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "asteroids_pos_start", asteroids_pos_start);
 			ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "asteroids_pos_range", asteroids_pos_range);

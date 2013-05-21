@@ -6,6 +6,13 @@ namespace server {
 	}
 
 	namespace world {
+		// World size
+		float size = 800.0f;
+
+		// Spawn
+		float mothership_distance_from_center = 500.0f;
+		float ship_spawn_distance_from_center = 450.0f;
+
 		// Asteroids
 		float asteroids_num = 50;
 		float asteroids_pos_start = 50.0f;

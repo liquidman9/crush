@@ -2,10 +2,11 @@
 #include <shared/util/SharedUtils.h>
 
 using namespace shared::utils;
+using namespace server;
 
 Server::Server(unsigned int port):m_server(port)
 {
-	m_timeLimit = TIME_LIMIT;
+	m_timeLimit = game::timelimit;
 	m_pause = false;
 	m_start = false;
 	m_reload = false;
@@ -127,7 +128,7 @@ void Server::setUpAsteroids() {
 }
 
 void Server::setUpBoundaries() {
-	m_world.m_worldRadius = 350;
+	m_world.m_worldRadius = world::size;
 
 }
 
@@ -139,7 +140,7 @@ void Server::setUpPowerups() {
 
 	m_powerupSource = new PowerupSource(points, milliseconds_now());
 
-	for(int i = 0; i < m_powerupSource->m_powerups.size(); i++) {
+	for(unsigned int i = 0; i < m_powerupSource->m_powerups.size(); i++) {
 		m_gameState.push_back(m_powerupSource->m_powerups[i]);
 		m_world.entities.push_back(m_powerupSource->m_powerups[i]);
 	}
@@ -309,7 +310,7 @@ void Server::addNewClients(vector<pair<unsigned int, string>> const &cc) {
 
 void Server::spawnShip(unsigned int client_id) {
 	// Temp
-	S_Ship *ship = new S_Ship(genSpawnPos(client_id, SHIP_DIST_FROM_MINE), genShipSpawnDir(client_id), client_id);
+	S_Ship *ship = new S_Ship(genSpawnPos(client_id, world::ship_spawn_distance_from_center), genShipSpawnDir(client_id), client_id);
 	m_playerMap.insert(pair<unsigned int, S_Ship*>(client_id,ship));
 	m_gameState.push_back(ship);
 	m_world.entities.push_back(ship);
@@ -323,13 +324,13 @@ void Server::spawnShip(unsigned int client_id) {
 }
 
 void Server::spawnMothership(unsigned int client_id) {
-	S_Mothership *tmp = new S_Mothership(genSpawnPos(client_id, MS_DIST_FROM_MINE), genMotherShipSpawnDir(client_id), client_id);
+	S_Mothership *tmp = new S_Mothership(genSpawnPos(client_id, world::mothership_distance_from_center), genMotherShipSpawnDir(client_id), client_id);
 	m_mothershipMap.insert(pair<unsigned int, S_Mothership*>(client_id,tmp));
 	m_gameState.push_back(tmp);
 	m_world.entities.push_back(tmp);
 }
 
-D3DXVECTOR3 Server::genSpawnPos(unsigned int client_id, unsigned int distance) {
+D3DXVECTOR3 Server::genSpawnPos(unsigned int client_id, float distance) {
 	D3DXVECTOR3 rtn;
 	if (client_id % 2 == 0){
 		rtn = D3DXVECTOR3((float)(-1.0+client_id)*distance, 0, 0);

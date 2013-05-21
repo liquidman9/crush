@@ -5,9 +5,9 @@
 // Project includes
 #include <server/game/PowerupSource.h>
 
-PowerupSource::PowerupSource(vector<D3DXVECTOR3> points, long time) 
+PowerupSource::PowerupSource(vector<D3DXVECTOR3> points, long long time) 
 {	
-	srand(time);
+	srand((unsigned int)time);
 	D3DXVECTOR3 m_pos1(10000000,0,0); // tmp
 	Quaternion m_dir1(0.0, 0.0, 0.0, 1.0);
 	unsigned int i;
@@ -29,7 +29,7 @@ PowerupSource::PowerupSource(vector<D3DXVECTOR3> points, long time)
 }
 
 
-void PowerupSource::update(long time) {
+void PowerupSource::update(long long time) {
 	bool found = false;
 	for(unsigned int i = 0; i < m_spawnPoints.size(); i++) {
 		if(m_spawnPoints[i].first != NULL && m_spawnPoints[i].first->m_stateType != SPAWNED) {

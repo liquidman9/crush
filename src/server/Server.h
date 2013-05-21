@@ -21,11 +21,6 @@
 
 #define SERVER_ERROR_FILE "server_error.log"
 
-#define MS_DIST_FROM_MINE 300
-#define SHIP_DIST_FROM_MINE 200
-#define TIME_LIMIT 300000
-
-
 typedef map<unsigned int, S_Ship*> PlayerMap_t;
 typedef map<unsigned int, S_Mothership*> MothershipMap_t;
 
@@ -103,7 +98,7 @@ private:
 
 	void removeDisconClients();
 
-	D3DXVECTOR3 genSpawnPos(unsigned int client_id, unsigned int distance);
+	D3DXVECTOR3 genSpawnPos(unsigned int client_id, float distance);
 
 	Quaternion genShipSpawnDir(unsigned int client_id);
 
