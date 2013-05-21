@@ -31,8 +31,8 @@ public:
 	static D3DPRESENT_PARAMETERS thePresentParams;      // Present params used to create the device
 	
 	// Meshes
-	static Mesh * shipMesh;
-	static Mesh * mothershipMesh;
+	static Mesh shipMesh;
+	static Mesh mothershipMesh;
 	static Mesh * asteroidMesh;
 	//static Mesh tractorBeamMesh;
 	static Mesh resourceMesh;
@@ -49,17 +49,27 @@ public:
 	static float debugCamMoveSpeed;		//scales the movement speed of the Debug Cam
 	static float debugCamTurnSpeed;		//scales the turn speed of the Debug Cam
 
-	static int numShipMeshes;
 	static int numAsteroidMeshes;
-
-	static std::wstring * shipMeshFilepath;
-	static std::wstring * mothershipMeshFilepath;
+	
+	static std::wstring shipMeshFilepath;
+	static std::wstring mothershipMeshFilepath;
 	static std::wstring * asteroidMeshFilepath;
 	//static std::wstring tractorBeamMeshFilepath;
 	static std::wstring resourceMeshFilepath;
 	static std::wstring extractorMeshFilepath;
 	static std::wstring powerupMeshFilepath;
+
 	
+	static std::wstring shipTexFilepath1;
+	static std::wstring shipTexFilepath2;
+	static std::wstring shipTexFilepath3;
+	static std::wstring shipTexFilepath4;
+	
+	static LPDIRECT3DTEXTURE9 shipTexture1; 
+	static LPDIRECT3DTEXTURE9 shipTexture2; 
+	static LPDIRECT3DTEXTURE9 shipTexture3; 
+	static LPDIRECT3DTEXTURE9 shipTexture4;
+
 	static std::wstring skyboxTextureFilepath_Front;
 	static std::wstring skyboxTextureFilepath_Back;
 	static std::wstring skyboxTextureFilepath_Left;

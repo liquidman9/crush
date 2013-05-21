@@ -25,7 +25,7 @@ C_Mothership::C_Mothership(Entity * newEnt) :
 		m_orientation = srcMothership->m_orientation;
 		m_playerNum = srcMothership->m_playerNum;
 	    m_resources = srcMothership->m_resources;
-		m_pMesh = &Gbls::mothershipMesh[m_playerNum % Gbls::numShipMeshes];
+		m_pMesh = &Gbls::mothershipMesh;
 	} else {
 		cerr << "SEVERE : Unable to create Client Asteroid!" << endl;
 	}

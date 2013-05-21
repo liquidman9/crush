@@ -631,21 +631,23 @@ void D3DWindow::ShutdownD3DDevice()
 
 void D3DWindow::DrawFrame()
 {
-	// Clear the screen
-	Gbls::pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-		D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+	HRESULT hResult;
 
-	// Tell the device we want to start rendering
-	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
-	if(FAILED(hResult))
-	{
-		s_strError = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
-		return;
-	}
+	//// Clear the screen
+	//Gbls::pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+	//	D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+	//// Tell the device we want to start rendering
+	//hResult = Gbls::pd3dDevice->BeginScene();
+	//if(FAILED(hResult))
+	//{
+	//	s_strError = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+	//	return;
+	//}
 
 	GameResources::drawAll();
 
-	Gbls::pd3dDevice->EndScene();
+	//Gbls::pd3dDevice->EndScene();
 
 	// Present
 	hResult = Gbls::pd3dDevice->Present(NULL, NULL, NULL, NULL);
@@ -854,7 +856,8 @@ void D3DWindow::setFontHeight(int desiredSize) {
 
 void D3DWindow::OnLostDevice()
 {
-	GameResources::pEffect->OnLostDevice();
+	GameResources::pEffectGlowmap->OnLostDevice();
+	GameResources::pEffectDefault->OnLostDevice();
 	GameResources::pd3dFont->OnLostDevice();
 	GameResources::pd3dSprite->OnLostDevice();
 	GameResources::partSystem->InvalidateDeviceObjects();
@@ -862,7 +865,8 @@ void D3DWindow::OnLostDevice()
 
 void D3DWindow::OnResetDevice()
 {
-	GameResources::pEffect->OnResetDevice();
+	GameResources::pEffectGlowmap->OnResetDevice();
+	GameResources::pEffectDefault->OnResetDevice();
 	GameResources::pd3dFont->OnResetDevice();
 	GameResources::pd3dSprite->OnResetDevice();
 }

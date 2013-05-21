@@ -37,7 +37,31 @@ C_Ship::C_Ship(Entity * newEnt) :
 		m_orientation = srcShip->m_orientation;
 		m_thruster = srcShip->m_thruster;
 		m_playerNum = srcShip -> m_playerNum;
-		m_pMesh = &Gbls::shipMesh[m_playerNum % Gbls::numShipMeshes];
+		m_pMesh = new Mesh();
+		m_pMesh->m_dwNumMaterials = 1;
+		m_pMesh->m_pMeshMaterials = new D3DMATERIAL9[1];
+		m_pMesh->m_pMeshTextures = new LPDIRECT3DTEXTURE9[1];
+		m_pMesh->m_pMesh = Gbls::shipMesh.m_pMesh;
+		m_pMesh->m_matInitScaleRot = Gbls::shipMesh.m_matInitScaleRot;
+		
+		switch (m_playerNum) {
+		case 0:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture1;
+			break;
+		case 1:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture2;
+			break;
+		case 2:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture3;
+			break;
+		case 3:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture4;
+			break;
+		default:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture1;
+			break;
+		}
+		//m_pMesh = &Gbls::shipMesh;
 	} else {
 		cerr << "SEVERE : Unable to create Client Ship!" << endl;
 	}

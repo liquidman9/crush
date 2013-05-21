@@ -47,10 +47,9 @@ D3DXMATRIX * Camera::getProjMatrix(D3DXMATRIX & matProj) {
 	return &(matProj = this->projMat);
 }
 
-void Camera::setSkyboxView() {
-	D3DXMATRIXA16 matView;
+void Camera::setCenteredView() {
 	D3DXVECTOR3 vZeroEye(0.0f, 0.0f, 0.0f);
 
-	D3DXMatrixLookAtLH(&matView, &vZeroEye, &(m_vAt-m_vEye), &m_vUp);
-	Gbls::pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
+	D3DXMatrixLookAtLH(&viewMat, &vZeroEye, &(m_vAt-m_vEye), &m_vUp);
+	Gbls::pd3dDevice->SetTransform(D3DTS_VIEW, &viewMat);
 }

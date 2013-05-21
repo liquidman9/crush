@@ -13,6 +13,7 @@
 
 #include <client/GameResources.h>
 #include <client/Gbls.h>
+#include <client/graphics/util.h>
 #include <client/graphics/Skybox.h>
 #include <client/graphics/entities/C_Powerup.h>
 #include <client/graphics/entities/C_Resource.h>
@@ -56,6 +57,11 @@ LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
+LPDIRECT3DTEXTURE9 GameResources::pGlowmapTexture = NULL;;
+LPDIRECT3DSURFACE9 GameResources::pGlowmapSurface = NULL;;
+LPDIRECT3DSURFACE9 GameResources::pBackBuffer = NULL;;
+D3DXMATRIX GameResources::sunWorldMat;
+LPD3DXMESH GameResources::sunMesh = NULL;
 
 // for debugging collisions
 bool GameResources::renderCBWireframe = false;
@@ -72,7 +78,8 @@ std::wstring GameResources::timeStr;
 std::wstring GameResources::playerNameStr[4];
 int GameResources::playerScore[4];
 SoundManager GameResources::sound;
-ID3DXEffect * GameResources::pEffect;
+ID3DXEffect * GameResources::pEffectDefault;
+ID3DXEffect * GameResources::pEffectGlowmap;
 
 //for testing
 #define CUSTOMFVF (D3DFVF_XYZRHW | D3DFVF_DIFFUSE)
@@ -86,48 +93,12 @@ HRESULT GameResources::initState() {
 	curCam = &playerCam;
 	debugCamOn = false;
 
-    // create the vertices using the CUSTOMVERTEX struct
-    CUSTOMVERTEX vertices[] =
-    {
-        { 400.0f, 62.5f, 0.5f, 1.0f, D3DCOLOR_XRGB(0, 0, 255), },
-        { 650.0f, 500.0f, 0.5f, 1.0f, D3DCOLOR_XRGB(0, 255, 0), },
-        { 150.0f, 500.0f, 0.5f, 1.0f, D3DCOLOR_XRGB(255, 0, 0), },
-    };
+	
+	loadEffect(&pEffectDefault, L"shaders/CRUSH_Default.fx");
+	loadEffect(&pEffectGlowmap, L"shaders/CRUSH_Glowmap.fx");
 
-    // create a vertex buffer interface called v_buffer
-	Gbls::pd3dDevice->CreateVertexBuffer(3*sizeof(CUSTOMVERTEX),
-                               0,
-                               CUSTOMFVF,
-                               D3DPOOL_MANAGED,
-                               &v_buffer,
-                               NULL);
-
-    VOID* pVoid;    // a void pointer
-
-    // lock v_buffer and load the vertices into it
-    v_buffer->Lock(0, 0, (void**)&pVoid, 0);
-    memcpy(pVoid, vertices, sizeof(vertices));
-    v_buffer->Unlock();
-
-
-	//init effect file
-	DWORD shaderFlags = 0;
-    //shaderFlags |= D3DXSHADER_FORCE_VS_SOFTWARE_NOOPT;
-    //shaderFlags |= D3DXSHADER_FORCE_PS_SOFTWARE_NOOPT;
-    shaderFlags |= D3DXSHADER_NO_PRESHADER;
-
-	hres = D3DXCreateEffectFromFile(Gbls::pd3dDevice,
-        L"shaders/CRUSH_Default.fx", 
-        NULL, // CONST D3DXMACRO* pDefines,
-        NULL, // LPD3DXINCLUDE pInclude,
-        shaderFlags, 
-		NULL, // LPD3DXEFFECTPOOL pPool,
-        &pEffect,
-        NULL );
-	if (FAILED(hres)) {
-		MessageBox( NULL, L"Failed to load effect file", L"CRUSH.exe", MB_OK );
-		return hres;
-	}
+	// Init the SUN (mesh init in initmeshes)
+	D3DXMatrixTranslation(&sunWorldMat, 10, 10, 10);
 
 	// Initialize the skybox
 	hres = Skybox::initSkybox();
@@ -228,20 +199,11 @@ void GameResources::releaseResources() {
 	Gbls::extractorMesh.Destroy();
 	Gbls::resourceMesh.Destroy();
 	Gbls::powerupMesh.Destroy();
-
 	for(int i = 0; i < Gbls::numAsteroidMeshes; i++) {
 		Gbls::asteroidMesh[0].Destroy();
 	}
-
-
-	for(int i = 0; i < Gbls::numShipMeshes; i++) {
-		Gbls::mothershipMesh[0].Destroy();
-	}
-
-	for(int i = 0; i < Gbls::numShipMeshes; i++) {
-		Gbls::shipMesh[0].Destroy();
-	}
-
+	Gbls::mothershipMesh.Destroy();
+	Gbls::shipMesh.Destroy();
 
 	Skybox::releaseSkybox();
 }
@@ -253,22 +215,63 @@ HRESULT GameResources::reInitState() {
 
 	curCam->updateView();
 
+	// Create glowmap texture
+	if (pGlowmapTexture) {
+		pGlowmapTexture->Release();
+		pGlowmapTexture = NULL;
+	}
+	Gbls::pd3dDevice->CreateTexture(
+		Gbls::thePresentParams.BackBufferWidth / 4,
+		Gbls::thePresentParams.BackBufferHeight / 4,
+        1,
+        D3DUSAGE_RENDERTARGET,
+        D3DFMT_R5G6B5,
+        D3DPOOL_DEFAULT,
+        &pGlowmapTexture,
+        NULL);
+
 	// Tell the device to automatically normalize surface normals to keep them normal after scaling
-	Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 
 	// Create lights for scene and set light properties
-	hres = GameResources::initLights();
+	//hres = GameResources::initLights();
+	//if(FAILED (hres))
+		//return hres;
+
+	// init particle system vertex buffer
+	hres = partSystem->init(Gbls::pd3dDevice);
 	if(FAILED (hres))
 		return hres;
 
-	// init particle system vertex buffer
-	partSystem->init(Gbls::pd3dDevice);
+
 
 	//set backface cullling off TODO remove after models are fixed
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
-
 	
+	return S_OK;
+}
+
+HRESULT GameResources::loadEffect(ID3DXEffect ** pEffect, std::wstring effectLoc) {
+	//init effect file
+	DWORD shaderFlags = 0;
+    //shaderFlags |= D3DXSHADER_FORCE_VS_SOFTWARE_NOOPT;
+    //shaderFlags |= D3DXSHADER_FORCE_PS_SOFTWARE_NOOPT;
+    shaderFlags |= D3DXSHADER_NO_PRESHADER;
+
+	HRESULT hres = D3DXCreateEffectFromFile(Gbls::pd3dDevice,
+		effectLoc.c_str(),
+        NULL, // CONST D3DXMACRO* pDefines,
+        NULL, // LPD3DXINCLUDE pInclude,
+        shaderFlags, 
+		NULL, // LPD3DXEFFECTPOOL pPool,
+        pEffect,
+        NULL );
+	if (FAILED(hres)) {
+		std::wstring tmpStr = L"Failed to load effect file " + effectLoc + L": " + Util::DXErrorToString(hres);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return hres;
+	}
 	return S_OK;
 }
 
@@ -277,16 +280,10 @@ HRESULT GameResources::initMeshes()
 	HRESULT hres;
 
 	//do for all needed meshes
-	for (int i = 0; i < Gbls::numShipMeshes; i++) {
-		if(FAILED(hres = Gbls::shipMesh[i].Create(Gbls::shipMeshFilepath[i])))
-			return hres;
-	}
-
-	for (int i = 0; i < Gbls::numShipMeshes; i++) {
-		if(FAILED(hres = Gbls::mothershipMesh[i].Create(Gbls::mothershipMeshFilepath[i])))
-			return hres;
-	}
-
+	if(FAILED(hres = Gbls::shipMesh.CreateBlank(Gbls::shipMeshFilepath)))
+		return hres;
+	if(FAILED(hres = Gbls::mothershipMesh.Create(Gbls::mothershipMeshFilepath)))
+		return hres;
 	for (int i = 0; i < Gbls::numAsteroidMeshes; i++) {
 		if(FAILED(hres = Gbls::asteroidMesh[i].Create(Gbls::asteroidMeshFilepath[i])))
 			return hres;
@@ -297,6 +294,9 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	if(FAILED(hres = Gbls::powerupMesh.Create(Gbls::powerupMeshFilepath)))
 			return hres;
+
+	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 1.0f, 20, 20, &sunMesh, NULL)))
+		return hres;
 
 	//if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
 	//		return hres;
@@ -326,6 +326,24 @@ HRESULT GameResources::initAdditionalTextures()
 {
 	HRESULT hres;
 
+	// load ship textures
+	hres = loadTexture(&Gbls::shipTexture1, Gbls::shipTexFilepath1);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&Gbls::shipTexture2, Gbls::shipTexFilepath2);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&Gbls::shipTexture3, Gbls::shipTexFilepath3);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&Gbls::shipTexture4, Gbls::shipTexFilepath4);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
 	// load arrow spirte
 	hres = loadTexture(&shipEIDTexture, Gbls::shipEIDTextureFilepath);
 	if (FAILED(hres)) {
@@ -354,6 +372,10 @@ HRESULT GameResources::initAdditionalTextures()
 }
 
 void GameResources::releaseAdditionalTextures() {
+	if (pGlowmapTexture) { //actually init in reInitState
+		pGlowmapTexture->Release();
+		pGlowmapTexture = NULL;
+	}
 	if (tBeamPartTexture) {
 		tBeamPartTexture->Release();
 		tBeamPartTexture = NULL;
@@ -557,33 +579,39 @@ void GameResources::drawStaticHudElements() {
 
 void GameResources::drawModel(C_Entity * cEnt) {
 	D3DXMATRIX tmp;
-	pEffect->SetMatrix("World", &cEnt->worldMat);
+	pEffectDefault->SetMatrix("World", &cEnt->worldMat);
 	float det = D3DXMatrixDeterminant(&cEnt->worldMat);
 	D3DXMatrixTranspose(&tmp, D3DXMatrixInverse(&tmp, &det, &cEnt->worldMat));
 	
-	pEffect->SetMatrix("WorldInverseTranspose", &tmp);
-	pEffect->SetTexture("ModelTexture", cEnt->m_pMesh->m_pMeshTextures[0]);
+	pEffectDefault->SetMatrix("WorldInverseTranspose", &tmp);
+	pEffectDefault->SetTexture("ModelTexture", cEnt->m_pMesh->m_pMeshTextures[0]);
+	pEffectDefault->CommitChanges();
+	cEnt->m_pMesh->m_pMesh->DrawSubset(0);
+}
+
+static void drawFastModel(C_Entity * cEnt, ID3DXEffect * pEffect) {
+	pEffect->SetMatrix("World", &cEnt->worldMat);
 	pEffect->CommitChanges();
 	cEnt->m_pMesh->m_pMesh->DrawSubset(0);
 }
 
 void GameResources::drawAllModels() {
 	
-	Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 	
 	D3DXMATRIX tmp;
-	pEffect->SetMatrix("View", curCam->getViewMatrix(tmp));
-	pEffect->SetMatrix("Projection", curCam->getProjMatrix(tmp)); 
+	pEffectDefault->SetMatrix("View", curCam->getViewMatrix(tmp));
+	pEffectDefault->SetMatrix("Projection", curCam->getProjMatrix(tmp)); 
 	D3DXVECTOR4 viewVec = curCam->m_vAt - curCam->m_vEye;
 	D3DXVec4Normalize(&viewVec, &viewVec);
-	pEffect->SetVector("ViewVector", &viewVec);
+	pEffectDefault->SetVector("ViewVector", &viewVec);
 	
-    pEffect->SetTechnique( "Shiny" );
+    pEffectDefault->SetTechnique( "Shiny" );
 	UINT cPasses;
-	pEffect->Begin(&cPasses, 0);
+	pEffectDefault->Begin(&cPasses, 0);
 	for (UINT iPass = 0; iPass < cPasses; iPass++)
 	{
-		pEffect->BeginPass(iPass);
+		pEffectDefault->BeginPass(iPass);
 		for (UINT i = 0; i < shipList.size(); i++) {
 			drawModel(shipList[i]);
 		}
@@ -599,36 +627,135 @@ void GameResources::drawAllModels() {
 		for (UINT i = 0; i < powerupList.size(); i++) {
 			drawModel(powerupList[i]);
 		}
-		pEffect->EndPass();
+		pEffectDefault->EndPass();
 	}
-	pEffect->End();
+	pEffectDefault->End();
 
 	
-    pEffect->SetTechnique( "Dull" );
-	pEffect->Begin(&cPasses, 0);
+    pEffectDefault->SetTechnique( "Dull" );
+	pEffectDefault->Begin(&cPasses, 0);
 	for (UINT iPass = 0; iPass < cPasses; iPass++)
 	{
-		pEffect->BeginPass(iPass);
+		pEffectDefault->BeginPass(iPass);
 		for (UINT i = 0; i < asteroidList.size(); i++) {
 			drawModel(asteroidList[i]);
 		}
-		pEffect->EndPass();
+		pEffectDefault->EndPass();
 	}
-	pEffect->End();
+	pEffectDefault->End();
 
 	Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
 
+void GameResources::createGlowmap() {
+	
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+
+	//init render target
+	pGlowmapTexture->GetSurfaceLevel(0,&pGlowmapSurface);
+	Gbls::pd3dDevice->GetRenderTarget(0,&pBackBuffer);
+
+	//render-to-texture
+	//set new render target
+	Gbls::pd3dDevice->SetRenderTarget(0,pGlowmapSurface);
+	Gbls::pd3dDevice->Clear(0,
+                           NULL,
+                           D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+                           D3DCOLOR_XRGB(0,0,0),
+                           1.0f,
+                           0);
+	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
+	if(FAILED(hResult))
+	{
+		std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+
+	D3DXMATRIX tmp;
+	pEffectGlowmap->SetMatrix("View", curCam->getViewMatrix(tmp));
+	pEffectGlowmap->SetMatrix("Projection", curCam->getProjMatrix(tmp));
+	
+    pEffectGlowmap->SetTechnique( "Black" );
+	UINT cPasses;
+	pEffectGlowmap->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffectGlowmap->BeginPass(iPass);
+		for (UINT i = 0; i < shipList.size(); i++) {
+			drawFastModel(shipList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < mothershipList.size(); i++) {
+			drawFastModel(mothershipList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < resourceList.size(); i++) {
+			drawFastModel(resourceList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < extractorList.size(); i++) {
+			drawFastModel(extractorList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < powerupList.size(); i++) {
+			drawFastModel(powerupList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < asteroidList.size(); i++) {
+			drawFastModel(asteroidList[i], pEffectGlowmap);
+		}
+		pEffectGlowmap->EndPass();
+	}
+	pEffectGlowmap->End();
+
+	
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE ); // sun is behind ALL
+	GameResources::curCam->setCenteredView();
+	pEffectGlowmap->SetMatrix("View", curCam->getViewMatrix(tmp));
+    pEffectGlowmap->SetTechnique( "Emissive" );
+	cPasses;
+	pEffectGlowmap->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffectGlowmap->BeginPass(iPass);
+		pEffectGlowmap->SetMatrix("World", &sunWorldMat);
+		pEffectGlowmap->CommitChanges();
+		sunMesh->DrawSubset(0);
+		pEffectGlowmap->EndPass();
+	}
+	pEffectGlowmap->End();
+	GameResources::curCam->updateView();
+
+	Gbls::pd3dDevice->EndScene();
+	
+	// return to normal state
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+	Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer);
+}
+
 void GameResources::drawAll()
 {
+	//createGlowmap();
+
+	// Clear the screen
+	Gbls::pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+		D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+	// Tell the device we want to start rendering
+	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
+	if(FAILED(hResult))
+	{
+		std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+
 	Skybox::drawSkybox();
 
 	// TODO this draws objects in no particular order, resulting in many loads and unloads (probably) for textures and models. Should be fixed if performance becomes an issue.
 	// Loop through all lists. Set up shaders, etc, as needed for each.
-	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
-    {
-		//(*ii).second->draw();
-	}
+	//for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+	//{
+	//	(*ii).second->draw();
+	//}
+
+	drawAllModels();
 
 	if (renderCBWireframe) {
 		Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
@@ -639,8 +766,6 @@ void GameResources::drawAll()
 		}
 		Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
 	}
-	
-	drawAllModels();
 
 	// Render tractor beams
 	drawAllTractorBeams();
@@ -653,6 +778,18 @@ void GameResources::drawAll()
 
 	// Render static hud elements
 	drawStaticHudElements();
+	
+	Gbls::pd3dDevice->EndScene();
+
+	if (pGlowmapSurface) {
+		pGlowmapSurface->Release();
+		pGlowmapSurface = NULL;
+	}
+
+	if (pBackBuffer) {
+		pBackBuffer->Release();
+		pBackBuffer = NULL;
+	}
 }
 
 // called each frame to update the state of all game sounds

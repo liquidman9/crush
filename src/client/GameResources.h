@@ -80,7 +80,13 @@ public:
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
 	static SoundManager sound;
-	static ID3DXEffect * pEffect;
+	static ID3DXEffect * pEffectDefault;
+	static ID3DXEffect * pEffectGlowmap;
+	static D3DXMATRIX sunWorldMat;
+	static LPD3DXMESH sunMesh;
+	static LPDIRECT3DTEXTURE9 pGlowmapTexture;
+	static LPDIRECT3DSURFACE9 pGlowmapSurface;
+	static LPDIRECT3DSURFACE9 pBackBuffer;
 
 	// for debugging collisions
 	static bool renderCBWireframe;
@@ -118,6 +124,7 @@ public:
 	static HRESULT initState();
 	static HRESULT reInitState();
 	static HRESULT initMeshes();
+	static HRESULT loadEffect(ID3DXEffect ** pEffect, std::wstring effectLoc);
 	static HRESULT loadTexture(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath);
 	static HRESULT initAdditionalTextures();
 	static HRESULT loadFont(LPD3DXFONT * pFont, int height, std::wstring fontStyle);
@@ -125,6 +132,7 @@ public:
 	static HRESULT initLights();
 	//static HRESULT initSprites();
 	static void drawAll();
+	static void createGlowmap();
 	static void drawModel(C_Entity * cEnt);
 	static void drawAllModels();
 	static void drawAllTractorBeams();

@@ -40,8 +40,8 @@ public:
 	void updateProjection();
 
 
-	// Set a location 0 view matrix with correct direction for use with skybox
-	void Camera::setSkyboxView();
+	// Set a location 0 view matrix with correct direction for use with skybox (and sun)
+	void Camera::setCenteredView();
 	
 	D3DXMATRIX * Camera::getViewMatrix(D3DXMATRIX & matView);
 	D3DXMATRIX * Camera::getProjMatrix(D3DXMATRIX & matProj);

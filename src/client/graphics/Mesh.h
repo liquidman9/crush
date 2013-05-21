@@ -20,6 +20,7 @@ public:
 
 	// Create the Mesh
 	HRESULT Create(std::wstring filepath);
+	HRESULT CreateBlank(std::wstring filepath);
 	void Destroy();
 	void draw();
 	//void drawWithEffect();

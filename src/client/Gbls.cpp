@@ -15,6 +15,11 @@ D3DPRESENT_PARAMETERS Gbls::thePresentParams;
 int Gbls::fontHeight; // calculated
 float Gbls::percentMissedFrames;
 
+LPDIRECT3DTEXTURE9 Gbls::shipTexture1 = NULL; 
+LPDIRECT3DTEXTURE9 Gbls::shipTexture2 = NULL; 
+LPDIRECT3DTEXTURE9 Gbls::shipTexture3 = NULL; 
+LPDIRECT3DTEXTURE9 Gbls::shipTexture4 = NULL; 
+
 // Still hardcoded:
 
 float Gbls::debugCamMaxPitch = D3DXToRadian(89.0f);
@@ -22,12 +27,11 @@ float Gbls::debugCamMinPitch = D3DXToRadian(-89.0f);
 
 // Loaded from config files
 
-int Gbls::numShipMeshes = 4;
 int Gbls::numAsteroidMeshes = 5;
-std::wstring * Gbls::shipMeshFilepath;
-Mesh * Gbls::shipMesh;
-std::wstring * Gbls::mothershipMeshFilepath;
-Mesh * Gbls::mothershipMesh;
+std::wstring Gbls::shipMeshFilepath;
+Mesh Gbls::shipMesh;
+std::wstring Gbls::mothershipMeshFilepath;
+Mesh Gbls::mothershipMesh;
 std::wstring * Gbls::asteroidMeshFilepath;
 Mesh * Gbls::asteroidMesh;
 //std::wstring Gbls::tractorBeamMeshFilepath;
@@ -38,6 +42,12 @@ std::wstring Gbls::extractorMeshFilepath;
 Mesh Gbls::extractorMesh;
 std::wstring Gbls::powerupMeshFilepath;
 Mesh Gbls::powerupMesh;
+
+
+std::wstring Gbls::shipTexFilepath1 = L"player_ship_skin_001.png";
+std::wstring Gbls::shipTexFilepath2 = L"player_ship_skin_002.png";
+std::wstring Gbls::shipTexFilepath3 = L"player_ship_skin_003.png";
+std::wstring Gbls::shipTexFilepath4 = L"player_ship_skin_004.png";
 
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;
@@ -72,57 +82,73 @@ void Gbls::initFromConfig() {
 
 	/* Ship Mesh Info */
 
-	conf.getValue("numShipMeshes",numShipMeshes);
-	shipMeshFilepath = new wstring[numShipMeshes];
-	shipMesh = new Mesh[numShipMeshes];
-	for (int i = 0; i < numShipMeshes; i++) {
-		stream.str(string());
-		stream.clear();
-		stream << i;
-		if(!conf.getValue("shipMeshFilepath_"+stream.str(),tmpString)) {  //default
-			shipMeshFilepath[i] = L"player_ship_001.x";
-		} else {  //assign to wstring
-			shipMeshFilepath[i] = wstring(tmpString.begin(), tmpString.end());
-		}
+	if(!conf.getValue("shipMeshFilepath", tmpString)) {  //default
+			shipMeshFilepath = L"player_ship_001.x";
+	} else {  //assign to wstring
+			shipMeshFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
-	for (int i = 0; i < numShipMeshes; i++) {
-		float tmpF[4] = {1.0f, 0.0f, 0.0f, 0.0f};
-		stream.str(string());
-		stream.clear();
-		stream << i;
-		conf.getValue("shipMeshDefaultScale_" + stream.str(), tmpF[0]);
-		conf.getValue("shipMeshDefaultDirDegX_" + stream.str(),tmpF[1]);
-		conf.getValue("shipMeshDefaultDirDegY_" + stream.str(),tmpF[2]);
-		conf.getValue("shipMeshDefaultDirDegZ_" + stream.str(),tmpF[3]);
-		shipMesh[i].setScaleRotate(tmpF[0], tmpF[1], tmpF[2], tmpF[3]);
+	
+	shipMesh.setScaleRotate(1.0, 0.0, 180.0, 0.0);
+
+	if(!conf.getValue("mothershipMeshFilepath", tmpString)) {  //default
+			mothershipMeshFilepath = L"mothership_001.x";
+	} else {  //assign to wstring
+			mothershipMeshFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
+	
+	mothershipMesh.setScaleRotate(1.0, 0.0, 180.0, 0.0);
+
+	//conf.getValue("numShipMeshes",numShipMeshes);
+	//shipMeshFilepath = new wstring[numShipMeshes];
+	//shipMesh = new Mesh[numShipMeshes];
+	//for (int i = 0; i < numShipMeshes; i++) {
+	//	stream.str(string());
+	//	stream.clear();
+	//	stream << i;
+	//	if(!conf.getValue("shipMeshFilepath_"+stream.str(),tmpString)) {  //default
+	//		shipMeshFilepath[i] = L"player_ship_001.x";
+	//	} else {  //assign to wstring
+	//		shipMeshFilepath[i] = wstring(tmpString.begin(), tmpString.end());
+	//	}
+	//}
+	//for (int i = 0; i < numShipMeshes; i++) {
+	//	float tmpF[4] = {1.0f, 0.0f, 0.0f, 0.0f};
+	//	stream.str(string());
+	//	stream.clear();
+	//	stream << i;
+	//	conf.getValue("shipMeshDefaultScale_" + stream.str(), tmpF[0]);
+	//	conf.getValue("shipMeshDefaultDirDegX_" + stream.str(),tmpF[1]);
+	//	conf.getValue("shipMeshDefaultDirDegY_" + stream.str(),tmpF[2]);
+	//	conf.getValue("shipMeshDefaultDirDegZ_" + stream.str(),tmpF[3]);
+	//	shipMesh[i].setScaleRotate(tmpF[0], tmpF[1], tmpF[2], tmpF[3]);
+	//}
 
 	/* Mothership Mesh Info */
 
-	conf.getValue("numShipMeshes",numShipMeshes);
-	mothershipMeshFilepath = new wstring[numShipMeshes];
-	mothershipMesh = new Mesh[numShipMeshes];
-	for (int i = 0; i < numShipMeshes; i++) {
-		stream.str(string());
-		stream.clear();
-		stream << i;
-		if(!conf.getValue("mothershipMeshFilepath_"+stream.str(),tmpString)) {  //default
-			mothershipMeshFilepath[i] = L"player_ship_001.x";
-		} else {  //assign to wstring
-			mothershipMeshFilepath[i] = wstring(tmpString.begin(), tmpString.end());
-		}
-	}
-	for (int i = 0; i < numShipMeshes; i++) {
-		float tmpF[4] = {1.0f, 0.0f, 0.0f, 0.0f};
-		stream.str(string());
-		stream.clear();
-		stream << i;
-		conf.getValue("mothershipMeshDefaultScale_" + stream.str(), tmpF[0]);
-		conf.getValue("mothershipMeshDefaultDirDegX_" + stream.str(),tmpF[1]);
-		conf.getValue("mothershipMeshDefaultDirDegY_" + stream.str(),tmpF[2]);
-		conf.getValue("mothershipMeshDefaultDirDegZ_" + stream.str(),tmpF[3]);
-		mothershipMesh[i].setScaleRotate(tmpF[0], tmpF[1], tmpF[2], tmpF[3]);
-	}
+	//conf.getValue("numShipMeshes",numShipMeshes);
+	//mothershipMeshFilepath = new wstring[numShipMeshes];
+	//mothershipMesh = new Mesh[numShipMeshes];
+	//for (int i = 0; i < numShipMeshes; i++) {
+	//	stream.str(string());
+	//	stream.clear();
+	//	stream << i;
+	//	if(!conf.getValue("mothershipMeshFilepath_"+stream.str(),tmpString)) {  //default
+	//		mothershipMeshFilepath[i] = L"player_ship_001.x";
+	//	} else {  //assign to wstring
+	//		mothershipMeshFilepath[i] = wstring(tmpString.begin(), tmpString.end());
+	//	}
+	//}
+	//for (int i = 0; i < numShipMeshes; i++) {
+	//	float tmpF[4] = {1.0f, 0.0f, 0.0f, 0.0f};
+	//	stream.str(string());
+	//	stream.clear();
+	//	stream << i;
+	//	conf.getValue("mothershipMeshDefaultScale_" + stream.str(), tmpF[0]);
+	//	conf.getValue("mothershipMeshDefaultDirDegX_" + stream.str(),tmpF[1]);
+	//	conf.getValue("mothershipMeshDefaultDirDegY_" + stream.str(),tmpF[2]);
+	//	conf.getValue("mothershipMeshDefaultDirDegZ_" + stream.str(),tmpF[3]);
+	//	mothershipMesh[i].setScaleRotate(tmpF[0], tmpF[1], tmpF[2], tmpF[3]);
+	//}
 
 	conf.getValue("numAsteroidMeshes",numAsteroidMeshes);
 	asteroidMeshFilepath = new wstring[numAsteroidMeshes];
@@ -201,10 +227,23 @@ void Gbls::initFromConfig() {
 	}
 	if(conf.getValue("tBeamPartTexFilepath", tmpString)) {
 		tBeamPartTexFilepath = wstring(tmpString.begin(), tmpString.end());
-	} 
+	}
 	if(conf.getValue("enginePartTexFilepath", tmpString)) {
 		enginePartTexFilepath = wstring(tmpString.begin(), tmpString.end());
-	} 
+	}
+	if(conf.getValue("shipTexFilepath1", tmpString)) {
+		shipTexFilepath1 = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("shipTexFilepath2", tmpString)) {
+		shipTexFilepath2 = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("shipTexFilepath3", tmpString)) {
+		shipTexFilepath3 = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("shipTexFilepath4", tmpString)) {
+		shipTexFilepath4 = wstring(tmpString.begin(), tmpString.end());
+	}
+
 	if(conf.getValue("fontStyle", tmpString)) {
 		fontStyle = wstring(tmpString.begin(), tmpString.end());
 	}
