@@ -4,10 +4,12 @@
 
 // Project includes
 #include <server/game/PhysicsWorld.h>
+#include <shared/util/SharedUtils.h>
 
 // defines
 #define NEAR_ZERO 0.0001
 
+/*
 ostream& operator<<(ostream& os, const D3DXVECTOR3 &v) {
 	os << "<" << v.x << ", " << v.y << ", " << v.z << ">";
 	return os;
@@ -17,6 +19,7 @@ ostream& operator<<(ostream& os, const D3DXQUATERNION &v) {
 	os << "<" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ">";
 	return os;
 }
+*/
 
 void PhysicsWorld::collision(float delta_time) {
 

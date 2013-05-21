@@ -9,6 +9,7 @@
 #include <shared/util/SharedUtils.h>
 #include <shared/ConfigSettings.h>
 #include <shared/game/Entity.h>
+#include <server/game/S_Extractor.h>
 #include <server/game/S_Ship.h>
 //#include <server/game/S_TractorBeam.h>
 
@@ -190,7 +191,7 @@ D3DXMATRIX S_Ship::calculateRotationalInertia(float mass){
 
 
 bool S_Ship::interact(S_Resource * res) {
-	if(m_resource == NULL && res->m_carrier == NULL) {
+	if(m_resource == NULL && (res->m_carrier == NULL || res->m_carrier->m_type == EXTRACTOR)) {
 		if(((res->m_droppedFrom != m_playerNum && res->m_onDropTimeout) || res->m_droppedFrom != m_playerNum)) {
 			m_resource = res;
 			res->m_carrier = this;

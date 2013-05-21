@@ -18,7 +18,7 @@ namespace server {
 
 	namespace entities {
 		namespace asteroid {
-			float scaleToRadius = 2.0f;
+			float scaleToRadius = 1.0f;
 			float density = 10.0f;
 		}
 
@@ -38,6 +38,11 @@ namespace server {
 
 		namespace mothership {
 			float mass = 2000000000.0f;
+		}
+
+		namespace extractor {
+			float mass = 2000000000.0f;
+			float resource_respawn_time = 30.0f;
 		}
 	}
 }

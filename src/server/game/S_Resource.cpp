@@ -83,6 +83,8 @@ void S_Resource::travel() {
 			m_travelFrames++;
 		}
 	}
+
+	recalculateRelativeValues();
 }
 
 void S_Resource::update(float delta_time){
@@ -94,13 +96,10 @@ void S_Resource::update(float delta_time){
 		}
 	}
 
-	if(m_carrier == NULL ) {
+	if(m_carrier == NULL || m_carrier->m_type == EXTRACTOR) {
 		ServerEntity::update(delta_time);
 	}
-	else if(m_carrier->m_type == MOTHERSHIP) {
-		travel();
-	}
-	else if(m_carrier->m_type == SHIP) {
+	else if(m_carrier->m_type == MOTHERSHIP || m_carrier->m_type == SHIP) {
 		travel();
 	}
 	else {

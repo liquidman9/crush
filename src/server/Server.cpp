@@ -67,14 +67,14 @@ void Server::setUpExtractor() {
 	D3DXVECTOR3 m_pos1(0,0,0);
 	Quaternion m_dir1(0.0, 0.0, 0.0, 1.0);
 	m_extractor = new S_Extractor( m_pos1,m_dir1);
-	S_Resource *res = m_extractor->respawn();
+	m_extractor->respawn();
 	m_gameState.push_back(m_extractor);
 	m_world.entities.push_back(m_extractor);
-
+	S_Resource * res = m_extractor->getResource();
 	m_gameState.push_back(res);
 	m_world.entities.push_back(res);
 
-	m_extractor->setStart(milliseconds_now());
+	//m_extractor->setStart(milliseconds_now());
 }
 
 void Server::setUpAsteroids() {
@@ -203,6 +203,7 @@ void Server::updateScore() {
 
 void Server::loop() {
 	float loopCycle = (float) 1.0/60.0f;
+	long long prev_tick = milliseconds_now();
 	bool print_once = false;
 	for(;;) {
 		startTick();
@@ -253,19 +254,27 @@ void Server::loop() {
 		m_clientInput = m_server.getEvents();
 		if(!m_clientInput.empty()) {
 			moveClients();
-		}
+		}		
 
-		if(m_extractor->checkRespawn(milliseconds_now())) {
-			S_Resource * res = m_extractor->respawn();
+		long long cur = milliseconds_now();
+		float physics_delta = (float)(milliseconds_now() - prev_tick) / 1000.0f;
+		prev_tick = cur;
+
+		m_world.collision(physics_delta);
+
+		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) {
+			i->second->calcTractorBeam();
+		}
+		m_world.update(physics_delta);
+
+		// Add new resource (if spawned)
+		S_Resource * res = m_extractor->getResource();
+		if(res != NULL) {
+			cout << "Adding resource" << endl;
 			m_gameState.push_back(res);
 			m_world.entities.push_back(res);
 		}
 
-		m_world.collision(loopCycle);
-
-
-		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) i->second->calcTractorBeam();
-		m_world.update(loopCycle);
 		m_server.broadcastGameState(m_gameState);
 
 		endOfTick();
@@ -372,12 +381,17 @@ inline void Server::endOfTick() {
 	}
 }
 
+GameState<Entity> Server::getGameState() {
+	return m_gameState;
+}
 
 Server::~Server(void)
 {
 	TerminateThread(m_hThread, 0);
 	CloseHandle(m_hThread);
 }
+
+
 
 
 

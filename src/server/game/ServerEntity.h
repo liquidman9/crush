@@ -102,7 +102,7 @@ public:
 	// Resets values
 	virtual void reset();
 
-	virtual void print();
+	virtual void const print();
 
 	// Forced abstract for rotational inertia calculation
 	virtual D3DXMATRIX calculateRotationalInertia(float mass) = 0;

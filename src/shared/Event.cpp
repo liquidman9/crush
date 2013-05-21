@@ -5,7 +5,7 @@
 // Project includes
 #include <shared/Event.h>
 
-Event::Event(Type type) :
+Event::Event(shared::events::Type type) :
 	m_type(type)
 { }
 

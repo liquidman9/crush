@@ -39,8 +39,10 @@ public:
 	};
 
 	void push_back(E *e) {
-		m_size += e->size();
-		m_entities.push_back(shared_ptr<E>(e));
+		if (getEntityById(e->m_id) == NULL) {
+			m_size += e->size();
+			m_entities.push_back(shared_ptr<E>(e));
+		}
 	};
 
 	unsigned int size() const {
@@ -83,6 +85,14 @@ public:
 
 	long long getRemainingTimeNum() const {
 		return m_meta.time;
+	}
+
+	shared_ptr<E> getEntityById(int id) {
+		for (unsigned int i = 0; i < size(); i++) {
+			if (m_entities[i]->m_id == id) return m_entities[i];
+		}
+
+		return NULL;
 	}
 
 	void setWinner(int client) {

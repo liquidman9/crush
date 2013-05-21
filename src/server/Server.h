@@ -53,6 +53,8 @@ public:
 
 	virtual ~Server(void);
 
+	GameState<Entity> getGameState();
+
 
 private:
 	//functions

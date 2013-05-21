@@ -20,7 +20,6 @@ S_Asteroid::S_Asteroid(D3DXVECTOR3 pos, Quaternion orientation, float scale) :
 {	
 	m_radius = (m_scale)*scaleToRadius;
 	cout << "Mass: "<< m_mass<< " Radius: " << m_radius << " Scale: " << m_scale << endl;
-	//cout << m_rot_inertia << endl;
 }
 
 float S_Asteroid::calculateMass(float radius, float density) {

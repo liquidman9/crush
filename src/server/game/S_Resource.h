@@ -23,7 +23,7 @@ class S_Resource : public Resource, public ServerEntity{ //switch back to capsul
 
 public:
 	static int s_maxTravelFrames;
-
+	
 	// Fields
 	ServerEntity * m_carrier;
 	bool m_onDropTimeout;

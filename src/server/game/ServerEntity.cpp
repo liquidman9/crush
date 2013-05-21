@@ -188,7 +188,7 @@ void ServerEntity::reset() {
 	m_destroy = false;
 }
 
-void ServerEntity::print() {
+void const ServerEntity::print() {
 	cout << "Type: " << (int)m_type << endl;
 	cout << "Pos: " << m_pos << endl;
 	cout << "Velocity: " << D3DXVec3Length(&m_velocity) << endl;

@@ -57,6 +57,8 @@ public:
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_velocity;
 	Quaternion m_orientation;
+
+	// Collision
 	D3DXVECTOR3 m_pFront;
 	D3DXVECTOR3 m_pBack;
 	float m_radius;

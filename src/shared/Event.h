@@ -6,7 +6,12 @@
 #include <shared/network/Sendable.h>
 
 #define ENUM_TYPE char
-enum Type : char {COLLISION};
+
+namespace shared {
+	namespace events {
+		enum Type : char {COLLISION, REMOVAL};
+	}
+}
 
 class Event : public Sendable {
 private:
@@ -21,10 +26,10 @@ protected:
 	Event();
 
 public:
-	Type m_type;
+	shared::events::Type m_type;
 
 	// Constructor
-	Event(Type type);
+	Event(shared::events::Type type);
 
 	// Destructor
 	virtual ~Event();

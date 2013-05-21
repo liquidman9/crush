@@ -6,14 +6,14 @@
 #include <shared/CollisionEvent.h>
 
 CollisionEvent::CollisionEvent() :
-	Event(COLLISION),
+	Event(shared::events::COLLISION),
 	m_idA(0),
 	m_idB(0),
 	m_poi(D3DXVECTOR3(0.0, 0.0, 0.0))
 {}
 
 CollisionEvent::CollisionEvent(int id_a, int id_b, D3DXVECTOR3 poi) :
-	Event(COLLISION),
+	Event(shared::events::COLLISION),
 	m_idA(id_a),
 	m_idB(id_b),
 	m_poi(poi)

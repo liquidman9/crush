@@ -111,12 +111,26 @@ namespace server {
 			}
 		}
 
+		namespace extractor {
+			static const std::string CONFIG_PREFIX = "extractor_";
+
+			// Property declarations
+			extern float mass;
+			extern float resource_respawn_time;
+
+			inline void initFromConfig(string prefix) {
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "mass", mass);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "resource_respawn_time", resource_respawn_time);
+			}
+		}
+
 		// INIT ALL ENTITIES
 		inline void initFromConfig(string prefix) {
 			asteroid::initFromConfig(prefix + CONFIG_PREFIX);
 			ship::initFromConfig(prefix + CONFIG_PREFIX);
 			tractorbeam::initFromConfig(prefix + CONFIG_PREFIX);
 			mothership::initFromConfig(prefix + CONFIG_PREFIX);
+			extractor::initFromConfig(prefix + CONFIG_PREFIX);
 		}
 
 	}
