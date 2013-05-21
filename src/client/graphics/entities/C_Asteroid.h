@@ -8,18 +8,18 @@
 // Project includes
 #include <shared/game/Asteroid.h>
 #include <client/graphics/entities/C_Entity.h>
-#include <client/graphics/Renderable.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
 class C_Asteroid : public Asteroid, public C_Entity {
 public:
-	Mesh* m_pMesh;
+	//Mesh* m_pMesh;
 
 	C_Asteroid();
 	C_Asteroid(Entity *);
-	void draw();
+	//void draw();
+	void updateWorldMat();
 };
 
 #pragma warning( pop )

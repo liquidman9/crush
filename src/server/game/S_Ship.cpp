@@ -38,7 +38,8 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	m_braking_impulse(braking_impulse),
 	m_max_velocity(max_velocity),
 	m_max_rotation_velocity(max_rotation_velocity),
-	m_resource(NULL)
+	m_resource(NULL),
+	m_powerup(NULL)
 {	
 	init();
 }
@@ -59,14 +60,19 @@ void S_Ship::addPlayerInput(InputState input) {
 		m_tractorBeam->setIsPulling(false);
 	}
 	// Once holding on an object it is hooked so no longer need to be pulling
-	else if(input.getTractorBeam() != 0 && !m_tractorBeam->m_isHolding) { 
+	else if(input.getTractorBeam() != 0){// && !m_tractorBeam->m_isHolding) { 
 
 		m_tractorBeam->setIsOn(true);
 		m_tractorBeam->setIsPulling(true);
 		m_tractorBeam->m_strength = (float) input.getTractorBeam();
 	}
-	else if(!m_tractorBeam->m_isHolding){
+	else {//if(!m_tractorBeam->m_isHolding){
 		m_tractorBeam->setIsOn(false);
+	}
+
+
+	if(m_powerup != NULL && m_powerup->m_stateType == HOLDING && input.getPowerup()) {
+		m_powerup->start();
 	}
 
 	m_thruster = input.getThrust();
@@ -167,7 +173,11 @@ void S_Ship::updateHeldObject(){
 
 void S_Ship::update(float delta_time) {
 	
-
+	if(m_powerup != NULL && m_powerup->m_stateType == CONSUMED){
+		if(m_powerup->check(GetTickCount())){
+			m_powerup->end();
+		}
+	}
 	applyDamping();
 	
 	ServerEntity::update(delta_time);
@@ -189,6 +199,15 @@ D3DXMATRIX S_Ship::calculateRotationalInertia(float mass){
 											 (0.5f) * mass * radius_squared);
 };
 
+
+bool S_Ship::interact(S_Powerup * power) {
+	if(power->m_holder == NULL && power->m_stateType == SPAWNED && m_powerup == NULL) {	
+		power->pickUp(this);
+		m_powerup = power;
+	}
+
+	return false;
+}
 
 bool S_Ship::interact(S_Resource * res) {
 	if(m_resource == NULL && (res->m_carrier == NULL || res->m_carrier->m_type == EXTRACTOR)) {
@@ -242,4 +261,22 @@ bool S_Ship::interact(S_Ship * ship) {
 		tmp->reset(); // temporary to stop resources from moving far far away when dropped
 	}
 	return true;
+}
+
+
+
+void S_Ship::setFowardImpulse(float forward) {
+	m_forward_impulse = forward;
+}
+
+float S_Ship::getForwardImpulse() {
+	return m_forward_impulse;
+}
+
+void S_Ship::setMaxVelocity(float vel) {
+	m_max_velocity = vel;
+}
+
+float S_Ship::getMaxVelocity() {
+	return m_max_velocity;
 }

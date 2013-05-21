@@ -67,7 +67,6 @@ D3DXMATRIX S_Extractor::calculateRotationalInertia(float mass){
 											 (0.5f) * mass * radius_squared);
 };
 
-
 void S_Extractor::update(float delta_time){	
 	if (m_cur_resource->m_carrier != this) {
 		m_timer -= delta_time;

@@ -12,23 +12,35 @@
 // Project includes
 #include <shared/game/Powerup.h>
 #include <server/game/ServerEntity.h>
+#include <server/game/S_Ship.h>
 #include <shared/InputState.h>
 
 #define SHIP_PLAYERNUM_TYPE char
 
+class S_Ship;
+
 #pragma warning( push )
 #pragma warning( disable : 4250 )
+
 
 class S_Powerup : public Powerup, public ServerEntity{ //switch back to capsule
 
 public:
 
 	// Fields
-	
+	S_Ship * m_holder;
+	long m_totalTimeLength;
+	long m_startTime;
+
 	// Constructors
-	S_Powerup(D3DXVECTOR3, Quaternion);
+	S_Powerup(D3DXVECTOR3, Quaternion, PowerType type);
 
 	// Methods
+	void pickUp(S_Ship *);
+	void start();
+	void end();
+	bool check(long);
+
 	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 	void update(float delta_time);
 };

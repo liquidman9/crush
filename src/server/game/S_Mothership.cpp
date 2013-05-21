@@ -73,7 +73,8 @@ bool S_Mothership::takeResource(S_Ship * ship){
 
 
 void S_Mothership::update(float delta_time){
-	ServerEntity::update(delta_time);
+	// Should not be movable
+	//ServerEntity::update(delta_time);
 	
 	if (DEBUG) {
 		static int count = 0;

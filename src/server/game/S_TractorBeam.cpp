@@ -158,12 +158,12 @@ void S_TractorBeam::calculateForce() {
 
 
 						// Zero outs probably temporary
-						m_object->m_momentum = shared::utils::VEC3_ZERO;
-						m_ship->m_momentum =shared::utils::VEC3_ZERO;
-						m_object->t_impulse =shared::utils::VEC3_ZERO;
-						m_ship->t_impulse = shared::utils::VEC3_ZERO;
+					//	m_object->m_momentum = shared::utils::VEC3_ZERO;
+					//	m_ship->m_momentum =shared::utils::VEC3_ZERO;
+					//	m_object->t_impulse =shared::utils::VEC3_ZERO;
+					//	m_ship->t_impulse = shared::utils::VEC3_ZERO;
 					}
-					else{
+					
 						float deltaTime = (float) 1.0/60.0f;
 
 						float totalMass = m_ship->m_mass + m_object->m_mass;
@@ -212,7 +212,7 @@ void S_TractorBeam::calculateForce() {
 						//m_shipLastCorrection = adjustShip*m_ship->m_mass;
 						//m_objectLastCorrection = adjustObj*m_object->m_mass;
 
-					}
+				
 				
 
 					m_isHolding = true;
@@ -292,6 +292,7 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 			entity->m_type == POWERUP || // temp until given implementation will proabbly work like resource except consumed at collision
 			entity->m_type == MOTHERSHIP || 
 			entity->m_type == EXTRACTOR || 
+			entity->m_type == POWERUP || // can not tractorbeam powerups
 			(entity->m_type == RESOURCE && ((S_Resource *)entity)->m_carrier != NULL)) 
 				return false; // tmp
 		// If is already locked check if closer

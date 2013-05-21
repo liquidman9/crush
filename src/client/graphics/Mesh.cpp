@@ -132,6 +132,21 @@ void Mesh::draw()
     }
 }
 
+//void Mesh::drawWithEffect(ID3DXEffect * pEffect) {
+//	// Meshes are divided into subsets, one for each material. Render them in
+//    // a loop
+//    for( DWORD i = 0; i < m_dwNumMaterials; i++ )
+//    {
+//        // Set the material and texture for this subset
+//        //Gbls::pd3dDevice->SetMaterial( &m_pMeshMaterials[i] );
+//        //Gbls::pd3dDevice->SetTexture( 0, m_pMeshTextures[i] );
+//
+//        // Draw the mesh subset
+//		m_pMesh[
+//        m_pMesh->DrawSubset( i );
+//    }
+//}
+
 void Mesh::setScaleRotate(float scaleFactor, float degX, float degY, float degZ)
 {
 	D3DXMATRIX matScale, matRotX, matRotY, matRotZ;

@@ -14,7 +14,6 @@
 // Project includes
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Camera.h>
-#include <client/graphics/Renderable.h>
 #include <shared/game/Entity.h>
 //typedef vector<shared_ptr<Entity>> GameState;
 #include <shared/game/GameState.h>
@@ -28,6 +27,7 @@
 #include <client/graphics/entities/C_Asteroid.h>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_Entity.h>
+#include <client/graphics/entities/C_Powerup.h>
 #include <client/graphics/ParticleSystem.h>
 #include <client/graphics/TBeamPGroup.h>
 #include <client/graphics/EnginePGroup.h>
@@ -51,6 +51,8 @@ public:
 	static vector<C_Mothership*> mothershipList;
 	static vector<C_TractorBeam*> tractorBeamList;
 	static vector<C_Resource*> resourceList;
+	static vector<C_Extractor*> extractorList;
+	static vector<C_Powerup*> powerupList;
 	static vector<EntityIdentifier*> eIDList;
 	static vector<EnginePGroup *> enginePGroupList;
 	static const float PLAYER_CAM_DISTANCE;
@@ -78,6 +80,7 @@ public:
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
 	static SoundManager sound;
+	static ID3DXEffect * pEffect;
 
 	// for debugging collisions
 	static bool renderCBWireframe;
@@ -122,6 +125,8 @@ public:
 	static HRESULT initLights();
 	//static HRESULT initSprites();
 	static void drawAll();
+	static void drawModel(C_Entity * cEnt);
+	static void drawAllModels();
 	static void drawAllTractorBeams();
 	static void drawAllEngines();
 	static void drawAllEID();

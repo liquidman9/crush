@@ -118,8 +118,12 @@ char * Network::encodeDelta(const char* new_data, unsigned int &size) {
 char * Network::decodeDelta(const char *buff, unsigned int &size) {
 	m_deltaField.clear();
 	//skip over header size
+	unsigned int tmp_size;
+	tmp_size = *(unsigned int*) buff;
 	buff += sizeof(unsigned int);
 	auto rtn = m_deltaField.decode(buff);
+	assert(rtn < tmp_size);
+	assert(tmp_size <= size);
 	auto orig_buff = buff;
 	buff += rtn;
 	if(m_oldState == NULL) {
@@ -130,12 +134,13 @@ char * Network::decodeDelta(const char *buff, unsigned int &size) {
 		memcpy(rtn_buff, buff, m_deltaField.size());
 		memcpy(m_oldState, buff, m_deltaField.size());
 		size = m_deltaField.size();
+		m_oldSize = m_deltaField.size();
 		return rtn_buff;
 	} else {
 		unsigned int deltaBytesDecoded = 0;
 		if(m_deltaField.size() > m_oldSize) {
 			char * tmp = new char[m_deltaField.size()];
-			memcpy(tmp, m_oldState, m_deltaField.size());
+			memcpy(tmp, m_oldState, m_oldSize);
 			delete []m_oldState;
 			m_oldState = tmp;
 			m_oldSize = m_deltaField.size();

@@ -16,10 +16,12 @@
 #include <server/game/S_TractorBeam.h>
 #include <server/game/S_Resource.h>
 #include <server/game/S_Asteroid.h>
+#include <server/game/S_Powerup.h>
 #include <server/game/ServerEntity.h>
 #include <server/Globals.h>
 
 class S_TractorBeam;
+class S_Powerup;
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
@@ -44,6 +46,7 @@ public:
 
 	S_Resource * m_resource;
 	S_TractorBeam * m_tractorBeam;
+	S_Powerup * m_powerup;
 
 	// Constructors
 	S_Ship();
@@ -65,7 +68,13 @@ public:
 	bool interact(S_Resource *);
 	bool interact(S_Asteroid *);
 	bool interact(S_Ship *);
+	bool interact(S_Powerup * power);
 
+	void setFowardImpulse(float);
+	float getForwardImpulse();
+
+	void setMaxVelocity(float);
+	float getMaxVelocity();
 };
 
 #pragma warning( pop )

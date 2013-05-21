@@ -16,36 +16,35 @@ Camera::Camera() :
 	m_yaw(0.0f),
 	m_pitch(0.0f)
 {
+	D3DXMatrixIdentity(&viewMat);
+	D3DXMatrixIdentity(&projMat);
 }
 
 Camera::~Camera() 
 {
 }
+// Create the view matrix, and set it on the device
+void Camera::updateView() {
+	D3DXMatrixLookAtLH(&viewMat, &m_vEye, &m_vAt, &m_vUp);
+	Gbls::pd3dDevice->SetTransform(D3DTS_VIEW, &viewMat);
+}
+
 
 // Create the projection matrix, and set it on the device
 void Camera::updateProjection() {
-	D3DXMATRIXA16 matProj;
 	float fAspect = (float)Gbls::thePresentParams.BackBufferWidth /
 		(float)Gbls::thePresentParams.BackBufferHeight;
-	D3DXMatrixPerspectiveFovLH(&matProj, D3DXToRadian(m_fov), fAspect, m_nearPlane, m_farPlane);
-	Gbls::pd3dDevice->SetTransform(D3DTS_PROJECTION, &matProj);
+	D3DXMatrixPerspectiveFovLH(&projMat, D3DXToRadian(m_fov), fAspect, m_nearPlane, m_farPlane);
+	Gbls::pd3dDevice->SetTransform(D3DTS_PROJECTION, &projMat);
 }
 
-// Create the view matrix, and set it on the device
-void Camera::updateView() {
-	D3DXMATRIXA16 matView;
-	D3DXMatrixLookAtLH(&matView, &m_vEye, &m_vAt, &m_vUp);
-	Gbls::pd3dDevice->SetTransform(D3DTS_VIEW, &matView);
-}
 
 D3DXMATRIX * Camera::getViewMatrix(D3DXMATRIX & matView) {
-	return D3DXMatrixLookAtLH(&matView, &m_vEye, &m_vAt, &m_vUp);
+	return &(matView = this->viewMat);
 }
 
-D3DXMATRIX * Camera::getProjMatrix(D3DXMATRIX & matView) {
-	float fAspect = (float)Gbls::thePresentParams.BackBufferWidth /
-		(float)Gbls::thePresentParams.BackBufferHeight;
-	return D3DXMatrixPerspectiveFovLH(&matView, D3DXToRadian(m_fov), fAspect, m_nearPlane, m_farPlane);
+D3DXMATRIX * Camera::getProjMatrix(D3DXMATRIX & matProj) {
+	return &(matProj = this->projMat);
 }
 
 void Camera::setSkyboxView() {
