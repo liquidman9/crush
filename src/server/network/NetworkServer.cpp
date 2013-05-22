@@ -287,7 +287,7 @@ void NetworkServer::acceptNewClient()
 			unsigned int i = max_clients;
 			unsigned int tmp_client_count = m_connectedClients.size();
 			// find clientID for new client
-			if (tmp_client_count < max_clients - 1) {
+			if (tmp_client_count < max_clients) {
 				for (i = 0; i < max_clients; i++) {
 					if(m_connectedClients.find(i) == m_connectedClients.end()) {							
 						tmp_client_count++;
