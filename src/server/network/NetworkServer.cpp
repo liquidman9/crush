@@ -111,6 +111,42 @@ void NetworkServer::broadcastGameStateWorker() {
 			m_clear_delta = false;
 		}
 #endif
+
+#ifdef VERIFY_BEFORE_SEND
+		_CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
+		unsigned int size1;
+		unsigned int size2;
+
+		char* tmp1 = new char[m_oldSize];
+		auto tmp2 = m_oldSize;
+		memcpy(tmp1,m_oldState, m_oldSize);
+		auto buff1 = m_sendGS.getSendBuff();
+		unsigned int sendSize = m_sendGS.sendSize();
+		_ASSERTE( _CrtCheckMemory( ) );
+		auto buff2 = encodeSendBuff(buff1, sendSize, size1);
+		_ASSERTE( _CrtCheckMemory( ) );
+		auto buff3 = decodeSendBuff(buff2, size1, size2);
+		_ASSERTE( _CrtCheckMemory( ) );
+		assert(sendSize == size2);
+		for(unsigned int i = 0; i < size2; i++) {
+			if(buff1[i] != buff3[i]) {
+				assert(false);
+			}
+		}
+		GameState<Entity> test;
+		test.decode(buff3, size2);
+		_ASSERTE( _CrtCheckMemory( ) );
+		delete []buff1;
+		delete []buff2;
+		delete []buff3;
+		_ASSERTE( _CrtCheckMemory( ) );
+		delete []m_oldState;
+		m_oldState = tmp1;
+		m_oldSize = tmp2;
+		_ASSERTE( _CrtCheckMemory( ) );
+#endif
+
+
 		//get send buff and size
 		auto gs_send_buff = m_sendGS.getSendBuff();
 		unsigned int size;
@@ -332,9 +368,9 @@ void NetworkServer::acceptNewClient()
 				setsockopt( ClientSocket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
 
 				//insert new client into connected clients
-				EnterCriticalSection(&m_cs2);
-				EnterCriticalSection(&m_cs);
+				EnterCriticalSection(&m_cs2);				
 				EnterCriticalSection(&m_cs1);
+				EnterCriticalSection(&m_cs);
 				
 #ifdef ENABLE_DELTA
 				/*while(m_sendAvailable) {
@@ -346,8 +382,8 @@ void NetworkServer::acceptNewClient()
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				m_clientIDs.insert(pair<unsigned int, string>(i, string(client_name)));
 				m_clientCount = m_connectedClients.size();
-				LeaveCriticalSection(&m_cs1);
 				LeaveCriticalSection(&m_cs);
+				LeaveCriticalSection(&m_cs1);				
 				LeaveCriticalSection(&m_cs2);
 				cout << "New client " << i << " connected." << endl;
 			}

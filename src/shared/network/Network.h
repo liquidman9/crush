@@ -18,6 +18,7 @@
 #include <shared/game/Entity.h>
 #include <shared/GameInput.h>
 
+
 #pragma comment(lib,"ws2_32.lib")
 
 //typedef vector<shared_ptr<Entity> > GameState;
@@ -29,6 +30,11 @@ typedef map<unsigned int, shared_ptr<Event>> EventBuff_t;
 #define TIMEOUT 5 //(in seconds)
 #define ENABLE_DELTA
 #define ENABLE_COMPRESSION
+//#define VERIFY_BEFORE_SEND
+
+#ifdef VERIFY_BEFORE_SEND
+#include <crtdbg.h>
+#endif
 
 #ifdef ENABLE_COMPRESSION
 #include<shared/network/minilzo.h>
@@ -41,8 +47,8 @@ using namespace std;
 #ifdef ENABLE_DELTA
 class BitField {
 #define BITFIELD_CONTAINER unsigned int
-//#define MAX_ENTITY_SIZE (1 << sizeof(BITFIELD_CONTAINER)*8)
-//#define MAX_ENCODED_ENTITY_SIZE (2*MAX_ENTITY_SIZE + sizeof(BITFIED_CONTAINER))
+	//#define MAX_ENTITY_SIZE (1 << sizeof(BITFIELD_CONTAINER)*8)
+	//#define MAX_ENCODED_ENTITY_SIZE (2*MAX_ENTITY_SIZE + sizeof(BITFIED_CONTAINER))
 public :
 	bool operator[](unsigned int i);
 	bool const operator[](unsigned int i) const;
@@ -95,8 +101,11 @@ public:
 		short rhs_port = rhs.m_sockaddr.sin_port;
 		return this_ip == rhs_ip && this_port == rhs_port; 
 	}
-
-	protected:
+#ifdef VERIFY_BEFORE_SEND
+public:
+#else 
+protected:
+#endif
 #ifdef ENABLE_DELTA
 	BitField m_deltaField;
 	char * m_oldState;
@@ -116,7 +125,7 @@ public:
 	unsigned int sizeofHeader();
 #endif
 	//encodes buffer of in_size and returns new buffer with out_size
-	const char * encodeSendBuff(const char *haed, unsigned int in_size, unsigned int &out_size);
+	const char * encodeSendBuff(const char *head, unsigned int in_size, unsigned int &out_size);
 	//decodes buffer of out_size and returns new buffer with out_size
 	const char * decodeSendBuff(const char *head, unsigned int in_size, unsigned int &out_size);
 	unsigned int getSize(const char *);

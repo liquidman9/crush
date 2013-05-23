@@ -8,7 +8,7 @@
 
 Network::Network(void) 
 #ifdef ENABLE_DELTA
-:m_oldState(NULL), m_oldSize(0) 
+	:m_oldState(NULL), m_oldSize(0) 
 #endif
 {
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
@@ -19,7 +19,7 @@ Network::Network(void)
 
 Network::Network(string ip,unsigned short port)
 #ifdef ENABLE_DELTA
-:m_oldState(NULL), m_oldSize(0) 
+	:m_oldState(NULL), m_oldSize(0) 
 #endif
 {
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
@@ -30,7 +30,7 @@ Network::Network(string ip,unsigned short port)
 
 Network::Network(unsigned short port)
 #ifdef ENABLE_DELTA
-:m_oldState(NULL), m_oldSize(0) 
+	:m_oldState(NULL), m_oldSize(0) 
 #endif
 {
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
@@ -41,7 +41,7 @@ Network::Network(unsigned short port)
 
 Network::Network(struct sockaddr_in si)
 #ifdef ENABLE_DELTA
-:m_oldState(NULL), m_oldSize(0) 
+	:m_oldState(NULL), m_oldSize(0) 
 #endif
 {
 	memset(&m_sockaddr, 0, sizeof(m_sockaddr));
@@ -87,7 +87,6 @@ char * Network::encodeDelta(const char* new_data, unsigned int &size) {
 		}
 		m_oldSize = size;
 	}
-	
 	//allocate return buffer
 	unsigned int buff_size = (unsigned int) ceil((float)m_deltaField.size()/8) 
 		+ sizeof(BITFIELD_CONTAINER) + m_oldSize + sizeof(unsigned int);
@@ -97,14 +96,11 @@ char * Network::encodeDelta(const char* new_data, unsigned int &size) {
 
 	//encode the delta bitfield
 	auto rtn = m_deltaField.encode(buff);
-	buff += rtn;
 
 	//encode the rest of the data	
 	for(unsigned int i = 0; i < m_deltaField.size(); i++) {
 		if(m_deltaField[i]) {
-			*buff = new_data[i];
-			buff++;
-			rtn++;
+			buff[rtn++] = new_data[i];
 		}
 	}
 
@@ -171,21 +167,21 @@ void Network::clearDelta() {
 #ifdef ENABLE_COMPRESSION
 char * Network::compress(const char *head, unsigned int &size) {
 	static bool init = false;
-		if(!init){
-			lzo_init();
-			init = true;
-		}
-		char *out_tmp = new char[2*size];
-		unsigned char* scratch = new unsigned char[LZO1X_1_MEM_COMPRESS];
-		unsigned char* in = (unsigned char *) head;
-		unsigned char* out = (unsigned char*) (out_tmp + sizeofHeader());
-		lzo_uint in_len = size;
-		lzo_uint out_len;
-		lzo1x_1_compress(in,in_len,out,&out_len,scratch);
-		setHeader(out_tmp,out_len,in_len);
-		size = getSize(out_tmp);
-		delete []scratch;
-		return out_tmp;
+	if(!init){
+		lzo_init();
+		init = true;
+	}
+	char *out_tmp = new char[2*size];
+	unsigned char* scratch = new unsigned char[LZO1X_1_MEM_COMPRESS];
+	unsigned char* in = (unsigned char *) head;
+	unsigned char* out = (unsigned char*) (out_tmp + sizeofHeader());
+	lzo_uint in_len = size;
+	lzo_uint out_len;
+	lzo1x_1_compress(in,in_len,out,&out_len,scratch);
+	setHeader(out_tmp,out_len,in_len);
+	size = getSize(out_tmp);
+	delete []scratch;
+	return out_tmp;
 }
 
 char * Network::decompress(const char *head, unsigned int &size) { 
@@ -217,7 +213,7 @@ void Network::loadHeader(const char* buff, unsigned int &c_len, unsigned int &d_
 }
 
 void Network::setHeader(char * buff, unsigned int c_size, unsigned int d_size){
-	*(unsigned int*)buff = c_size + 2*sizeof(d_size);
+	*(unsigned int*)buff = c_size + 2*sizeof(unsigned int);
 	buff += sizeof(unsigned int);
 	*(unsigned int*)buff = d_size;
 	buff += sizeof(unsigned int);	
@@ -303,7 +299,7 @@ void BitField::setBitAt(unsigned int i, bool user_value) {
 	if (i == m_field.size()) {
 		m_field.push_back(value);
 	} else if (i > m_field.size()) {
-		m_field.resize(i, 0);
+		m_field.resize(i+1, 0);
 		m_field[i] = value;
 	} else {
 		m_field[i] = value;
