@@ -1,6 +1,6 @@
 #include <client/network/NetworkClient.h>
 
-NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
+NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_recvBuff(NULL) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
@@ -10,7 +10,7 @@ NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_dropped
 	m_recvBuff = new char[MAX_PACKET_SIZE];
 }
 
-NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
+NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false), m_recvBuff(NULL) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
@@ -20,7 +20,7 @@ NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port),
 	m_recvBuff = new char[MAX_PACKET_SIZE];
 }
 
-NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
+NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailable(false), m_recvBuff(NULL) {
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
 	}
@@ -31,7 +31,6 @@ NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailab
 
 
 void NetworkClient::initializeSocket() {
-	m_dropped = 0;
 	if( (m_sock = socket(AF_INET , SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET )  {
 		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
 	}
@@ -171,7 +170,6 @@ void NetworkClient::updateGameState() {
 				error = true;
 			}
 			total_size += recv_len;
-			expected_size = getSize(local_buf);
 		}
 
 		if(!error) {
