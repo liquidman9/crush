@@ -1002,8 +1002,8 @@ void GameResources::drawAll()
 	Gbls::pd3dDevice->EndScene();
 
 	Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
-	//blendTexesToSurface(pDefaultRenderTexture, pGlowmapTexture);
-	drawTexToSurface(pDefaultRenderTexture);
+	blendTexesToSurface(pDefaultRenderTexture, pGlowmapTexture);
+	//drawTexToSurface(pDefaultRenderTexture);
 	//drawTexToSurface(pGlowmapTexture);
 
 	if (pGlowmapSurface) {
