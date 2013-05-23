@@ -132,7 +132,6 @@ void S_TractorBeam::calculateForce() {
 			D3DXVECTOR3 disA = objectPositionTest - shipPositionTest;
 			float angleDiff = acos(D3DXVec3Dot(&disA,&disB)/(D3DXVec3Length(&disB)*D3DXVec3Length(&disA)))*180.0f/PI;
 
-
 			// If at the point to be held
 			if(angleDiff > 2 || m_isColliding || m_isHolding){
 				// Resources are not held by tractor beam once they collide with the ship
@@ -144,10 +143,13 @@ void S_TractorBeam::calculateForce() {
 						m_isHolding = false; //make method
 					}
 				}
-				else if (m_object->m_type != SHIP){ // can not "hold" a ship?
+				else if(m_object->m_type == SHIP) {
+					
+				}
+				else { 
 
 					if(!m_isHolding) {
-						m_heldDistance = disL; // Set permanent holding distance
+						m_heldDistance = (m_object->m_length > m_object->m_radius? m_object->m_length:m_object->m_radius) + (m_ship->m_length > m_ship->m_radius? m_ship->m_length:m_ship->m_radius);//disL; // Set permanent holding distance
 						m_shipLastCorrection = shared::utils::VEC3_ZERO;
 						m_objectLastCorrection = shared::utils::VEC3_ZERO;
 

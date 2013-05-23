@@ -13,13 +13,13 @@ float impulseIncrease = 1000.0f;
 float maxIncrease = 50.0f;
 
 S_Powerup::S_Powerup(D3DXVECTOR3 pos, Quaternion orientation, PowerType type) :
-	Entity(genId(), POWERUP, pos, orientation),
+	Entity(genId(), POWERUP, pos, orientation, 3),
 	Powerup(type),
 	ServerEntity(10, 1.0, calculateRotationalInertia(10)),
 	m_holder(NULL),
 	m_totalTimeLength(7000),
 	m_startTime(0)
-{	
+{
 }
 
 D3DXMATRIX S_Powerup::calculateRotationalInertia(float mass){

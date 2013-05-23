@@ -23,10 +23,11 @@ S_Resource::S_Resource() :
 	m_travelFrames(-1),
 	m_spot(-1)
 {
+	m_radius = 3;
 }
 
 S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
-	Entity(genId(), RESOURCE, pos, orientation),
+	Entity(genId(), RESOURCE, pos, orientation, 3),
 	Resource(),
 	ServerEntity(10, 0.0, calculateRotationalInertia(10)),
 	m_carrier(NULL),

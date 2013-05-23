@@ -68,6 +68,7 @@ public:
 	// Constructors
 	Entity(int id, Type type);
 	Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation);
+	Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation, float radius);
 	// Copy constructor
 	Entity(Entity const &e);
 	// Destructor
