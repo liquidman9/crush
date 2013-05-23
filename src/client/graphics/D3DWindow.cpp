@@ -856,8 +856,11 @@ void D3DWindow::setFontHeight(int desiredSize) {
 
 void D3DWindow::OnLostDevice()
 {
+	//GameResources::pEffectTexToScreen->OnLostDevice();
 	GameResources::pEffectGlowmap->OnLostDevice();
-	GameResources::pEffectDefault->OnLostDevice();
+	GameResources::pEffectDefault->OnLostDevice(); 
+	GameResources::pEffectTexToScreen->OnLostDevice();
+	GameResources::pEffectBlend->OnLostDevice();
 	GameResources::pd3dFont->OnLostDevice();
 	GameResources::pd3dSprite->OnLostDevice();
 	GameResources::partSystem->InvalidateDeviceObjects();
@@ -865,8 +868,11 @@ void D3DWindow::OnLostDevice()
 
 void D3DWindow::OnResetDevice()
 {
+	//GameResources::pEffectTexToScreen->OnResetDevice();
 	GameResources::pEffectGlowmap->OnResetDevice();
 	GameResources::pEffectDefault->OnResetDevice();
+	GameResources::pEffectTexToScreen->OnResetDevice();
+	GameResources::pEffectBlend->OnResetDevice();
 	GameResources::pd3dFont->OnResetDevice();
 	GameResources::pd3dSprite->OnResetDevice();
 }

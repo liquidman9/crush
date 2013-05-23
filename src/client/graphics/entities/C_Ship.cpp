@@ -61,7 +61,6 @@ C_Ship::C_Ship(Entity * newEnt) :
 			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture1;
 			break;
 		}
-		//m_pMesh = &Gbls::shipMesh;
 	} else {
 		cerr << "SEVERE : Unable to create Client Ship!" << endl;
 	}

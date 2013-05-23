@@ -80,12 +80,19 @@ public:
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
 	static SoundManager sound;
+
+	// effects (shaders)
 	static ID3DXEffect * pEffectDefault;
 	static ID3DXEffect * pEffectGlowmap;
+	static ID3DXEffect * pEffectTexToScreen;
+	static ID3DXEffect * pEffectBlend;
+
 	static D3DXMATRIX sunWorldMat;
 	static LPD3DXMESH sunMesh;
 	static LPDIRECT3DTEXTURE9 pGlowmapTexture;
 	static LPDIRECT3DSURFACE9 pGlowmapSurface;
+	static LPDIRECT3DTEXTURE9 pDefaultRenderTexture;
+	static LPDIRECT3DSURFACE9 pDefaultRenderSurface;
 	static LPDIRECT3DSURFACE9 pBackBuffer;
 
 	// for debugging collisions
@@ -133,6 +140,9 @@ public:
 	//static HRESULT initSprites();
 	static void drawAll();
 	static void createGlowmap();
+	//static void drawTexToScreen(LPDIRECT3DSURFACE9 surface, UINT surfaceHeight, UINT surfaceWidth);
+	static void drawTexToSurface(LPDIRECT3DTEXTURE9 tex);
+	static void blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2) ;
 	static void drawModel(C_Entity * cEnt);
 	static void drawAllModels();
 	static void drawAllTractorBeams();

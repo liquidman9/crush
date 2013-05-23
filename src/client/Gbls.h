@@ -64,11 +64,19 @@ public:
 	static std::wstring shipTexFilepath2;
 	static std::wstring shipTexFilepath3;
 	static std::wstring shipTexFilepath4;
+	static std::wstring mothershipTexFilepath1;
+	static std::wstring mothershipTexFilepath2;
+	static std::wstring mothershipTexFilepath3;
+	static std::wstring mothershipTexFilepath4;
 	
 	static LPDIRECT3DTEXTURE9 shipTexture1; 
 	static LPDIRECT3DTEXTURE9 shipTexture2; 
 	static LPDIRECT3DTEXTURE9 shipTexture3; 
 	static LPDIRECT3DTEXTURE9 shipTexture4;
+	static LPDIRECT3DTEXTURE9 mothershipTexture1; 
+	static LPDIRECT3DTEXTURE9 mothershipTexture2; 
+	static LPDIRECT3DTEXTURE9 mothershipTexture3; 
+	static LPDIRECT3DTEXTURE9 mothershipTexture4;
 
 	static std::wstring skyboxTextureFilepath_Front;
 	static std::wstring skyboxTextureFilepath_Back;

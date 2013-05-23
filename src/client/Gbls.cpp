@@ -19,6 +19,10 @@ LPDIRECT3DTEXTURE9 Gbls::shipTexture1 = NULL;
 LPDIRECT3DTEXTURE9 Gbls::shipTexture2 = NULL; 
 LPDIRECT3DTEXTURE9 Gbls::shipTexture3 = NULL; 
 LPDIRECT3DTEXTURE9 Gbls::shipTexture4 = NULL; 
+LPDIRECT3DTEXTURE9 Gbls::mothershipTexture1 = NULL; 
+LPDIRECT3DTEXTURE9 Gbls::mothershipTexture2 = NULL; 
+LPDIRECT3DTEXTURE9 Gbls::mothershipTexture3 = NULL; 
+LPDIRECT3DTEXTURE9 Gbls::mothershipTexture4 = NULL; 
 
 // Still hardcoded:
 
@@ -48,6 +52,10 @@ std::wstring Gbls::shipTexFilepath1 = L"player_ship_skin_001.png";
 std::wstring Gbls::shipTexFilepath2 = L"player_ship_skin_002.png";
 std::wstring Gbls::shipTexFilepath3 = L"player_ship_skin_003.png";
 std::wstring Gbls::shipTexFilepath4 = L"player_ship_skin_004.png";
+std::wstring Gbls::mothershipTexFilepath1 = L"mothership_skin_001.png";
+std::wstring Gbls::mothershipTexFilepath2 = L"mothership_skin_002.png";
+std::wstring Gbls::mothershipTexFilepath3 = L"mothership_skin_003.png";
+std::wstring Gbls::mothershipTexFilepath4 = L"mothership_skin_004.png";
 
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;
@@ -242,6 +250,18 @@ void Gbls::initFromConfig() {
 	}
 	if(conf.getValue("shipTexFilepath4", tmpString)) {
 		shipTexFilepath4 = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("mothershipTexFilepath1", tmpString)) {
+		mothershipTexFilepath1 = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("mothershipTexFilepath2", tmpString)) {
+		mothershipTexFilepath2 = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("mothershipTexFilepath3", tmpString)) {
+		mothershipTexFilepath3 = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("mothershipTexFilepath4", tmpString)) {
+		mothershipTexFilepath4 = wstring(tmpString.begin(), tmpString.end());
 	}
 
 	if(conf.getValue("fontStyle", tmpString)) {
