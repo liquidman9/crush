@@ -154,9 +154,9 @@ void S_TractorBeam::calculateForce() {
 						m_objectLastCorrection = shared::utils::VEC3_ZERO;
 
 						// Equal out momentums (lock)
-						D3DXVECTOR3 vel = ((m_ship->t_impulse + m_ship->m_momentum) + (m_object->m_momentum  + m_object->t_impulse))/(m_ship->m_mass + m_object->m_mass);
-						m_object->m_momentum = vel*m_object->m_mass;
-						m_ship->m_momentum = vel*m_ship->m_mass;
+						//D3DXVECTOR3 vel = ((m_ship->t_impulse + m_ship->m_momentum) + (m_object->m_momentum  + m_object->t_impulse))/(m_ship->m_mass + m_object->m_mass);
+						//m_object->m_momentum = vel*m_object->m_mass;
+						//m_ship->m_momentum = vel*m_ship->m_mass;
 
 
 						// Zero outs probably temporary
