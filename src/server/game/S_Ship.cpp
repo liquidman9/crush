@@ -191,6 +191,14 @@ void S_Ship::calcTractorBeam() {
 	m_tractorBeam->updateData();
 }
 
+void S_Ship::checkDropoff(S_Mothership * mother) {
+	if(mother->m_playerNum == m_playerNum && m_resource!= NULL) { // get rid of if want to steal without hitting mothership
+		if(D3DXVec3Length(&(m_pos-mother->m_pos)) < mother->m_length*2){
+			mother->interact(this);
+		}
+	}
+}
+
 D3DXMATRIX S_Ship::calculateRotationalInertia(float mass){
 	float radius_squared = 5 * 5;
 	float height_squared = (2 * 5.0f) * (2 * 5.0f);

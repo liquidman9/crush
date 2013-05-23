@@ -17,6 +17,8 @@
 #include <server/game/ServerEntity.h>
 #include <server/Globals.h>
 
+class S_Ship;
+
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 

@@ -295,8 +295,8 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 			entity->m_type == MOTHERSHIP || 
 			entity->m_type == EXTRACTOR || 
 			entity->m_type == POWERUP || // can not tractorbeam powerups
-			(entity->m_type == RESOURCE && ((S_Resource *)entity)->m_carrier != NULL)) 
-				return false; // tmp
+			(entity->m_type == RESOURCE && (((S_Resource *)entity)->m_carrier != NULL && ((S_Resource *)entity)->m_carrier->m_type != EXTRACTOR)) )
+				return false; 
 		// If is already locked check if closer
 		else if(isLocked()) {	
 			if(entity != m_object && !m_isHolding && D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos)) > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))){

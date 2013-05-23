@@ -61,6 +61,7 @@ void S_Resource::travel() {
 		if(m_travelFrames >= s_maxTravelFrames || m_travelFrames == -1) {
 			m_pos = lockPos;
 			m_travelFrames = -1;
+			m_orientation = m_carrier->m_orientation;
 		}
 		else {
 			D3DXVECTOR3 dis = lockPos - m_pos;
@@ -105,7 +106,6 @@ void S_Resource::update(float delta_time){
 		travel();
 	}
 	else {
-		m_orientation = m_carrier->m_orientation;
 		ServerEntity::update(delta_time);
 	}
 }

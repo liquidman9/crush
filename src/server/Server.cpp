@@ -281,6 +281,9 @@ void Server::loop() {
 		m_world.collision(physics_delta);
 
 		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) {
+			for(auto j = m_mothershipMap.begin(); j != m_mothershipMap.end(); j++) {
+				i->second->checkDropoff(j->second);
+			}
 			i->second->calcTractorBeam();
 		}
 		m_world.update(physics_delta);

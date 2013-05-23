@@ -17,11 +17,13 @@
 #include <server/game/S_Resource.h>
 #include <server/game/S_Asteroid.h>
 #include <server/game/S_Powerup.h>
+#include <server/game/S_Mothership.h>
 #include <server/game/ServerEntity.h>
 #include <server/Globals.h>
 
 class S_TractorBeam;
 class S_Powerup;
+class S_Mothership;
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
@@ -58,6 +60,7 @@ public:
 	void applyDamping();
 	D3DXVECTOR3 getDamping();
 	void calcTractorBeam();
+	void checkDropoff(S_Mothership *);
 	void updateHeldObject();
 
 	virtual void update(float delta_time);
