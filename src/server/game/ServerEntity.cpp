@@ -15,6 +15,7 @@ ServerEntity::ServerEntity() :
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
 	m_immovable(false),
 	m_resourceSpots(0),
+	m_holder(NULL),
 	
 	// zeroing values
 	m_angular_velocity(shared::utils::VEC3_ZERO),
@@ -33,6 +34,7 @@ ServerEntity::ServerEntity(float mass, D3DXMATRIX rot_inertia) :
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
 	m_immovable(false),
 	m_resourceSpots(0),
+	m_holder(NULL),
 
 	// zeroing values
 	m_angular_velocity(shared::utils::VEC3_ZERO),
@@ -55,6 +57,7 @@ ServerEntity::ServerEntity(float mass, float length, D3DXMATRIX rot_inertia) :
 	m_immovable(false),
 	m_resourceSpots(0),
 	m_destroy(false),
+	m_holder(NULL),
 	// zeroing values
 	m_angular_velocity(shared::utils::VEC3_ZERO),
 	m_orientation_delta(0.0f, 0.0f, 0.0f, 0.0f),

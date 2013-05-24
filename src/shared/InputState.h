@@ -11,7 +11,7 @@
 //Declare the types of each input
 typedef unsigned char TBType, ThrustType;
 typedef short TurnType, PitchType;
-typedef bool BrakeType, ReType, PushType, PowerupType;
+typedef bool BrakeType, ReType, PushType, PowerupType, MashType;
 
 class InputState : public Sendable {
 	public:
@@ -23,6 +23,7 @@ class InputState : public Sendable {
 	ReType reorient;
 	PushType push;
 	PowerupType powerup;
+	MashType mash;
 
 	//Returns the current thrust value, normalized from 0 to 1
 	double getThrust() {
@@ -64,6 +65,10 @@ class InputState : public Sendable {
 		return powerup;
 	}
 
+	// Return true if the player presses mash button
+	bool getMash() {
+		return mash;
+	}
 	//The size of the server aware input state data
 	static const unsigned int m_size = sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+
 		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType) +sizeof(PowerupType);

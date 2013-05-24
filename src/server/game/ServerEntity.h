@@ -59,6 +59,7 @@ public:
 	bool m_immovable;
 	int m_resourceSpots;
 	bool m_destroy;
+	ServerEntity * m_holder;
 
 
 	ServerEntity();

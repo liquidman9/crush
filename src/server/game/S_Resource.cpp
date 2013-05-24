@@ -46,6 +46,8 @@ D3DXMATRIX S_Resource::calculateRotationalInertia(float mass){
 											 (2.0f / 5.0f) * mass * radius_squared);
 };
 
+
+
 void S_Resource::travel() {
 	if(m_carrier->m_type == MOTHERSHIP){
 		// ASSUMING the mothership is immovable

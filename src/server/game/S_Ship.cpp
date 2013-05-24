@@ -70,6 +70,9 @@ void S_Ship::addPlayerInput(InputState input) {
 		m_tractorBeam->setIsOn(false);
 	}
 
+	if(input.getMash()) {
+		presses.push_back(GetTickCount());
+	}
 
 	if(m_powerup != NULL && m_powerup->m_stateType == HOLDING && input.getPowerup()) {
 		m_powerup->start();
@@ -167,22 +170,71 @@ void S_Ship::applyDamping() {
 	m_rotating = false;
 
 }
-void S_Ship::updateHeldObject(){
-	//m_tractorBeam->m_object->m_pos = m_pos + m_tractorBeam->getCurrentDirection()*m_tractorBeam->m_heldDistance;//(m_radius > m_tractorBeam->m_object->m_radius? m_radius: m_tractorBeam->m_object->m_radius); 
+
+void S_Ship::dropResource() {
+	if(m_resource == NULL) return;
+
+	S_Resource * tmp = m_resource;
+	m_resource = NULL;
+	tmp->m_carrier = NULL;
+	tmp->m_onDropTimeout = true;
+	tmp->m_dropTimeoutStart = GetTickCount();
+	tmp->m_droppedFrom = m_playerNum;
+	tmp->m_spot = -1;
+	tmp->reset(); // temporary to stop resources from moving far far away when dropped
+}
+
+void S_Ship::disableTractorBeam() {
+	m_tractorBeam->timeout();
+}
+
+
+// Drops resource and locks enemy tractor beam on it (assumes enemy tractor beam on ship)
+void S_Ship::unlockResource(S_Ship * enemy) {
+	enemy->m_tractorBeam->m_object = m_resource;
+	dropResource();
+}
+
+void S_Ship::updateDefensiveOffensiveCounter() {
+	// Erases mashes that have gone for too long
+	for(int i = presses.size() -1; i >= 0; i--) {
+		long time = GetTickCount();
+		if(time - presses[i] > 5000) //config
+			presses.erase(presses.begin() + i);
+	}
+	
+	if(m_holder != NULL) {
+		if(presses.size() >= 15) { // add to config
+			((S_Ship *)m_holder)->disableTractorBeam();
+		}
+	}
+	else if(m_tractorBeam->m_object != NULL && 
+		m_tractorBeam->m_object->m_type == SHIP && 
+		((S_Ship *)m_tractorBeam->m_object)->m_resource != NULL) 
+	{
+			if(presses.size() >= 15) { // add to config
+				((S_Ship *)m_holder)->unlockResource(this);
+			}
+	}
+	else {
+		presses.clear();
+	}
 }
 
 void S_Ship::update(float delta_time) {
 	
+	// If a Powerup's time is up ends it
 	if(m_powerup != NULL && m_powerup->m_stateType == CONSUMED){
 		if(m_powerup->check(GetTickCount())){
 			m_powerup->end();
 		}
 	}
+
+	//updateDefensiveOffensiveCounter();
+
 	applyDamping();
 	
 	ServerEntity::update(delta_time);
-	if(m_tractorBeam->m_isHolding)
-		updateHeldObject();
 
 }
 
@@ -241,14 +293,7 @@ bool S_Ship::interact(S_Asteroid * asteroid) {
 		return false;
 	}
 	else if(m_resource != NULL) {
-		S_Resource * tmp = m_resource;
-		m_resource = NULL;
-		tmp->m_carrier = NULL;
-		tmp->m_onDropTimeout = true;
-		tmp->m_dropTimeoutStart = GetTickCount();
-		tmp->m_droppedFrom = m_playerNum;
-		tmp->m_spot = -1;
-		tmp->reset(); // temporary to stop resources from moving far far away when dropped
+		dropResource();
 	}
 	return true;
 }

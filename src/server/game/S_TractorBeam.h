@@ -27,6 +27,9 @@ private:
 public:
 	// Fields
 	float m_power;
+	
+	long disableLength;
+	long disableStart;
 
 	ServerEntity * m_object;
 	S_Ship * m_ship; 
@@ -51,6 +54,7 @@ public:
 	void setStartPoint();
 	void setEndPoint();
 	void lockOn(ServerEntity * entity);
+	void timeout();
 
 	void setIsPulling(bool);
 	bool getIsPulling();

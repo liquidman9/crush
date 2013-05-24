@@ -28,7 +28,9 @@ S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	m_heldDistance(0.0f),
 	m_totalPulling(0,0,0),
 	m_shipLastCorrection(0.0,0.0,0.0),
-	m_objectLastCorrection(0.0,0.0,0.0)
+	m_objectLastCorrection(0.0,0.0,0.0),
+	disableStart(-1),
+	disableLength(5000)
 {
 	m_radius = m_sentRadius;
 	m_object = NULL;
@@ -49,6 +51,7 @@ void S_TractorBeam::lockOn(ServerEntity * entity) {
 		m_totalPulling = D3DXVECTOR3(0.0,0.0,0.0);
 		m_isHolding = false; //tmppp
 		m_isColliding = false;
+		entity->m_holder = m_ship;
 	}
 	m_object = entity;
 }
@@ -247,16 +250,31 @@ void S_TractorBeam::calculateForce() {
 }
 
 
+void S_TractorBeam::timeout() {
+	disableStart = GetTickCount();
+}
+
 void S_TractorBeam::updateData() {
 	setStartPoint();
 	setEndPoint();
 
-	if(m_isOn){
+	if(disableStart != -1) {
+		long time = GetTickCount();
+		m_isOn = false;
+		if(time - disableStart > disableLength) {
+			disableStart = -1;
+			disableStart = 0;
+		}
+	}
+	else if(m_isOn){
 		calculateForce();
 		m_isColliding = false;
 	}
 	else {
-		m_object = NULL;
+		if(m_object!= NULL) {
+			m_object->m_holder = NULL;
+			m_object = NULL;
+		}
 		m_isColliding = false;
 		m_isHolding = false;
 	}

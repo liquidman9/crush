@@ -49,6 +49,7 @@ public:
 	S_Resource * m_resource;
 	S_TractorBeam * m_tractorBeam;
 	S_Powerup * m_powerup;
+	vector<long> presses;
 
 	// Constructors
 	S_Ship();
@@ -59,15 +60,30 @@ public:
 	void addPlayerInput(InputState);
 	void applyDamping();
 	D3DXVECTOR3 getDamping();
+
+	// Calculates the Tractor Beams force and logic
 	void calcTractorBeam();
+
+	// Checks whether in range and eligible for a dropoff
 	void checkDropoff(S_Mothership *);
-	void updateHeldObject();
+
+	// Disables the Tractor Beam from use for a set period
+	void disableTractorBeam();
+
+	// Enemy ship forces off resource
+	void unlockResource(S_Ship *);
+
+	// Dropping a resource logic (disables pickup for a set period)
+	void dropResource();
+
+	// Update logic for button mashes defensive/offensive counter for tractor beams
+	void updateDefensiveOffensiveCounter();
 
 	virtual void update(float delta_time);
 
 	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 
-	//todo switch interacts to true->success instead of true->collsion response
+	// Collsion interactions
 	bool interact(S_Resource *);
 	bool interact(S_Asteroid *);
 	bool interact(S_Ship *);

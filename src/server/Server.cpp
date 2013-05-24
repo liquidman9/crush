@@ -227,7 +227,7 @@ void Server::loop() {
 			setUpExtractor();
 			setUpAsteroids();
 			setUpPowerups();
-		
+
 			cout << "CRUSH Server has started" << endl;
 			m_start = false;
 		} else if (m_reload) {
