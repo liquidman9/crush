@@ -54,7 +54,9 @@ public:
 	void setStartPoint();
 	void setEndPoint();
 	void lockOn(ServerEntity * entity);
+	void lockOff();
 	void timeout();
+	void disable();
 
 	void setIsPulling(bool);
 	bool getIsPulling();

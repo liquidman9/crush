@@ -29,7 +29,7 @@ public:
 	bool m_onDropTimeout;
 	long m_dropTimeoutStart;
 	SHIP_PLAYERNUM_TYPE m_droppedFrom;
-	static long s_dropTimeoutLength;
+	long m_dropTimeoutLength;
 	
 	int m_travelFrames;
 	int m_spot;

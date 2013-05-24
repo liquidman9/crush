@@ -48,12 +48,22 @@ bool S_TractorBeam::isLocked() {
 
 void S_TractorBeam::lockOn(ServerEntity * entity) {
 	if(m_object != entity) {
-		m_totalPulling = D3DXVECTOR3(0.0,0.0,0.0);
-		m_isHolding = false; //tmppp
-		m_isColliding = false;
+		lockOff();
 		entity->m_holder = m_ship;
 	}
 	m_object = entity;
+}
+
+void S_TractorBeam::lockOff() {
+	if(m_object != NULL) {
+		m_object->m_holder = NULL;
+		m_object = NULL;
+	}
+	m_isColliding = false;
+	m_isHolding = false; 
+	m_shipLastCorrection = shared::utils::VEC3_ZERO;
+	m_objectLastCorrection = shared::utils::VEC3_ZERO;
+	m_totalPulling = shared::utils::VEC3_ZERO;
 }
 
 D3DXVECTOR3 S_TractorBeam::getCurrentDirection() {
@@ -141,9 +151,7 @@ void S_TractorBeam::calculateForce() {
 				if(m_object->m_type == RESOURCE) {
 					if(m_ship->interact((S_Resource *)m_object)) cout << "Resource not gathered- error?"<<endl;
 					else {
-						m_object = NULL;
-						m_isColliding = false;
-						m_isHolding = false; //make method
+						lockOff();
 					}
 				}
 				else if(m_object->m_type == SHIP) {
@@ -240,16 +248,20 @@ void S_TractorBeam::calculateForce() {
 		else {
 				m_ship->applyLinearImpulse(-force * .01f);
 				m_object->applyLinearImpulse(force * .01f);
-				//m_object = NULL;
-				m_isColliding = false;
-				m_isHolding = false; // make unlock/reset method
+
+				m_isHolding = false; 
 		}
 	}
 
 	m_isColliding = false;
 }
 
+void S_TractorBeam::disable() {
+	lockOff();
 
+	m_isOn = false;
+	timeout();
+}
 void S_TractorBeam::timeout() {
 	disableStart = GetTickCount();
 }
@@ -263,7 +275,6 @@ void S_TractorBeam::updateData() {
 		m_isOn = false;
 		if(time - disableStart > disableLength) {
 			disableStart = -1;
-			disableStart = 0;
 		}
 	}
 	else if(m_isOn){
@@ -271,12 +282,7 @@ void S_TractorBeam::updateData() {
 		m_isColliding = false;
 	}
 	else {
-		if(m_object!= NULL) {
-			m_object->m_holder = NULL;
-			m_object = NULL;
-		}
-		m_isColliding = false;
-		m_isHolding = false;
+		lockOff();
 	}
 }
 
@@ -301,6 +307,7 @@ void S_TractorBeam::setIsOn(bool isOn){
 	}
 	else {
 		m_isOn = isOn;
+		lockOff();
 	}
 }
 
@@ -309,7 +316,6 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 	if(m_isOn){
 		
 		if(entity->m_type == SHIP && m_ship == entity || 
-			entity->m_type == POWERUP || // temp until given implementation will proabbly work like resource except consumed at collision
 			entity->m_type == MOTHERSHIP || 
 			entity->m_type == EXTRACTOR || 
 			entity->m_type == POWERUP || // can not tractorbeam powerups
@@ -317,8 +323,10 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 				return false; 
 		// If is already locked check if closer
 		else if(isLocked()) {	
-			if(entity != m_object && !m_isHolding && D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos)) > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))){
-				cout<<D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos))<<" vs "<<D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))<<endl;
+			if(entity != m_object && m_object->m_type != RESOURCE && // temp not sure what the rules should be when switching objects
+				!m_isHolding && 
+				D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos)) > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos)))
+			{
 				lockOn(entity);
 			}
 		}

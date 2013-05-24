@@ -296,12 +296,7 @@ void PhysicsWorld::checkInBounds(ServerEntity * a) {
 			if(entities[i]->m_type == TRACTORBEAM){
 				S_TractorBeam * b = (S_TractorBeam *)entities[i];
 				if(b->m_object == a) {
-					b->m_object->m_holder = NULL;
-					b->m_object = NULL;
-					b->m_totalPulling = D3DXVECTOR3(0.0,0.0,0.0);
-					b->m_isHolding = false; //tmppp
-					b->m_isColliding = false;
-					// need method
+					b->lockOff();
 				}
 			}
 		}

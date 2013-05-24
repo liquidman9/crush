@@ -50,6 +50,7 @@ public:
 	S_TractorBeam * m_tractorBeam;
 	S_Powerup * m_powerup;
 	vector<long> presses;
+	bool pressToggle;
 
 	// Constructors
 	S_Ship();
@@ -73,8 +74,8 @@ public:
 	// Enemy ship forces off resource
 	void unlockResource(S_Ship *);
 
-	// Dropping a resource logic (disables pickup for a set period)
-	void dropResource();
+	// Dropping a resource logic (disables pickup for a given period)
+	void dropResource(long);
 
 	// Update logic for button mashes defensive/offensive counter for tractor beams
 	void updateDefensiveOffensiveCounter();

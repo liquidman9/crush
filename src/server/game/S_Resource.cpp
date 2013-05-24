@@ -10,7 +10,6 @@
 #include <server/game/S_Resource.h>
 
 int S_Resource::s_maxTravelFrames = 500;
-long S_Resource::s_dropTimeoutLength = 1000; //ms
 
 S_Resource::S_Resource() :
 	Entity(RESOURCE),
@@ -21,7 +20,8 @@ S_Resource::S_Resource() :
 	m_onDropTimeout(false),
 	m_droppedFrom(-1),
 	m_travelFrames(-1),
-	m_spot(-1)
+	m_spot(-1),
+	m_dropTimeoutLength(0)
 {
 	m_radius = 3;
 }
@@ -35,7 +35,8 @@ S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 	m_onDropTimeout(false),
 	m_droppedFrom(-1),
 	m_travelFrames(-1),
-	m_spot(-1)
+	m_spot(-1),
+	m_dropTimeoutLength(0)
 {	
 }
 
@@ -94,7 +95,7 @@ void S_Resource::travel() {
 
 void S_Resource::update(float delta_time){
 	if(m_onDropTimeout) {
-		if(GetTickCount() - m_dropTimeoutStart > s_dropTimeoutLength) {
+		if(GetTickCount() - m_dropTimeoutStart > m_dropTimeoutLength) {
 			m_dropTimeoutStart = 0;
 			m_onDropTimeout = 0;
 			m_droppedFrom = -1;

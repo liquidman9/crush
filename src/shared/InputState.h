@@ -71,7 +71,7 @@ class InputState : public Sendable {
 	}
 	//The size of the server aware input state data
 	static const unsigned int m_size = sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+
-		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType) +sizeof(PowerupType);
+		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType) +sizeof(PowerupType)+sizeof(MashType);
 
 	virtual unsigned int encode(char *tmp) const {
 		*(TBType *) tmp = tractBeam;
@@ -82,7 +82,8 @@ class InputState : public Sendable {
 		*(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)) = reorient;
 		*(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)) = push;
 		*(PowerupType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)) = powerup;
-		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(PowerupType);
+		*(MashType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(MashType)) = mash;
+		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(PowerupType)+sizeof(MashType);
 	};
 
 	virtual unsigned int decode(const char * tmp) {
@@ -94,7 +95,8 @@ class InputState : public Sendable {
 		reorient = *(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType));
 		push = *(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType));
 		powerup = *(PowerupType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PowerupType));
-		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(PowerupType);
+		mash = *(MashType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PowerupType)+sizeof(MashType));
+		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(PowerupType)+sizeof(MashType);
 	};
 
 	//Returns the size of all server aware input state data when encoded
