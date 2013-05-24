@@ -240,7 +240,7 @@ void S_TractorBeam::calculateForce() {
 		else {
 				m_ship->applyLinearImpulse(-force * .01f);
 				m_object->applyLinearImpulse(force * .01f);
-				m_object = NULL;
+				//m_object = NULL;
 				m_isColliding = false;
 				m_isHolding = false; // make unlock/reset method
 		}
