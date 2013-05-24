@@ -70,7 +70,21 @@ public:
 	static int playerNum;
 	static LPD3DXSPRITE pd3dSprite;
 	static LPD3DXFONT GameResources::pd3dFont;
-	static LPDIRECT3DTEXTURE9 shipEIDTexture;
+	
+	//ship indicators
+	static LPDIRECT3DTEXTURE9 shipEIDTexture_resource;
+	static LPDIRECT3DTEXTURE9 ship1EIDTexture_insig;
+	static LPDIRECT3DTEXTURE9 ship1EIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9 ship2EIDTexture_insig;
+	static LPDIRECT3DTEXTURE9 ship2EIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9 ship3EIDTexture_insig;
+	static LPDIRECT3DTEXTURE9 ship3EIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9 ship4EIDTexture_insig;
+	static LPDIRECT3DTEXTURE9 ship4EIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_arrow[4];
+	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_insig[4];
+
+
 	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
 	static LPDIRECT3DTEXTURE9 EnginePartTexture;

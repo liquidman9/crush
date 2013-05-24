@@ -65,7 +65,17 @@ std::wstring Gbls::skyboxTextureFilepath_Left = L"SkyBox_Left.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Right = L"SkyBox_Right.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Top = L"SkyBox_Top.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
-std::wstring Gbls::shipEIDTextureFilepath = L"arrow.png";
+
+std::wstring Gbls::shipEIDTextureFilepath_resource = L"";
+std::wstring Gbls::ship1EIDTextureFilepath_insig = L"arrow_icon_001.png";
+std::wstring Gbls::ship1EIDTextureFilepath_arrow = L"arrow_color_001.png";
+std::wstring Gbls::ship2EIDTextureFilepath_insig = L"arrow_icon_002.png";
+std::wstring Gbls::ship2EIDTextureFilepath_arrow = L"arrow_color_002.png";
+std::wstring Gbls::ship3EIDTextureFilepath_insig = L"arrow_icon_003.png";
+std::wstring Gbls::ship3EIDTextureFilepath_arrow = L"arrow_color_003.png";
+std::wstring Gbls::ship4EIDTextureFilepath_insig = L"arrow_icon_004.png";
+std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
+
 std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
 std::wstring Gbls::enginePartTexFilepath = L"particle02.bmp"; 
@@ -227,9 +237,36 @@ void Gbls::initFromConfig() {
 	if(conf.getValue("skyboxTextureFilepath_Bottom", tmpString)) {
 		skyboxTextureFilepath_Bottom = wstring(tmpString.begin(), tmpString.end());
 	}
-	if(conf.getValue("shipEIDTextureFilepath", tmpString)) {
-		shipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+
+	if(conf.getValue("shipEIDTextureFilepath_resource", tmpString)) {
+		shipEIDTextureFilepath_resource = wstring(tmpString.begin(), tmpString.end());
 	}
+	if(conf.getValue("ship1EIDTextureFilepath_insig", tmpString)) {
+		ship1EIDTextureFilepath_insig = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("ship1EIDTextureFilepath_arrow", tmpString)) {
+		ship1EIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("ship2EIDTextureFilepath_insig", tmpString)) {
+		ship2EIDTextureFilepath_insig = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("ship2EIDTextureFilepath_arrow", tmpString)) {
+		ship2EIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("ship3EIDTextureFilepath_insig", tmpString)) {
+		ship3EIDTextureFilepath_insig = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("ship3EIDTextureFilepath_arrow", tmpString)) {
+		ship3EIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("ship4EIDTextureFilepath_insig", tmpString)) {
+		ship4EIDTextureFilepath_insig = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("ship4EIDTextureFilepath_arrow", tmpString)) {
+		ship4EIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+
+	
 	if(conf.getValue("mothershipEIDTextureFilepath", tmpString)) {
 		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
