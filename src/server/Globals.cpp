@@ -41,6 +41,8 @@ namespace server {
 			float braking_impulse = 2500.0f;
 			float max_velocity = 50.0f;
 			float max_rotation_velocity = 2.5f;
+			int mash_number = 15;
+			float mash_time_limit = 5000.0f;
 		}
 
 		namespace mothership {
@@ -50,6 +52,11 @@ namespace server {
 		namespace extractor {
 			float mass = 2000000000.0f;
 			float resource_respawn_time = 30.0f;
+		}
+
+		namespace powerup {
+			float max_velocity_rate = 2.0f;
+			float impulse_rate = 1.20f;
 		}
 	}
 }

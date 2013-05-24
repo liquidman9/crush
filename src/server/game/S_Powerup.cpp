@@ -9,8 +9,8 @@
 #include <shared/game/Entity.h>
 #include <server/game/S_Powerup.h>
 
-float impulseIncrease = 1000.0f;
-float maxIncrease = 50.0f;
+
+using namespace server::entities::powerup;
 
 S_Powerup::S_Powerup(D3DXVECTOR3 pos, Quaternion orientation, PowerType type) :
 	Entity(genId(), POWERUP, pos, orientation, 3),
@@ -18,7 +18,9 @@ S_Powerup::S_Powerup(D3DXVECTOR3 pos, Quaternion orientation, PowerType type) :
 	ServerEntity(10, 1.0, calculateRotationalInertia(10)),
 	m_holder(NULL),
 	m_totalTimeLength(7000),
-	m_startTime(0)
+	m_startTime(0),
+	m_impulseRate(impulse_rate),
+	m_maxVelocityRate(max_velocity_rate)
 {
 }
 
@@ -52,8 +54,8 @@ void S_Powerup::start() {
 
 	switch(m_powerType){
 	case SPEEDUP:
-		m_holder->setFowardImpulse(m_holder->getForwardImpulse() + impulseIncrease);
-		m_holder->setMaxVelocity(m_holder->getMaxVelocity() + maxIncrease);
+		m_holder->setFowardImpulse( m_holder->getForwardImpulse()*m_impulseRate);
+		m_holder->setMaxVelocity(m_holder->getMaxVelocity()*m_maxVelocityRate);
 		break;
 	case PULSE:
 		break;
@@ -71,8 +73,8 @@ void S_Powerup::end() {
 
 	switch(m_powerType){
 	case SPEEDUP:
-		m_holder->setFowardImpulse(m_holder->getForwardImpulse() - impulseIncrease);
-		m_holder->setMaxVelocity(m_holder->getMaxVelocity() - maxIncrease);
+		m_holder->setFowardImpulse(m_holder->getForwardImpulse()/m_impulseRate);
+		m_holder->setMaxVelocity(m_holder->getMaxVelocity()/m_maxVelocityRate);
 		break;
 	case PULSE:
 		break;

@@ -49,8 +49,10 @@ public:
 	S_Resource * m_resource;
 	S_TractorBeam * m_tractorBeam;
 	S_Powerup * m_powerup;
-	vector<long> presses;
-	bool pressToggle;
+	vector<long> m_presses;
+	bool m_pressToggle;
+	int m_mashNumber;
+	float m_mashTimeLimit;
 
 	// Constructors
 	S_Ship();

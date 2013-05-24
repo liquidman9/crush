@@ -31,6 +31,8 @@ public:
 	S_Ship * m_holder;
 	long m_totalTimeLength;
 	long m_startTime;
+	float m_impulseRate; // config
+	float m_maxVelocityRate; //config
 
 	// Constructors
 	S_Powerup(D3DXVECTOR3, Quaternion, PowerType type);

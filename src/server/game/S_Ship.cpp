@@ -23,9 +23,7 @@ S_Ship::S_Ship() :
 	m_forward_impulse(forward_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_max_velocity(max_velocity),
-	m_max_rotation_velocity(max_rotation_velocity),
-	m_resource(NULL),
-	pressToggle(false)
+	m_max_rotation_velocity(max_rotation_velocity)
 {
 	init();
 }
@@ -38,10 +36,7 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	m_rotation_impulse(rotation_impulse),
 	m_braking_impulse(braking_impulse),
 	m_max_velocity(max_velocity),
-	m_max_rotation_velocity(max_rotation_velocity),
-	m_resource(NULL),
-	m_powerup(NULL),
-	pressToggle(false)
+	m_max_rotation_velocity(max_rotation_velocity)
 {	
 	init();
 }
@@ -50,6 +45,11 @@ void S_Ship::init() {
 	forward_rot_thruster = D3DXVECTOR3(0, 0, 5);
 	reverse_rot_thruster = D3DXVECTOR3(0, 0, -5);
 	m_resourceSpots = 1;
+	m_resource = NULL;
+	m_powerup = NULL;
+	m_pressToggle = false;
+	m_mashNumber = mash_number;
+	m_mashTimeLimit = mash_time_limit;
 }
 
 // TODO!!!:
@@ -72,11 +72,11 @@ void S_Ship::addPlayerInput(InputState input) {
 		m_tractorBeam->setIsOn(false);
 	}
 
-	if(input.getMash() && !pressToggle) {
-		presses.push_back(GetTickCount());
-		pressToggle = true;
+	if(input.getMash() && !m_pressToggle) {
+		m_presses.push_back(GetTickCount());
+		m_pressToggle = true;
 	}
-	else if(!input.getMash()) pressToggle = false;
+	else if(!input.getMash()) m_pressToggle = false;
 
 	if(m_powerup != NULL && m_powerup->m_stateType == HOLDING && input.getPowerup()) {
 		m_powerup->start();
@@ -205,31 +205,29 @@ void S_Ship::unlockResource(S_Ship * enemy) {
 
 void S_Ship::updateDefensiveOffensiveCounter() {
 	// Erases mashes that have gone for too long
-	for(int i = presses.size() -1; i >= 0; i--) {
+	for(int i = m_presses.size() -1; i >= 0; i--) {
 		long time = GetTickCount();
-		if(time - presses[i] > 5000) //config
-			presses.erase(presses.begin() + i);
+		if(time - m_presses[i] > m_mashTimeLimit) //config
+			m_presses.erase(m_presses.begin() + i);
 	}
 	
 	if(m_holder != NULL) {
-		if(presses.size() >= 15) { // add to config
-			cout<<"Tractor Beam Disabled"<<endl;
+		if(m_presses.size() >= 15) { 
 			((S_Ship *)m_holder)->disableTractorBeam();
-			presses.clear();
+			m_presses.clear();
 		}
 	}
 	else if(m_tractorBeam->m_object != NULL && 
 		m_tractorBeam->m_object->m_type == SHIP && 
 		((S_Ship *)m_tractorBeam->m_object)->m_resource != NULL) 
 	{
-			if(presses.size() >= 15) { // add to config
-				cout<<"Resource Unlocked"<<endl;
+			if(m_presses.size() >= m_mashNumber) { 
 				((S_Ship *)m_tractorBeam->m_object)->unlockResource(this);
-				presses.clear();
+				m_presses.clear();
 			}
 	}
 	else {
-		presses.clear();
+		m_presses.clear();
 	}
 }
 
@@ -247,7 +245,6 @@ void S_Ship::update(float delta_time) {
 	applyDamping();
 	
 	ServerEntity::update(delta_time);
-
 }
 
 void S_Ship::calcTractorBeam() {

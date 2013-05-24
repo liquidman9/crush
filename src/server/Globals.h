@@ -84,6 +84,8 @@ namespace server {
 			extern float braking_impulse;
 			extern float max_velocity;
 			extern float max_rotation_velocity;
+			extern int mash_number;
+			extern float mash_time_limit;
 
 			inline void initFromConfig(string prefix) {
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "mass", mass);
@@ -92,6 +94,8 @@ namespace server {
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "braking_impulse", braking_impulse);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_velocity", max_velocity);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_rotation_velocity", max_rotation_velocity);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "mash_number", mash_number);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "mash_time_limit", mash_time_limit);
 			}
 		}
 
@@ -134,6 +138,19 @@ namespace server {
 			}
 		}
 
+		namespace powerup {
+			static const std::string CONFIG_PREFIX = "powerup_";
+
+			// Property declarations
+			extern float max_velocity_rate;
+			extern float impulse_rate;
+
+			inline void initFromConfig(string prefix) {
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_velocity_rate", max_velocity_rate);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "impulse_rate", impulse_rate);
+			}
+		}
+
 		// INIT ALL ENTITIES
 		inline void initFromConfig(string prefix) {
 			asteroid::initFromConfig(prefix + CONFIG_PREFIX);
@@ -141,6 +158,7 @@ namespace server {
 			tractorbeam::initFromConfig(prefix + CONFIG_PREFIX);
 			mothership::initFromConfig(prefix + CONFIG_PREFIX);
 			extractor::initFromConfig(prefix + CONFIG_PREFIX);
+			powerup::initFromConfig(prefix + CONFIG_PREFIX);
 		}
 
 	}
