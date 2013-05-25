@@ -4,6 +4,7 @@
 
 // Project includes
 #include <server/game/ServerEntity.h>
+#include <server/game/S_Ship.h>
 
 class Collision {
 public:

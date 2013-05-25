@@ -50,6 +50,8 @@ void S_Ship::init() {
 	m_pressToggle = false;
 	m_mashNumber = mash_number;
 	m_mashTimeLimit = mash_time_limit;
+	m_shieldOn = false;
+	m_pulseOn = false;
 }
 
 // TODO!!!:
@@ -191,7 +193,7 @@ void S_Ship::dropResource(long time) {
 
 void S_Ship::disableTractorBeam() {
 	m_tractorBeam->disable();
-	m_holder = NULL;
+	m_heldBy = NULL;
 }
 
 
@@ -211,9 +213,9 @@ void S_Ship::updateDefensiveOffensiveCounter() {
 			m_presses.erase(m_presses.begin() + i);
 	}
 	
-	if(m_holder != NULL) {
+	if(m_heldBy != NULL) {
 		if(m_presses.size() >= 15) { 
-			((S_Ship *)m_holder)->disableTractorBeam();
+			((S_Ship *)m_heldBy)->disableTractorBeam();
 			m_presses.clear();
 		}
 	}
@@ -233,7 +235,7 @@ void S_Ship::updateDefensiveOffensiveCounter() {
 
 void S_Ship::update(float delta_time) {
 	
-	// If a Powerup's time is up ends it
+	// If a Powerup's use is up ends it
 	if(m_powerup != NULL && m_powerup->m_stateType == CONSUMED){
 		if(m_powerup->check(GetTickCount())){
 			m_powerup->end();
@@ -260,6 +262,16 @@ void S_Ship::checkDropoff(S_Mothership * mother) {
 	}
 }
 
+
+bool S_Ship::checkShield() {
+	if(m_shieldOn) return true;
+	else return false;
+}
+
+void S_Ship::disableShield() {
+	m_shieldOn = false;
+}
+
 D3DXMATRIX S_Ship::calculateRotationalInertia(float mass){
 	float radius_squared = 5 * 5;
 	float height_squared = (2 * 5.0f) * (2 * 5.0f);
@@ -270,7 +282,7 @@ D3DXMATRIX S_Ship::calculateRotationalInertia(float mass){
 
 
 bool S_Ship::interact(S_Powerup * power) {
-	if(power->m_holder == NULL && power->m_stateType == SPAWNED && m_powerup == NULL) {	
+	if(power->m_ship == NULL && power->m_stateType == SPAWNED && m_powerup == NULL) {	
 		power->pickUp(this);
 		m_powerup = power;
 	}
@@ -302,7 +314,7 @@ bool S_Ship::interact(S_Asteroid * asteroid) {
 		m_tractorBeam->m_isColliding = true;
 		return false;
 	}
-	else if(m_resource != NULL) {
+	else if(m_resource != NULL && !m_shieldOn) {
 		dropResource(2000);
 	}
 	return true;
@@ -313,7 +325,7 @@ bool S_Ship::interact(S_Ship * ship) {
 		m_tractorBeam->m_isColliding = true;
 		return true;  // can not "hold" a ship?
 	}
-	if(m_resource != NULL) {
+	if(m_resource != NULL && !m_shieldOn) {
 		dropResource(2000);
 	}
 	return true;

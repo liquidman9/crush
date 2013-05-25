@@ -53,6 +53,8 @@ public:
 	bool m_pressToggle;
 	int m_mashNumber;
 	float m_mashTimeLimit;
+	bool m_shieldOn;
+	bool m_pulseOn;
 
 	// Constructors
 	S_Ship();
@@ -81,6 +83,11 @@ public:
 
 	// Update logic for button mashes defensive/offensive counter for tractor beams
 	void updateDefensiveOffensiveCounter();
+
+	// Checks for Shield
+	bool checkShield();
+
+	void disableShield();
 
 	virtual void update(float delta_time);
 

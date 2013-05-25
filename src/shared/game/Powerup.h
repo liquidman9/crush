@@ -14,7 +14,7 @@
  
 // Defines
 #define POWER_TYPE char
-enum PowerType : char { SPEEDUP, PULSE, FIELD, SHIELD};
+enum PowerType : char { SPEEDUP, PULSE, SHIELD};
 
 #define STATE_TYPE char
 enum StateType : char { WAITING, SPAWNED, HOLDING, CONSUMED};

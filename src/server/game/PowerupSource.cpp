@@ -12,7 +12,7 @@ PowerupSource::PowerupSource(vector<D3DXVECTOR3> points, long long time)
 	Quaternion m_dir1(0.0, 0.0, 0.0, 1.0);
 	unsigned int i;
 	for(i = 0; i < points.size(); i++) {
-		m_powerups.push_back(new S_Powerup(m_pos1, m_dir1, SPEEDUP));//(PowerType)(rand()%4)));
+		m_powerups.push_back(new S_Powerup(m_pos1, m_dir1, (PowerType)(rand()%3)));//(PowerType)(rand()%4)));
 		m_spawnPoints.push_back(pair<S_Powerup *, D3DXVECTOR3>(m_powerups[i],points[i]));
 		m_startTimes.push_back(time);
 
@@ -21,7 +21,7 @@ PowerupSource::PowerupSource(vector<D3DXVECTOR3> points, long long time)
 	}
 
 	for(int j = 0; j < 2; j++) {
-		m_powerups.push_back(new S_Powerup(m_pos1, m_dir1, SPEEDUP));// (PowerType)(rand()%4)));
+		m_powerups.push_back(new S_Powerup(m_pos1, m_dir1, (PowerType)(rand()%3)));// (PowerType)(rand()%4)));
 		m_powerups[i+j]->m_stateType = WAITING;
 	}
 
@@ -42,6 +42,7 @@ void PowerupSource::update(long long time) {
 				switch(m_powerups[j]->m_stateType){
 					case WAITING:
 						cout<< "Powerup Replaced"<<endl;
+						m_powerups[j]->m_powerType = (PowerType)(rand()%3);
 						m_spawnPoints[i].first = m_powerups[j];
 						m_powerups[j]->m_pos = m_spawnPoints[i].second;
 						m_powerups[j]->m_stateType = SPAWNED;

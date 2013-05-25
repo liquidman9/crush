@@ -142,8 +142,12 @@ void Collision::resolve()
 	}
 
 	// Add the impulse to both entities
-	m_a->applyImpulse(jN, m_poi);
-	m_b->applyImpulse(-jN, m_poi);
+	if(!(m_a->m_type == SHIP && ((S_Ship *)m_a)->checkShield()))
+		m_a->applyImpulse(jN, m_poi);
+
+	
+	if(!(m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield()))
+		m_b->applyImpulse(-jN, m_poi);
 
 	
 

@@ -28,7 +28,7 @@ class S_Powerup : public Powerup, public ServerEntity{ //switch back to capsule
 public:
 
 	// Fields
-	S_Ship * m_holder;
+	S_Ship * m_ship;
 	long m_totalTimeLength;
 	long m_startTime;
 	float m_impulseRate; // config
@@ -42,6 +42,7 @@ public:
 	void start();
 	void end();
 	bool check(long);
+	void pulseAll(vector<ServerEntity *> entities);
 
 	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 	void update(float delta_time);

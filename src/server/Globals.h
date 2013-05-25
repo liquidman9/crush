@@ -144,10 +144,18 @@ namespace server {
 			// Property declarations
 			extern float max_velocity_rate;
 			extern float impulse_rate;
+			extern float pulse_rate;
+			extern float speedup_time;
+			extern float shield_time;
+			extern float pulse_time;
 
 			inline void initFromConfig(string prefix) {
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_velocity_rate", max_velocity_rate);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "impulse_rate", impulse_rate);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "pulse_rate", pulse_rate);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "speedup_time", speedup_time);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "shield_time", shield_time);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "pulse_time", pulse_time);
 			}
 		}
 

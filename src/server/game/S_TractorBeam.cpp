@@ -49,14 +49,14 @@ bool S_TractorBeam::isLocked() {
 void S_TractorBeam::lockOn(ServerEntity * entity) {
 	if(m_object != entity) {
 		lockOff();
-		entity->m_holder = m_ship;
+		entity->m_heldBy = m_ship;
 	}
 	m_object = entity;
 }
 
 void S_TractorBeam::lockOff() {
 	if(m_object != NULL) {
-		m_object->m_holder = NULL;
+		m_object->m_heldBy = NULL;
 		m_object = NULL;
 	}
 	m_isColliding = false;
@@ -314,7 +314,7 @@ void S_TractorBeam::setIsOn(bool isOn){
 
 bool S_TractorBeam::interact(ServerEntity * entity) {
 	if(m_isOn){
-		
+
 		if(entity->m_type == SHIP && m_ship == entity || 
 			entity->m_type == MOTHERSHIP || 
 			entity->m_type == EXTRACTOR || 

@@ -6,6 +6,11 @@
 #include <server/game/PhysicsWorld.h>
 #include <shared/util/SharedUtils.h>
 
+void PhysicsWorld::checkPulse(S_Ship * ship){
+	if(!ship->m_pulseOn) return;
+	ship->m_powerup->pulseAll(entities);
+}
+
 void PhysicsWorld::collision(float delta_time) {
 
 	for(unsigned i = 0; i < entities.size(); i++)
@@ -28,6 +33,7 @@ void PhysicsWorld::collision(float delta_time) {
 
 	}
 }
+
 
 // delta_time is in fractions of a second.
 void PhysicsWorld::update(float delta_time) {

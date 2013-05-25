@@ -284,6 +284,7 @@ void Server::loop() {
 			for(auto j = m_mothershipMap.begin(); j != m_mothershipMap.end(); j++) {
 				i->second->checkDropoff(j->second);
 			}
+			m_world.checkPulse(i->second);
 			i->second->calcTractorBeam();
 		}
 		m_world.update(physics_delta);

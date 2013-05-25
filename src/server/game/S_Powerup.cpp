@@ -15,9 +15,9 @@ using namespace server::entities::powerup;
 S_Powerup::S_Powerup(D3DXVECTOR3 pos, Quaternion orientation, PowerType type) :
 	Entity(genId(), POWERUP, pos, orientation, 3),
 	Powerup(type),
-	ServerEntity(10, 1.0, calculateRotationalInertia(10)),
-	m_holder(NULL),
-	m_totalTimeLength(7000),
+	ServerEntity(10, 0.0, calculateRotationalInertia(10)),
+	m_ship(NULL),
+	m_totalTimeLength(0),
 	m_startTime(0),
 	m_impulseRate(impulse_rate),
 	m_maxVelocityRate(max_velocity_rate)
@@ -32,13 +32,29 @@ D3DXMATRIX S_Powerup::calculateRotationalInertia(float mass){
 };
 
 bool S_Powerup::check(long time) {
-	if(time - m_startTime >= m_totalTimeLength) return true;
-	else return false;
+	bool timeUp = false;
+	switch(m_powerType){
+	case SPEEDUP:
+		if(time - m_startTime >= m_totalTimeLength) timeUp = true;
+		else timeUp = false;
+		break;
+	case PULSE:
+		if(time - m_startTime >= m_totalTimeLength) timeUp = true;
+		else timeUp = false;
+		break;
+	case SHIELD:
+		if(time - m_startTime >= m_totalTimeLength) timeUp = true;
+		else timeUp = false;
+		break;
+	default:
+		break;
+	}
+	return timeUp;
 }
 
 void S_Powerup::pickUp(S_Ship * ship) {
 	m_pos = D3DXVECTOR3(1000000,0,0);//tmp
-	m_holder = ship;
+	m_ship = ship;
 	m_playerNum = ship->m_playerNum;
 	m_stateType = HOLDING;
 
@@ -47,21 +63,24 @@ void S_Powerup::pickUp(S_Ship * ship) {
 
 void S_Powerup::start() {
 	m_startTime = GetTickCount();
-	m_playerNum = m_holder->m_playerNum;
+	m_playerNum = m_ship->m_playerNum;
 	m_stateType = CONSUMED;
 
 	cout<<"Player "<<(int)m_playerNum<<" used a type "<<(int)m_powerType<<" powerup."<<endl;
 
 	switch(m_powerType){
 	case SPEEDUP:
-		m_holder->setFowardImpulse( m_holder->getForwardImpulse()*m_impulseRate);
-		m_holder->setMaxVelocity(m_holder->getMaxVelocity()*m_maxVelocityRate);
+		m_totalTimeLength = speedup_time;
+		m_ship->setFowardImpulse( m_ship->getForwardImpulse()*m_impulseRate);
+		m_ship->setMaxVelocity(m_ship->getMaxVelocity()*m_maxVelocityRate);
 		break;
 	case PULSE:
-		break;
-	case FIELD:
+		m_totalTimeLength = pulse_time;
+		m_ship->m_pulseOn = true;
 		break;
 	case SHIELD:
+		m_totalTimeLength = shield_time;
+		m_ship->m_shieldOn = true;
 		break;
 	default:
 		break;
@@ -73,21 +92,22 @@ void S_Powerup::end() {
 
 	switch(m_powerType){
 	case SPEEDUP:
-		m_holder->setFowardImpulse(m_holder->getForwardImpulse()/m_impulseRate);
-		m_holder->setMaxVelocity(m_holder->getMaxVelocity()/m_maxVelocityRate);
+		m_ship->setFowardImpulse(m_ship->getForwardImpulse()/m_impulseRate);
+		m_ship->setMaxVelocity(m_ship->getMaxVelocity()/m_maxVelocityRate);
 		break;
 	case PULSE:
-		break;
-	case FIELD:
+		m_ship->m_pulseOn = false;
 		break;
 	case SHIELD:
+		m_ship->m_shieldOn = false;
 		break;
 	default:
 		break;
 	}
 
-	m_holder->m_powerup = NULL;
-	m_holder = NULL;
+	m_totalTimeLength = 0;
+	m_ship->m_powerup = NULL;
+	m_ship = NULL;
 	m_destroy = true;
 	m_playerNum = -1;
 	m_startTime = GetTickCount();
@@ -98,4 +118,25 @@ void S_Powerup::update(float delta_time){
 	
 	ServerEntity::update(delta_time);
 
+}
+
+
+void S_Powerup::pulseAll(vector<ServerEntity *> entities) {
+	for(unsigned i = 0; i < entities.size(); i++)
+	{	
+		if(entities[i]->m_type == EXTRACTOR || 
+		   entities[i]->m_type == POWERUP ||
+		   entities[i]->m_type == RESOURCE ||
+		   entities[i]->m_type == MOTHERSHIP ||
+		   entities[i] == m_ship)
+			continue;
+
+		D3DXVECTOR3 disV;
+		D3DXVECTOR3 range = entities[i]->m_pos - m_ship->m_pos;
+		D3DXVec3Normalize(&disV, &range);
+		float disL = D3DXVec3Length(&range);
+		
+		D3DXVECTOR3 force = (pulse_rate*m_ship->m_mass*entities[i]->m_mass)*(disV)/(pow(disL, 2));
+		entities[i]->applyLinearImpulse(force);
+	}
 }
