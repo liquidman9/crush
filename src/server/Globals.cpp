@@ -34,6 +34,10 @@ namespace server {
 			float length = 350.0f;
 		}
 
+		namespace resource {
+			float max_travel_time = 3000;
+		}
+
 		namespace ship {
 			float mass = 10000.0f;
 			float forward_impulse = 5000.0f;

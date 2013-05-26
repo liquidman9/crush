@@ -300,7 +300,7 @@ bool S_Ship::interact(S_Resource * res) {
 			res->m_dropTimeoutLength = 0;
 			res->m_droppedFrom = -1;
 			res->m_spot = 0;
-			res->m_travelFrames = 0;
+			res->m_startTravelTime = GetTickCount();
 			cout<<"Gathered"<<endl;
 		}
 		return true;

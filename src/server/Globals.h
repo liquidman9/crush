@@ -125,6 +125,17 @@ namespace server {
 			}
 		}
 
+		namespace resource {
+			static const std::string CONFIG_PREFIX = "resource_";
+
+			// Property declarations
+			extern float max_travel_time;
+
+			inline void initFromConfig(string prefix) {
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_travel_time", max_travel_time);
+			}
+		}
+
 		namespace extractor {
 			static const std::string CONFIG_PREFIX = "extractor_";
 
@@ -167,6 +178,7 @@ namespace server {
 			mothership::initFromConfig(prefix + CONFIG_PREFIX);
 			extractor::initFromConfig(prefix + CONFIG_PREFIX);
 			powerup::initFromConfig(prefix + CONFIG_PREFIX);
+			resource::initFromConfig(prefix + CONFIG_PREFIX);
 		}
 
 	}
