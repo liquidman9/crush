@@ -855,8 +855,22 @@ void D3DWindow::setFontHeight(int desiredSize) {
 //=================================================================================================
 
 void D3DWindow::OnLostDevice()
-{
-	//GameResources::pEffectTexToScreen->OnLostDevice();
+{	// Release glowmap texture
+	if (GameResources::pGlowmapTexture) {
+		GameResources::pGlowmapTexture->Release();
+		GameResources::pGlowmapTexture = NULL;
+	}
+	// Release extra blur texture
+	if (GameResources::pTmpBlurTexture) {
+		GameResources::pTmpBlurTexture->Release();
+		GameResources::pTmpBlurTexture = NULL;
+	}
+	// Release default render texture
+	if (GameResources::pDefaultRenderTexture) {
+		GameResources::pDefaultRenderTexture->Release();
+		GameResources::pDefaultRenderTexture = NULL;
+	}
+	GameResources::pEffectBlur->OnLostDevice();
 	GameResources::pEffectGlowmap->OnLostDevice();
 	GameResources::pEffectDefault->OnLostDevice(); 
 	GameResources::pEffectTexToScreen->OnLostDevice();
@@ -868,7 +882,7 @@ void D3DWindow::OnLostDevice()
 
 void D3DWindow::OnResetDevice()
 {
-	//GameResources::pEffectTexToScreen->OnResetDevice();
+	GameResources::pEffectBlur->OnResetDevice();
 	GameResources::pEffectGlowmap->OnResetDevice();
 	GameResources::pEffectDefault->OnResetDevice();
 	GameResources::pEffectTexToScreen->OnResetDevice();

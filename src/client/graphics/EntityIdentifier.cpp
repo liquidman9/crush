@@ -54,6 +54,13 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 			pSpriteRenderer->SetTransform(&mat);
 			pSpriteRenderer->Draw(m_onScreenSprite.m_pTexture, NULL, &m_onScreenSprite.m_vCenter, NULL, 0XFFFFFFFF);
 		} else {
+			if (screenHeight > screenWidth) {
+				float ratio = (float)screenWidth/(float)screenHeight;
+				out.y *= ratio;
+			} else {
+				float ratio = (float)screenHeight/(float)screenWidth;
+				out.x *= ratio;
+			}
 			D3DXVECTOR2 arrowV(out.x, out.y);
 			D3DXVec2Normalize(&arrowV, &arrowV);
 

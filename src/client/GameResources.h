@@ -100,11 +100,13 @@ public:
 	static ID3DXEffect * pEffectGlowmap;
 	static ID3DXEffect * pEffectTexToScreen;
 	static ID3DXEffect * pEffectBlend;
+	static ID3DXEffect * pEffectBlur;
 
 	static D3DXMATRIX sunWorldMat;
 	static LPD3DXMESH sunMesh;
 	static LPDIRECT3DTEXTURE9 pGlowmapTexture;
 	static LPDIRECT3DSURFACE9 pGlowmapSurface;
+	static LPDIRECT3DTEXTURE9 pTmpBlurTexture;
 	static LPDIRECT3DTEXTURE9 pDefaultRenderTexture;
 	static LPDIRECT3DSURFACE9 pDefaultRenderSurface;
 	static LPDIRECT3DSURFACE9 pBackBuffer;
@@ -154,9 +156,11 @@ public:
 	//static HRESULT initSprites();
 	static void drawAll();
 	static void createGlowmap();
+	static void DrawBGSun();
 	//static void drawTexToScreen(LPDIRECT3DSURFACE9 surface, UINT surfaceHeight, UINT surfaceWidth);
-	static void drawTexToSurface(LPDIRECT3DTEXTURE9 tex);
-	static void blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2) ;
+	static void drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUFFER9 quadVBuffer);
+	static void blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2, LPDIRECT3DVERTEXBUFFER9 quadVBuffer);
+	static void blurTexture(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2);
 	static void drawModel(C_Entity * cEnt);
 	static void drawAllModels();
 	static void drawAllTractorBeams();
