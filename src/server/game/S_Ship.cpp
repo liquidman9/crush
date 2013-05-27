@@ -295,10 +295,6 @@ bool S_Ship::interact(S_Resource * res) {
 		if(((res->m_droppedFrom != m_playerNum && res->m_onDropTimeout) || res->m_droppedFrom != m_playerNum)) {
 			m_resource = res;
 			res->m_carrier = this;
-			res->m_onDropTimeout = false;
-			res->m_dropTimeoutStart = 0;
-			res->m_dropTimeoutLength = 0;
-			res->m_droppedFrom = -1;
 			res->m_spot = 0;
 			res->m_startTravelTime = GetTickCount();
 			cout<<"Gathered"<<endl;
@@ -321,12 +317,27 @@ bool S_Ship::interact(S_Asteroid * asteroid) {
 }
 
 bool S_Ship::interact(S_Ship * ship) {
+	bool switched = false;
+
 	if(m_tractorBeam->m_object != NULL && m_tractorBeam->m_object == ship){
 		m_tractorBeam->m_isColliding = true;
-		return true;  // can not "hold" a ship?
+		m_tractorBeam->lockOff();
 	}
-	if(m_resource != NULL && !m_shieldOn) {
+	if(m_resource != NULL && !m_shieldOn && ship->m_resource == NULL && m_resource->m_droppedFrom != ship->m_playerNum) {
+		S_Resource * r = m_resource;
 		dropResource(2000);
+		ship->interact(r);
+		switched = true;
+	}
+
+	if(ship->m_tractorBeam->m_object != NULL && ship->m_tractorBeam->m_object == this){
+		m_tractorBeam->m_isColliding = true;
+		ship->m_tractorBeam->lockOff();
+	}
+	if(!switched && ship->m_resource != NULL && !ship->m_shieldOn && m_resource == NULL && ship->m_resource->m_droppedFrom != m_playerNum) {
+		S_Resource * r = ship->m_resource;
+		ship->dropResource(2000);
+		interact(r);
 	}
 	return true;
 }

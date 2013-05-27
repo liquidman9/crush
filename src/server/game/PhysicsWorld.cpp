@@ -190,7 +190,7 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 	if(((one = a)->m_type == SHIP && (two = b)->m_type == SHIP) ){
 		S_Ship * ship1 = (S_Ship *) one;
 		S_Ship * ship2 = (S_Ship *) two;
-		if(ship1->interact(ship2) && ship2->interact(ship1)) rtn = true;
+		if(ship1->interact(ship2)) rtn = true;
 		else rtn = false; 
 	}
 

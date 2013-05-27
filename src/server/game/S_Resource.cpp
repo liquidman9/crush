@@ -104,6 +104,7 @@ void S_Resource::update(float delta_time){
 		if(GetTickCount() - m_dropTimeoutStart > m_dropTimeoutLength) {
 			m_dropTimeoutStart = 0;
 			m_onDropTimeout = 0;
+			m_dropTimeoutLength = 0;
 			m_droppedFrom = -1;
 		}
 	}

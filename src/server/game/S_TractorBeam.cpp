@@ -319,6 +319,7 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 			entity->m_type == MOTHERSHIP || 
 			entity->m_type == EXTRACTOR || 
 			entity->m_type == POWERUP || // can not tractorbeam powerups
+			(entity->m_type == RESOURCE &&  (((S_Resource *)entity)->m_droppedFrom == m_ship->m_playerNum)) ||
 			(entity->m_type == RESOURCE && (((S_Resource *)entity)->m_carrier != NULL && ((S_Resource *)entity)->m_carrier->m_type != EXTRACTOR)) )
 				return false; 
 		// If is already locked check if closer
