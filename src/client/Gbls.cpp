@@ -48,14 +48,14 @@ std::wstring Gbls::powerupMeshFilepath;
 Mesh Gbls::powerupMesh;
 
 
-std::wstring Gbls::shipTexFilepath1 = L"player_ship_skin_001.png";
-std::wstring Gbls::shipTexFilepath2 = L"player_ship_skin_002.png";
-std::wstring Gbls::shipTexFilepath3 = L"player_ship_skin_003.png";
-std::wstring Gbls::shipTexFilepath4 = L"player_ship_skin_004.png";
-std::wstring Gbls::mothershipTexFilepath1 = L"mothership_skin_001.png";
-std::wstring Gbls::mothershipTexFilepath2 = L"mothership_skin_002.png";
-std::wstring Gbls::mothershipTexFilepath3 = L"mothership_skin_003.png";
-std::wstring Gbls::mothershipTexFilepath4 = L"mothership_skin_004.png";
+std::wstring Gbls::shipTexFilepath1 = L"player_ship_skin_001.dds";
+std::wstring Gbls::shipTexFilepath2 = L"player_ship_skin_002.dds";
+std::wstring Gbls::shipTexFilepath3 = L"player_ship_skin_003.dds";
+std::wstring Gbls::shipTexFilepath4 = L"player_ship_skin_004.dds";
+std::wstring Gbls::mothershipTexFilepath1 = L"mothership_skin_001.dds";
+std::wstring Gbls::mothershipTexFilepath2 = L"mothership_skin_002.dds";
+std::wstring Gbls::mothershipTexFilepath3 = L"mothership_skin_003.dds";
+std::wstring Gbls::mothershipTexFilepath4 = L"mothership_skin_004.dds";
 
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;

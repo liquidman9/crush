@@ -149,6 +149,7 @@ public:
 	static HRESULT initMeshes();
 	static HRESULT loadEffect(ID3DXEffect ** pEffect, std::wstring effectLoc);
 	static HRESULT loadTexture(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath);
+	static HRESULT loadTextureWithFormat(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath, _D3DFORMAT format);
 	static HRESULT initAdditionalTextures();
 	static HRESULT loadFont(LPD3DXFONT * pFont, int height, std::wstring fontStyle);
 	static void releaseAdditionalTextures();

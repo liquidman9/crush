@@ -455,42 +455,90 @@ HRESULT GameResources::loadTexture(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstrin
 	return S_OK;
 }
 
+HRESULT GameResources::loadTextureWithFormat(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath, _D3DFORMAT format) {
+	//HRESULT hres = D3DXCreateTextureFromFileEx(
+	//	Gbls::pd3dDevice,
+	//	filepath.c_str(),
+	//	D3DX_DEFAULT,
+	//	D3DX_DEFAULT,
+	//	D3DX_DEFAULT,
+	//	0,
+	//	/*D3DFMT_UNKNOWN,*/format,
+	//	D3DPOOL_MANAGED,
+	//	D3DX_DEFAULT,
+	//	D3DX_DEFAULT,
+	//	0,
+	//	NULL,
+	//	NULL,
+	//	pTextureOut
+	//);
+
+	HRESULT hres = D3DXCreateTextureFromFileEx(
+		Gbls::pd3dDevice,
+		filepath.c_str(),
+		D3DX_DEFAULT_NONPOW2,
+		D3DX_DEFAULT_NONPOW2,
+		D3DX_FROM_FILE,
+		0,
+		D3DFMT_FROM_FILE,
+		D3DPOOL_MANAGED,
+		D3DX_FILTER_NONE,
+		D3DX_DEFAULT,
+		0,
+		NULL,
+		NULL,
+		pTextureOut
+	);
+
+	if (FAILED(hres)) {
+		std::wstring tmpStr = L"loadTextureWithFormat() failed. Error: " + Util::DXErrorToString(hres);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		//MessageBox( NULL, (L"Could not find "+filepath).c_str(), L"CRUSH.exe", MB_OK );
+        return hres;
+	}
+	return S_OK;
+}
+
 HRESULT GameResources::initAdditionalTextures()
 {
 	HRESULT hres;
+
+	_D3DFORMAT compressedFormat = D3DFMT_DXT3;
 	
 	// load ship textures
-	hres = loadTexture(&Gbls::shipTexture1, Gbls::shipTexFilepath1);
+	hres = loadTextureWithFormat(&Gbls::shipTexture1, Gbls::shipTexFilepath1, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
-	hres = loadTexture(&Gbls::shipTexture2, Gbls::shipTexFilepath2);
+	//D3DSURFACE_DESC desc;
+	//Gbls::shipTexture1->GetLevelDesc(0, &desc);
+	hres = loadTextureWithFormat(&Gbls::shipTexture2, Gbls::shipTexFilepath2, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
-	hres = loadTexture(&Gbls::shipTexture3, Gbls::shipTexFilepath3);
+	hres = loadTextureWithFormat(&Gbls::shipTexture3, Gbls::shipTexFilepath3, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
-	hres = loadTexture(&Gbls::shipTexture4, Gbls::shipTexFilepath4);
+	hres = loadTextureWithFormat(&Gbls::shipTexture4, Gbls::shipTexFilepath4, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
 
 	// load ship textures
-	hres = loadTexture(&Gbls::mothershipTexture1, Gbls::mothershipTexFilepath1);
+	hres = loadTextureWithFormat(&Gbls::mothershipTexture1, Gbls::mothershipTexFilepath1, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
-	hres = loadTexture(&Gbls::mothershipTexture2, Gbls::mothershipTexFilepath2);
+	hres = loadTextureWithFormat(&Gbls::mothershipTexture2, Gbls::mothershipTexFilepath2, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
-	hres = loadTexture(&Gbls::mothershipTexture3, Gbls::mothershipTexFilepath3);
+	hres = loadTextureWithFormat(&Gbls::mothershipTexture3, Gbls::mothershipTexFilepath3, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
-	hres = loadTexture(&Gbls::mothershipTexture4, Gbls::mothershipTexFilepath4);
+	hres = loadTextureWithFormat(&Gbls::mothershipTexture4, Gbls::mothershipTexFilepath4, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
