@@ -76,6 +76,7 @@ std::wstring Gbls::ship3EIDTextureFilepath_arrow = L"arrow_color_003.png";
 std::wstring Gbls::ship4EIDTextureFilepath_insig = L"arrow_icon_004.png";
 std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
 
+std::wstring Gbls::resourceEIDTextureFilepath = L"arrow.png";
 std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
 std::wstring Gbls::enginePartTexFilepath = L"particle02.bmp"; 
@@ -270,6 +271,12 @@ void Gbls::initFromConfig() {
 	if(conf.getValue("mothershipEIDTextureFilepath", tmpString)) {
 		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
+
+	if(conf.getValue("resourceEIDTextureFilepath", tmpString)) {
+		resourceEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+
+
 	if(conf.getValue("tBeamPartTexFilepath", tmpString)) {
 		tBeamPartTexFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
