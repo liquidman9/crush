@@ -14,10 +14,11 @@ using namespace shared::utils;
 S_Extractor::S_Extractor(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), EXTRACTOR, pos, orientation, 3),
 	Extractor(),
-	ServerEntity(2000000000.0f, (m_length = 5.0f), calculateRotationalInertia(2000000000.0f)),
+	ServerEntity(mass, (m_length = 5.0f), calculateRotationalInertia(mass)),
 	m_cur_resource(NULL),
 	m_timer(resource_respawn_time)
 { 
+	m_immovable = true;
 }
 
 /*

@@ -245,7 +245,7 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 
 	//Extractor and Ship
 	if(((one = a)->m_type == EXTRACTOR && (two = b)->m_type == SHIP)|| ((one = b)->m_type == EXTRACTOR && (two = a)->m_type == SHIP)){
-		rtn = false; // temporarily disabling reaction between ship and extractor
+		//rtn = false; // temporarily disabling reaction between ship and extractor
 	}
 
 	return rtn;
