@@ -24,6 +24,7 @@ Server::Server(unsigned int port):m_server(port)
 void Server::start() {
 	m_pause = false;
 	m_start = true;
+	m_startGame = true;
 	if(m_hThread == NULL) {
 		unsigned int threadID;
 		m_hThread = (HANDLE)_beginthreadex( NULL, // security
@@ -297,6 +298,7 @@ void Server::loop() {
 
 		long long cur = milliseconds_now();
 		float physics_delta = (float)(milliseconds_now() - prev_tick) / 1000.0f;
+		m_gameState.setServerTime(cur);
 		prev_tick = cur;
 
 		
