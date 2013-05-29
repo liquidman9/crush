@@ -64,8 +64,10 @@ char * Network::encodeDelta(const char* new_data, unsigned int &size) {
 	m_deltaField.clear();
 	if(m_oldSize < size) {
 		char * tmp = new char[size];
-		memcpy(tmp, m_oldState, m_oldSize);
-		delete []m_oldState;
+		if(m_oldState) {
+			memcpy(tmp, m_oldState, m_oldSize);
+			delete []m_oldState;
+		}
 		m_oldState = tmp;
 	}
 
@@ -341,7 +343,7 @@ unsigned int BitField::decode(const char *buff) {
 	unsigned int size = (unsigned int) ceil(rtn/8.0); 
 	for(unsigned int i = 0; i < size; i++) {
 		for(unsigned int k = 0; k < sizeof(char)*8; ++k) {
-			if(i == size -1 && k == rtn%8) {
+			if(i == size -1 && k != 0 && k == rtn%8) {
 				//don't decode bits that aren't part of the
 				//delta filed
 				break;
