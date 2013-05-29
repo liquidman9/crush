@@ -283,8 +283,8 @@ HRESULT GameResources::reInitState() {
     fsQuadVBuffer->Unlock();
 	
 	
-	right = ((float) Gbls::thePresentParams.BackBufferWidth)/4.0f - 0.5f;
-	bottom = ((float) Gbls::thePresentParams.BackBufferHeight)/4.0f - 0.5f;
+	right = ((float) Gbls::thePresentParams.BackBufferWidth) / 2.0f - 0.5f;
+	bottom = ((float) Gbls::thePresentParams.BackBufferHeight) / 2.0f - 0.5f;
 	CUSTOMVERTEX vertices2[] =
     {
 		{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
@@ -312,8 +312,8 @@ HRESULT GameResources::reInitState() {
 		pGlowmapTexture = NULL;
 	}
 	Gbls::pd3dDevice->CreateTexture(
-		Gbls::thePresentParams.BackBufferWidth / 4,
-		Gbls::thePresentParams.BackBufferHeight / 4,
+		Gbls::thePresentParams.BackBufferWidth / 2,
+		Gbls::thePresentParams.BackBufferHeight / 2,
         1,
         D3DUSAGE_RENDERTARGET,
         D3DFMT_R5G6B5,
@@ -328,8 +328,8 @@ HRESULT GameResources::reInitState() {
 		pTmpBlurTexture = NULL;
 	}
 	Gbls::pd3dDevice->CreateTexture(
-		Gbls::thePresentParams.BackBufferWidth / 4,
-		Gbls::thePresentParams.BackBufferHeight / 4,
+		Gbls::thePresentParams.BackBufferWidth / 2,
+		Gbls::thePresentParams.BackBufferHeight / 2,
         1,
         D3DUSAGE_RENDERTARGET,
         D3DFMT_R5G6B5,

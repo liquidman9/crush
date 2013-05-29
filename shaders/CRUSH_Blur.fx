@@ -1,8 +1,8 @@
 float2 TexelSize;
 //int BlurAmount;
-#define BlurAmount 16
+#define BlurAmount 20
 #define BlurScale 1.0
-#define BlurStrength 0.3
+#define BlurStrength 0.4
 
 texture ModelTexture;
 sampler2D textureSampler = sampler_state {
@@ -31,7 +31,7 @@ float4 HorizontalPS(float2 vUv : TEXCOORD0) : COLOR0
     float strength = 1.0 - BlurStrength;
     
     // Horizontal blur
-    for (int i = 0; i < 16; ++i)
+    for (int i = 0; i < 24; ++i)
     {
         if ( i >= BlurAmount )
             break;
@@ -60,7 +60,7 @@ float4 VerticalPS(float2 vUv : TEXCOORD0) : COLOR0
     float strength = 1.0 - BlurStrength;
     
     // Vertical blur
-    for (int i = 0; i < 16; ++i)
+    for (int i = 0; i < 24; ++i)
     {
         if ( i >= BlurAmount )
             break;
@@ -81,7 +81,7 @@ technique Horizontal
 {
     pass Pass1
     {
-        PixelShader = compile ps_2_0 HorizontalPS();
+        PixelShader = compile ps_3_0 HorizontalPS();
     }
 
 }
@@ -90,7 +90,7 @@ technique Vertical
 {
     pass Pass1
     {
-        PixelShader = compile ps_2_0 VerticalPS();
+        PixelShader = compile ps_3_0 VerticalPS();
     }
 
 }
