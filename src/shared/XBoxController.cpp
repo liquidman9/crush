@@ -26,6 +26,7 @@ void XBoxController::mapInputs()
 	inputs->push = (controllerState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)?true:false;
 	inputs->powerup = (controllerState.Gamepad.wButtons & XINPUT_GAMEPAD_Y)?true:false;
 	inputs->mash = (controllerState.Gamepad.wButtons & XINPUT_GAMEPAD_X)?true:false;
+	inputs->start = (controllerState.Gamepad.wButtons & XINPUT_GAMEPAD_START)?true:false;
 }
 
 bool XBoxController::isConnected()

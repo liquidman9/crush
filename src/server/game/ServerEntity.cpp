@@ -131,6 +131,9 @@ void ServerEntity::recalculateRelativeValues() {
 
 // Applies physics to entity
 void ServerEntity::update(float delta_time) {
+
+	if(m_immovable) return;
+
 	// Apply current frame's physics
 	// Apply impulse
 	m_momentum += t_impulse;

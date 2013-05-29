@@ -50,11 +50,11 @@ namespace server {
 		}
 
 		namespace mothership {
-			float mass = 20000000.0f;
+			float mass = 100000.0f;
 		}
 
 		namespace extractor {
-			float mass = 2000000000.0f;
+			float mass = 50000.0f;
 			float resource_respawn_time = 30.0f;
 		}
 

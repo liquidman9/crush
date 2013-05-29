@@ -54,6 +54,7 @@ void KeyboardController::mapInputs()
 	inputs->push = (m_keyboardState[DIK_LCONTROL]&0x80)?true:false;
 	inputs->powerup = (m_keyboardState[DIK_Q]&0x80)?true:false;
 	inputs->mash = (m_keyboardState[DIK_E]&0x80)?true:false;
+	inputs->start = (m_keyboardState[DIK_J]&0x80)?true:false;
 }
 
 bool KeyboardController::isConnected()

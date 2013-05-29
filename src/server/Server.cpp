@@ -24,6 +24,7 @@ Server::Server(unsigned int port):m_server(port)
 void Server::start() {
 	m_pause = false;
 	m_start = true;
+	m_startGame = true;
 	if(m_hThread == NULL) {
 		unsigned int threadID;
 		m_hThread = (HANDLE)_beginthreadex( NULL, // security
@@ -156,6 +157,7 @@ void Server::initializeGameState() {
 	m_playerMap.clear();
 	m_mothershipMap.clear();
 	m_world.entities.clear();
+	m_clientReadyMap.clear();
 	addNewClients(m_server.getConnectedClientIDs());
 	
 
@@ -204,6 +206,27 @@ void Server::declareWinner() {
 		}
 	}
 	m_gameState.setWinner((int) client);
+}
+
+void Server::checkReadyClients() {
+	if(m_clientReadyMap.empty()) return;
+	for(auto it = m_clientReadyMap.begin(); it != m_clientReadyMap.end(); it++) {
+		if(!it->second) {
+			return;
+		}
+	}
+	m_start = true;
+	m_startGame = true;
+}
+
+void Server::updateReadyClients() {
+	for(auto it = m_clientInput.begin(); it != m_clientInput.end(); it++) {
+		auto player = m_playerMap.find(it->first);
+		auto readyState = m_clientReadyMap.find(it->first);
+		if(player != m_playerMap.end() && readyState != m_clientReadyMap.end()) {
+			if(!readyState->second) m_clientReadyMap[it->first] = (it->second)->getStart();
+		}
+	}
 }
 
 void Server::updateScore() {
@@ -269,10 +292,13 @@ void Server::loop() {
 		m_clientInput = m_server.getEvents();
 		if(!m_clientInput.empty()) {
 			moveClients();
-		}		
+			updateReadyClients();
+		}
+		checkReadyClients();
 
 		long long cur = milliseconds_now();
 		float physics_delta = (float)(milliseconds_now() - prev_tick) / 1000.0f;
+		m_gameState.setServerTime(cur);
 		prev_tick = cur;
 
 		
@@ -312,6 +338,7 @@ void Server::addNewClients(vector<pair<unsigned int, string>> const &cc) {
 		if(player == m_playerMap.end()) {
 			spawnShip(it->first);
 			spawnMothership(it->first);
+			m_clientReadyMap.insert(pair<unsigned int, bool>(it->first, false));
 		}
 	}
 }

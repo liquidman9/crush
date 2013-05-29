@@ -76,7 +76,7 @@ LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_insig[4] = {
 	&GameResources::ship4EIDTexture_insig
 };
 
-
+LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
@@ -588,6 +588,10 @@ HRESULT GameResources::initAdditionalTextures()
 	if (FAILED(hres)) {
 		return hres;
 	}
+	hres = loadTexture(&resourceEIDTexture, Gbls::resourceEIDTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
 
 	// load tractor beam particle spirte
 	hres = loadTexture(&tBeamPartTexture, Gbls::tBeamPartTexFilepath);
@@ -629,6 +633,11 @@ void GameResources::releaseAdditionalTextures() {
 	if (shipEIDTexture_resource) {
 		shipEIDTexture_resource->Release();
 		shipEIDTexture_resource = NULL;
+	}
+
+	if(resourceEIDTexture) {
+		resourceEIDTexture->Release();
+		resourceEIDTexture = NULL;
 	}
 	
 	for(unsigned int i = 0; i < 4; i++) {
@@ -1615,13 +1624,20 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case RESOURCE :
 		{
 		C_Resource * tmp = new C_Resource(newEnt);
-		resourceList.push_back(tmp);
+		resourceList.push_back(tmp);		
 		ret = tmp;
 		}
 		break;
 	case EXTRACTOR :
 		{
 		C_Extractor * tmp = new C_Extractor(newEnt);
+		EntityIdentifier * mResourceEID = new EntityIdentifier();
+		mResourceEID->targetEntity = tmp;
+		mResourceEID->m_onScreenSprite.setTexture(resourceEIDTexture);
+		mResourceEID->m_onScreenSprite.setCenterToTextureMidpoint();
+		mResourceEID->m_offScreenSprite.setTexture(resourceEIDTexture);
+		mResourceEID->m_offScreenSprite.setCenterToTextureMidpoint();
+		eIDList.push_back(mResourceEID);
 		extractorList.push_back(tmp);
 		ret = tmp;
 		}

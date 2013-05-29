@@ -23,6 +23,7 @@
 
 typedef map<unsigned int, S_Ship*> PlayerMap_t;
 typedef map<unsigned int, S_Mothership*> MothershipMap_t;
+typedef map<unsigned int, bool> readyMap_t;
 
 
 class Server
@@ -114,6 +115,10 @@ private:
 
 	void updateScore();
 
+	void updateReadyClients();
+
+	void checkReadyClients();
+
 
 	//variables
 	NetworkServer m_server;
@@ -122,16 +127,17 @@ private:
 	EventBuff_t m_clientInput;
 	PlayerMap_t m_playerMap;
 	MothershipMap_t m_mothershipMap;
+	readyMap_t m_clientReadyMap;
 	S_Extractor * m_extractor;
 	PowerupSource * m_powerupSource;
 	long long m_startTick;
 	long long m_endClock;
 	int m_timeLimit;
-	bool m_startGame;
+	volatile bool m_startGame;
 	ofstream m_f_error;
-	bool m_start;
-	bool m_reload;
-	bool m_pause;
+	volatile bool m_start;
+	volatile bool m_reload;
+	volatile bool m_pause;
 
 	//threadStuff
 	CRITICAL_SECTION m_cs;
