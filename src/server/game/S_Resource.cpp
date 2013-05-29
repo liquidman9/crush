@@ -110,7 +110,13 @@ void S_Resource::update(float delta_time){
 		}
 	}
 
-	if(m_carrier == NULL || m_carrier->m_type == EXTRACTOR) {
+	if(m_carrier == NULL) {
+		ServerEntity::update(delta_time);
+	}
+	else if(m_carrier->m_type == EXTRACTOR) {
+		if(D3DXVec3Length(&(m_pos-m_carrier->m_pos)) > ((S_Extractor *)m_carrier)->m_hubRadius){
+			m_carrier = NULL;
+		}
 		ServerEntity::update(delta_time);
 	}
 	else if(m_carrier->m_type == MOTHERSHIP || m_carrier->m_type == SHIP) {

@@ -11,21 +11,27 @@
 
 // Project includes
 #include <shared/game/Entity.h>
+
  
 // Defines
 #define SHIP_PLAYERNUM_TYPE char
 #define MAX_PLAYERNAME_SIZE 15
+// Defines
+
+
 
 class Ship : public virtual Entity {
 private:
-	static const unsigned int m_size = Entity::m_size + sizeof(SHIP_PLAYERNUM_TYPE) + sizeof(double) + MAX_PLAYERNAME_SIZE;
+	static const unsigned int m_size = Entity::m_size + sizeof(bool) + sizeof(POWER_TYPE) + sizeof(STATE_TYPE) + sizeof(SHIP_PLAYERNUM_TYPE) + sizeof(double) + MAX_PLAYERNAME_SIZE;
 
 public:
 	// Fields
 	SHIP_PLAYERNUM_TYPE m_playerNum;
 	double m_thruster;
 	std::string m_playerName;
-
+	bool m_hasPowerup;
+	PowerType m_powerupType;
+	StateType m_powerupStateType;
 
 	// This constructors are deprecated
 	Ship();

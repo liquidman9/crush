@@ -29,6 +29,13 @@ D3DXVECTOR3 *D3DXVec3Rotate( D3DXVECTOR3 *pOut, const D3DXVECTOR3 *pV, const D3D
 #define ENUM_TYPE char
 enum Type : char { ENTITY, SHIP, MOTHERSHIP, ASTEROID, RESOURCE, TRACTORBEAM, EXTRACTOR, POWERUP};
 
+
+#define POWER_TYPE char
+enum PowerType : char { SPEEDUP, PULSE, SHIELD};
+
+#define STATE_TYPE char
+enum StateType : char { WAITING, SPAWNED, HOLDING, CONSUMED};
+
 class Entity : public Sendable {
 private:
 	struct send_struct {

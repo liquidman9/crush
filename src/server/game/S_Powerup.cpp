@@ -57,6 +57,9 @@ void S_Powerup::pickUp(S_Ship * ship) {
 	m_ship = ship;
 	m_playerNum = ship->m_playerNum;
 	m_stateType = HOLDING;
+	m_ship->m_hasPowerup = true;
+	m_ship->m_powerupType = m_powerType;
+	m_ship->m_powerupStateType = m_stateType;
 
 	cout<<"Player "<<(int)m_playerNum<<" picked up a type "<<(int)m_powerType<<" powerup."<<endl;
 }
@@ -65,6 +68,7 @@ void S_Powerup::start() {
 	m_startTime = GetTickCount();
 	m_playerNum = m_ship->m_playerNum;
 	m_stateType = CONSUMED;
+	m_ship->m_powerupStateType = m_stateType;
 
 	cout<<"Player "<<(int)m_playerNum<<" used a type "<<(int)m_powerType<<" powerup."<<endl;
 
@@ -106,12 +110,14 @@ void S_Powerup::end() {
 	}
 
 	m_totalTimeLength = 0;
+	m_ship->m_hasPowerup = false;
 	m_ship->m_powerup = NULL;
 	m_ship = NULL;
 	m_destroy = true;
 	m_playerNum = -1;
 	m_startTime = GetTickCount();
 	m_stateType = WAITING;
+
 }
 
 void S_Powerup::update(float delta_time){
