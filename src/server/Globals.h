@@ -79,7 +79,7 @@ namespace server {
 
 			// Property declarations
 			extern float mass;
-			extern float forward_impulse;
+			extern float linear_impulse;
 			extern float rotation_impulse;
 			extern float hard_braking_impulse;
 			extern float braking_impulse;
@@ -90,7 +90,7 @@ namespace server {
 
 			inline void initFromConfig(string prefix) {
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "mass", mass);
-				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "forward_impulse", forward_impulse);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "linear_impulse", linear_impulse);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "rotation_impulse", rotation_impulse);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "hard_braking_impulse", braking_impulse);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "braking_impulse", braking_impulse);

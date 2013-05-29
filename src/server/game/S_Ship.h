@@ -30,7 +30,7 @@ class S_Mothership;
 
 class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 private:
-	float m_forward_impulse;
+	float m_linear_impulse;
 	float m_rotation_impulse;
 	float m_braking_impulse;
 	float m_hard_braking_impulse;
