@@ -234,7 +234,8 @@ void S_Ship::updateDefensiveOffensiveCounter() {
 }
 
 void S_Ship::update(float delta_time) {
-	
+	m_useAltSprite = m_resource != NULL;
+
 	// If a Powerup's use is up ends it
 	if(m_powerup != NULL && m_powerup->m_stateType == CONSUMED){
 		if(m_powerup->check(GetTickCount())){

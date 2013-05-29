@@ -77,6 +77,10 @@ LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_insig[4] = {
 };
 
 LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
+
+LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOnScreen = NULL;
+LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen = NULL;
+
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
@@ -545,10 +549,10 @@ HRESULT GameResources::initAdditionalTextures()
 
 	// load arrow spirte
 
-	/*hres = loadTexture(&shipEIDTexture_resource, Gbls::shipEIDTextureFilePath_resource);
+	hres = loadTexture(&shipEIDTexture_resource, Gbls::shipEIDTextureFilepath_resource);
 	if (FAILED(hres)) {
 		return hres;
-	}*/
+	}
 	hres = loadTexture(&ship1EIDTexture_insig, Gbls::ship1EIDTextureFilepath_insig);
 	if (FAILED(hres)) {
 		return hres;
@@ -582,6 +586,15 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 	
+
+	hres = loadTexture(&extractorEIDTextureOnScreen, Gbls::extractorEIDTextureOnScreenFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&extractorEIDTextureOffScreen, Gbls::extractorEIDTextureOffScreenFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
 	
 	// load ship arrow spirte
 	hres = loadTexture(&mothershipEIDTexture, Gbls::mothershipEIDTextureFilepath);
@@ -639,6 +652,22 @@ void GameResources::releaseAdditionalTextures() {
 		resourceEIDTexture->Release();
 		resourceEIDTexture = NULL;
 	}
+
+	if(extractorEIDTextureOnScreen) {
+		extractorEIDTextureOnScreen->Release();
+		extractorEIDTextureOnScreen = NULL;
+	}
+
+	if(extractorEIDTextureOffScreen) {
+		extractorEIDTextureOffScreen->Release();
+		extractorEIDTextureOffScreen = NULL;
+	}
+
+	if(shipEIDTexture_resource) {
+		shipEIDTexture_resource->Release();
+		shipEIDTexture_resource = NULL;
+	}
+
 	
 	for(unsigned int i = 0; i < 4; i++) {
 		if(*shipEIDTextureArray_arrow[i]){
@@ -1568,6 +1597,12 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		shipEID_insig->targetEntity = tmp;
 		shipEID_insig->rotateOn = false;
 
+		shipEID->m_altOffScreenSprite.setTexture(shipEIDTexture_resource);
+		shipEID->m_altOnScreenSprite.setTexture(shipEIDTexture_resource);
+		shipEID->m_altOffScreenSprite.setCenterToTextureMidpoint();
+		shipEID->m_altOnScreenSprite.setCenterToTextureMidpoint();
+		shipEID->enableAltSprite = true;
+
 		shipEID->m_onScreenSprite.setTexture(*shipEIDTextureArray_arrow[tmp->m_playerNum]);
 		shipEID_insig->m_onScreenSprite.setTexture(*shipEIDTextureArray_insig[tmp->m_playerNum]);
 		
@@ -1638,13 +1673,13 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case EXTRACTOR :
 		{
 		C_Extractor * tmp = new C_Extractor(newEnt);
-		EntityIdentifier * mResourceEID = new EntityIdentifier();
-		mResourceEID->targetEntity = tmp;
-		mResourceEID->m_onScreenSprite.setTexture(resourceEIDTexture);
-		mResourceEID->m_onScreenSprite.setCenterToTextureMidpoint();
-		mResourceEID->m_offScreenSprite.setTexture(resourceEIDTexture);
-		mResourceEID->m_offScreenSprite.setCenterToTextureMidpoint();
-		eIDList.push_back(mResourceEID);
+		EntityIdentifier * mExtractorEID = new EntityIdentifier();
+		mExtractorEID->targetEntity = tmp;
+		mExtractorEID->m_onScreenSprite.setTexture(extractorEIDTextureOnScreen);
+		mExtractorEID->m_onScreenSprite.setCenterToTextureMidpoint();
+		mExtractorEID->m_offScreenSprite.setTexture(extractorEIDTextureOffScreen);
+		mExtractorEID->m_offScreenSprite.setCenterToTextureMidpoint();
+		eIDList.push_back(mExtractorEID);
 		extractorList.push_back(tmp);
 		ret = tmp;
 		}

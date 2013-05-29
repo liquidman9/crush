@@ -95,6 +95,9 @@ public:
 	static std::wstring ship4EIDTextureFilepath_insig;
 	static std::wstring ship4EIDTextureFilepath_arrow;
 
+	static std::wstring extractorEIDTextureOnScreenFilepath;
+	static std::wstring extractorEIDTextureOffScreenFilepath;
+
 	static std::wstring resourceEIDTextureFilepath;
 	static std::wstring mothershipEIDTextureFilepath;
 	static std::wstring tBeamPartTexFilepath;

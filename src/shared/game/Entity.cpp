@@ -15,7 +15,8 @@ Entity::Entity() :
 	m_orientation(0.0, 0.0, 0.0, 1.0),
 	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(ENTITY),
-	m_enableIdentifiers(true)
+	m_enableIdentifiers(true),
+	m_useAltSprite(false)
 { }
 
 Entity::Entity(Type type) :
@@ -24,7 +25,8 @@ Entity::Entity(Type type) :
 	m_orientation(0.0, 0.0, 0.0, 1.0),
 	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(type),
-	m_enableIdentifiers(true)
+	m_enableIdentifiers(true),
+	m_useAltSprite(false)
 { }
 // End old constructors
 
@@ -35,7 +37,8 @@ Entity::Entity(int id, Type type) :
 	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(type),
 	m_radius(1),
-	m_enableIdentifiers(true)
+	m_enableIdentifiers(true),
+	m_useAltSprite(false)
 { }
 
 Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation) : 
@@ -45,7 +48,8 @@ Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation) :
 	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(type),
 	m_radius(1),
-	m_enableIdentifiers(true)
+	m_enableIdentifiers(true),
+	m_useAltSprite(false)
 { }
 
 Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation, float radius) : 
@@ -55,7 +59,8 @@ Entity::Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation, float
 	m_velocity(shared::utils::VEC3_ZERO),
 	m_type(type),
 	m_radius(radius),
-	m_enableIdentifiers(true)
+	m_enableIdentifiers(true),
+	m_useAltSprite(false)
 { }
 
 Entity::Entity(Entity const &e) :
@@ -65,7 +70,8 @@ Entity::Entity(Entity const &e) :
 	m_velocity(e.m_velocity),
 	m_orientation(e.m_orientation),
 	m_radius(e.m_radius),
-	m_enableIdentifiers(true)
+	m_enableIdentifiers(true),
+	m_useAltSprite(false)
 { }
 
 ostream& operator<<(ostream& os, const Entity& e) {

@@ -55,6 +55,9 @@ unsigned int Ship::encode(char *head) const {
 	memcpy(head + rtn, m_playerName.c_str(), MAX_PLAYERNAME_SIZE);
 	rtn += MAX_PLAYERNAME_SIZE;
 
+	*(bool*) (head + rtn) = m_useAltSprite;
+	rtn += sizeof(bool);
+
 	return rtn;
 }
 
@@ -80,6 +83,8 @@ unsigned int Ship::decode(const char *buff) {
 	rtn += sizeof(double);
 	m_playerName = string(buff+rtn, MAX_PLAYERNAME_SIZE);
 	rtn += MAX_PLAYERNAME_SIZE;
+	m_useAltSprite = *(bool*) (buff + rtn);
+	rtn += sizeof(bool);
 	return rtn;
 }
 
@@ -113,5 +118,6 @@ void Ship::update(shared_ptr<Entity> sp_source) {
 		m_hasPowerup = srcShip->m_hasPowerup;
 		m_powerupType = srcShip->m_powerupType;
 		m_powerupStateType = srcShip->m_powerupStateType;
+		m_useAltSprite = srcShip->m_useAltSprite;
 	}
 }

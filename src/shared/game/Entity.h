@@ -59,7 +59,10 @@ public:
 	//const Type m_type;
 	int m_id;
 	Type m_type;
+
+	//stuff for the client
 	bool m_enableIdentifiers;
+	bool m_useAltSprite;
 
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_velocity;

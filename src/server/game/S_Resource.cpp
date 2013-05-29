@@ -100,7 +100,7 @@ void S_Resource::travel() {
 }
 
 void S_Resource::update(float delta_time){
-	m_enableIdentifiers = m_carrier != NULL;
+	m_enableIdentifiers = m_carrier == NULL;
 	if(m_onDropTimeout) {
 		if(GetTickCount() - m_dropTimeoutStart > m_dropTimeoutLength) {
 			m_dropTimeoutStart = 0;
