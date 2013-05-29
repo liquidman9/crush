@@ -18,7 +18,7 @@ EntityIdentifier::~EntityIdentifier()
 
 void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 {
-	if (targetEntity) {
+	if (targetEntity && targetEntity->m_enableIdentifiers) {
 
 		D3DXVECTOR3 out;
 		D3DXMATRIX mat, tmp;

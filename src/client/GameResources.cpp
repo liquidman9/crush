@@ -1624,6 +1624,13 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case RESOURCE :
 		{
 		C_Resource * tmp = new C_Resource(newEnt);
+		EntityIdentifier * mResourceEID = new EntityIdentifier();
+		mResourceEID->targetEntity = tmp;
+		mResourceEID->m_onScreenSprite.setTexture(resourceEIDTexture);
+		mResourceEID->m_onScreenSprite.setCenterToTextureMidpoint();
+		mResourceEID->m_offScreenSprite.setTexture(NULL);
+		//mResourceEID->m_offScreenSprite.setCenterToTextureMidpoint();
+		eIDList.push_back(mResourceEID);
 		resourceList.push_back(tmp);		
 		ret = tmp;
 		}

@@ -52,6 +52,7 @@ public:
 	//const Type m_type;
 	int m_id;
 	Type m_type;
+	bool m_enableIdentifiers;
 
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_velocity;
