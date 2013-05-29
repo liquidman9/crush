@@ -35,8 +35,10 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	m_forward_impulse(forward_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_braking_impulse(braking_impulse),
+	m_hard_braking_impulse(hard_braking_impulse),
 	m_max_velocity(max_velocity),
-	m_max_rotation_velocity(max_rotation_velocity)
+	m_max_rotation_velocity(max_rotation_velocity),
+	m_isBraking(false)
 {	
 	init();
 }
@@ -73,6 +75,9 @@ void S_Ship::addPlayerInput(InputState input) {
 	else {//if(!m_tractorBeam->m_isHolding){
 		m_tractorBeam->setIsOn(false);
 	}
+
+	if(input.getBrake()) m_isBraking = true;
+	else m_isBraking = false;
 
 	if(input.getMash() && !m_pressToggle) {
 		m_presses.push_back(GetTickCount());
@@ -120,7 +125,13 @@ D3DXVECTOR3 S_Ship::getDamping() {
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_forward_impulse;
 			float damping_factor = (mag_velocity / m_max_velocity);
 			shipImp += lin_stabilizer_force * damping_factor;
-		} else {
+		}
+		else if(m_isBraking) {
+			// Not thrusting, we need to slow down as quickly as possible
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_hard_braking_impulse;
+			shipImp += Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum);
+		} 
+		else {
 			// Not thrusting, we need to slow down as quickly as possible
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_braking_impulse;
 			shipImp += Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum);
@@ -146,6 +157,10 @@ void S_Ship::applyDamping() {
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_forward_impulse;
 			float damping_factor = (mag_velocity / m_max_velocity);
 			applyLinearImpulse(lin_stabilizer_force * damping_factor);
+		} else if(m_isBraking) {
+			// Not thrusting, we need to slow down as quickly as possible
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_hard_braking_impulse;
+			applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum));
 		} else {
 			// Not thrusting, we need to slow down as quickly as possible
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_braking_impulse;

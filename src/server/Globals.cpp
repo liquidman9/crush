@@ -42,7 +42,8 @@ namespace server {
 			float mass = 10000.0f;
 			float forward_impulse = 5000.0f;
 			float rotation_impulse = 3000.0f;
-			float braking_impulse = 2500.0f;
+			float hard_braking_impulse = 7000.0f;
+			float braking_impulse = 1000.0f;//2500.0f;
 			float max_velocity = 50.0f;
 			float max_rotation_velocity = 2.5f;
 			int mash_number = 15;

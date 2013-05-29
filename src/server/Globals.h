@@ -81,6 +81,7 @@ namespace server {
 			extern float mass;
 			extern float forward_impulse;
 			extern float rotation_impulse;
+			extern float hard_braking_impulse;
 			extern float braking_impulse;
 			extern float max_velocity;
 			extern float max_rotation_velocity;
@@ -91,6 +92,7 @@ namespace server {
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "mass", mass);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "forward_impulse", forward_impulse);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "rotation_impulse", rotation_impulse);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "hard_braking_impulse", braking_impulse);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "braking_impulse", braking_impulse);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_velocity", max_velocity);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_rotation_velocity", max_rotation_velocity);
