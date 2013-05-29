@@ -6,6 +6,7 @@
 // Global includes
 #include <algorithm>
 #include <typeinfo>
+#include <sstream>
 
 // Project includes
 #include <shared/game/Entity.h>
@@ -13,6 +14,7 @@
 
 #include <client/GameResources.h>
 #include <client/Gbls.h>
+#include <client/graphics/util.h>
 #include <client/graphics/Skybox.h>
 #include <client/graphics/entities/C_Powerup.h>
 #include <client/graphics/entities/C_Resource.h>
@@ -34,26 +36,60 @@ vector<C_Ship*> GameResources::shipList;
 vector<C_Mothership*> GameResources::mothershipList;
 vector<C_TractorBeam*> GameResources::tractorBeamList;
 vector<C_Resource*> GameResources::resourceList;
+vector<C_Extractor*> GameResources::extractorList; 
+vector<C_Powerup*> GameResources::powerupList;
 vector<C_Asteroid*> GameResources::asteroidList;
 vector<EntityIdentifier*> GameResources::eIDList;
 vector<EnginePGroup *> GameResources::enginePGroupList;
 std::map<int, C_Entity*> GameResources::entityMap;
-bool GameResources::debugCamOn = true;
+bool GameResources::debugCamOn = false;
 Camera GameResources::debugCam;
 Camera GameResources::playerCam;
-Camera* GameResources::curCam = &debugCam;
+Camera* GameResources::curCam = &playerCam;
 float GameResources::playerCamScale = 1.0f;
 int GameResources::playerCamScaleLevel = 0;
 C_Ship* GameResources::playerShip = NULL;
 C_Mothership* GameResources::playerMothership = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
-LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture = NULL; 
+
+
+LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture_resource = NULL;
+LPDIRECT3DTEXTURE9 GameResources::ship1EIDTexture_insig = NULL;
+LPDIRECT3DTEXTURE9 GameResources::ship1EIDTexture_arrow = NULL;
+LPDIRECT3DTEXTURE9 GameResources::ship2EIDTexture_insig = NULL;
+LPDIRECT3DTEXTURE9 GameResources::ship2EIDTexture_arrow = NULL;
+LPDIRECT3DTEXTURE9 GameResources::ship3EIDTexture_insig = NULL;
+LPDIRECT3DTEXTURE9 GameResources::ship3EIDTexture_arrow = NULL;
+LPDIRECT3DTEXTURE9 GameResources::ship4EIDTexture_insig = NULL;
+LPDIRECT3DTEXTURE9 GameResources::ship4EIDTexture_arrow = NULL;
+LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_arrow[4] = {
+	&GameResources::ship1EIDTexture_arrow, 
+	&GameResources::ship2EIDTexture_arrow,
+	&GameResources::ship3EIDTexture_arrow, 
+	&GameResources::ship4EIDTexture_arrow
+};
+LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_insig[4] = {
+	&GameResources::ship1EIDTexture_insig, 
+	&GameResources::ship2EIDTexture_insig,
+	&GameResources::ship3EIDTexture_insig, 
+	&GameResources::ship4EIDTexture_insig
+};
+
+
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
+LPDIRECT3DTEXTURE9 GameResources::pGlowmapTexture = NULL;
+LPDIRECT3DSURFACE9 GameResources::pGlowmapSurface = NULL;
+LPDIRECT3DTEXTURE9 GameResources::pTmpBlurTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::pDefaultRenderTexture = NULL;
+LPDIRECT3DSURFACE9 GameResources::pDefaultRenderSurface = NULL;
+LPDIRECT3DSURFACE9 GameResources::pBackBuffer = NULL;
+D3DXMATRIX GameResources::sunWorldMat;
+LPD3DXMESH GameResources::sunMesh = NULL;
 
 // for debugging collisions
 bool GameResources::renderCBWireframe = false;
@@ -70,11 +106,39 @@ std::wstring GameResources::timeStr;
 std::wstring GameResources::playerNameStr[4];
 int GameResources::playerScore[4];
 SoundManager GameResources::sound;
+ID3DXEffect * GameResources::pEffectDefault;
+ID3DXEffect * GameResources::pEffectGlowmap; 
+ID3DXEffect * GameResources::pEffectTexToScreen;
+ID3DXEffect * GameResources::pEffectBlend;
+ID3DXEffect * GameResources::pEffectBlur;
+
+//for testing
+#define TEXTOSCREENFVF (D3DFVF_XYZRHW | D3DFVF_TEX1)
+struct CUSTOMVERTEX {FLOAT X, Y, Z, RHW, U, V;};
+static LPDIRECT3DVERTEXBUFFER9 fsQuadVBuffer = NULL;
+static LPDIRECT3DVERTEXBUFFER9 bloomQuadVBuffer = NULL;
+static CUSTOMVERTEX fsQuadVerts[4];
+
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
 	
-	curCam = &debugCam;
+	curCam = &playerCam;
+	debugCamOn = false;
+	
+	if(FAILED (hres = loadEffect(&pEffectDefault, L"shaders/CRUSH_Default.fx")))
+		return hres;
+	if(FAILED (hres = loadEffect(&pEffectGlowmap, L"shaders/CRUSH_Glowmap.fx")))
+		return hres;
+	if(FAILED (hres = loadEffect(&pEffectTexToScreen, L"shaders/CRUSH_TexToScreen.fx")))
+		return hres;
+	if(FAILED (hres = loadEffect(&pEffectBlend, L"shaders/CRUSH_Blend.fx")))
+		return hres;
+	if(FAILED (hres = loadEffect(&pEffectBlur, L"shaders/CRUSH_Blur.fx")))
+		return hres;
+
+	// Init the SUN (mesh init in initmeshes)
+	D3DXMatrixTranslation(&sunWorldMat, 10, 5, 10);
 
 	// Initialize the skybox
 	hres = Skybox::initSkybox();
@@ -175,20 +239,11 @@ void GameResources::releaseResources() {
 	Gbls::extractorMesh.Destroy();
 	Gbls::resourceMesh.Destroy();
 	Gbls::powerupMesh.Destroy();
-
 	for(int i = 0; i < Gbls::numAsteroidMeshes; i++) {
 		Gbls::asteroidMesh[0].Destroy();
 	}
-
-
-	for(int i = 0; i < Gbls::numShipMeshes; i++) {
-		Gbls::mothershipMesh[0].Destroy();
-	}
-
-	for(int i = 0; i < Gbls::numShipMeshes; i++) {
-		Gbls::shipMesh[0].Destroy();
-	}
-
+	Gbls::mothershipMesh.Destroy();
+	Gbls::shipMesh.Destroy();
 
 	Skybox::releaseSkybox();
 }
@@ -200,21 +255,152 @@ HRESULT GameResources::reInitState() {
 
 	curCam->updateView();
 
+	// create the vertices for blitting a texture to screen
+	float left = -0.5;
+	float top = -0.5;
+	float right = ((float) Gbls::thePresentParams.BackBufferWidth) - 0.5f;
+	float bottom = ((float) Gbls::thePresentParams.BackBufferHeight) - 0.5f;
+    CUSTOMVERTEX vertices1[] =
+    {
+		{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
+		{ right, bottom, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,  top,    0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,  bottom, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+	// create a vertex buffer interface called v_buffer
+	if (!fsQuadVBuffer) {
+		Gbls::pd3dDevice->CreateVertexBuffer(4*sizeof(CUSTOMVERTEX),
+								   0,
+								   TEXTOSCREENFVF,
+								   D3DPOOL_MANAGED,
+								   &fsQuadVBuffer,
+								   NULL);
+	}
+    VOID* pVoid;    // a void pointer
+    // lock v_buffer and load the vertices into it
+    fsQuadVBuffer->Lock(0, 0, (void**)&pVoid, 0);
+    std::memcpy(pVoid, vertices1, sizeof(vertices1));
+    fsQuadVBuffer->Unlock();
+	
+	
+	right = ((float) Gbls::thePresentParams.BackBufferWidth)/4.0f - 0.5f;
+	bottom = ((float) Gbls::thePresentParams.BackBufferHeight)/4.0f - 0.5f;
+	CUSTOMVERTEX vertices2[] =
+    {
+		{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
+		{ right, bottom, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,  top,    0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,  bottom, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+	// create a vertex buffer interface called v_buffer
+	if (!bloomQuadVBuffer) {
+		Gbls::pd3dDevice->CreateVertexBuffer(4*sizeof(CUSTOMVERTEX),
+								   0,
+								   TEXTOSCREENFVF,
+								   D3DPOOL_MANAGED,
+								   &bloomQuadVBuffer,
+								   NULL);
+	}
+    // lock v_buffer and load the vertices into it
+    bloomQuadVBuffer->Lock(0, 0, (void**)&pVoid, 0);
+    std::memcpy(pVoid, vertices2, sizeof(vertices2));
+    bloomQuadVBuffer->Unlock();
+	
+	// Create glowmap texture
+	if (pGlowmapTexture) {
+		pGlowmapTexture->Release();
+		pGlowmapTexture = NULL;
+	}
+	Gbls::pd3dDevice->CreateTexture(
+		Gbls::thePresentParams.BackBufferWidth / 4,
+		Gbls::thePresentParams.BackBufferHeight / 4,
+        1,
+        D3DUSAGE_RENDERTARGET,
+        D3DFMT_R5G6B5,
+        D3DPOOL_DEFAULT,
+        &pGlowmapTexture,
+        NULL);
+
+		
+	// Create glowmap texture
+	if (pTmpBlurTexture) {
+		pTmpBlurTexture->Release();
+		pTmpBlurTexture = NULL;
+	}
+	Gbls::pd3dDevice->CreateTexture(
+		Gbls::thePresentParams.BackBufferWidth / 4,
+		Gbls::thePresentParams.BackBufferHeight / 4,
+        1,
+        D3DUSAGE_RENDERTARGET,
+        D3DFMT_R5G6B5,
+        D3DPOOL_DEFAULT,
+        &pTmpBlurTexture,
+        NULL);
+
+	// Create default render texture
+	if (pDefaultRenderTexture) {
+		pDefaultRenderTexture->Release();
+		pDefaultRenderTexture = NULL;
+	}
+	Gbls::pd3dDevice->CreateTexture(
+		Gbls::thePresentParams.BackBufferWidth,
+		Gbls::thePresentParams.BackBufferHeight,
+        1,
+        D3DUSAGE_RENDERTARGET,
+        D3DFMT_R5G6B5,
+        D3DPOOL_DEFAULT,
+        &pDefaultRenderTexture,
+        NULL);
+
 	// Tell the device to automatically normalize surface normals to keep them normal after scaling
-	Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 
 	// Create lights for scene and set light properties
-	hres = GameResources::initLights();
+	//hres = GameResources::initLights();
+	//if(FAILED (hres))
+		//return hres;
+
+	// init particle system vertex buffer
+	hres = partSystem->init(Gbls::pd3dDevice);
 	if(FAILED (hres))
 		return hres;
 
-	// init particle system vertex buffer
-	partSystem->init(Gbls::pd3dDevice);
+
 
 	//set backface cullling off TODO remove after models are fixed
 	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	
+	return S_OK;
+}
+
+HRESULT GameResources::loadEffect(ID3DXEffect ** pEffect, std::wstring effectLoc) {
+	//init effect file
+	DWORD shaderFlags = 0;
+    //shaderFlags |= D3DXSHADER_FORCE_VS_SOFTWARE_NOOPT;
+    //shaderFlags |= D3DXSHADER_FORCE_PS_SOFTWARE_NOOPT;
+    shaderFlags |= D3DXSHADER_NO_PRESHADER;
+
+	ID3DXBuffer *pBuffer = NULL;
+	HRESULT hres = D3DXCreateEffectFromFile(Gbls::pd3dDevice,
+		effectLoc.c_str(),
+        NULL, // CONST D3DXMACRO* pDefines,
+        NULL, // LPD3DXINCLUDE pInclude,
+        shaderFlags, 
+		NULL, // LPD3DXEFFECTPOOL pPool,
+        pEffect,
+        &pBuffer );
+	if (FAILED(hres)) {
+		std::wostringstream str;
+		if(pBuffer) {
+			char * bufData = (char *) pBuffer->GetBufferPointer();
+			str << L"Failed to load effect file " << effectLoc << L": " << bufData;
+		} else {
+			str << L"Failed to load effect file " << effectLoc << L": Check shader filepath.";
+		}
+        MessageBox( NULL, str.str().c_str(), L"CRUSH.exe", MB_OK );
+		return hres;
+	}
 	return S_OK;
 }
 
@@ -223,16 +409,10 @@ HRESULT GameResources::initMeshes()
 	HRESULT hres;
 
 	//do for all needed meshes
-	for (int i = 0; i < Gbls::numShipMeshes; i++) {
-		if(FAILED(hres = Gbls::shipMesh[i].Create(Gbls::shipMeshFilepath[i])))
-			return hres;
-	}
-
-	for (int i = 0; i < Gbls::numShipMeshes; i++) {
-		if(FAILED(hres = Gbls::mothershipMesh[i].Create(Gbls::mothershipMeshFilepath[i])))
-			return hres;
-	}
-
+	if(FAILED(hres = Gbls::shipMesh.CreateBlank(Gbls::shipMeshFilepath)))
+		return hres;
+	if(FAILED(hres = Gbls::mothershipMesh.CreateBlank(Gbls::mothershipMeshFilepath)))
+		return hres;
 	for (int i = 0; i < Gbls::numAsteroidMeshes; i++) {
 		if(FAILED(hres = Gbls::asteroidMesh[i].Create(Gbls::asteroidMeshFilepath[i])))
 			return hres;
@@ -243,6 +423,9 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	if(FAILED(hres = Gbls::powerupMesh.Create(Gbls::powerupMeshFilepath)))
 			return hres;
+
+	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 3.0f, 25, 25, &sunMesh, NULL)))
+		return hres;
 
 	//if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
 	//		return hres;
@@ -258,11 +441,59 @@ HRESULT GameResources::initMeshes()
 }
 
 HRESULT GameResources::loadTexture(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath) {
-	HRESULT hres = D3DXCreateTextureFromFileEx(Gbls::pd3dDevice, filepath.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
-		D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_DEFAULT,
-		0, NULL, NULL, pTextureOut);
+	//HRESULT hres = D3DXCreateTextureFromFileEx(Gbls::pd3dDevice, filepath.c_str(), D3DX_DEFAULT, D3DX_DEFAULT,
+	//	D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_FILTER_NONE, D3DX_DEFAULT,
+	//	0, NULL, NULL, pTextureOut);
+
+	HRESULT hres = D3DXCreateTextureFromFile( Gbls::pd3dDevice,
+                                                    filepath.c_str(),
+                                                    pTextureOut );
 	if (FAILED(hres)) {
 		MessageBox( NULL, (L"Could not find "+filepath).c_str(), L"CRUSH.exe", MB_OK );
+        return hres;
+	}
+	return S_OK;
+}
+
+HRESULT GameResources::loadTextureWithFormat(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath, _D3DFORMAT format) {
+	//HRESULT hres = D3DXCreateTextureFromFileEx(
+	//	Gbls::pd3dDevice,
+	//	filepath.c_str(),
+	//	D3DX_DEFAULT,
+	//	D3DX_DEFAULT,
+	//	D3DX_DEFAULT,
+	//	0,
+	//	/*D3DFMT_UNKNOWN,*/format,
+	//	D3DPOOL_MANAGED,
+	//	D3DX_DEFAULT,
+	//	D3DX_DEFAULT,
+	//	0,
+	//	NULL,
+	//	NULL,
+	//	pTextureOut
+	//);
+
+	HRESULT hres = D3DXCreateTextureFromFileEx(
+		Gbls::pd3dDevice,
+		filepath.c_str(),
+		D3DX_DEFAULT_NONPOW2,
+		D3DX_DEFAULT_NONPOW2,
+		D3DX_FROM_FILE,
+		0,
+		D3DFMT_FROM_FILE,
+		D3DPOOL_MANAGED,
+		D3DX_FILTER_NONE,
+		D3DX_DEFAULT,
+		0,
+		NULL,
+		NULL,
+		pTextureOut
+	);
+
+	if (FAILED(hres)) {
+		std::wstring tmpStr = L"loadTextureWithFormat() failed. Error: " + Util::DXErrorToString(hres);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		//MessageBox( NULL, (L"Could not find "+filepath).c_str(), L"CRUSH.exe", MB_OK );
         return hres;
 	}
 	return S_OK;
@@ -272,12 +503,86 @@ HRESULT GameResources::initAdditionalTextures()
 {
 	HRESULT hres;
 
-	// load arrow spirte
-	hres = loadTexture(&shipEIDTexture, Gbls::shipEIDTextureFilepath);
+	_D3DFORMAT compressedFormat = D3DFMT_DXT3;
+	
+	// load ship textures
+	hres = loadTextureWithFormat(&Gbls::shipTexture1, Gbls::shipTexFilepath1, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	//D3DSURFACE_DESC desc;
+	//Gbls::shipTexture1->GetLevelDesc(0, &desc);
+	hres = loadTextureWithFormat(&Gbls::shipTexture2, Gbls::shipTexFilepath2, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::shipTexture3, Gbls::shipTexFilepath3, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::shipTexture4, Gbls::shipTexFilepath4, compressedFormat);
 	if (FAILED(hres)) {
 		return hres;
 	}
 
+	// load ship textures
+	hres = loadTextureWithFormat(&Gbls::mothershipTexture1, Gbls::mothershipTexFilepath1, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::mothershipTexture2, Gbls::mothershipTexFilepath2, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::mothershipTexture3, Gbls::mothershipTexFilepath3, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::mothershipTexture4, Gbls::mothershipTexFilepath4, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+	// load arrow spirte
+
+	/*hres = loadTexture(&shipEIDTexture_resource, Gbls::shipEIDTextureFilePath_resource);
+	if (FAILED(hres)) {
+		return hres;
+	}*/
+	hres = loadTexture(&ship1EIDTexture_insig, Gbls::ship1EIDTextureFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&ship1EIDTexture_arrow, Gbls::ship1EIDTextureFilepath_arrow);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&ship2EIDTexture_insig, Gbls::ship2EIDTextureFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&ship2EIDTexture_arrow, Gbls::ship2EIDTextureFilepath_arrow);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&ship3EIDTexture_insig, Gbls::ship3EIDTextureFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&ship3EIDTexture_arrow, Gbls::ship3EIDTextureFilepath_arrow);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&ship4EIDTexture_insig, Gbls::ship4EIDTextureFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&ship4EIDTexture_arrow, Gbls::ship4EIDTextureFilepath_arrow);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	
+	
 	// load ship arrow spirte
 	hres = loadTexture(&mothershipEIDTexture, Gbls::mothershipEIDTextureFilepath);
 	if (FAILED(hres)) {
@@ -300,6 +605,18 @@ HRESULT GameResources::initAdditionalTextures()
 }
 
 void GameResources::releaseAdditionalTextures() {
+	if (pGlowmapTexture) { //actually init in reInitState
+		pGlowmapTexture->Release();
+		pGlowmapTexture = NULL;
+	}
+	if (pTmpBlurTexture) { //actually init in reInitState
+		pTmpBlurTexture->Release();
+		pTmpBlurTexture = NULL;
+	}
+	if (pDefaultRenderTexture) { //actually init in reInitState
+		pDefaultRenderTexture->Release();
+		pDefaultRenderTexture = NULL;
+	}
 	if (tBeamPartTexture) {
 		tBeamPartTexture->Release();
 		tBeamPartTexture = NULL;
@@ -308,9 +625,24 @@ void GameResources::releaseAdditionalTextures() {
 		mothershipEIDTexture->Release();
 		mothershipEIDTexture = NULL;
 	}
-	if (shipEIDTexture) {
-		shipEIDTexture->Release();
-		shipEIDTexture = NULL;
+	shipEIDTexture_resource = NULL;
+	if (shipEIDTexture_resource) {
+		shipEIDTexture_resource->Release();
+		shipEIDTexture_resource = NULL;
+	}
+	
+	for(unsigned int i = 0; i < 4; i++) {
+		if(*shipEIDTextureArray_arrow[i]){
+			(*shipEIDTextureArray_arrow[i])->Release();
+			(*shipEIDTextureArray_arrow[i]) = NULL;
+		}
+	}
+
+	for(unsigned int i = 0; i < 4; i++) {
+		if(*shipEIDTextureArray_insig[i]) {
+			(*shipEIDTextureArray_insig[i])->Release();
+			(*shipEIDTextureArray_insig[i]) = NULL;
+		}
 	}
 }
 
@@ -319,7 +651,7 @@ HRESULT GameResources::initLights() {
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 	// turn on specular highlights
-	Gbls::pd3dDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 
 	// ambient light
 	Gbls::pd3dDevice->SetRenderState(D3DRS_AMBIENT, Gbls::lightAmbient);
@@ -357,7 +689,6 @@ HRESULT GameResources::loadFont(LPD3DXFONT * pFont, int height, std::wstring fon
 }
 
 void GameResources::drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius) {
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
 	//Gbls::pd3dDevice->SetMaterial(&MATERIAL_WHITE);
 
 	D3DXVECTOR3 shapeVec = pt2 - pt1;
@@ -389,17 +720,9 @@ void GameResources::drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, fl
 	D3DXMatrixTranslation(&transMat, pt2.x, pt2.y, pt2.z);
 	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(scaleMat*rotMat*transMat));
 	collisionSphere->DrawSubset(0);
-
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
 }
 
 void GameResources::drawAllTractorBeams() {
-		// Set state for particle rendering
-	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
-	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
-    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
-    Gbls::pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
-
 	// render particles
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
 		if(tractorBeamList[i]->m_isOn) {
@@ -408,30 +731,13 @@ void GameResources::drawAllTractorBeams() {
 			partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
 		}
 	}
-
-	// Reset state after particle rendering
-    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
-	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );
-    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 }
 
 void GameResources::drawAllEngines() {
-	// Set state for particle rendering
-	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
-	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
-    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
-    Gbls::pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
-
 	// render particles
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
 		partSystem->render(Gbls::pd3dDevice, enginePGroupList[i]);
 	}
-
-	// Reset state after particle rendering
-    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
-	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );
-    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
-
 }
 
 void GameResources::drawAllEID() {
@@ -492,49 +798,494 @@ void GameResources::drawStaticHudElements() {
 	if(SUCCEEDED(hres))
 	{
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
-		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f));
-		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f));
-		placeTextCenterFloor((L"Player 3\n" + std::to_wstring((long long)playerScore[2])).c_str(), Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f));
-		placeTextCenterFloor((L"Player 4\n" + std::to_wstring((long long)playerScore[3])).c_str(), Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f));
+		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
+		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
+		placeTextCenterFloor((L"Player 3\n" + std::to_wstring((long long)playerScore[2])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f)));
+		placeTextCenterFloor((L"Player 4\n" + std::to_wstring((long long)playerScore[3])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f)));
 		// End sprite rendering
 		pd3dSprite->End();
 	}
 }
 
+void GameResources::drawModel(C_Entity * cEnt) {
+	D3DXMATRIX tmp;
+	pEffectDefault->SetMatrix("World", &cEnt->worldMat);
+	float det = D3DXMatrixDeterminant(&cEnt->worldMat);
+	D3DXMatrixTranspose(&tmp, D3DXMatrixInverse(&tmp, &det, &cEnt->worldMat));
+	
+	pEffectDefault->SetMatrix("WorldInverseTranspose", &tmp);
+	pEffectDefault->SetTexture("ModelTexture", cEnt->m_pMesh->m_pMeshTextures[0]);
+	pEffectDefault->CommitChanges();
+	cEnt->m_pMesh->m_pMesh->DrawSubset(0);
+}
+
+static void drawFastModel(C_Entity * cEnt, ID3DXEffect * pEffect) {
+	pEffect->SetMatrix("World", &cEnt->worldMat);
+	pEffect->CommitChanges();
+	cEnt->m_pMesh->m_pMesh->DrawSubset(0);
+}
+
+void GameResources::drawAllModels() {
+	
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	
+	D3DXMATRIX tmp;
+	pEffectDefault->SetMatrix("View", curCam->getViewMatrix(tmp));
+	pEffectDefault->SetMatrix("Projection", curCam->getProjMatrix(tmp)); 
+	D3DXVECTOR4 viewVec = curCam->m_vAt - curCam->m_vEye;
+	D3DXVec4Normalize(&viewVec, &viewVec);
+	pEffectDefault->SetVector("ViewVector", &viewVec);
+	
+    pEffectDefault->SetTechnique( "Shiny" );
+	UINT cPasses;
+	pEffectDefault->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffectDefault->BeginPass(iPass);
+		for (UINT i = 0; i < shipList.size(); i++) {
+			drawModel(shipList[i]);
+		}
+		for (UINT i = 0; i < mothershipList.size(); i++) {
+			drawModel(mothershipList[i]);
+		}
+		for (UINT i = 0; i < resourceList.size(); i++) {
+			drawModel(resourceList[i]);
+		}
+		for (UINT i = 0; i < extractorList.size(); i++) {
+			drawModel(extractorList[i]);
+		}
+		for (UINT i = 0; i < powerupList.size(); i++) {
+			drawModel(powerupList[i]);
+		}
+		pEffectDefault->EndPass();
+	}
+	pEffectDefault->End();
+
+	
+    pEffectDefault->SetTechnique( "Dull" );
+	pEffectDefault->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffectDefault->BeginPass(iPass);
+		for (UINT i = 0; i < asteroidList.size(); i++) {
+			drawModel(asteroidList[i]);
+		}
+		pEffectDefault->EndPass();
+	}
+	pEffectDefault->End();
+
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+}
+
+void GameResources::DrawBGSun() {
+	UINT cPasses;
+	D3DXMATRIX tmp;
+
+	GameResources::curCam->setCenteredView();
+	pEffectGlowmap->SetMatrix("View", curCam->getViewMatrix(tmp));
+	pEffectGlowmap->SetMatrix("Projection", curCam->getProjMatrix(tmp));
+	
+	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE ); // sun is behind ALL
+    pEffectGlowmap->SetTechnique( "Emissive" );
+	cPasses;
+	pEffectGlowmap->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffectGlowmap->BeginPass(iPass);
+		pEffectGlowmap->SetMatrix("World", &sunWorldMat);
+		pEffectGlowmap->CommitChanges();
+		sunMesh->DrawSubset(0);
+		pEffectGlowmap->EndPass();
+	}
+	pEffectGlowmap->End();
+	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE ); // sun is behind ALL
+
+	GameResources::curCam->updateView();
+}
+
+void GameResources::createGlowmap() {
+	
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+
+	//render-to-texture
+	//set new render target
+	Gbls::pd3dDevice->SetRenderTarget(0,pGlowmapSurface);
+	Gbls::pd3dDevice->Clear(0,
+                           NULL,
+                           D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+                           D3DCOLOR_XRGB(0,0,0),
+                           1.0f,
+                           0);
+	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
+	if(FAILED(hResult))
+	{
+		std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+
+	UINT cPasses;
+	D3DXMATRIX tmp;
+
+	GameResources::curCam->setCenteredView();
+	pEffectGlowmap->SetMatrix("View", curCam->getViewMatrix(tmp));
+	pEffectGlowmap->SetMatrix("Projection", curCam->getProjMatrix(tmp));
+	
+	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE ); // sun is behind ALL
+    pEffectGlowmap->SetTechnique( "Emissive" );
+	cPasses;
+	pEffectGlowmap->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffectGlowmap->BeginPass(iPass);
+		pEffectGlowmap->SetMatrix("World", &sunWorldMat);
+		pEffectGlowmap->CommitChanges();
+		sunMesh->DrawSubset(0);
+		pEffectGlowmap->EndPass();
+	}
+	pEffectGlowmap->End();
+
+	GameResources::curCam->updateView();
+	pEffectGlowmap->SetMatrix("View", curCam->getViewMatrix(tmp));
+
+    pEffectGlowmap->SetTechnique( "Black" );
+	cPasses;
+	pEffectGlowmap->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffectGlowmap->BeginPass(iPass);
+		for (UINT i = 0; i < shipList.size(); i++) {
+			drawFastModel(shipList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < mothershipList.size(); i++) {
+			drawFastModel(mothershipList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < resourceList.size(); i++) {
+			drawFastModel(resourceList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < extractorList.size(); i++) {
+			drawFastModel(extractorList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < powerupList.size(); i++) {
+			drawFastModel(powerupList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < asteroidList.size(); i++) {
+			drawFastModel(asteroidList[i], pEffectGlowmap);
+		}
+		pEffectGlowmap->EndPass();
+	}
+	pEffectGlowmap->End();
+
+	
+ //   Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE ); // sun is behind ALL
+	//GameResources::curCam->setCenteredView();
+	//pEffectGlowmap->SetMatrix("View", curCam->getViewMatrix(tmp));
+ //   pEffectGlowmap->SetTechnique( "Emissive" );
+	//cPasses;
+	//pEffectGlowmap->Begin(&cPasses, 0);
+	//for (UINT iPass = 0; iPass < cPasses; iPass++)
+	//{
+	//	pEffectGlowmap->BeginPass(iPass);
+	//	pEffectGlowmap->SetMatrix("World", &sunWorldMat);
+	//	pEffectGlowmap->CommitChanges();
+	//	sunMesh->DrawSubset(0);
+	//	pEffectGlowmap->EndPass();
+	//}
+	//pEffectGlowmap->End();
+	//GameResources::curCam->updateView();
+
+	Gbls::pd3dDevice->EndScene();
+	
+	// return to normal state
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+	//Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer);
+}
+
+void GameResources::blurTexture(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2) {
+	// Turn off Z-Buff
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+
+	LPDIRECT3DSURFACE9 surface;
+	tex1->GetSurfaceLevel(0, &surface);
+	D3DSURFACE_DESC desc;
+	surface->GetDesc(&desc);
+	float texelSize[2] = {1.0f/desc.Width, 1.0f/desc.Height};
+	surface->Release();
+
+	// First Pass
+    pEffectBlur->SetTechnique( "Horizontal" );
+	tex2->GetSurfaceLevel(0, &surface);
+	Gbls::pd3dDevice->SetRenderTarget(0,surface);
+
+	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
+	if(FAILED(hResult))
+	{
+		std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+	
+
+	pEffectBlur->SetTexture("ModelTexture", tex1);
+	//pEffectBlur->SetInt("Orientation", 0);
+	pEffectBlur->SetFloatArray("TexelSize", texelSize, 2);
+
+	UINT cPasses;
+
+	pEffectBlur->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++) {
+		pEffectBlur->BeginPass(iPass);
+		Gbls::pd3dDevice->SetFVF(TEXTOSCREENFVF);
+		Gbls::pd3dDevice->SetStreamSource(0, bloomQuadVBuffer, 0, sizeof(CUSTOMVERTEX));
+		Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		pEffectBlur->EndPass();
+	}
+	pEffectBlur->End();
+    Gbls::pd3dDevice->EndScene();
+	surface->Release();
+	
+	// Second Pass
+	
+    pEffectBlur->SetTechnique( "Vertical" );
+	tex1->GetSurfaceLevel(0, &surface);
+	Gbls::pd3dDevice->SetRenderTarget(0,surface);
+	hResult = Gbls::pd3dDevice->BeginScene();
+	pEffectBlur->SetTexture("ModelTexture", tex2);
+	//pEffectBlur->SetInt("Orientation", 1);
+	if(FAILED(hResult))
+	{
+		std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+	pEffectBlur->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++) {
+		pEffectBlur->BeginPass(iPass);
+		Gbls::pd3dDevice->SetFVF(TEXTOSCREENFVF);
+		Gbls::pd3dDevice->SetStreamSource(0, bloomQuadVBuffer, 0, sizeof(CUSTOMVERTEX));
+		Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		pEffectBlur->EndPass();
+	}
+	pEffectBlur->End();
+    Gbls::pd3dDevice->EndScene();
+	surface->Release();
+
+	// Turn on Z-Buff 
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
+}
+
+void GameResources::blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2, LPDIRECT3DVERTEXBUFFER9 quadVBuffer) {
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+   	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
+	if(FAILED(hResult))
+	{
+		std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+	
+	pEffectBlend->SetTexture("ModelTexture1", tex1);
+	pEffectBlend->SetTexture("ModelTexture2", tex2);
+
+	UINT cPasses;
+	pEffectBlend->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++) {
+		pEffectBlend->BeginPass(iPass);
+		Gbls::pd3dDevice->SetFVF(TEXTOSCREENFVF);
+		Gbls::pd3dDevice->SetStreamSource(0, quadVBuffer, 0, sizeof(CUSTOMVERTEX));
+		Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		pEffectBlend->EndPass();
+	}
+	pEffectBlend->End();
+    Gbls::pd3dDevice->EndScene();
+
+	
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+}
+
+void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUFFER9 quadVBuffer) {
+
+	//Gbls::pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+   	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
+	if(FAILED(hResult))
+	{
+		std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+
+	pEffectTexToScreen->SetTexture("ModelTexture", tex);
+
+	UINT cPasses;
+	pEffectTexToScreen->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++) {
+		pEffectTexToScreen->BeginPass(iPass);
+		Gbls::pd3dDevice->SetFVF(TEXTOSCREENFVF);
+		Gbls::pd3dDevice->SetStreamSource(0, quadVBuffer, 0, sizeof(CUSTOMVERTEX));
+		Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		pEffectTexToScreen->EndPass();
+	}
+	pEffectTexToScreen->End();
+    Gbls::pd3dDevice->EndScene();
+
+	
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
+
+	//WORKING LOL
+	//LPDIRECT3DSURFACE9 surface;
+	//tex->GetSurfaceLevel(0, &surface);
+	//D3DSURFACE_DESC desc;
+	//surface->GetDesc(&desc);
+	//UINT surfaceHeight = desc.Height;
+	//UINT surfaceWidth = desc.Width;
+
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+ //  	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
+	//if(FAILED(hResult))
+	//{
+	//	std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+	//	MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+	//	return;
+	//}
+
+	//RECT r1, r2;
+	//r1.top = 0;
+	//r1.left = 0;
+	//r1.right = surfaceWidth;
+	//r1.bottom = surfaceHeight;
+ //
+	//r2.top = 0;
+	//r2.left = 0;
+	//r2.right = Gbls::thePresentParams.BackBufferWidth;
+	//r2.bottom = Gbls::thePresentParams.BackBufferHeight;
+ //
+	//Gbls::pd3dDevice->StretchRect( surface, &r1, pBackBuffer, &r2, D3DTEXF_POINT );
+
+	//Gbls::pd3dDevice->EndScene();
+
+	//surface->Release();
+
+}
+
 void GameResources::drawAll()
 {
+	Gbls::pd3dDevice->GetRenderTarget(0,&pBackBuffer);
+	pDefaultRenderTexture->GetSurfaceLevel(0,&pDefaultRenderSurface);
+	pGlowmapTexture->GetSurfaceLevel(0,&pGlowmapSurface);
+	//pDefaultRenderTexture->Release();
+
+	
+	createGlowmap();
+	blurTexture(pGlowmapTexture, pTmpBlurTexture);
+
+	//// Clear the screen
+	//Gbls::pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+	//	D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
+
+
+	//render-to-texture
+	//set new render target
+	Gbls::pd3dDevice->SetRenderTarget(0,pDefaultRenderSurface);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+	Gbls::pd3dDevice->Clear(0,
+                           NULL,
+                           D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
+                           D3DCOLOR_XRGB(0,0,0),
+                           1.0f,
+                           0);
+
+	// Tell the device we want to start rendering
+	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
+	if(FAILED(hResult))
+	{
+		std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
+		MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
+		return;
+	}
+
 	Skybox::drawSkybox();
+	//DrawBGSun();
 
 	// TODO this draws objects in no particular order, resulting in many loads and unloads (probably) for textures and models. Should be fixed if performance becomes an issue.
 	// Loop through all lists. Set up shaders, etc, as needed for each.
-	for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
-    {
-		(*ii).second->draw();
-	}
+	//for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
+	//{
+	//	(*ii).second->draw();
+	//}
+
+	drawAllModels();
 
 	if (renderCBWireframe) {
 		Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_WIREFRAME);
+		Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING,FALSE);
 		Gbls::pd3dDevice->SetMaterial(&MATERIAL_WHITE);
 		for( map<int,C_Entity*>::iterator ii=entityMap.begin(); ii!=entityMap.end(); ++ii)
 		{
 			drawCollisionBounds((*ii).second->m_pFront, (*ii).second->m_pBack, (*ii).second->m_radius);
 		}
+		Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
 	}
-	
-	Gbls::pd3dDevice->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID);
-	//drawCollisionBounds(D3DXVECTOR3(10, 0, 0), D3DXVECTOR3(10, 10, 10), 2.0f);
-	
+
+	// set state for particle effects
+	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
+	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, FALSE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_ONE );
+
 	// Render tractor beams
 	drawAllTractorBeams();
 	
 	//Render all engine exhausts
 	drawAllEngines();
+	
+	// unset state for particle effects
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
+	Gbls::pd3dDevice->SetRenderState( D3DRS_LIGHTING, TRUE );
+    Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+
+	Gbls::pd3dDevice->EndScene();
+
+	Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
+	blendTexesToSurface(pDefaultRenderTexture, pGlowmapTexture, fsQuadVBuffer);
+	//drawTexToSurface(pDefaultRenderTexture);
+	//drawTexToSurface(pGlowmapTexture);
+
+	Gbls::pd3dDevice->BeginScene();
 
 	// Render entity indicators
 	drawAllEID();
 
 	// Render static hud elements
 	drawStaticHudElements();
+	
+	Gbls::pd3dDevice->EndScene();
+
+
+	if (pGlowmapSurface) {
+		pGlowmapSurface->Release();
+		pGlowmapSurface = NULL;
+	}
+
+	if (pDefaultRenderSurface) {
+		pDefaultRenderSurface->Release();
+		pDefaultRenderSurface = NULL;
+	}
+
+	if (pBackBuffer) {
+		pBackBuffer->Release();
+		pBackBuffer = NULL;
+	}
 }
 
 // called each frame to update the state of all game sounds
@@ -571,6 +1322,8 @@ void GameResources::switchCamera() {
 	} else {
 		curCam = &playerCam;
 	}
+	curCam->updateView();
+	curCam->updateProjection();
 }
 
 void GameResources::switchPlayerCameraScale() {
@@ -714,16 +1467,6 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 		//}
 	}
 
-	//for( UINT i = 0; i < scores.size(); ++i)
-	//{
-	//	UINT pNum = scores[i].first;
-	//	if (pNum >= 1 && pNum <= 4) {
-	//		playerScore[pNum-1] = scores[i].second;
-	//	}
-	//}
-
-
-
 	if (newGameState.size() == 0) {
 		resetGameState();
 	} else {
@@ -736,6 +1479,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 				entityMap[id]->update(newGameState[i]);
 				//entityMap[id]->updated = true; 	//used for individual deletes if we ever implement that
 			}
+			entityMap[id]->updateWorldMat();
 		}
 	}
 
@@ -772,6 +1516,8 @@ void GameResources::resetGameState() {
 	mothershipList.clear();
 	tractorBeamList.clear();
 	resourceList.clear();
+	extractorList.clear();
+	powerupList.clear();
 	for (UINT i = 0; i < eIDList.size(); i++) {
 		delete eIDList[i];
 	}
@@ -808,12 +1554,25 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 			playerShip = tmp;
 		}
 		EntityIdentifier * shipEID = new EntityIdentifier();
+		EntityIdentifier * shipEID_insig = new EntityIdentifier();
 		shipEID->targetEntity = tmp;
-		shipEID->m_onScreenSprite.setTexture(shipEIDTexture);
+		shipEID_insig->targetEntity = tmp;
+		shipEID_insig->rotateOn = false;
+
+		shipEID->m_onScreenSprite.setTexture(*shipEIDTextureArray_arrow[tmp->m_playerNum]);
+		shipEID_insig->m_onScreenSprite.setTexture(*shipEIDTextureArray_insig[tmp->m_playerNum]);
+		
 		shipEID->m_onScreenSprite.setCenterToTextureMidpoint();
-		shipEID->m_offScreenSprite.setTexture(shipEIDTexture);
+		shipEID_insig->m_onScreenSprite.setCenterToTextureMidpoint();
+		
+		shipEID->m_offScreenSprite.setTexture(*shipEIDTextureArray_arrow[tmp->m_playerNum]);
+		shipEID_insig->m_offScreenSprite.setTexture(*shipEIDTextureArray_insig[tmp->m_playerNum]);
+		
 		shipEID->m_offScreenSprite.setCenterToTextureMidpoint();
+		shipEID_insig->m_offScreenSprite.setCenterToTextureMidpoint();
+		
 		eIDList.push_back(shipEID);
+		eIDList.push_back(shipEID_insig);
 		EnginePGroup * epg = new EnginePGroup(EnginePartTexture);
 		epg->shipEnt = tmp;
 		enginePGroupList.push_back(epg);
@@ -863,14 +1622,14 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case EXTRACTOR :
 		{
 		C_Extractor * tmp = new C_Extractor(newEnt);
-		//resourceList.push_back(tmp);
+		extractorList.push_back(tmp);
 		ret = tmp;
 		}
 		break;
 	case POWERUP :
 		{
 		C_Powerup * tmp = new C_Powerup(newEnt);
-		//resourceList.push_back(tmp);
+		powerupList.push_back(tmp);
 		ret = tmp;
 		}
 		break;

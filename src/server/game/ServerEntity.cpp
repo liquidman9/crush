@@ -15,6 +15,7 @@ ServerEntity::ServerEntity() :
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
 	m_immovable(false),
 	m_resourceSpots(0),
+	m_heldBy(NULL),
 	
 	// zeroing values
 	m_angular_velocity(shared::utils::VEC3_ZERO),
@@ -33,6 +34,7 @@ ServerEntity::ServerEntity(float mass, D3DXMATRIX rot_inertia) :
 	m_rot_inertia_inverse(*D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia)),
 	m_immovable(false),
 	m_resourceSpots(0),
+	m_heldBy(NULL),
 
 	// zeroing values
 	m_angular_velocity(shared::utils::VEC3_ZERO),
@@ -55,6 +57,7 @@ ServerEntity::ServerEntity(float mass, float length, D3DXMATRIX rot_inertia) :
 	m_immovable(false),
 	m_resourceSpots(0),
 	m_destroy(false),
+	m_heldBy(NULL),
 	// zeroing values
 	m_angular_velocity(shared::utils::VEC3_ZERO),
 	m_orientation_delta(0.0f, 0.0f, 0.0f, 0.0f),
@@ -128,6 +131,9 @@ void ServerEntity::recalculateRelativeValues() {
 
 // Applies physics to entity
 void ServerEntity::update(float delta_time) {
+
+	if(m_immovable) return;
+
 	// Apply current frame's physics
 	// Apply impulse
 	m_momentum += t_impulse;
@@ -188,7 +194,7 @@ void ServerEntity::reset() {
 	m_destroy = false;
 }
 
-void ServerEntity::print() {
+void const ServerEntity::print() {
 	cout << "Type: " << (int)m_type << endl;
 	cout << "Pos: " << m_pos << endl;
 	cout << "Velocity: " << D3DXVec3Length(&m_velocity) << endl;

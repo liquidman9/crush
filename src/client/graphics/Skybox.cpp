@@ -110,7 +110,7 @@ void Skybox::drawSkybox() {
 	Gbls::pd3dDevice->SetTransform( D3DTS_WORLD, &matWorld);
 
 	// Set camera view to zero for skybox
-	GameResources::curCam->setSkyboxView();
+	GameResources::curCam->setCenteredView();
 
 	for(int i = 0; i < 6; ++i)
     {

@@ -19,6 +19,7 @@ class EntityIdentifier
 public:
 	//D3DXMATRIX m_scaleOffsetMatrix;
 	C_Entity * targetEntity;
+	bool rotateOn;
 	EntityIdentifier();
 	~EntityIdentifier();
 	Sprite m_onScreenSprite;

@@ -22,16 +22,15 @@
 class S_Resource : public Resource, public ServerEntity{ //switch back to capsule
 
 public:
-	static int s_maxTravelFrames;
-
+	
 	// Fields
 	ServerEntity * m_carrier;
 	bool m_onDropTimeout;
 	long m_dropTimeoutStart;
 	SHIP_PLAYERNUM_TYPE m_droppedFrom;
-	static long s_dropTimeoutLength;
+	long m_dropTimeoutLength;
 	
-	int m_travelFrames;
+	long m_startTravelTime;
 	int m_spot;
 
 

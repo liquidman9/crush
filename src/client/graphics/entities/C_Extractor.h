@@ -8,18 +8,17 @@
 // Project includes
 #include <shared/game/Extractor.h>
 #include <client/graphics/entities/C_Entity.h>
-#include <client/graphics/Renderable.h>
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
 class C_Extractor : public Extractor, public C_Entity {
 public:
-	Mesh* m_pMesh;
+	//Mesh* m_pMesh;
 
 	C_Extractor();
 	C_Extractor(Entity *);
-	void draw();
+	//void draw();
 };
 
 #pragma warning( pop )

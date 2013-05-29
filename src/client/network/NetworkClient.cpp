@@ -1,6 +1,6 @@
 #include <client/network/NetworkClient.h>
 
-NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
+NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_recvBuff(NULL) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
@@ -10,7 +10,7 @@ NetworkClient::NetworkClient(void):Network(), m_stateAvailable(false), m_dropped
 	m_recvBuff = new char[MAX_PACKET_SIZE];
 }
 
-NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
+NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port), m_stateAvailable(false), m_recvBuff(NULL) {
 
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
@@ -20,7 +20,7 @@ NetworkClient::NetworkClient(string ip, unsigned short port): Network(ip, port),
 	m_recvBuff = new char[MAX_PACKET_SIZE];
 }
 
-NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailable(false), m_dropped(0), m_recvBuff(NULL) {
+NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailable(false), m_recvBuff(NULL) {
 	if (WSAStartup(MAKEWORD(2,2),&wsa) != 0) {
 		throw runtime_error("WSAStartup failed : " + to_string((long long) WSAGetLastError()));
 	}
@@ -31,7 +31,6 @@ NetworkClient::NetworkClient(unsigned short port): Network(port), m_stateAvailab
 
 
 void NetworkClient::initializeSocket() {
-	m_dropped = 0;
 	if( (m_sock = socket(AF_INET , SOCK_STREAM, IPPROTO_TCP)) == INVALID_SOCKET )  {
 		throw runtime_error("Could not create socket : " + to_string((long long) WSAGetLastError()));
 	}
@@ -145,46 +144,54 @@ void NetworkClient::updateGameState() {
 		unsigned int total_size = remaining_data;
 		bool error = false;
 
-		int recv_len = recvFromServer(local_buf, MAX_PACKET_SIZE-total_size, remaining_data);
+		//initial recv
+		int recv_len = recvFromServer(buff+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
 		if(recv_len < 0) {
 			error = true;
 		}
 		if(!error) {
 			total_size += recv_len;
 		}
+		//recv until we have at least the smallest expected size
 		while(!error && total_size < m_gameState.gsMinSize() && total_size != MAX_PACKET_SIZE) {
-			recv_len = recvFromServer(local_buf+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
+			recv_len = recvFromServer(buff+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
 			if(recv_len < 0) {
 				error = true;
 			}
 			total_size += recv_len;
 		}
 
+		//get the actual size
 		unsigned int expected_size;
 		if(!error) {
 			expected_size = getSize(buff);
 		}
 
+		//recv until we get at least the actual size
 		while(!error && total_size < expected_size && total_size != MAX_PACKET_SIZE) {
-			recv_len = recvFromServer(local_buf+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
+			recv_len = recvFromServer(buff+total_size, MAX_PACKET_SIZE-total_size, remaining_data);
 			if(recv_len < 0) { 
 				error = true;
 			}
 			total_size += recv_len;
-			expected_size = getSize(local_buf);
 		}
 
 		if(!error) {
-			unsigned int size;			
-			auto decodeBuff = decodeSendBuff(buff, getSize(buff), size); 			
+			unsigned int size;
+			//transform recved buffer into buffer that GameState decode can use
+			auto decodeBuff = decodeSendBuff(buff, getSize(buff), size); 
+			//decode GameState
 			local_gs.decode(decodeBuff, size);
+
+			//update GameState that will be given to user when getGameState() is called
 			EnterCriticalSection(&m_cs);
 			if(!(m_stateAvailable && m_gameState.size() == 0)) {
 				m_gameState = local_gs;
 			}			
 			m_stateAvailable = true;
 			LeaveCriticalSection(&m_cs);
-
+			
+			//manage remaining data
 			remaining_data =  total_size - getSize(buff);
 			assert(remaining_data >= 0);
 			if(remaining_data > 0) {

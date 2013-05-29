@@ -48,7 +48,7 @@ bool S_Mothership::giveResource(S_Ship * ship){
 		ship->m_resource = NULL;
 		res->m_spot = this->m_resources >= m_resourceSpots? m_resourceSpots:this->m_resources;
 		this->m_resources++;
-		res->m_travelFrames = 0;
+		res->m_startTravelTime = GetTickCount();
 		cout<<"Given"<<endl;
 		return true;
 	}
@@ -64,7 +64,7 @@ bool S_Mothership::takeResource(S_Ship * ship){
 		res->m_carrier = ship;
 		this->m_resources--;
 		res->m_spot = 0;
-		res->m_travelFrames = 0;
+		res->m_startTravelTime = GetTickCount();
 		cout<<"Taken"<<endl;
 		return true;
 	}
@@ -73,7 +73,8 @@ bool S_Mothership::takeResource(S_Ship * ship){
 
 
 void S_Mothership::update(float delta_time){
-	ServerEntity::update(delta_time);
+	// Should not be movable
+	//ServerEntity::update(delta_time);
 	
 	if (DEBUG) {
 		static int count = 0;

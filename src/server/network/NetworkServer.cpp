@@ -52,6 +52,7 @@ void NetworkServer::initializeThreads() {
 	m_sendAvailable = false;
 	InitializeCriticalSection(&m_cs);
 	InitializeCriticalSection(&m_cs1);
+	InitializeCriticalSection(&m_cs2);
 	InitializeConditionVariable(&m_workerReady);
 	InitializeConditionVariable(&m_broadcastReady);
 
@@ -64,7 +65,7 @@ void NetworkServer::initializeThreads() {
 		&threadID );
 
 	threadID = 1;
-	m_hThread = (HANDLE)_beginthreadex( NULL, // security
+	m_hThread1 = (HANDLE)_beginthreadex( NULL, // security
 		0,             // stack size
 		NetworkServer::ThreadStaticEntryPoint1,// entry-point-function
 		this,           // arg list holding the "this" pointer
@@ -101,6 +102,7 @@ void NetworkServer::broadcastGameStateWorker() {
 		while(!m_sendAvailable) {
 			SleepConditionVariableCS(&m_broadcastReady, &m_cs1, INFINITE);
 		}
+		EnterCriticalSection(&m_cs2);
 		m_sendAvailable = false;
 
 #ifdef ENABLE_DELTA
@@ -109,16 +111,57 @@ void NetworkServer::broadcastGameStateWorker() {
 			m_clear_delta = false;
 		}
 #endif
+
+#ifdef VERIFY_BEFORE_SEND
+		_CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
+		unsigned int size1;
+		unsigned int size2;
+
+		char* tmp1 = new char[m_oldSize];
+		auto tmp2 = m_oldSize;
+		memcpy(tmp1,m_oldState, m_oldSize);
+		auto buff1 = m_sendGS.getSendBuff();
+		unsigned int sendSize = m_sendGS.sendSize();
+		_ASSERTE( _CrtCheckMemory( ) );
+		auto buff2 = encodeSendBuff(buff1, sendSize, size1);
+		_ASSERTE( _CrtCheckMemory( ) );
+		auto buff3 = decodeSendBuff(buff2, size1, size2);
+		_ASSERTE( _CrtCheckMemory( ) );
+		assert(sendSize == size2);
+		for(unsigned int i = 0; i < size2; i++) {
+			if(buff1[i] != buff3[i]) {
+				assert(false);
+			}
+		}
+		GameState<Entity> test;
+		test.decode(buff3, size2);
+		_ASSERTE( _CrtCheckMemory( ) );
+		delete []buff1;
+		delete []buff2;
+		delete []buff3;
+		_ASSERTE( _CrtCheckMemory( ) );
+		delete []m_oldState;
+		m_oldState = tmp1;
+		m_oldSize = tmp2;
+		_ASSERTE( _CrtCheckMemory( ) );
+#endif
+
+
 		//get send buff and size
 		auto gs_send_buff = m_sendGS.getSendBuff();
 		unsigned int size;
+		auto tmp = m_sendGS.sendSize();
 		auto send_buff = encodeSendBuff(gs_send_buff, m_sendGS.sendSize(), size);
+		
+		
 		LeaveCriticalSection(&m_cs1);
-		WakeConditionVariable(&m_workerReady);
-
-		//prep empty gamestate send if necessary
-
 		EnterCriticalSection(&m_cs);
+		LeaveCriticalSection(&m_cs2);
+		//signal main loop
+		WakeConditionVariable(&m_workerReady);
+#ifdef ENABLE_DELTA
+		assert(!m_clear_delta);
+#endif
 		l_connectedClients = m_connectedClients;
 		LeaveCriticalSection(&m_cs);
 
@@ -137,13 +180,11 @@ void NetworkServer::broadcastGameStateWorker() {
 			if(r != m_connectedClients.end()) {
  				removeList.push_back(r);
 			}
-		}
+		}		
+		//remove clients who cannot be reached
 		if(!removeList.empty())	removeClients(removeList);
 		LeaveCriticalSection(&m_cs);
 
-		//remove clients who cannot be reached
-		//removeClients(removeList);
-		//LeaveCriticalSection(&m_cs);
 		removeList.clear();
 		removeList_lookup.clear();
 		delete []gs_send_buff;	
@@ -282,7 +323,7 @@ void NetworkServer::acceptNewClient()
 			unsigned int i = max_clients;
 			unsigned int tmp_client_count = m_connectedClients.size();
 			// find clientID for new client
-			if (tmp_client_count < max_clients - 1) {
+			if (tmp_client_count < max_clients) {
 				for (i = 0; i < max_clients; i++) {
 					if(m_connectedClients.find(i) == m_connectedClients.end()) {							
 						tmp_client_count++;
@@ -327,18 +368,23 @@ void NetworkServer::acceptNewClient()
 				setsockopt( ClientSocket, IPPROTO_TCP, TCP_NODELAY, &value, sizeof( value ) );
 
 				//insert new client into connected clients
-				EnterCriticalSection(&m_cs);
+				EnterCriticalSection(&m_cs2);				
 				EnterCriticalSection(&m_cs1);
+				EnterCriticalSection(&m_cs);
+				
 #ifdef ENABLE_DELTA
+				/*while(m_sendAvailable) {
+					SleepConditionVariableCS(&m_workerReady, &m_cs1, INFINITE);
+				}*/
 				m_clear_delta = true;
 #endif
-				//m_clientCount = tmp_client_count;
 				m_newClients.insert(pair<unsigned int, string>(i,string(client_name)));
 				m_connectedClients.insert(pair<unsigned int, SOCKET> (i, ClientSocket));
 				m_clientIDs.insert(pair<unsigned int, string>(i, string(client_name)));
 				m_clientCount = m_connectedClients.size();
-				LeaveCriticalSection(&m_cs1);
 				LeaveCriticalSection(&m_cs);
+				LeaveCriticalSection(&m_cs1);				
+				LeaveCriticalSection(&m_cs2);
 				cout << "New client " << i << " connected." << endl;
 			}
 		}

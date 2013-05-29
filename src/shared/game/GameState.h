@@ -40,8 +40,10 @@ public:
 	};
 
 	void push_back(E *e) {
-		m_size += e->size();
-		m_entities.push_back(shared_ptr<E>(e));
+		if (getEntityById(e->m_id) == NULL) {
+			m_size += e->size();
+			m_entities.push_back(shared_ptr<E>(e));
+		}
 	};
 
 	void push_back_event(GEvent * e)
@@ -90,6 +92,14 @@ public:
 
 	long long getRemainingTimeNum() const {
 		return m_meta.time;
+	}
+
+	shared_ptr<E> getEntityById(int id) {
+		for (unsigned int i = 0; i < size(); i++) {
+			if (m_entities[i]->m_id == id) return m_entities[i];
+		}
+
+		return NULL;
 	}
 
 	void setWinner(int client) {
@@ -148,6 +158,7 @@ public:
 
 	virtual ~GameState(void) {
 		m_entities.clear();
+		m_events.clear();
 	}
 
 	static unsigned int  minSize() {
@@ -168,7 +179,7 @@ private:
 		GEvent *gp = NULL;
 		clear();		
 		Type a;
-		for(unsigned int cur_size = 0; cur_size < gs_size; cur_size += ep->size() ){
+		for(unsigned int cur_size = 0; cur_size < gs_size;  ){
 			ep = NULL;
 			a = *(Type*) (cur_head + cur_size);
 			switch(a) {
@@ -176,42 +187,50 @@ private:
 				ep = new Ship();
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
+				cur_size += ep->size();
 				break;
 			case ASTEROID:
 				ep = new Asteroid();
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
+				cur_size += ep->size();
 				break;
 			case TRACTORBEAM:
 				ep = new TractorBeam();
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
+				cur_size += ep->size();
 				break;
 			case MOTHERSHIP:
 				ep = new Mothership();
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
+				cur_size += ep->size();
 				break;
 			case RESOURCE:
 				ep = new Resource();
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
+				cur_size += ep->size();
 				break;
 			case EXTRACTOR:
 				ep = new Extractor();
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
+				cur_size += ep->size();
 				break;
 			case POWERUP:
 				ep = new Powerup();
 				ep->decode(cur_head + cur_size);
 				this->push_back(ep);
+				cur_size += ep->size();
 				break;
 			case COLLISIONEVENT:
-				cerr << "Collision received!";
+				// cerr << "Collision received!";
 				gp = new CollisionGEvent();
 				gp->decode(cur_head + cur_size);
 				this->push_back_event(gp);
+				cur_size += gp->size();
 				break;
 			default:
 				cerr << "ERROR decoding entity state. Unknown type: " << (int) (*(ENUM_TYPE*)( cur_head + cur_size)) << endl;

@@ -6,7 +6,8 @@
 #include <math.h>
 
 EntityIdentifier::EntityIdentifier() :
-	targetEntity(NULL)
+	targetEntity(NULL),
+	rotateOn(TRUE)
 {
 	//D3DXMatrixIdentity(&m_scaleOffsetMatrix);
 }
@@ -53,15 +54,26 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 			pSpriteRenderer->SetTransform(&mat);
 			pSpriteRenderer->Draw(m_onScreenSprite.m_pTexture, NULL, &m_onScreenSprite.m_vCenter, NULL, 0XFFFFFFFF);
 		} else {
+			if (screenHeight > screenWidth) {
+				float ratio = (float)screenWidth/(float)screenHeight;
+				out.y *= ratio;
+			} else {
+				float ratio = (float)screenHeight/(float)screenWidth;
+				out.x *= ratio;
+			}
 			D3DXVECTOR2 arrowV(out.x, out.y);
 			D3DXVec2Normalize(&arrowV, &arrowV);
 
-			float angle = atan(arrowV.y/arrowV.x);
-			// if(arrowV.x >= 0 && arrowV.y >= 0) first quardrent, do nothing, angle is correct
-			if(arrowV.x >= 0 && arrowV.y < 0) // fourth quadrent
-				angle = D3DX_PI*2.0f + angle;
-			if(arrowV.x < 0) // second and third quadrent
-				angle = D3DX_PI + angle;
+			float angle = 0.0f;
+			if (rotateOn) {
+				angle = atan(arrowV.y/arrowV.x);
+				// if(arrowV.x >= 0 && arrowV.y >= 0) first quardrent, do nothing, angle is correct
+				if(arrowV.x >= 0 && arrowV.y < 0) // fourth quadrent
+					angle = D3DX_PI*2.0f + angle;
+				if(arrowV.x < 0) // second and third quadrent
+					angle = D3DX_PI + angle;
+				angle = (D3DX_PI*2.0f-angle)-(D3DX_PI/2.0f);
+			}
 
 			D3DXVECTOR2 centerV(m_offScreenSprite.m_vCenter.x, m_offScreenSprite.m_vCenter.y);
 			
@@ -73,7 +85,7 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 			pixel_y = (int)((-(arrowV.y - 1.0f)/2.0f)*screenHeight);
 			pixel_y = (int)(max(centerV.y*scaleFactor, min(screenHeight - centerV.y*scaleFactor, pixel_y)));
 			
-			D3DXMatrixTransformation2D(&mat, NULL, 0.0f, &D3DXVECTOR2(scaleFactor, scaleFactor), &centerV, (D3DX_PI*2.0f-angle)-(D3DX_PI/2.0f), NULL);
+			D3DXMatrixTransformation2D(&mat, NULL, 0.0f, &D3DXVECTOR2(scaleFactor, scaleFactor), &centerV, angle, NULL);
 			mat._41 = (float)pixel_x;
 			mat._42 = (float)pixel_y;
 			pSpriteRenderer->SetTransform(&mat);

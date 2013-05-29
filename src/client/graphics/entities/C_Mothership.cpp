@@ -25,25 +25,49 @@ C_Mothership::C_Mothership(Entity * newEnt) :
 		m_orientation = srcMothership->m_orientation;
 		m_playerNum = srcMothership->m_playerNum;
 	    m_resources = srcMothership->m_resources;
-		m_pMesh = &Gbls::mothershipMesh[m_playerNum % Gbls::numShipMeshes];
+
+		m_pMesh = new Mesh();
+		m_pMesh->m_dwNumMaterials = 1;
+		m_pMesh->m_pMeshMaterials = new D3DMATERIAL9[1];
+		m_pMesh->m_pMeshTextures = new LPDIRECT3DTEXTURE9[1];
+		m_pMesh->m_pMesh = Gbls::mothershipMesh.m_pMesh;
+		m_pMesh->m_matInitScaleRot = Gbls::mothershipMesh.m_matInitScaleRot;
+		
+		switch (m_playerNum) {
+		case 0:
+			m_pMesh->m_pMeshTextures[0] = Gbls::mothershipTexture1;
+			break;
+		case 1:
+			m_pMesh->m_pMeshTextures[0] = Gbls::mothershipTexture2;
+			break;
+		case 2:
+			m_pMesh->m_pMeshTextures[0] = Gbls::mothershipTexture3;
+			break;
+		case 3:
+			m_pMesh->m_pMeshTextures[0] = Gbls::mothershipTexture4;
+			break;
+		default:
+			m_pMesh->m_pMeshTextures[0] = Gbls::mothershipTexture1;
+			break;
+		}
 	} else {
-		cerr << "SEVERE : Unable to create Client Asteroid!" << endl;
+		cerr << "SEVERE : Unable to create Client Mothership!" << endl;
 	}
 }
 
-void C_Mothership::draw()
-{
-
-	// Translate Mothership to correct possition
-	D3DXMATRIX matTranslate;
-	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
-
-	// Rotation with quaternion
-	D3DXMATRIX matRotate;
-	D3DXQUATERNION temp_q;
-	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
-
-	// Apply transforms
-	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));
-	m_pMesh->draw();
-}
+//void C_Mothership::draw()
+//{
+//
+//	// Translate Mothership to correct possition
+//	D3DXMATRIX matTranslate;
+//	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
+//
+//	// Rotation with quaternion
+//	D3DXMATRIX matRotate;
+//	D3DXQUATERNION temp_q;
+//	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
+//
+//	// Apply transforms
+//	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));
+//	m_pMesh->draw();
+//}

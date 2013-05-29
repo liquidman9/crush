@@ -73,6 +73,7 @@ private:
 	//thread stuff
 	CRITICAL_SECTION m_cs;
 	CRITICAL_SECTION m_cs1;
+	CRITICAL_SECTION m_cs2;
 	CONDITION_VARIABLE m_workerReady;
 	CONDITION_VARIABLE m_broadcastReady;
 	volatile bool m_sendAvailable;

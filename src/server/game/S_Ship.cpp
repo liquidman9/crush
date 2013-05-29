@@ -9,6 +9,7 @@
 #include <shared/util/SharedUtils.h>
 #include <shared/ConfigSettings.h>
 #include <shared/game/Entity.h>
+#include <server/game/S_Extractor.h>
 #include <server/game/S_Ship.h>
 //#include <server/game/S_TractorBeam.h>
 
@@ -22,22 +23,20 @@ S_Ship::S_Ship() :
 	m_forward_impulse(forward_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_max_velocity(max_velocity),
-	m_max_rotation_velocity(max_rotation_velocity),
-	m_resource(NULL)
+	m_max_rotation_velocity(max_rotation_velocity)
 {
 	init();
 }
 
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
-	Entity(genId(), SHIP, pos, orientation),
+	Entity(genId(), SHIP, pos, orientation, 3),
 	Ship(pNum),
 	ServerEntity(mass, 5.0, calculateRotationalInertia(mass)),
 	m_forward_impulse(forward_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_braking_impulse(braking_impulse),
 	m_max_velocity(max_velocity),
-	m_max_rotation_velocity(max_rotation_velocity),
-	m_resource(NULL)
+	m_max_rotation_velocity(max_rotation_velocity)
 {	
 	init();
 }
@@ -46,6 +45,13 @@ void S_Ship::init() {
 	forward_rot_thruster = D3DXVECTOR3(0, 0, 5);
 	reverse_rot_thruster = D3DXVECTOR3(0, 0, -5);
 	m_resourceSpots = 1;
+	m_resource = NULL;
+	m_powerup = NULL;
+	m_pressToggle = false;
+	m_mashNumber = mash_number;
+	m_mashTimeLimit = mash_time_limit;
+	m_shieldOn = false;
+	m_pulseOn = false;
 }
 
 // TODO!!!:
@@ -58,14 +64,24 @@ void S_Ship::addPlayerInput(InputState input) {
 		m_tractorBeam->setIsPulling(false);
 	}
 	// Once holding on an object it is hooked so no longer need to be pulling
-	else if(input.getTractorBeam() != 0 && !m_tractorBeam->m_isHolding) { 
+	else if(input.getTractorBeam() != 0){// && !m_tractorBeam->m_isHolding) { 
 
 		m_tractorBeam->setIsOn(true);
 		m_tractorBeam->setIsPulling(true);
 		m_tractorBeam->m_strength = (float) input.getTractorBeam();
 	}
-	else if(!m_tractorBeam->m_isHolding){
+	else {//if(!m_tractorBeam->m_isHolding){
 		m_tractorBeam->setIsOn(false);
+	}
+
+	if(input.getMash() && !m_pressToggle) {
+		m_presses.push_back(GetTickCount());
+		m_pressToggle = true;
+	}
+	else if(!input.getMash()) m_pressToggle = false;
+
+	if(m_powerup != NULL && m_powerup->m_stateType == HOLDING && input.getPowerup()) {
+		m_powerup->start();
 	}
 
 	m_thruster = input.getThrust();
@@ -160,24 +176,100 @@ void S_Ship::applyDamping() {
 	m_rotating = false;
 
 }
-void S_Ship::updateHeldObject(){
-	//m_tractorBeam->m_object->m_pos = m_pos + m_tractorBeam->getCurrentDirection()*m_tractorBeam->m_heldDistance;//(m_radius > m_tractorBeam->m_object->m_radius? m_radius: m_tractorBeam->m_object->m_radius); 
+
+void S_Ship::dropResource(long time) {
+	if(m_resource == NULL) return;
+
+	S_Resource * tmp = m_resource;
+	m_resource = NULL;
+	tmp->m_carrier = NULL;
+	tmp->m_onDropTimeout = true;
+	tmp->m_dropTimeoutStart = GetTickCount();
+	tmp->m_dropTimeoutLength  = time;
+	tmp->m_droppedFrom = m_playerNum;
+	tmp->m_spot = -1;
+	tmp->reset(); // temporary to stop resources from moving far far away when dropped
+}
+
+void S_Ship::disableTractorBeam() {
+	m_tractorBeam->disable();
+	m_heldBy = NULL;
+}
+
+
+// Drops resource and locks enemy tractor beam on it (assumes enemy tractor beam on ship)
+void S_Ship::unlockResource(S_Ship * enemy) {
+	S_Resource * tmp = m_resource;
+	dropResource(4000);
+	enemy->m_tractorBeam->lockOn(tmp);
+
+}
+
+void S_Ship::updateDefensiveOffensiveCounter() {
+	// Erases mashes that have gone for too long
+	for(int i = m_presses.size() -1; i >= 0; i--) {
+		long time = GetTickCount();
+		if(time - m_presses[i] > m_mashTimeLimit) //config
+			m_presses.erase(m_presses.begin() + i);
+	}
+	
+	if(m_heldBy != NULL) {
+		if(m_presses.size() >= 15) { 
+			((S_Ship *)m_heldBy)->disableTractorBeam();
+			m_presses.clear();
+		}
+	}
+	else if(m_tractorBeam->m_object != NULL && 
+		m_tractorBeam->m_object->m_type == SHIP && 
+		((S_Ship *)m_tractorBeam->m_object)->m_resource != NULL) 
+	{
+			if(m_presses.size() >= m_mashNumber) { 
+				((S_Ship *)m_tractorBeam->m_object)->unlockResource(this);
+				m_presses.clear();
+			}
+	}
+	else {
+		m_presses.clear();
+	}
 }
 
 void S_Ship::update(float delta_time) {
 	
+	// If a Powerup's use is up ends it
+	if(m_powerup != NULL && m_powerup->m_stateType == CONSUMED){
+		if(m_powerup->check(GetTickCount())){
+			m_powerup->end();
+		}
+	}
+
+	updateDefensiveOffensiveCounter();
 
 	applyDamping();
 	
 	ServerEntity::update(delta_time);
-	if(m_tractorBeam->m_isHolding)
-		updateHeldObject();
-
 }
 
 void S_Ship::calcTractorBeam() {
 
 	m_tractorBeam->updateData();
+}
+
+void S_Ship::checkDropoff(S_Mothership * mother) {
+	if(mother->m_playerNum == m_playerNum && m_resource!= NULL) { // get rid of if want to steal without hitting mothership
+		if(D3DXVec3Length(&(m_pos-mother->m_pos)) < mother->m_length*2){
+			mother->interact(this);
+		}
+	}
+}
+
+
+bool S_Ship::checkShield() {
+	if(m_shieldOn) return true;
+	else return false;
+}
+
+void S_Ship::disableShield() {
+	m_shieldOn = false;
 }
 
 D3DXMATRIX S_Ship::calculateRotationalInertia(float mass){
@@ -189,16 +281,22 @@ D3DXMATRIX S_Ship::calculateRotationalInertia(float mass){
 };
 
 
+bool S_Ship::interact(S_Powerup * power) {
+	if(power->m_ship == NULL && power->m_stateType == SPAWNED && m_powerup == NULL) {	
+		power->pickUp(this);
+		m_powerup = power;
+	}
+
+	return false;
+}
+
 bool S_Ship::interact(S_Resource * res) {
-	if(m_resource == NULL && res->m_carrier == NULL) {
+	if(m_resource == NULL && (res->m_carrier == NULL || res->m_carrier->m_type == EXTRACTOR)) {
 		if(((res->m_droppedFrom != m_playerNum && res->m_onDropTimeout) || res->m_droppedFrom != m_playerNum)) {
 			m_resource = res;
 			res->m_carrier = this;
-			res->m_onDropTimeout = false;
-			res->m_dropTimeoutStart = 0;
-			res->m_droppedFrom = -1;
 			res->m_spot = 0;
-			res->m_travelFrames = 0;
+			res->m_startTravelTime = GetTickCount();
 			cout<<"Gathered"<<endl;
 		}
 		return true;
@@ -212,33 +310,52 @@ bool S_Ship::interact(S_Asteroid * asteroid) {
 		m_tractorBeam->m_isColliding = true;
 		return false;
 	}
-	else if(m_resource != NULL) {
-		S_Resource * tmp = m_resource;
-		m_resource = NULL;
-		tmp->m_carrier = NULL;
-		tmp->m_onDropTimeout = true;
-		tmp->m_dropTimeoutStart = GetTickCount();
-		tmp->m_droppedFrom = m_playerNum;
-		tmp->m_spot = -1;
-		tmp->reset(); // temporary to stop resources from moving far far away when dropped
+	else if(m_resource != NULL && !m_shieldOn) {
+		dropResource(2000);
 	}
 	return true;
 }
 
 bool S_Ship::interact(S_Ship * ship) {
+	bool switched = false;
+
 	if(m_tractorBeam->m_object != NULL && m_tractorBeam->m_object == ship){
 		m_tractorBeam->m_isColliding = true;
-		return true;  // can not "hold" a ship?
+		m_tractorBeam->lockOff();
 	}
-	if(m_resource != NULL) {
-		S_Resource * tmp = m_resource;
-		m_resource = NULL;
-		tmp->m_carrier = NULL;
-		tmp->m_onDropTimeout = true;
-		tmp->m_dropTimeoutStart = GetTickCount();
-		tmp->m_droppedFrom = m_playerNum;
-		tmp->m_spot = -1;
-		tmp->reset(); // temporary to stop resources from moving far far away when dropped
+	if(m_resource != NULL && !m_shieldOn && ship->m_resource == NULL && m_resource->m_droppedFrom != ship->m_playerNum) {
+		S_Resource * r = m_resource;
+		dropResource(2000);
+		ship->interact(r);
+		switched = true;
+	}
+
+	if(ship->m_tractorBeam->m_object != NULL && ship->m_tractorBeam->m_object == this){
+		m_tractorBeam->m_isColliding = true;
+		ship->m_tractorBeam->lockOff();
+	}
+	if(!switched && ship->m_resource != NULL && !ship->m_shieldOn && m_resource == NULL && ship->m_resource->m_droppedFrom != m_playerNum) {
+		S_Resource * r = ship->m_resource;
+		ship->dropResource(2000);
+		interact(r);
 	}
 	return true;
+}
+
+
+
+void S_Ship::setFowardImpulse(float forward) {
+	m_forward_impulse = forward;
+}
+
+float S_Ship::getForwardImpulse() {
+	return m_forward_impulse;
+}
+
+void S_Ship::setMaxVelocity(float vel) {
+	m_max_velocity = vel;
+}
+
+float S_Ship::getMaxVelocity() {
+	return m_max_velocity;
 }

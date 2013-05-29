@@ -5,7 +5,6 @@
 // Project includes
 #include <shared/network/Sendable.h>
 
-
 class GEvent : public Sendable {
 private:
 	struct send_struct 

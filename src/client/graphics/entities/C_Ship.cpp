@@ -37,60 +37,47 @@ C_Ship::C_Ship(Entity * newEnt) :
 		m_orientation = srcShip->m_orientation;
 		m_thruster = srcShip->m_thruster;
 		m_playerNum = srcShip -> m_playerNum;
-		m_pMesh = &Gbls::shipMesh[m_playerNum % Gbls::numShipMeshes];
+		m_pMesh = new Mesh();
+		m_pMesh->m_dwNumMaterials = 1;
+		m_pMesh->m_pMeshMaterials = new D3DMATERIAL9[1];
+		m_pMesh->m_pMeshTextures = new LPDIRECT3DTEXTURE9[1];
+		m_pMesh->m_pMesh = Gbls::shipMesh.m_pMesh;
+		m_pMesh->m_matInitScaleRot = Gbls::shipMesh.m_matInitScaleRot;
+		
+		switch (m_playerNum) {
+		case 0:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture1;
+			break;
+		case 1:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture2;
+			break;
+		case 2:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture3;
+			break;
+		case 3:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture4;
+			break;
+		default:
+			m_pMesh->m_pMeshTextures[0] = Gbls::shipTexture1;
+			break;
+		}
 	} else {
 		cerr << "SEVERE : Unable to create Client Ship!" << endl;
 	}
 }
 
-void C_Ship::draw()
-{
-	// Rotate ship to face correct direction
-
-	/* use this code if we want to handle edge case (y = 1 or y = -1) in this function */
-	//D3DXVec3Normalize(&m_dir, &m_dir);
-	//D3DXMATRIX matRotate;
-	//if(m_dir.y > 0.99999f) {
-	//	D3DXMatrixRotationX(&matRotate, D3DXToRadian(-90));
-	//} else if(m_dir.y < -0.99999f) {
-	//	D3DXMatrixRotationX(&matRotate, D3DXToRadian(90));
-	//} else {
-	//	D3DXVECTOR3 right;
-	//	D3DXVECTOR3 up(0,1.0f,0);
-	//	D3DXVec3Cross(&right, &up, &m_dir);
-	//	D3DXVec3Normalize(&right, &right);
-	//	D3DXVec3Cross(&up, &m_dir, &right);
-	//	// TODO waste of copy, fix later
-	//	matRotate = D3DXMATRIX(
-	//		right.x, right.y, right.z, 0,
-	//		up.x, up.y, up.z, 0,
-	//		m_dir.x, m_dir.y, m_dir.z, 0, 
-	//		0, 0, 0, 1);
-	//}
-	// Matrix rotation with direction code
-	/*
-	D3DXVec3Normalize(&m_dir, &m_dir);
-	D3DXVECTOR3 right;
-	D3DXVECTOR3 up(0,1.0f,0);
-	D3DXVec3Cross(&right, &up, &m_dir);
-	D3DXVec3Normalize(&right, &right);
-	D3DXVec3Cross(&up, &m_dir, &right);
-	D3DXMATRIX matRotate(
-		right.x, right.y, right.z, 0,
-		up.x, up.y, up.z, 0,
-		m_dir.x, m_dir.y, m_dir.z, 0, 
-		0, 0, 0, 1);
-	*/
-	// Translate ship to correct possition
-	D3DXMATRIX matTranslate;
-	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
-
-	// Rotation with quaternion
-	D3DXMATRIX matRotate;
-	D3DXQUATERNION temp_q;
-	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
-
-	// Apply transforms
-	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));
-	m_pMesh->draw();
-}
+//void C_Ship::draw()
+//{
+//	// Translate ship to correct possition
+//	D3DXMATRIX matTranslate;
+//	D3DXMatrixTranslation(&matTranslate, m_pos.x, m_pos.y, m_pos.z);
+//
+//	// Rotation with quaternion
+//	D3DXMATRIX matRotate;
+//	D3DXQUATERNION temp_q;
+//	D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &m_orientation));
+//
+//	// Apply transforms
+//	Gbls::pd3dDevice->SetTransform(D3DTS_WORLD, &(m_pMesh->m_matInitScaleRot*matRotate*matTranslate));
+//	m_pMesh->draw();
+//}

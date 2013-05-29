@@ -18,7 +18,6 @@
 
 // Project includes
 #include <shared/network/Sendable.h>
-#include <client/graphics/Renderable.h>
 #include <shared/util/SharedUtils.h>
 
 using namespace std;
@@ -56,6 +55,8 @@ public:
 	D3DXVECTOR3 m_pos;
 	D3DXVECTOR3 m_velocity;
 	Quaternion m_orientation;
+
+	// Collision
 	D3DXVECTOR3 m_pFront;
 	D3DXVECTOR3 m_pBack;
 	float m_radius;
@@ -66,6 +67,7 @@ public:
 	// Constructors
 	Entity(int id, Type type);
 	Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation);
+	Entity(int id, Type type, D3DXVECTOR3 pos, Quaternion orientation, float radius);
 	// Copy constructor
 	Entity(Entity const &e);
 	// Destructor

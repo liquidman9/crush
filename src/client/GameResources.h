@@ -14,7 +14,6 @@
 // Project includes
 #include <client/graphics/Mesh.h>
 #include <client/graphics/Camera.h>
-#include <client/graphics/Renderable.h>
 #include <shared/game/Entity.h>
 //typedef vector<shared_ptr<Entity>> GameState;
 #include <shared/game/GameState.h>
@@ -28,6 +27,7 @@
 #include <client/graphics/entities/C_Asteroid.h>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_Entity.h>
+#include <client/graphics/entities/C_Powerup.h>
 #include <client/graphics/ParticleSystem.h>
 #include <client/graphics/TBeamPGroup.h>
 #include <client/graphics/EnginePGroup.h>
@@ -51,6 +51,8 @@ public:
 	static vector<C_Mothership*> mothershipList;
 	static vector<C_TractorBeam*> tractorBeamList;
 	static vector<C_Resource*> resourceList;
+	static vector<C_Extractor*> extractorList;
+	static vector<C_Powerup*> powerupList;
 	static vector<EntityIdentifier*> eIDList;
 	static vector<EnginePGroup *> enginePGroupList;
 	static const float PLAYER_CAM_DISTANCE;
@@ -68,7 +70,21 @@ public:
 	static int playerNum;
 	static LPD3DXSPRITE pd3dSprite;
 	static LPD3DXFONT GameResources::pd3dFont;
-	static LPDIRECT3DTEXTURE9 shipEIDTexture;
+	
+	//ship indicators
+	static LPDIRECT3DTEXTURE9 shipEIDTexture_resource;
+	static LPDIRECT3DTEXTURE9 ship1EIDTexture_insig;
+	static LPDIRECT3DTEXTURE9 ship1EIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9 ship2EIDTexture_insig;
+	static LPDIRECT3DTEXTURE9 ship2EIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9 ship3EIDTexture_insig;
+	static LPDIRECT3DTEXTURE9 ship3EIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9 ship4EIDTexture_insig;
+	static LPDIRECT3DTEXTURE9 ship4EIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_arrow[4];
+	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_insig[4];
+
+
 	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
 	static LPDIRECT3DTEXTURE9 EnginePartTexture;
@@ -78,6 +94,22 @@ public:
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
 	static SoundManager sound;
+
+	// effects (shaders)
+	static ID3DXEffect * pEffectDefault;
+	static ID3DXEffect * pEffectGlowmap;
+	static ID3DXEffect * pEffectTexToScreen;
+	static ID3DXEffect * pEffectBlend;
+	static ID3DXEffect * pEffectBlur;
+
+	static D3DXMATRIX sunWorldMat;
+	static LPD3DXMESH sunMesh;
+	static LPDIRECT3DTEXTURE9 pGlowmapTexture;
+	static LPDIRECT3DSURFACE9 pGlowmapSurface;
+	static LPDIRECT3DTEXTURE9 pTmpBlurTexture;
+	static LPDIRECT3DTEXTURE9 pDefaultRenderTexture;
+	static LPDIRECT3DSURFACE9 pDefaultRenderSurface;
+	static LPDIRECT3DSURFACE9 pBackBuffer;
 
 	// for debugging collisions
 	static bool renderCBWireframe;
@@ -115,13 +147,23 @@ public:
 	static HRESULT initState();
 	static HRESULT reInitState();
 	static HRESULT initMeshes();
+	static HRESULT loadEffect(ID3DXEffect ** pEffect, std::wstring effectLoc);
 	static HRESULT loadTexture(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath);
+	static HRESULT loadTextureWithFormat(LPDIRECT3DTEXTURE9 * pTextureOut, std::wstring filepath, _D3DFORMAT format);
 	static HRESULT initAdditionalTextures();
 	static HRESULT loadFont(LPD3DXFONT * pFont, int height, std::wstring fontStyle);
 	static void releaseAdditionalTextures();
 	static HRESULT initLights();
 	//static HRESULT initSprites();
 	static void drawAll();
+	static void createGlowmap();
+	static void DrawBGSun();
+	//static void drawTexToScreen(LPDIRECT3DSURFACE9 surface, UINT surfaceHeight, UINT surfaceWidth);
+	static void drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUFFER9 quadVBuffer);
+	static void blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2, LPDIRECT3DVERTEXBUFFER9 quadVBuffer);
+	static void blurTexture(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2);
+	static void drawModel(C_Entity * cEnt);
+	static void drawAllModels();
 	static void drawAllTractorBeams();
 	static void drawAllEngines();
 	static void drawAllEID();

@@ -16,25 +16,22 @@
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
-class S_Extractor : public Extractor, public ServerEntity{
+class S_Extractor : public Extractor, public ServerEntity {
+private:
+	S_Resource * m_cur_resource;
+	float m_timer;
+	bool respawned;
+
 public:
-	static const int s_msReset = 30000; 
-
-	// Fields
-	long long m_timer;
-	S_Resource *m_ore;
-
 	// Constructors
 	S_Extractor(D3DXVECTOR3, Quaternion);
 
 	// Methods
-	void setStart(long long);
-	bool checkRespawn(long long);
-	S_Resource * respawn();
-	S_Resource * transfer();
+	S_Resource * getResource();
+	void respawn();
 
 	virtual D3DXMATRIX calculateRotationalInertia(float mass);
-	void update(float delta_time);
+	virtual void update(float delta_time);
 };
 
 

@@ -8,6 +8,7 @@
 // Project includes
 #include <server/network/NetworkServer.h>
 #include <shared/InputState.h>
+#include <server/game/PowerupSource.h>
 #include <server/game/S_Ship.h>
 #include <server/game/S_Asteroid.h>
 #include <server/game/S_Resource.h>
@@ -20,13 +21,9 @@
 
 #define SERVER_ERROR_FILE "server_error.log"
 
-#define MS_DIST_FROM_MINE 300
-#define SHIP_DIST_FROM_MINE 200
-#define TIME_LIMIT 300000
-
-
 typedef map<unsigned int, S_Ship*> PlayerMap_t;
 typedef map<unsigned int, S_Mothership*> MothershipMap_t;
+typedef map<unsigned int, bool> readyMap_t;
 
 
 class Server
@@ -53,6 +50,8 @@ public:
 
 	virtual ~Server(void);
 
+	GameState<Entity> getGameState();
+
 
 private:
 	//functions
@@ -71,6 +70,8 @@ private:
 	void setUpAsteroids();
 
 	void setUpBoundaries();
+
+	void setUpPowerups();
 
 	//add any new clients that have conntected
 	void addNewClients(vector<pair<unsigned int, string>> const &cc);
@@ -98,7 +99,7 @@ private:
 
 	void removeDisconClients();
 
-	D3DXVECTOR3 genSpawnPos(unsigned int client_id, unsigned int distance);
+	D3DXVECTOR3 genSpawnPos(unsigned int client_id, float distance);
 
 	Quaternion genShipSpawnDir(unsigned int client_id);
 
@@ -114,6 +115,10 @@ private:
 
 	void updateScore();
 
+	void updateReadyClients();
+
+	void checkReadyClients();
+
 
 	//variables
 	NetworkServer m_server;
@@ -122,7 +127,9 @@ private:
 	EventBuff_t m_clientInput;
 	PlayerMap_t m_playerMap;
 	MothershipMap_t m_mothershipMap;
+	readyMap_t m_clientReadyMap;
 	S_Extractor * m_extractor;
+	PowerupSource * m_powerupSource;
 	long long m_startTick;
 	long long m_endClock;
 	int m_timeLimit;

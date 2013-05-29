@@ -6,6 +6,13 @@ namespace server {
 	}
 
 	namespace world {
+		// World size
+		float size = 800.0f;
+
+		// Spawn
+		float mothership_distance_from_center = 500.0f;
+		float ship_spawn_distance_from_center = 450.0f;
+
 		// Asteroids
 		float asteroids_num = 50;
 		float asteroids_pos_start = 50.0f;
@@ -18,13 +25,17 @@ namespace server {
 
 	namespace entities {
 		namespace asteroid {
-			float scaleToRadius = 2.0f;
+			float scaleToRadius = 1.0f;
 			float density = 10.0f;
 		}
 
 		namespace tractorbeam {
 			float power = 5.0f;
 			float length = 350.0f;
+		}
+
+		namespace resource {
+			float max_travel_time = 3000;
 		}
 
 		namespace ship {
@@ -34,10 +45,27 @@ namespace server {
 			float braking_impulse = 2500.0f;
 			float max_velocity = 50.0f;
 			float max_rotation_velocity = 2.5f;
+			int mash_number = 15;
+			float mash_time_limit = 5000.0f;
 		}
 
 		namespace mothership {
-			float mass = 2000000000.0f;
+			float mass = 100000.0f;
+		}
+
+		namespace extractor {
+			float mass = 50000.0f;
+			float resource_respawn_time = 30.0f;
+		}
+
+		namespace powerup {
+			float max_velocity_rate = 2.0f;
+			float impulse_rate = 1.20f;
+			float pulse_rate = 20.0f;
+			float speedup_time = 7000;
+			float shield_time = 7000;
+			float pulse_time = 250;
+
 		}
 	}
 }

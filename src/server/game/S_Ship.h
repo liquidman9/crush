@@ -16,10 +16,14 @@
 #include <server/game/S_TractorBeam.h>
 #include <server/game/S_Resource.h>
 #include <server/game/S_Asteroid.h>
+#include <server/game/S_Powerup.h>
+#include <server/game/S_Mothership.h>
 #include <server/game/ServerEntity.h>
 #include <server/Globals.h>
 
 class S_TractorBeam;
+class S_Powerup;
+class S_Mothership;
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )
@@ -44,6 +48,13 @@ public:
 
 	S_Resource * m_resource;
 	S_TractorBeam * m_tractorBeam;
+	S_Powerup * m_powerup;
+	vector<long> m_presses;
+	bool m_pressToggle;
+	int m_mashNumber;
+	float m_mashTimeLimit;
+	bool m_shieldOn;
+	bool m_pulseOn;
 
 	// Constructors
 	S_Ship();
@@ -54,18 +65,45 @@ public:
 	void addPlayerInput(InputState);
 	void applyDamping();
 	D3DXVECTOR3 getDamping();
+
+	// Calculates the Tractor Beams force and logic
 	void calcTractorBeam();
-	void updateHeldObject();
+
+	// Checks whether in range and eligible for a dropoff
+	void checkDropoff(S_Mothership *);
+
+	// Disables the Tractor Beam from use for a set period
+	void disableTractorBeam();
+
+	// Enemy ship forces off resource
+	void unlockResource(S_Ship *);
+
+	// Dropping a resource logic (disables pickup for a given period)
+	void dropResource(long);
+
+	// Update logic for button mashes defensive/offensive counter for tractor beams
+	void updateDefensiveOffensiveCounter();
+
+	// Checks for Shield
+	bool checkShield();
+
+	void disableShield();
 
 	virtual void update(float delta_time);
 
 	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 
-	//todo switch interacts to true->success instead of true->collsion response
+	// Collsion interactions
 	bool interact(S_Resource *);
 	bool interact(S_Asteroid *);
 	bool interact(S_Ship *);
+	bool interact(S_Powerup * power);
 
+	void setFowardImpulse(float);
+	float getForwardImpulse();
+
+	void setMaxVelocity(float);
+	float getMaxVelocity();
 };
 
 #pragma warning( pop )

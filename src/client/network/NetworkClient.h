@@ -46,10 +46,9 @@ public:
 	//sentds event to server
 	void sendToServer(Event*);
 
-	const unsigned int getClientID() { return m_clientID; };
-
-	unsigned int droppedGameStates() { return m_dropped; };
-
+	//returns client ID
+	unsigned int getClientID() { return m_clientID; };
+	
 
 	virtual ~NetworkClient(void);
 
@@ -64,7 +63,6 @@ private:
 	bool m_stateAvailable;
 	GameState<Entity> m_gameState;
 	void bindToServer(Network const &, const string &);
-	unsigned int m_dropped;
 	int m_timeOut;
 	char * m_recvBuff;
 

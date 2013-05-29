@@ -59,6 +59,7 @@ public:
 	bool m_immovable;
 	int m_resourceSpots;
 	bool m_destroy;
+	ServerEntity * m_heldBy;
 
 
 	ServerEntity();
@@ -102,7 +103,7 @@ public:
 	// Resets values
 	virtual void reset();
 
-	virtual void print();
+	virtual void const print();
 
 	// Forced abstract for rotational inertia calculation
 	virtual D3DXMATRIX calculateRotationalInertia(float mass) = 0;

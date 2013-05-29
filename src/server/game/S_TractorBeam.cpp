@@ -28,7 +28,9 @@ S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	m_heldDistance(0.0f),
 	m_totalPulling(0,0,0),
 	m_shipLastCorrection(0.0,0.0,0.0),
-	m_objectLastCorrection(0.0,0.0,0.0)
+	m_objectLastCorrection(0.0,0.0,0.0),
+	disableStart(-1),
+	disableLength(5000)
 {
 	m_radius = m_sentRadius;
 	m_object = NULL;
@@ -46,11 +48,22 @@ bool S_TractorBeam::isLocked() {
 
 void S_TractorBeam::lockOn(ServerEntity * entity) {
 	if(m_object != entity) {
-		m_totalPulling = D3DXVECTOR3(0.0,0.0,0.0);
-		m_isHolding = false; //tmppp
-		m_isColliding = false;
+		lockOff();
+		entity->m_heldBy = m_ship;
 	}
 	m_object = entity;
+}
+
+void S_TractorBeam::lockOff() {
+	if(m_object != NULL) {
+		m_object->m_heldBy = NULL;
+		m_object = NULL;
+	}
+	m_isColliding = false;
+	m_isHolding = false; 
+	m_shipLastCorrection = shared::utils::VEC3_ZERO;
+	m_objectLastCorrection = shared::utils::VEC3_ZERO;
+	m_totalPulling = shared::utils::VEC3_ZERO;
 }
 
 D3DXVECTOR3 S_TractorBeam::getCurrentDirection() {
@@ -132,38 +145,38 @@ void S_TractorBeam::calculateForce() {
 			D3DXVECTOR3 disA = objectPositionTest - shipPositionTest;
 			float angleDiff = acos(D3DXVec3Dot(&disA,&disB)/(D3DXVec3Length(&disB)*D3DXVec3Length(&disA)))*180.0f/PI;
 
-
 			// If at the point to be held
 			if(angleDiff > 2 || m_isColliding || m_isHolding){
 				// Resources are not held by tractor beam once they collide with the ship
 				if(m_object->m_type == RESOURCE) {
 					if(m_ship->interact((S_Resource *)m_object)) cout << "Resource not gathered- error?"<<endl;
 					else {
-						m_object = NULL;
-						m_isColliding = false;
-						m_isHolding = false; //make method
+						lockOff();
 					}
 				}
-				else if (m_object->m_type != SHIP){ // can not "hold" a ship?
+				else if(m_object->m_type == SHIP) {
+					
+				}
+				else { 
 
 					if(!m_isHolding) {
-						m_heldDistance = disL; // Set permanent holding distance
+						m_heldDistance = (m_object->m_length > m_object->m_radius? m_object->m_length:m_object->m_radius) + (m_ship->m_length > m_ship->m_radius? m_ship->m_length:m_ship->m_radius);//disL; // Set permanent holding distance
 						m_shipLastCorrection = shared::utils::VEC3_ZERO;
 						m_objectLastCorrection = shared::utils::VEC3_ZERO;
 
 						// Equal out momentums (lock)
-						D3DXVECTOR3 vel = ((m_ship->t_impulse + m_ship->m_momentum) + (m_object->m_momentum  + m_object->t_impulse))/(m_ship->m_mass + m_object->m_mass);
-						m_object->m_momentum = vel*m_object->m_mass;
-						m_ship->m_momentum = vel*m_ship->m_mass;
+						//D3DXVECTOR3 vel = ((m_ship->t_impulse + m_ship->m_momentum) + (m_object->m_momentum  + m_object->t_impulse))/(m_ship->m_mass + m_object->m_mass);
+						//m_object->m_momentum = vel*m_object->m_mass;
+						//m_ship->m_momentum = vel*m_ship->m_mass;
 
 
 						// Zero outs probably temporary
-						m_object->m_momentum = shared::utils::VEC3_ZERO;
-						m_ship->m_momentum =shared::utils::VEC3_ZERO;
-						m_object->t_impulse =shared::utils::VEC3_ZERO;
-						m_ship->t_impulse = shared::utils::VEC3_ZERO;
+					//	m_object->m_momentum = shared::utils::VEC3_ZERO;
+					//	m_ship->m_momentum =shared::utils::VEC3_ZERO;
+					//	m_object->t_impulse =shared::utils::VEC3_ZERO;
+					//	m_ship->t_impulse = shared::utils::VEC3_ZERO;
 					}
-					else{
+					
 						float deltaTime = (float) 1.0/60.0f;
 
 						float totalMass = m_ship->m_mass + m_object->m_mass;
@@ -212,7 +225,7 @@ void S_TractorBeam::calculateForce() {
 						//m_shipLastCorrection = adjustShip*m_ship->m_mass;
 						//m_objectLastCorrection = adjustObj*m_object->m_mass;
 
-					}
+				
 				
 
 					m_isHolding = true;
@@ -235,28 +248,41 @@ void S_TractorBeam::calculateForce() {
 		else {
 				m_ship->applyLinearImpulse(-force * .01f);
 				m_object->applyLinearImpulse(force * .01f);
-				m_object = NULL;
-				m_isColliding = false;
-				m_isHolding = false; // make unlock/reset method
+
+				m_isHolding = false; 
 		}
 	}
 
 	m_isColliding = false;
 }
 
+void S_TractorBeam::disable() {
+	lockOff();
+
+	m_isOn = false;
+	timeout();
+}
+void S_TractorBeam::timeout() {
+	disableStart = GetTickCount();
+}
 
 void S_TractorBeam::updateData() {
 	setStartPoint();
 	setEndPoint();
 
-	if(m_isOn){
+	if(disableStart != -1) {
+		long time = GetTickCount();
+		m_isOn = false;
+		if(time - disableStart > disableLength) {
+			disableStart = -1;
+		}
+	}
+	else if(m_isOn){
 		calculateForce();
 		m_isColliding = false;
 	}
 	else {
-		m_object = NULL;
-		m_isColliding = false;
-		m_isHolding = false;
+		lockOff();
 	}
 }
 
@@ -281,23 +307,27 @@ void S_TractorBeam::setIsOn(bool isOn){
 	}
 	else {
 		m_isOn = isOn;
+		lockOff();
 	}
 }
 
 
 bool S_TractorBeam::interact(ServerEntity * entity) {
 	if(m_isOn){
-		
+
 		if(entity->m_type == SHIP && m_ship == entity || 
-			entity->m_type == POWERUP || // temp until given implementation will proabbly work like resource except consumed at collision
 			entity->m_type == MOTHERSHIP || 
 			entity->m_type == EXTRACTOR || 
-			(entity->m_type == RESOURCE && ((S_Resource *)entity)->m_carrier != NULL)) 
-				return false; // tmp
+			entity->m_type == POWERUP || // can not tractorbeam powerups
+			(entity->m_type == RESOURCE &&  (((S_Resource *)entity)->m_droppedFrom == m_ship->m_playerNum)) ||
+			(entity->m_type == RESOURCE && (((S_Resource *)entity)->m_carrier != NULL && ((S_Resource *)entity)->m_carrier->m_type != EXTRACTOR)) )
+				return false; 
 		// If is already locked check if closer
 		else if(isLocked()) {	
-			if(entity != m_object && !m_isHolding && D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos)) > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))){
-				cout<<D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos))<<" vs "<<D3DXVec3Length(&getDistanceVectorOf(entity->m_pos))<<endl;
+			if(entity != m_object && m_object->m_type != RESOURCE && // temp not sure what the rules should be when switching objects
+				!m_isHolding && 
+				D3DXVec3Length(&getDistanceVectorOf(m_object->m_pos)) > D3DXVec3Length(&getDistanceVectorOf(entity->m_pos)))
+			{
 				lockOn(entity);
 			}
 		}

@@ -18,6 +18,7 @@ private:
 		ENUM_TYPE type;
 		int id_a, id_b;
 		D3DXVECTOR3 poi;
+		float impulse;
 	};
 
 protected:
@@ -27,11 +28,12 @@ public:
 	// Fields
 	int m_idA, m_idB;
 	D3DXVECTOR3 m_poi;
+	float m_impulse;
 
 
 	// Constructors
 	CollisionGEvent();
-	CollisionGEvent(int id_a, int id_b, D3DXVECTOR3 poi);
+	CollisionGEvent(int id_a, int id_b, D3DXVECTOR3 poi, float impulse);
 
 	// Methods
 	virtual unsigned int encode(char *) const;

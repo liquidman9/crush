@@ -28,15 +28,20 @@ public:
 	D3DXVECTOR3 m_vEye;      // Camera position
 	D3DXVECTOR3 m_vAt;           // Camera look-at position
 	D3DXVECTOR3 m_vUp;        // Camera "up" direction
-	
-	// Create the projection matrix, and set it on the device
-	void updateProjection();
 
+	// Matricies
+	D3DXMATRIX viewMat;
+	D3DXMATRIX projMat;
+	
 	// Create the view matrix, and set it on the device
 	void updateView();
 
-	// Set a location 0 view matrix with correct direction for use with skybox
-	void Camera::setSkyboxView();
+	// Create the projection matrix, and set it on the device
+	void updateProjection();
+
+
+	// Set a location 0 view matrix with correct direction for use with skybox (and sun)
+	void Camera::setCenteredView();
 	
 	D3DXMATRIX * Camera::getViewMatrix(D3DXMATRIX & matView);
 	D3DXMATRIX * Camera::getProjMatrix(D3DXMATRIX & matProj);

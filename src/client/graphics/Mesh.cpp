@@ -91,6 +91,36 @@ HRESULT Mesh::Create(std::wstring filepath)
     return S_OK;
 }
 
+HRESULT Mesh::CreateBlank(std::wstring filepath)
+{
+	
+    LPD3DXBUFFER pD3DXMtrlBuffer;
+
+    // Load the mesh from the specified file
+	if( FAILED( D3DXLoadMeshFromX( filepath.c_str(), D3DXMESH_SYSTEMMEM,
+                                   Gbls::pd3dDevice, NULL,
+                                   &pD3DXMtrlBuffer, NULL, &m_dwNumMaterials,
+                                   &m_pMesh ) ) )
+    {
+        // If model is not in current folder, try parent folder
+        if( FAILED( D3DXLoadMeshFromX( (L"..\\"+filepath).c_str(), D3DXMESH_SYSTEMMEM,
+                                       Gbls::pd3dDevice, NULL,
+                                       &pD3DXMtrlBuffer, NULL, &m_dwNumMaterials,
+                                       &m_pMesh ) ) )
+        {
+            MessageBox( NULL, (L"Could not find "+filepath).c_str(), L"CRUSH.exe", MB_OK );
+            return E_FAIL;
+        }
+    }
+
+    // Done with the material buffer
+    pD3DXMtrlBuffer->Release();
+	pD3DXMtrlBuffer = NULL;
+
+    return S_OK;
+}
+
+
 void Mesh::Destroy()
 {
 	if( m_pMeshMaterials != NULL ) {
@@ -131,6 +161,21 @@ void Mesh::draw()
         m_pMesh->DrawSubset( i );
     }
 }
+
+//void Mesh::drawWithEffect(ID3DXEffect * pEffect) {
+//	// Meshes are divided into subsets, one for each material. Render them in
+//    // a loop
+//    for( DWORD i = 0; i < m_dwNumMaterials; i++ )
+//    {
+//        // Set the material and texture for this subset
+//        //Gbls::pd3dDevice->SetMaterial( &m_pMeshMaterials[i] );
+//        //Gbls::pd3dDevice->SetTexture( 0, m_pMeshTextures[i] );
+//
+//        // Draw the mesh subset
+//		m_pMesh[
+//        m_pMesh->DrawSubset( i );
+//    }
+//}
 
 void Mesh::setScaleRotate(float scaleFactor, float degX, float degY, float degZ)
 {
