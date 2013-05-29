@@ -215,6 +215,7 @@ void Server::checkReadyClients() {
 		}
 	}
 	m_start = true;
+	m_startGame = true;
 }
 
 void Server::updateReadyClients() {
