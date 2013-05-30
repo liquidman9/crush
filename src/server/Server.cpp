@@ -304,8 +304,6 @@ void Server::loop() {
 		
 		m_powerupSource->update(milliseconds_now());
 
-		m_world.collision(physics_delta);
-
 		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) {
 			for(auto j = m_mothershipMap.begin(); j != m_mothershipMap.end(); j++) {
 				i->second->checkDropoff(j->second);
@@ -313,6 +311,10 @@ void Server::loop() {
 			m_world.checkPulse(i->second);
 			i->second->calcTractorBeam();
 		}
+
+		m_world.collision(physics_delta);
+
+
 		m_world.update(physics_delta);
 
 		// Add new resource (if spawned)
