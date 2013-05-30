@@ -7,7 +7,8 @@
 
 EntityIdentifier::EntityIdentifier() :
 	targetEntity(NULL),
-	rotateOn(TRUE)
+	rotateOn(TRUE),
+	enableAltSprite(false)
 {
 	//D3DXMatrixIdentity(&m_scaleOffsetMatrix);
 }
@@ -16,9 +17,16 @@ EntityIdentifier::~EntityIdentifier()
 {
 }
 
+
 void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 {
-	if (targetEntity) {
+	Sprite* onScreenSpritep = &m_onScreenSprite;
+	Sprite* offScreenSpritep = &m_offScreenSprite;
+	if(enableAltSprite && targetEntity && targetEntity->m_useAltSprite) {
+		onScreenSpritep = &m_altOnScreenSprite;
+		offScreenSpritep = &m_altOffScreenSprite;
+	}
+	if (targetEntity && targetEntity->m_enableIdentifiers) {
 
 		D3DXVECTOR3 out;
 		D3DXMATRIX mat, tmp;
@@ -47,12 +55,12 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 			float scale = (30.0f/length)*scaleMod;
 			float sizeScale = max(0.35f, min(0.71f, scale))*scaleMod;
 			float distScale = ((sizeScale+scale)/2.0f)*scaleMod;
-			D3DXVECTOR2 centerV(m_onScreenSprite.m_vCenter.x, m_onScreenSprite.m_vCenter.y);
+			D3DXVECTOR2 centerV((*onScreenSpritep).m_vCenter.x, (*onScreenSpritep).m_vCenter.y);
 			D3DXVECTOR2 scaleV(sizeScale, sizeScale);
 			D3DXVECTOR2 transV((float)pixel_x, pixel_y-(distScale*100));
 			D3DXMatrixTransformation2D(&mat, NULL, 0.0f, &scaleV, &centerV, 0.0f, &transV);
 			pSpriteRenderer->SetTransform(&mat);
-			pSpriteRenderer->Draw(m_onScreenSprite.m_pTexture, NULL, &m_onScreenSprite.m_vCenter, NULL, 0XFFFFFFFF);
+			pSpriteRenderer->Draw((*onScreenSpritep).m_pTexture, NULL, &(*onScreenSpritep).m_vCenter, NULL, 0XFFFFFFFF);
 		} else {
 			if (screenHeight > screenWidth) {
 				float ratio = (float)screenWidth/(float)screenHeight;
@@ -75,7 +83,7 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 				angle = (D3DX_PI*2.0f-angle)-(D3DX_PI/2.0f);
 			}
 
-			D3DXVECTOR2 centerV(m_offScreenSprite.m_vCenter.x, m_offScreenSprite.m_vCenter.y);
+			D3DXVECTOR2 centerV((*offScreenSpritep).m_vCenter.x, (*offScreenSpritep).m_vCenter.y);
 			
 			float scaleFactor = scaleMod*0.5f;
 
@@ -89,7 +97,7 @@ void EntityIdentifier::draw(Camera * cam, ID3DXSprite* pSpriteRenderer)
 			mat._41 = (float)pixel_x;
 			mat._42 = (float)pixel_y;
 			pSpriteRenderer->SetTransform(&mat);
-			pSpriteRenderer->Draw(m_offScreenSprite.m_pTexture, NULL, &D3DXVECTOR3(centerV.x, centerV.y, 0), NULL, 0XFFFFFFFF);
+			pSpriteRenderer->Draw((*offScreenSpritep).m_pTexture, NULL, &D3DXVECTOR3(centerV.x, centerV.y, 0), NULL, 0XFFFFFFFF);
 		}
 	}
 }

@@ -13,6 +13,8 @@
 #include <server/game/ServerEntity.h> 
 #include <server/game/S_Resource.h> 
 
+class S_Resource;
+
 #pragma warning( push )
 #pragma warning( disable : 4250 )
 
@@ -22,7 +24,10 @@ private:
 	float m_timer;
 	bool respawned;
 
+
 public:
+	float m_hubRadius;
+
 	// Constructors
 	S_Extractor(D3DXVECTOR3, Quaternion);
 

@@ -36,6 +36,11 @@ class InputState : public Sendable {
 		return turn/32768.0;
 	}
 
+	//Returns the current strafing value, normalized from -1 to 1
+	double getStrafe() { 
+		return 0;
+	}
+
 	//Returns the current pitch value, normalized from 0 to 1
 	double getPitch() {
 		return pitch/32768.0;

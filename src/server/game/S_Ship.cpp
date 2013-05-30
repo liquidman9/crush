@@ -20,7 +20,7 @@ S_Ship::S_Ship() :
 	Entity(SHIP),
 	Ship(),
 	ServerEntity(),
-	m_forward_impulse(forward_impulse),
+	m_linear_impulse(linear_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_max_velocity(max_velocity),
 	m_max_rotation_velocity(max_rotation_velocity)
@@ -32,11 +32,13 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation, 3),
 	Ship(pNum),
 	ServerEntity(mass, 5.0, calculateRotationalInertia(mass)),
-	m_forward_impulse(forward_impulse),
+	m_linear_impulse(linear_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_braking_impulse(braking_impulse),
+	m_hard_braking_impulse(hard_braking_impulse),
 	m_max_velocity(max_velocity),
-	m_max_rotation_velocity(max_rotation_velocity)
+	m_max_rotation_velocity(max_rotation_velocity),
+	m_isBraking(false)
 {	
 	init();
 }
@@ -74,6 +76,9 @@ void S_Ship::addPlayerInput(InputState input) {
 		m_tractorBeam->setIsOn(false);
 	}
 
+	if(input.getBrake()) m_isBraking = true;
+	else m_isBraking = false;
+
 	if(input.getMash() && !m_pressToggle) {
 		m_presses.push_back(GetTickCount());
 		m_pressToggle = true;
@@ -85,15 +90,16 @@ void S_Ship::addPlayerInput(InputState input) {
 	}
 
 	m_thruster = input.getThrust();
-	// Linear thrust calculations
 
-	if (abs(input.getThrust()) > FP_ZERO) {
+	// Linear thrust calculations
+	if (abs(input.getThrust()) > FP_ZERO || abs(input.getStrafe()) > FP_ZERO) {
 		m_thrusting = true;
-		D3DXVECTOR3 main_thrust_force(0, 0, (float)m_thruster), 
+		D3DXVECTOR3 main_thrust_force(0, (float)input.getStrafe(), (float)m_thruster), 
 					main_thrust_adj;
+		D3DXVec3Normalize(&main_thrust_force, &main_thrust_force);
 		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
 		
-		applyLinearImpulse(main_thrust_adj * m_forward_impulse);
+		applyLinearImpulse(main_thrust_adj * m_linear_impulse);
 	}
 
 	// Rotational thrust calculations
@@ -117,10 +123,16 @@ D3DXVECTOR3 S_Ship::getDamping() {
 
 		if (m_thrusting) {
 			// Thrusting, we only want to reduce the impulse
-			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_forward_impulse;
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_linear_impulse;
 			float damping_factor = (mag_velocity / m_max_velocity);
 			shipImp += lin_stabilizer_force * damping_factor;
-		} else {
+		}
+		else if(m_isBraking) {
+			// Not thrusting, we need to slow down as quickly as possible
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_hard_braking_impulse;
+			shipImp += Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum);
+		} 
+		else {
 			// Not thrusting, we need to slow down as quickly as possible
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_braking_impulse;
 			shipImp += Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum);
@@ -143,9 +155,13 @@ void S_Ship::applyDamping() {
 
 		if (m_thrusting) {
 			// Thrusting, we only want to reduce the impulse
-			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_forward_impulse;
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_linear_impulse;
 			float damping_factor = (mag_velocity / m_max_velocity);
 			applyLinearImpulse(lin_stabilizer_force * damping_factor);
+		} else if(m_isBraking) {
+			// Not thrusting, we need to slow down as quickly as possible
+			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_hard_braking_impulse;
+			applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum));
 		} else {
 			// Not thrusting, we need to slow down as quickly as possible
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_braking_impulse;
@@ -234,7 +250,8 @@ void S_Ship::updateDefensiveOffensiveCounter() {
 }
 
 void S_Ship::update(float delta_time) {
-	
+	m_useAltSprite = m_resource != NULL;
+
 	// If a Powerup's use is up ends it
 	if(m_powerup != NULL && m_powerup->m_stateType == CONSUMED){
 		if(m_powerup->check(GetTickCount())){
@@ -345,11 +362,11 @@ bool S_Ship::interact(S_Ship * ship) {
 
 
 void S_Ship::setFowardImpulse(float forward) {
-	m_forward_impulse = forward;
+	m_linear_impulse = forward;
 }
 
 float S_Ship::getForwardImpulse() {
-	return m_forward_impulse;
+	return m_linear_impulse;
 }
 
 void S_Ship::setMaxVelocity(float vel) {

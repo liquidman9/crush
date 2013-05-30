@@ -37,6 +37,9 @@ C_Ship::C_Ship(Entity * newEnt) :
 		m_orientation = srcShip->m_orientation;
 		m_thruster = srcShip->m_thruster;
 		m_playerNum = srcShip -> m_playerNum;
+		m_hasPowerup = srcShip -> m_hasPowerup;
+		m_powerupType = srcShip -> m_powerupType;
+		m_powerupStateType = srcShip -> m_powerupStateType;
 		m_pMesh = new Mesh();
 		m_pMesh->m_dwNumMaterials = 1;
 		m_pMesh->m_pMeshMaterials = new D3DMATERIAL9[1];
