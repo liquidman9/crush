@@ -26,9 +26,15 @@ public:
 	static const float defaultSize;
 	static const float zStartOffset;
 	static const float defaultSpeed;
-	static const int color_r;
-	static const int color_g;
-	static const int color_b;
+	int m_color_r;
+	int m_color_g;
+	int m_color_b;
+	static const int normColor_r;
+	static const int normColor_g;
+	static const int normColor_b;
+	static const int speedupColor_r;
+	static const int speedupColor_g;
+	static const int speedupColor_b;
 
 	LPDIRECT3DTEXTURE9 m_ptexParticleNorm;
 	LPDIRECT3DTEXTURE9 m_ptexParticleSpeedup;

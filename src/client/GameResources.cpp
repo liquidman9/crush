@@ -127,14 +127,15 @@ ID3DXEffect * GameResources::pEffectTexToScreen;
 ID3DXEffect * GameResources::pEffectBlend;
 ID3DXEffect * GameResources::pEffectBlur;
 
-//for testing
+//debug vis toggles
+bool GameResources::shieldVisToggle = FALSE;
+bool GameResources::speedupVisToggle = FALSE;
+
 #define TEXTOSCREENFVF (D3DFVF_XYZRHW | D3DFVF_TEX1)
 struct CUSTOMVERTEX {FLOAT X, Y, Z, RHW, U, V;};
 static LPDIRECT3DVERTEXBUFFER9 fsQuadVBuffer = NULL;
 static LPDIRECT3DVERTEXBUFFER9 bloomQuadVBuffer = NULL;
 static CUSTOMVERTEX fsQuadVerts[4];
-
-
 HRESULT GameResources::initState() {
 	HRESULT hres;
 	
@@ -798,6 +799,11 @@ void GameResources::releaseBurstPowerupParticles() {
 }
 
 void GameResources::drawAllShields() {
+	if (shieldVisToggle && playerShip) {
+		playerShip->m_hasPowerup = TRUE;
+		playerShip->m_powerupType = SHIELD;
+		playerShip->m_powerupStateType = CONSUMED;
+	}
 	for (UINT i = 0; i < shipList.size(); i++) {
 		C_Ship * ship = shipList[i];
 		if(ship->m_hasPowerup && ship->m_powerupType == SHIELD && ship->m_powerupStateType == CONSUMED) {
@@ -819,6 +825,11 @@ void GameResources::drawAllTractorBeams() {
 
 void GameResources::drawAllEngines() {
 	// render particles
+	if (speedupVisToggle && playerShip) {
+		playerShip->m_hasPowerup = TRUE;
+		playerShip->m_powerupType = SPEEDUP;
+		playerShip->m_powerupStateType = CONSUMED;
+	}
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
 		enginePGroupList[i]->updateGroup();
 		partSystem->render(Gbls::pd3dDevice, enginePGroupList[i]);

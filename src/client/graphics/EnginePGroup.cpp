@@ -10,9 +10,12 @@ const float EnginePGroup::defaultTTL = 1.5f;
 const float EnginePGroup::defaultSize = 4.0f;
 const float EnginePGroup::defaultSpeed = -7.5f;
 const float EnginePGroup::zStartOffset = -5.5f;
-const int EnginePGroup::color_r = 200;
-const int EnginePGroup::color_g = 0;
-const int EnginePGroup::color_b = 255;
+const int EnginePGroup::normColor_r = 200;
+const int EnginePGroup::normColor_g = 0;
+const int EnginePGroup::normColor_b = 255;
+const int EnginePGroup::speedupColor_r = 255;
+const int EnginePGroup::speedupColor_g = 255;
+const int EnginePGroup::speedupColor_b = 255;
 
 EnginePGroup::EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticleNorm, LPDIRECT3DTEXTURE9 ptexParticleSpeedup) {
 	m_partList = NULL;
@@ -29,6 +32,9 @@ EnginePGroup::EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticleNorm, LPDIRECT3DTEXTUR
 	m_ttl = defaultTTL;
     m_size = defaultSize; // Particle's size
 	m_speed = defaultSpeed;
+	m_color_r = normColor_r;
+	m_color_g = normColor_g;
+	m_color_b = normColor_b;
 	
 	
 	shipEnt = NULL;
@@ -53,11 +59,17 @@ void EnginePGroup::updateGroup() {
 			//m_speed = defaultSpeed*2.0;
 			m_ttl = defaultTTL*2.0;
 			m_ptexParticle = m_ptexParticleSpeedup;
+			m_color_r = speedupColor_r;
+			m_color_g = speedupColor_g;
+			m_color_b = speedupColor_b;
 		} else {
 			m_size = defaultSize;
 			m_speed = defaultSpeed;
 			m_ttl = defaultTTL;
 			m_ptexParticle = m_ptexParticleNorm;
+			m_color_r = normColor_r;
+			m_color_g = normColor_g;
+			m_color_b = normColor_b;
 		}
 	}
 	////update color when color added to tbeam
@@ -100,7 +112,7 @@ bool EnginePGroup::initNewParticle(Particle * pParticle) {
 		return false;
 	}
 
-	pParticle->m_color = D3DCOLOR_XRGB(color_r,color_g,color_b);
+	pParticle->m_color = D3DCOLOR_XRGB(m_color_r,m_color_g,m_color_b);
 	pParticle->m_vCurPos.x = 0.0f;
 	pParticle->m_vCurPos.y = 0.0f;
 	pParticle->m_vCurPos.z = zStartOffset;
@@ -131,7 +143,7 @@ bool EnginePGroup::updateParticle(Particle * pParticle, float elapsedTime) {
 	float scale = (1.0f-age);
 	
 	//pParticle->m_color = D3DCOLOR_XRGB((int)(color_r*scale),(int)(color_g*scale),(int)(color_b*scale));
-	pParticle->m_color = D3DCOLOR_XRGB((int)(color_r*scale),(int)(color_g*scale),(int)(color_b*scale));
+	pParticle->m_color = D3DCOLOR_XRGB((int)(m_color_r*scale),(int)(m_color_g*scale),(int)(m_color_b*scale));
 	
 	pParticle->m_vCurPos += pParticle->m_vCurVel*elapsedTime;
 

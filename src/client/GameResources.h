@@ -127,6 +127,10 @@ public:
 	//static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;
 
+	//toggles for debug powerup vis
+	static bool shieldVisToggle;
+	static bool speedupVisToggle;
+
 	static struct KeyboardState{
 		bool wDown;
 		bool aDown;
