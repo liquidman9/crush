@@ -66,7 +66,7 @@ std::wstring Gbls::skyboxTextureFilepath_Right = L"SkyBox_Right.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Top = L"SkyBox_Top.jpg";
 std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
 
-std::wstring Gbls::shipEIDTextureFilepath_resource = L"";
+std::wstring Gbls::shipEIDTextureFilepath_resource = L"arrow_icon_resource.png";
 std::wstring Gbls::ship1EIDTextureFilepath_insig = L"arrow_icon_001.png";
 std::wstring Gbls::ship1EIDTextureFilepath_arrow = L"arrow_color_001.png";
 std::wstring Gbls::ship2EIDTextureFilepath_insig = L"arrow_icon_002.png";
@@ -75,6 +75,9 @@ std::wstring Gbls::ship3EIDTextureFilepath_insig = L"arrow_icon_003.png";
 std::wstring Gbls::ship3EIDTextureFilepath_arrow = L"arrow_color_003.png";
 std::wstring Gbls::ship4EIDTextureFilepath_insig = L"arrow_icon_004.png";
 std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
+
+std::wstring Gbls::extractorEIDTextureOnScreenFilepath = L"extractor_onscreen.png";
+std::wstring Gbls::extractorEIDTextureOffScreenFilepath = L"extractor_offscreen.png";
 
 std::wstring Gbls::resourceEIDTextureFilepath = L"arrow.png";
 std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
@@ -268,6 +271,13 @@ void Gbls::initFromConfig() {
 	}
 
 	
+	if(conf.getValue("extractorEIDTextureOffScreenFilepath", tmpString)) {
+		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("extractorEIDTextureOnScreenFilepath", tmpString)) {
+		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+
 	if(conf.getValue("mothershipEIDTextureFilepath", tmpString)) {
 		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}

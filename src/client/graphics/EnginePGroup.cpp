@@ -15,7 +15,6 @@ const int EnginePGroup::color_g = 0;
 const int EnginePGroup::color_b = 255;
 
 EnginePGroup::EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
-	// TODO fix to take in tBeam pointer
 	m_partList = NULL;
 	D3DXMatrixIdentity(&m_worldTransformMat);
     m_size = defaultSize; // Particle's size

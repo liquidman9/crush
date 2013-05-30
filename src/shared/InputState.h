@@ -25,6 +25,8 @@ class InputState : public Sendable {
 	PowerupType powerup;
 	MashType mash;
 	StartType start;
+	TurnType strafe;
+
 
 	//Returns the current thrust value, normalized from 0 to 1
 	double getThrust() {
@@ -34,6 +36,11 @@ class InputState : public Sendable {
 	//Returns the current turning value, normalized from 0 to 1
 	double getTurn() {
 		return turn/32768.0;
+	}
+
+	//Returns the current strafing value, normalized from -1 to 1
+	double getStrafe() { 
+		return strafe/32768.0;
 	}
 
 	//Returns the current pitch value, normalized from 0 to 1
@@ -75,36 +82,60 @@ class InputState : public Sendable {
 	bool getStart() {
 		return start;
 	}
+
+	
+private: 
+	struct sendStruct {
+		TBType tractBeam;
+		ThrustType thrust;
+		TurnType turn;
+		PitchType pitch;
+		BrakeType brake;
+		ReType reorient;
+		PushType push;
+		PowerupType powerup;
+		MashType mash;
+		StartType start;
+		TurnType strafe;
+	};
+
+public:
 	//The size of the server aware input state data
-	static const unsigned int m_size = sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+
-		sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType) +sizeof(PowerupType)+sizeof(MashType)+sizeof(StartType);
+	static const unsigned int m_size = sizeof(sendStruct);
 
 	virtual unsigned int encode(char *tmp) const {
-		*(TBType *) tmp = tractBeam;
-		*(ThrustType *) (tmp+sizeof(TBType)) = thrust;
-		*(TurnType *) (tmp+sizeof(TBType)+sizeof(ThrustType)) = turn;
-		*(PitchType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)) = pitch;
-		*(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)) = brake;
-		*(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)) = reorient;
-		*(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)) = push;
-		*(PowerupType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)) = powerup;
-		*(MashType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(MashType)) = mash;
-		*(StartType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(MashType)+sizeof(StartType)) = start;
-		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(PowerupType)+sizeof(MashType)+sizeof(StartType);
+		sendStruct s;
+		s.tractBeam = tractBeam;
+		s.turn = turn;
+		s.thrust = thrust;
+		s.pitch = pitch;
+		s.brake = brake;
+		s.reorient = reorient;
+		s.push = push;
+		s.powerup = powerup;
+		s.mash = mash;
+		s.start = start;
+		s.strafe = strafe;
+		memcpy(tmp, (char*)&s, sizeof(s));
+		return sizeof(s);
 	};
 
 	virtual unsigned int decode(const char * tmp) {
-		tractBeam = *(TBType *)tmp;
-		thrust = *(ThrustType *)(tmp+sizeof(TBType));
-		turn = *(TurnType *) (tmp+sizeof(TBType)+sizeof(ThrustType));
-		pitch = *(PitchType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType));
-		brake = *(BrakeType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType));
-		reorient = *(ReType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType));
-		push = *(PushType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType));
-		powerup = *(PowerupType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PowerupType));
-		mash = *(MashType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PowerupType)+sizeof(MashType));
-		start = *(StartType *) (tmp+sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PowerupType)+sizeof(MashType)+sizeof(StartType));
-		return sizeof(TBType)+sizeof(ThrustType)+sizeof(TurnType)+sizeof(PitchType)+sizeof(BrakeType)+sizeof(ReType)+sizeof(PushType)+sizeof(PowerupType)+sizeof(MashType)+sizeof(StartType);
+		sendStruct s;
+		memcpy((char*)&s,tmp,sizeof(s));
+
+		tractBeam = s.tractBeam;
+		turn = s.turn;
+		thrust = s.thrust;
+		pitch = s.pitch;
+		brake = s.brake;
+		reorient = s.reorient;
+		push = s.push;
+		powerup = s.powerup;
+		mash = s.mash;
+		start = s.start;
+		strafe = s.strafe;
+		return sizeof(s);
 	};
 
 	//Returns the size of all server aware input state data when encoded

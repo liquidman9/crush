@@ -30,10 +30,11 @@ class S_Mothership;
 
 class S_Ship : public Ship, public ServerEntity{ //switch back to capsule
 private:
-	float m_forward_impulse;
+	float m_linear_impulse;
 	float m_rotation_impulse;
 	float m_braking_impulse;
-	
+	float m_hard_braking_impulse;
+
 	float m_max_velocity;
 	float m_max_rotation_velocity;
 
@@ -55,6 +56,7 @@ public:
 	float m_mashTimeLimit;
 	bool m_shieldOn;
 	bool m_pulseOn;
+	bool m_isBraking;
 
 	// Constructors
 	S_Ship();

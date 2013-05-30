@@ -8,7 +8,10 @@
 Ship::Ship() :
 	Entity(SHIP),
 	m_playerNum(0),
-	m_thruster(0)
+	m_thruster(0),
+	m_hasPowerup(false),
+	m_powerupType(SPEEDUP),
+	m_powerupStateType(WAITING)
 {
 }
 
@@ -16,7 +19,10 @@ Ship::Ship(int pNum) :
 	Entity(SHIP),
 	m_playerNum(pNum),
 	m_playerName("Player " + to_string((long long) pNum)),
-	m_thruster(0)
+	m_thruster(0),
+	m_hasPowerup(false),
+	m_powerupType(SPEEDUP),
+	m_powerupStateType(WAITING)
 {}
 
 void Ship::setPlayerName(const string &s) {
@@ -29,6 +35,15 @@ unsigned int Ship::encode(char *head) const {
 	// Get entity encode
 	unsigned int rtn = Entity::encode(head);
 
+	*(bool*) (head + rtn) = m_hasPowerup;
+	rtn += sizeof(bool);
+
+	*(PowerType*) (head + rtn) = m_powerupType;
+	rtn += sizeof(PowerType);
+
+	*(StateType*) (head + rtn) = m_powerupStateType;
+	rtn += sizeof(StateType);
+	
 	// Encode playernum
 	*(SHIP_PLAYERNUM_TYPE*) (head + rtn) = m_playerNum;
 	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
@@ -39,6 +54,9 @@ unsigned int Ship::encode(char *head) const {
 
 	memcpy(head + rtn, m_playerName.c_str(), MAX_PLAYERNAME_SIZE);
 	rtn += MAX_PLAYERNAME_SIZE;
+
+	*(bool*) (head + rtn) = m_useAltSprite;
+	rtn += sizeof(bool);
 
 	return rtn;
 }
@@ -53,12 +71,20 @@ ostream& operator<<(ostream& os, const Ship& e) {
 unsigned int Ship::decode(const char *buff) {
 	unsigned int rtn = Entity::decode(buff);
 	//m_type = SHIP;
+	m_hasPowerup = *(bool*) (buff+rtn);
+	rtn += sizeof(bool);
+	m_powerupType = *(PowerType*) (buff+rtn);
+	rtn += sizeof(PowerType);
+	m_powerupStateType = *(StateType*) (buff+rtn);
+	rtn += sizeof(StateType);
 	m_playerNum = *(SHIP_PLAYERNUM_TYPE*) (buff+rtn);
 	rtn += sizeof(SHIP_PLAYERNUM_TYPE);
 	m_thruster = *(double *) (buff+rtn);
 	rtn += sizeof(double);
 	m_playerName = string(buff+rtn, MAX_PLAYERNAME_SIZE);
 	rtn += MAX_PLAYERNAME_SIZE;
+	m_useAltSprite = *(bool*) (buff + rtn);
+	rtn += sizeof(bool);
 	return rtn;
 }
 
@@ -89,5 +115,9 @@ void Ship::update(shared_ptr<Entity> sp_source) {
 		Entity::update(sp_source);
 		m_thruster = srcShip->m_thruster;
 		m_playerNum = srcShip -> m_playerNum;
+		m_hasPowerup = srcShip->m_hasPowerup;
+		m_powerupType = srcShip->m_powerupType;
+		m_powerupStateType = srcShip->m_powerupStateType;
+		m_useAltSprite = srcShip->m_useAltSprite;
 	}
 }
