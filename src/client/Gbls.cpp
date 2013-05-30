@@ -82,7 +82,8 @@ std::wstring Gbls::extractorEIDTextureOffScreenFilepath = L"extractor_offscreen.
 std::wstring Gbls::resourceEIDTextureFilepath = L"arrow.png";
 std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
-std::wstring Gbls::enginePartTexFilepath = L"particle02.bmp"; 
+std::wstring Gbls::enginePartTexNormFilepath = L"particle02.bmp"; 
+std::wstring Gbls::enginePartTexSpeedupFilepath = L"particle03.bmp"; 
 std::wstring Gbls::fontStyle = L"Ariel";
 int Gbls::fontSize = 48;
 D3DXCOLOR Gbls::lightDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
@@ -290,8 +291,11 @@ void Gbls::initFromConfig() {
 	if(conf.getValue("tBeamPartTexFilepath", tmpString)) {
 		tBeamPartTexFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
-	if(conf.getValue("enginePartTexFilepath", tmpString)) {
-		enginePartTexFilepath = wstring(tmpString.begin(), tmpString.end());
+	if(conf.getValue("enginePartTexNormFilepath", tmpString)) {
+		enginePartTexNormFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("enginePartTexSpeedupFilepath", tmpString)) {
+		enginePartTexSpeedupFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 	if(conf.getValue("shipTexFilepath1", tmpString)) {
 		shipTexFilepath1 = wstring(tmpString.begin(), tmpString.end());

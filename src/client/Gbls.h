@@ -101,7 +101,8 @@ public:
 	static std::wstring resourceEIDTextureFilepath;
 	static std::wstring mothershipEIDTextureFilepath;
 	static std::wstring tBeamPartTexFilepath;
-	static std::wstring enginePartTexFilepath;
+	static std::wstring enginePartTexNormFilepath;
+	static std::wstring enginePartTexSpeedupFilepath;
 	static std::wstring fontStyle;
 	static int fontSize;
 

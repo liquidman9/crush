@@ -91,7 +91,8 @@ public:
 	static LPDIRECT3DTEXTURE9 resourceEIDTexture;
 	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
-	static LPDIRECT3DTEXTURE9 EnginePartTexture;
+	static LPDIRECT3DTEXTURE9 EnginePartNormTexture;
+	static LPDIRECT3DTEXTURE9 EnginePartSpeedupTexture;
 	static ParticleSystem * partSystem;
 	static TBeamPGroup * tBeamPGroup;
 	static BurstPGroup * burstPowerupPGroup;

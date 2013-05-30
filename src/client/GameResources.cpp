@@ -91,7 +91,8 @@ LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
-LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::EnginePartNormTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::EnginePartSpeedupTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
 BurstPGroup * GameResources::burstPowerupPGroup = NULL;
@@ -632,8 +633,14 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 
-	// load engine particle spirte
-	hres = loadTexture(&EnginePartTexture, Gbls::enginePartTexFilepath);
+	// load normal engine particle spirte
+	hres = loadTexture(&EnginePartNormTexture, Gbls::enginePartTexNormFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+	// load boost engine particle spirte
+	hres = loadTexture(&EnginePartSpeedupTexture, Gbls::enginePartTexSpeedupFilepath);
 	if (FAILED(hres)) {
 		return hres;
 	}
@@ -813,6 +820,7 @@ void GameResources::drawAllTractorBeams() {
 void GameResources::drawAllEngines() {
 	// render particles
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
+		enginePGroupList[i]->updateGroup();
 		partSystem->render(Gbls::pd3dDevice, enginePGroupList[i]);
 	}
 }
@@ -1651,7 +1659,7 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		
 		eIDList.push_back(shipEID);
 		eIDList.push_back(shipEID_insig);
-		EnginePGroup * epg = new EnginePGroup(EnginePartTexture);
+		EnginePGroup * epg = new EnginePGroup(EnginePartNormTexture, EnginePartSpeedupTexture);
 		epg->shipEnt = tmp;
 		enginePGroupList.push_back(epg);
 		ret = tmp;

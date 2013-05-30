@@ -18,17 +18,23 @@
 
 class EnginePGroup : public ParticleGroup {
 public:
-	EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticle);
+	EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticleNorm, LPDIRECT3DTEXTURE9 ptexParticleSpeedup);
 	~EnginePGroup();
 
 	//static const float defaultSize;
-	static const float ttl;
+	static const float defaultTTL;
 	static const float defaultSize;
 	static const float zStartOffset;
-	static const float speed;
+	static const float defaultSpeed;
 	static const int color_r;
 	static const int color_g;
 	static const int color_b;
+
+	LPDIRECT3DTEXTURE9 m_ptexParticleNorm;
+	LPDIRECT3DTEXTURE9 m_ptexParticleSpeedup;
+
+	float m_speed;
+	float m_ttl;
 
 	C_Ship * shipEnt;
 	float prevElapsedTime;

@@ -6,23 +6,29 @@
 #include <client/graphics/EnginePGroup.h>
 #include <client/graphics/ParticleSystem.h>
 
-const float EnginePGroup::ttl = 1.5f;
+const float EnginePGroup::defaultTTL = 1.5f;
 const float EnginePGroup::defaultSize = 4.0f;
-const float EnginePGroup::speed = -7.5f;
+const float EnginePGroup::defaultSpeed = -7.5f;
 const float EnginePGroup::zStartOffset = -5.5f;
 const int EnginePGroup::color_r = 200;
 const int EnginePGroup::color_g = 0;
 const int EnginePGroup::color_b = 255;
 
-EnginePGroup::EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
+EnginePGroup::EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticleNorm, LPDIRECT3DTEXTURE9 ptexParticleSpeedup) {
 	m_partList = NULL;
 	D3DXMatrixIdentity(&m_worldTransformMat);
-    m_size = defaultSize; // Particle's size
     m_numToRelease = 1;
 	m_releaseInterval = 1.0f/40.0f; 
 	m_lastUpdate = 0.0f;
 	m_currentTime = 0.0f;
-    m_ptexParticle = ptexParticle; // Particle's texture
+	m_ptexParticleNorm = ptexParticleNorm;
+	m_ptexParticleSpeedup = ptexParticleSpeedup;
+    m_ptexParticle = ptexParticleNorm; // Particle's texture
+
+
+	m_ttl = defaultTTL;
+    m_size = defaultSize; // Particle's size
+	m_speed = defaultSpeed;
 	
 	
 	shipEnt = NULL;
@@ -41,6 +47,19 @@ EnginePGroup::~EnginePGroup() {
 }
 
 void EnginePGroup::updateGroup() {
+	if (this->shipEnt) {
+		if (shipEnt->m_hasPowerup && shipEnt->m_powerupType == SPEEDUP && shipEnt->m_powerupStateType == CONSUMED) {
+			m_size = defaultSize*2.0;
+			//m_speed = defaultSpeed*2.0;
+			m_ttl = defaultTTL*2.0;
+			m_ptexParticle = m_ptexParticleSpeedup;
+		} else {
+			m_size = defaultSize;
+			m_speed = defaultSpeed;
+			m_ttl = defaultTTL;
+			m_ptexParticle = m_ptexParticleNorm;
+		}
+	}
 	////update color when color added to tbeam
 	////m_color = tBeamEnt->m_color;
 	//Quaternion orientation = shipEnt->m_orientation;
@@ -87,7 +106,7 @@ bool EnginePGroup::initNewParticle(Particle * pParticle) {
 	pParticle->m_vCurPos.z = zStartOffset;
 	pParticle->m_vCurVel.x = 0.0f;
 	pParticle->m_vCurVel.y = 0.0f;
-	pParticle->m_vCurVel.z = speed;
+	pParticle->m_vCurVel.z = m_speed;
 	Quaternion temp_quat;
 	D3DXMATRIX mat;
 	D3DXMatrixRotationQuaternion(&mat, D3DXQuaternionNormalize(&temp_quat, &shipEnt->m_orientation));
@@ -105,7 +124,7 @@ bool EnginePGroup::initNewParticle(Particle * pParticle) {
 bool EnginePGroup::updateParticle(Particle * pParticle, float elapsedTime) {
 
 	// check time to live
-	float age = (m_currentTime - pParticle->m_fInitTime)/ttl;
+	float age = (m_currentTime - pParticle->m_fInitTime)/m_ttl;
 	if ( age > 1.0f )
 		return false;
 
