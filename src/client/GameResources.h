@@ -175,7 +175,7 @@ public:
 	static void releaseBurstPowerupParticles();
 	static void drawAllEngines();
 	static void drawAllEID();
-	static void drawShield(C_Entity * target);
+	static void drawShield(C_Ship * ship);
 	static void drawStaticHudElements();
 	static void drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius);
 	static void playSounds();

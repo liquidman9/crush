@@ -53,6 +53,14 @@ C_Mothership* GameResources::playerMothership = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
 
+static float shieldColors[4][4] =
+{
+	0.0f, 0.0f,    1.0f, 0.5f,
+	1.0f, 0.7333f, 0.0f, 0.5f,
+	1.0f, 0.0f,    0.0f, 0.5f,
+	1.0f, 1.0f,    0.0f, 0.5f,
+};
+
 
 LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture_resource = NULL;
 LPDIRECT3DTEXTURE9 GameResources::ship1EIDTexture_insig = NULL;
@@ -1221,16 +1229,17 @@ void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUF
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 }
 
-void GameResources::drawShield(C_Entity * target) {
+void GameResources::drawShield(C_Ship * ship) {
 	D3DXMATRIX tmp;
 	float scale = 7.0;
 	D3DXMatrixScaling(&tmp, scale, scale, scale);
-	tmp *= target->worldMat;
+	tmp *= ship->worldMat;
 	pEffectDefault->SetMatrix("World", &tmp);
 	float det = D3DXMatrixDeterminant(&tmp);
 	D3DXMatrixTranspose(&tmp, D3DXMatrixInverse(&tmp, &det, &tmp));
 	
 	pEffectDefault->SetMatrix("WorldInverseTranspose", &tmp);
+	pEffectDefault->SetFloatArray("ShieldColor", shieldColors[ship->m_playerNum], 4);
 	pEffectDefault->CommitChanges();
 	shieldMesh->DrawSubset(0);
 }

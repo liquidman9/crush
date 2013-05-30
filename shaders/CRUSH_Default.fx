@@ -16,7 +16,7 @@ float4 SpecularColor = float4(1, 1, 1, 1);
 float SpecularIntensity = 1;
 float3 ViewVector = float3(1, 0, 0);
 
-float4 defaultModelColor = float4(1, 0, 0, 0.5);
+float4 ShieldColor = float4(1, 0, 0, 0.5);
 
 texture ModelTexture;
 sampler2D textureSampler = sampler_state {
@@ -87,9 +87,8 @@ float4 PixelShaderFunctionShinyShield(VertexShaderOutput input) : COLOR0
     float dotProduct = dot(r, v);
     float4 specular = SpecularIntensity * SpecularColor * max(pow(dotProduct, Shininess), 0) * length(input.Color);
     
-	//return defaultModelColor;
-    color = saturate(defaultModelColor * (input.Color + AmbientColor * AmbientIntensity) + specular);
-	color.a = defaultModelColor.a;
+    color = saturate(ShieldColor * (input.Color + AmbientColor * AmbientIntensity) + specular);
+	color.a = ShieldColor.a;
 	return color;
 }
 
