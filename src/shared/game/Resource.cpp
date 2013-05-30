@@ -8,6 +8,7 @@
 Resource::Resource() :
 	Entity(RESOURCE)
 {
+	m_enableIdentifiers = false;
 }
 
 
