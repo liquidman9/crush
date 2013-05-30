@@ -128,7 +128,7 @@ void S_TractorBeam::calculateForce() {
 		D3DXVECTOR3 disV = getCurrentDirection();
 		float disL = getCurrentDistance();
 		
-		D3DXVECTOR3 force = m_strength*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
+		D3DXVECTOR3 force = m_strength*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 1.66f));
 
 		if(m_isPulling) {
 			// Check for extreme force that pulls the object in the opposite direction

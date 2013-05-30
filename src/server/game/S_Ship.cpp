@@ -94,7 +94,7 @@ void S_Ship::addPlayerInput(InputState input) {
 	// Linear thrust calculations
 	if (abs(input.getThrust()) > FP_ZERO || abs(input.getStrafe()) > FP_ZERO) {
 		m_thrusting = true;
-		D3DXVECTOR3 main_thrust_force(0, (float)input.getStrafe(), (float)m_thruster), 
+		D3DXVECTOR3 main_thrust_force((float)input.getStrafe(), 0, (float)m_thruster), 
 					main_thrust_adj;
 		D3DXVec3Normalize(&main_thrust_force, &main_thrust_force);
 		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
@@ -180,11 +180,14 @@ void S_Ship::applyDamping() {
 		
 		if (m_rotating) {
 			// Rotating, we only want to reduce the impulse
-			float damping_factor = (mag_angular_velocity / m_max_rotation_velocity);
+			float damping_factor = mag_angular_velocity > m_max_rotation_velocity ? 
+				pow((mag_angular_velocity / m_max_rotation_velocity), 2) : 
+				mag_angular_velocity / m_max_rotation_velocity;
 			applyAngularImpulse(rot_stabilizer_force * damping_factor);
 		} else {
 			// Not rotating, we need to slow down as quickly as possible
-			applyAngularImpulse(Vec3ComponentAbsMin(rot_stabilizer_force, -m_angular_momentum));
+			float damping_factor = max(1, pow((mag_angular_velocity / m_max_rotation_velocity), 2));
+			applyAngularImpulse(Vec3ComponentAbsMin(rot_stabilizer_force * damping_factor, -m_angular_momentum));
 		}
 	}
 
