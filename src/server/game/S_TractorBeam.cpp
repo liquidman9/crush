@@ -48,7 +48,7 @@ bool S_TractorBeam::isLocked() {
 
 void S_TractorBeam::lockOn(ServerEntity * entity) {
 	if(m_object != entity) {
-		cout<<(int)(entity->m_type)<<endl;
+	//	cout<<(int)(entity->m_type)<<endl;
 		lockOff();
 		entity->m_heldBy = m_ship;
 	}
