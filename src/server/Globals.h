@@ -161,6 +161,7 @@ namespace server {
 			extern float speedup_time;
 			extern float shield_time;
 			extern float pulse_time;
+			extern float pulse_range;
 
 			inline void initFromConfig(string prefix) {
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_velocity_rate", max_velocity_rate);
@@ -169,6 +170,7 @@ namespace server {
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "speedup_time", speedup_time);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "shield_time", shield_time);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "pulse_time", pulse_time);
+				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "pulse_range", pulse_range);
 			}
 		}
 

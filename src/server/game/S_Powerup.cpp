@@ -137,10 +137,13 @@ void S_Powerup::pulseAll(vector<ServerEntity *> entities) {
 		   entities[i] == m_ship)
 			continue;
 
+
 		D3DXVECTOR3 disV;
 		D3DXVECTOR3 range = entities[i]->m_pos - m_ship->m_pos;
 		D3DXVec3Normalize(&disV, &range);
 		float disL = D3DXVec3Length(&range);
+
+		if(disL > pulse_range) continue;
 		
 		D3DXVECTOR3 force = (pulse_rate*m_ship->m_mass*entities[i]->m_mass)*(disV)/(pow(disL, 2));
 		entities[i]->applyLinearImpulse(force);

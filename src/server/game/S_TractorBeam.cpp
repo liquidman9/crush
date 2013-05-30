@@ -48,6 +48,7 @@ bool S_TractorBeam::isLocked() {
 
 void S_TractorBeam::lockOn(ServerEntity * entity) {
 	if(m_object != entity) {
+	//	cout<<(int)(entity->m_type)<<endl;
 		lockOff();
 		entity->m_heldBy = m_ship;
 	}
@@ -317,6 +318,7 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 
 		if(entity->m_type == SHIP && m_ship == entity || 
 			entity->m_type == MOTHERSHIP || 
+			entity->m_type == TRACTORBEAM ||
 			entity->m_type == EXTRACTOR || 
 			entity->m_type == POWERUP || // can not tractorbeam powerups
 			(entity->m_type == RESOURCE &&  (((S_Resource *)entity)->m_droppedFrom == m_ship->m_playerNum)) ||

@@ -10,6 +10,7 @@
 #include <server/game/S_Resource.h>
 #include <server/Globals.h>
 
+using namespace shared::utils;
 using namespace server::entities::resource;
 
 S_Resource::S_Resource() :
@@ -110,7 +111,15 @@ void S_Resource::update(float delta_time){
 		}
 	}
 
-	if(m_carrier == NULL) {
+	if(m_carrier == NULL  && m_heldBy != NULL) {
+		ServerEntity::update(delta_time);
+	}
+	else if(m_carrier == NULL) {
+		D3DXVECTOR3 lin_stabilizer_vec(-m_momentum);
+		D3DXVec3Normalize(&lin_stabilizer_vec, &lin_stabilizer_vec);
+		
+		D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * 100;
+		applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum));
 		ServerEntity::update(delta_time);
 	}
 	else if(m_carrier->m_type == EXTRACTOR) {

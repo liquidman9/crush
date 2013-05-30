@@ -322,6 +322,9 @@ void Gbls::initFromConfig() {
 		mothershipTexFilepath4 = wstring(tmpString.begin(), tmpString.end());
 	}
 
+
+	AddFontResourceEx(L"gun4f.ttf", FR_PRIVATE, 0);
+
 	if(conf.getValue("fontStyle", tmpString)) {
 		fontStyle = wstring(tmpString.begin(), tmpString.end());
 	}

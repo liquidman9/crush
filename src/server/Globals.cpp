@@ -66,6 +66,7 @@ namespace server {
 			float speedup_time = 7000;
 			float shield_time = 7000;
 			float pulse_time = 250;
+			float pulse_range = 150;
 
 		}
 	}
