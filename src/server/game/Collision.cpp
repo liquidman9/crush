@@ -142,12 +142,31 @@ void Collision::resolve()
 	}
 
 	// Add the impulse to both entities
-	if(!(m_a->m_type == SHIP && ((S_Ship *)m_a)->checkShield()))
-		m_a->applyImpulse(jN, m_poi);
+	if(!(m_a->m_type == SHIP && ((S_Ship *)m_a)->checkShield())) {
+		if (m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield()) {
+			m_a->applyLinearImpulse(jN * 2);
+		} else { 
+			m_a->applyLinearImpulse(jN);
+		}
+
+
+		D3DXVECTOR3 angular_impulse, vector_to_point = m_poi - m_a->m_pos;
+		D3DXVec3Cross(&angular_impulse, &vector_to_point, &(jN / 3)); // Cross product finds torque
+		m_a->applyAngularImpulse(angular_impulse);
+	}
 
 	
-	if(!(m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield()))
-		m_b->applyImpulse(-jN, m_poi);
+	if(!(m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield())) {
+		if (m_a->m_type == SHIP && ((S_Ship *)m_a)->checkShield()) {
+			m_b->applyLinearImpulse(-jN * 2);
+		} else { 
+			m_b->applyLinearImpulse(-jN);
+		}
+
+		D3DXVECTOR3 angular_impulse, vector_to_point = m_poi - m_b->m_pos;
+		D3DXVec3Cross(&angular_impulse, &vector_to_point, &(-jN / 3)); // Cross product finds torque
+		m_b->applyAngularImpulse(angular_impulse);
+	}
 
 	
 
