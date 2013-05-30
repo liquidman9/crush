@@ -95,6 +95,7 @@ LPDIRECT3DSURFACE9 GameResources::pDefaultRenderSurface = NULL;
 LPDIRECT3DSURFACE9 GameResources::pBackBuffer = NULL;
 D3DXMATRIX GameResources::sunWorldMat;
 LPD3DXMESH GameResources::sunMesh = NULL;
+LPD3DXMESH GameResources::shieldMesh = NULL;
 
 // for debugging collisions
 bool GameResources::renderCBWireframe = false;
@@ -381,8 +382,8 @@ HRESULT GameResources::reInitState() {
 
 
 	//set backface cullling off TODO remove after models are fixed
-	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	
 	return S_OK;
 }
@@ -436,8 +437,10 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	if(FAILED(hres = Gbls::powerupMesh.Create(Gbls::powerupMeshFilepath)))
 			return hres;
-
+	
 	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 3.0f, 25, 25, &sunMesh, NULL)))
+		return hres;
+	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 1.0f, 25, 25, &shieldMesh, NULL)))
 		return hres;
 
 	//if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
@@ -921,6 +924,18 @@ void GameResources::drawAllModels() {
 	}
 	pEffectDefault->End();
 
+	if (playerShip) {
+		pEffectDefault->SetTechnique("Shield");
+		pEffectDefault->Begin(&cPasses, 0);
+		for (UINT iPass = 0; iPass < cPasses; iPass++)
+		{
+			pEffectDefault->BeginPass(iPass);
+			//drawShield(playerShip);
+			pEffectDefault->EndPass();
+		}
+		pEffectDefault->End();
+	}
+
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
 
@@ -1185,43 +1200,20 @@ void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUF
 	
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+}
 
-
-	//WORKING LOL
-	//LPDIRECT3DSURFACE9 surface;
-	//tex->GetSurfaceLevel(0, &surface);
-	//D3DSURFACE_DESC desc;
-	//surface->GetDesc(&desc);
-	//UINT surfaceHeight = desc.Height;
-	//UINT surfaceWidth = desc.Width;
-
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
- //  	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
-	//if(FAILED(hResult))
-	//{
-	//	std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
-	//	MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
-	//	return;
-	//}
-
-	//RECT r1, r2;
-	//r1.top = 0;
-	//r1.left = 0;
-	//r1.right = surfaceWidth;
-	//r1.bottom = surfaceHeight;
- //
-	//r2.top = 0;
-	//r2.left = 0;
-	//r2.right = Gbls::thePresentParams.BackBufferWidth;
-	//r2.bottom = Gbls::thePresentParams.BackBufferHeight;
- //
-	//Gbls::pd3dDevice->StretchRect( surface, &r1, pBackBuffer, &r2, D3DTEXF_POINT );
-
-	//Gbls::pd3dDevice->EndScene();
-
-	//surface->Release();
-
+void GameResources::drawShield(C_Entity * target) {
+	D3DXMATRIX tmp;
+	float scale = 7.0;
+	D3DXMatrixScaling(&tmp, scale, scale, scale);
+	tmp *= target->worldMat;
+	pEffectDefault->SetMatrix("World", &tmp);
+	float det = D3DXMatrixDeterminant(&tmp);
+	D3DXMatrixTranspose(&tmp, D3DXMatrixInverse(&tmp, &det, &tmp));
+	
+	pEffectDefault->SetMatrix("WorldInverseTranspose", &tmp);
+	pEffectDefault->CommitChanges();
+	shieldMesh->DrawSubset(0);
 }
 
 void GameResources::drawAll()
@@ -1296,7 +1288,7 @@ void GameResources::drawAll()
 	//Render all engine exhausts
 	drawAllEngines();
 
-	//Render burt push effect
+	//Render burst push effect TODO fix to work with actual powerup
 	partSystem->render(Gbls::pd3dDevice, burstPowerupPGroup);
 	
 	// unset state for particle effects

@@ -109,6 +109,7 @@ public:
 
 	static D3DXMATRIX sunWorldMat;
 	static LPD3DXMESH sunMesh;
+	static LPD3DXMESH shieldMesh;
 	static LPDIRECT3DTEXTURE9 pGlowmapTexture;
 	static LPDIRECT3DSURFACE9 pGlowmapSurface;
 	static LPDIRECT3DTEXTURE9 pTmpBlurTexture;
@@ -172,6 +173,7 @@ public:
 	static void drawAllTractorBeams();
 	static void drawAllEngines();
 	static void drawAllEID();
+	static void drawShield(C_Entity * target);
 	static void drawStaticHudElements();
 	static void drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius);
 	static void playSounds();
