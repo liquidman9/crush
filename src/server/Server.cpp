@@ -250,7 +250,6 @@ void Server::loop() {
 			setUpExtractor();
 			setUpAsteroids();
 			setUpPowerups();
-			spawnShip(1);
 
 			cout << "CRUSH Server has started" << endl;
 			m_start = false;
