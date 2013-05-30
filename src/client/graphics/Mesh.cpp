@@ -1,4 +1,6 @@
 
+#include <sstream>
+
 // Project includes
 #include <client/graphics/Mesh.h>
 #include <client/Gbls.h>
@@ -78,7 +80,9 @@ HRESULT Mesh::Create(std::wstring filepath)
                                                         strTexture,
                                                         &m_pMeshTextures[i] ) ) )
                 {
-                    MessageBox( NULL, L"Could not find texture map", L"CRUSH.exe", MB_OK );
+					std::wostringstream printStr;
+					printStr <<  L"Could not find mesh texture: " << d3dxMaterials[i].pTextureFilename;
+					MessageBox( NULL, printStr.str().c_str(), L"CRUSH.exe", MB_OK );
                 }
             }
         }
