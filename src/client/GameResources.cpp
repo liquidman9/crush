@@ -772,6 +772,25 @@ void GameResources::drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, fl
 	collisionSphere->DrawSubset(0);
 }
 
+void GameResources::releaseBurstPowerupParticles() {
+	for (UINT i = 0; i < shipList.size(); i++) {
+		C_Ship * ship = shipList[i];
+		if(ship->m_hasPowerup && ship->m_powerupType == PULSE && ship->m_powerupStateType == CONSUMED) {
+			GameResources::burstPowerupPGroup->releasePos = GameResources::playerShip->m_pos;
+			GameResources::partSystem->releaseBurst(GameResources::burstPowerupPGroup);
+		}
+	}
+}
+
+void GameResources::drawAllShields() {
+	for (UINT i = 0; i < shipList.size(); i++) {
+		C_Ship * ship = shipList[i];
+		if(ship->m_hasPowerup && ship->m_powerupType == SHIELD && ship->m_powerupStateType == CONSUMED) {
+			drawShield(ship);
+		}
+	}
+}
+
 void GameResources::drawAllTractorBeams() {
 	// render particles
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
@@ -930,7 +949,7 @@ void GameResources::drawAllModels() {
 		for (UINT iPass = 0; iPass < cPasses; iPass++)
 		{
 			pEffectDefault->BeginPass(iPass);
-			//drawShield(playerShip);
+			drawAllShields();
 			pEffectDefault->EndPass();
 		}
 		pEffectDefault->End();
@@ -1284,7 +1303,7 @@ void GameResources::drawAll()
 
 	// Render tractor beams
 	drawAllTractorBeams();
-	
+
 	//Render all engine exhausts
 	drawAllEngines();
 
@@ -1541,6 +1560,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	}
 
 	// Update particle system
+	releaseBurstPowerupParticles();
 	partSystem->update(tBeamPGroup, elapsedTime);
 	partSystem->update(burstPowerupPGroup, elapsedTime);
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {

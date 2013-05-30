@@ -171,6 +171,8 @@ public:
 	static void drawModel(C_Entity * cEnt);
 	static void drawAllModels();
 	static void drawAllTractorBeams();
+	static void drawAllShields();
+	static void releaseBurstPowerupParticles();
 	static void drawAllEngines();
 	static void drawAllEID();
 	static void drawShield(C_Entity * target);
