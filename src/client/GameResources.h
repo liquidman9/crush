@@ -91,7 +91,8 @@ public:
 	static LPDIRECT3DTEXTURE9 resourceEIDTexture;
 	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
-	static LPDIRECT3DTEXTURE9 EnginePartTexture;
+	static LPDIRECT3DTEXTURE9 EnginePartNormTexture;
+	static LPDIRECT3DTEXTURE9 EnginePartSpeedupTexture;
 	static ParticleSystem * partSystem;
 	static TBeamPGroup * tBeamPGroup;
 	static BurstPGroup * burstPowerupPGroup;
@@ -125,6 +126,10 @@ public:
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;
+
+	//toggles for debug powerup vis
+	static bool shieldVisToggle;
+	static bool speedupVisToggle;
 
 	static struct KeyboardState{
 		bool wDown;

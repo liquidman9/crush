@@ -91,7 +91,8 @@ LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
-LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::EnginePartNormTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::EnginePartSpeedupTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
 BurstPGroup * GameResources::burstPowerupPGroup = NULL;
@@ -126,14 +127,15 @@ ID3DXEffect * GameResources::pEffectTexToScreen;
 ID3DXEffect * GameResources::pEffectBlend;
 ID3DXEffect * GameResources::pEffectBlur;
 
-//for testing
+//debug vis toggles
+bool GameResources::shieldVisToggle = FALSE;
+bool GameResources::speedupVisToggle = FALSE;
+
 #define TEXTOSCREENFVF (D3DFVF_XYZRHW | D3DFVF_TEX1)
 struct CUSTOMVERTEX {FLOAT X, Y, Z, RHW, U, V;};
 static LPDIRECT3DVERTEXBUFFER9 fsQuadVBuffer = NULL;
 static LPDIRECT3DVERTEXBUFFER9 bloomQuadVBuffer = NULL;
 static CUSTOMVERTEX fsQuadVerts[4];
-
-
 HRESULT GameResources::initState() {
 	HRESULT hres;
 	
@@ -632,8 +634,14 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 
-	// load engine particle spirte
-	hres = loadTexture(&EnginePartTexture, Gbls::enginePartTexFilepath);
+	// load normal engine particle spirte
+	hres = loadTexture(&EnginePartNormTexture, Gbls::enginePartTexNormFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+	// load boost engine particle spirte
+	hres = loadTexture(&EnginePartSpeedupTexture, Gbls::enginePartTexSpeedupFilepath);
 	if (FAILED(hres)) {
 		return hres;
 	}
@@ -791,6 +799,11 @@ void GameResources::releaseBurstPowerupParticles() {
 }
 
 void GameResources::drawAllShields() {
+	if (shieldVisToggle && playerShip) {
+		playerShip->m_hasPowerup = TRUE;
+		playerShip->m_powerupType = SHIELD;
+		playerShip->m_powerupStateType = CONSUMED;
+	}
 	for (UINT i = 0; i < shipList.size(); i++) {
 		C_Ship * ship = shipList[i];
 		if(ship->m_hasPowerup && ship->m_powerupType == SHIELD && ship->m_powerupStateType == CONSUMED) {
@@ -812,7 +825,13 @@ void GameResources::drawAllTractorBeams() {
 
 void GameResources::drawAllEngines() {
 	// render particles
+	if (speedupVisToggle && playerShip) {
+		playerShip->m_hasPowerup = TRUE;
+		playerShip->m_powerupType = SPEEDUP;
+		playerShip->m_powerupStateType = CONSUMED;
+	}
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
+		enginePGroupList[i]->updateGroup();
 		partSystem->render(Gbls::pd3dDevice, enginePGroupList[i]);
 	}
 }
@@ -1514,7 +1533,8 @@ void GameResources::updateDebugCamera() {
 
 void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
-	double curTime = timeGetTime();
+	//double curTime = timeGetTime();
+	double curTime = newGameState.getServerTime();
 	static double s_lastTime = curTime; // first time initialization, static otherwise
 	float elapsedTime = (float)((curTime - s_lastTime) * 0.001);
 	s_lastTime = curTime;
@@ -1651,7 +1671,7 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		
 		eIDList.push_back(shipEID);
 		eIDList.push_back(shipEID_insig);
-		EnginePGroup * epg = new EnginePGroup(EnginePartTexture);
+		EnginePGroup * epg = new EnginePGroup(EnginePartNormTexture, EnginePartSpeedupTexture);
 		epg->shipEnt = tmp;
 		enginePGroupList.push_back(epg);
 		ret = tmp;
