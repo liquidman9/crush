@@ -31,6 +31,7 @@
 #include <client/graphics/ParticleSystem.h>
 #include <client/graphics/TBeamPGroup.h>
 #include <client/graphics/EnginePGroup.h>
+#include <client/graphics/BurstPGroup.h>
 #include <client/SoundManager.h>
 
 class GameResources {
@@ -91,6 +92,7 @@ public:
 	static LPDIRECT3DTEXTURE9 EnginePartTexture;
 	static ParticleSystem * partSystem;
 	static TBeamPGroup * tBeamPGroup;
+	static BurstPGroup * burstPowerupPGroup;
 	static std::wstring timeStr;
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
