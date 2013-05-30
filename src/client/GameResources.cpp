@@ -86,6 +86,7 @@ LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
+BurstPGroup * GameResources::burstPowerupPGroup = NULL;
 LPDIRECT3DTEXTURE9 GameResources::pGlowmapTexture = NULL;
 LPDIRECT3DSURFACE9 GameResources::pGlowmapSurface = NULL;
 LPDIRECT3DTEXTURE9 GameResources::pTmpBlurTexture = NULL;
@@ -177,6 +178,9 @@ HRESULT GameResources::initState() {
 	partSystem = new ParticleSystem();
 	tBeamPGroup = new TBeamPGroup(tBeamPartTexture);
 	tBeamPGroup->initBeamToFull();
+	burstPowerupPGroup = new BurstPGroup(tBeamPartTexture);
+	//TODO Remove
+	burstPowerupPGroup->releasePos = D3DXVECTOR3(5,5,5);
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
@@ -210,6 +214,11 @@ void GameResources::releaseResources() {
 	if(tBeamPGroup) {
 		delete tBeamPGroup;
 		tBeamPGroup = NULL;
+	}
+
+	if(burstPowerupPGroup) {
+		delete burstPowerupPGroup;
+		burstPowerupPGroup = NULL;
 	}
 
 	if(partSystem) {
@@ -1286,6 +1295,9 @@ void GameResources::drawAll()
 	
 	//Render all engine exhausts
 	drawAllEngines();
+
+	//Render burt push effect
+	partSystem->render(Gbls::pd3dDevice, burstPowerupPGroup);
 	
 	// unset state for particle effects
     Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
@@ -1538,6 +1550,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
 	// Update particle system
 	partSystem->update(tBeamPGroup, elapsedTime);
+	partSystem->update(burstPowerupPGroup, elapsedTime);
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
 		partSystem->update(enginePGroupList[i], elapsedTime);
 	}
