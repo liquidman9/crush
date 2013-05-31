@@ -982,6 +982,7 @@ void GameResources::drawAllModels() {
 	Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
 	if (playerShip) {
 		pEffectDefault->SetTechnique("Shield");
@@ -998,6 +999,7 @@ void GameResources::drawAllModels() {
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
