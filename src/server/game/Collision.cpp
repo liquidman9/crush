@@ -108,12 +108,13 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 		rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
 	}
 	*/
-
+	/*
 	// Powerup Temp - until is given some implementation
 	if(((one = a)->m_type == POWERUP && (two = b))|| ((one = b)->m_type == POWERUP && (two = a))){
 		c = new PPCollision(one, two, closeA, closeB, 0.8, 0.6);
 		return c;
 	}
+	*/
 
 	if(((one = a)->m_type == POWERUP && (two = b)->m_type == SHIP)|| ((one = b)->m_type == POWERUP && (two = a)->m_type == SHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
 		c = new SPCollision(two, one, closeB, closeA, 0.8, 0.6);
