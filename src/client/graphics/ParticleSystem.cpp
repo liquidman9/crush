@@ -86,6 +86,7 @@ HRESULT ParticleSystem::update(ParticleGroup * pGroup, float elapsedTime) {
     Particle **ppParticle;
 
 	pGroup->m_currentTime += elapsedTime;
+	//if (elapsedTime > 60) return S_OK;
 
     ppParticle = &pGroup->m_partList; // Start at the head of the active list
 
