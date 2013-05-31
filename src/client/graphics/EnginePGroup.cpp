@@ -27,6 +27,7 @@ EnginePGroup::EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticleNorm, LPDIRECT3DTEXTUR
 	m_ptexParticleNorm = ptexParticleNorm;
 	m_ptexParticleSpeedup = ptexParticleSpeedup;
     m_ptexParticle = ptexParticleNorm; // Particle's texture
+	m_perParticleColor = TRUE;
 
 
 	m_ttl = defaultTTL;

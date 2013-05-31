@@ -271,7 +271,11 @@ HRESULT ParticleSystem::render( LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pG
         D3DXVECTOR3 vVel(pParticle->m_vCurVel);
 
         pVertices->posit = vPos;
-		pVertices->color = pParticle->m_color;
+		if (pGroup->m_perParticleColor) {
+			pVertices->color = pParticle->m_color;
+		} else {
+			pVertices->color = pGroup->m_curColor;
+		}
         pVertices++;
 
         if( ++dwNumParticlesToRender == m_dwFlush )

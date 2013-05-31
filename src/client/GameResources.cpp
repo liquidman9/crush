@@ -53,12 +53,20 @@ C_Mothership* GameResources::playerMothership = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
 
-static float shieldColors[4][4] =
+static float shipColors[4][4] =
 {
 	0.0f, 0.0f,    1.0f, 0.5f,
 	1.0f, 0.7333f, 0.0f, 0.5f,
 	1.0f, 0.0f,    0.0f, 0.5f,
 	1.0f, 1.0f,    0.0f, 0.5f,
+};
+
+static D3DCOLOR shipColorsInt[4] = 
+{
+	D3DCOLOR_XRGB((int)(shipColors[0][0]*255),(int)(shipColors[0][1]*255),(int)(shipColors[0][2]*255)),
+	D3DCOLOR_XRGB((int)(shipColors[1][0]*255),(int)(shipColors[1][1]*255),(int)(shipColors[1][2]*255)),
+	D3DCOLOR_XRGB((int)(shipColors[2][0]*255),(int)(shipColors[2][1]*255),(int)(shipColors[2][2]*255)),
+	D3DCOLOR_XRGB((int)(shipColors[3][0]*255),(int)(shipColors[3][1]*255),(int)(shipColors[3][2]*255))
 };
 
 
@@ -816,6 +824,7 @@ void GameResources::drawAllTractorBeams() {
 	// render particles
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
 		if(tractorBeamList[i]->m_isOn) {
+			tBeamPGroup->m_curColor = shipColorsInt[i];
 			tBeamPGroup->tBeamEnt = tractorBeamList[i];
 			tBeamPGroup->updateGroup();
 			partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
@@ -969,6 +978,10 @@ void GameResources::drawAllModels() {
 		pEffectDefault->EndPass();
 	}
 	pEffectDefault->End();
+	
+	Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 
 	if (playerShip) {
 		pEffectDefault->SetTechnique("Shield");
@@ -981,6 +994,10 @@ void GameResources::drawAllModels() {
 		}
 		pEffectDefault->End();
 	}
+
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
@@ -1258,7 +1275,7 @@ void GameResources::drawShield(C_Ship * ship) {
 	D3DXMatrixTranspose(&tmp, D3DXMatrixInverse(&tmp, &det, &tmp));
 	
 	pEffectDefault->SetMatrix("WorldInverseTranspose", &tmp);
-	pEffectDefault->SetFloatArray("ShieldColor", shieldColors[ship->m_playerNum], 4);
+	pEffectDefault->SetFloatArray("ShieldColor", shipColors[ship->m_playerNum], 4);
 	pEffectDefault->CommitChanges();
 	shieldMesh->DrawSubset(0);
 }
