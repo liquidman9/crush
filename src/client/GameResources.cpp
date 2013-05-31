@@ -946,7 +946,7 @@ void GameResources::drawStaticHudElements() {
 			float scale = (float).75*(sqrt((float)(Gbls::thePresentParams.BackBufferWidth * Gbls::thePresentParams.BackBufferHeight))/sqrt((float)(1920*1080)));
 			D3DXVECTOR2 transV, centerV(powerupSprite.m_vCenter.x, powerupSprite.m_vCenter.y), scaleV(scale,scale);
 			transV.x = (float)(Gbls::thePresentParams.BackBufferWidth - powerupSprite.m_vCenter.x);
-			transV.y = (float)Gbls::thePresentParams.BackBufferHeight/10.0;
+			transV.y = (float)(Gbls::thePresentParams.BackBufferHeight/10.0);
 			D3DXMATRIX mat;
 			D3DXMatrixIdentity(&mat);
 			D3DXMatrixTransformation2D(&mat, &centerV, 0.0f, &scaleV, NULL, 0.0f, &transV);
