@@ -39,6 +39,18 @@ void Sprite::setCenterToTextureMidpoint() {
 	}
 }
 
+void Sprite::setCenterToTopRight() {
+	if (m_pTexture) {
+		D3DSURFACE_DESC desc;
+		HRESULT hResult = m_pTexture->GetLevelDesc(0, &desc);
+		if(SUCCEEDED(hResult))
+		{
+			m_vCenter.x = (float)(desc.Width);
+			m_vCenter.y =  (float)(0);
+		}
+	}
+}
+
 //void Sprite::draw(ID3DXSprite* pRenderer)
 //{
 //	pRenderer->Draw(m_pTexture, NULL, &m_vCenter, &m_vPos, D3DCOLOR_XRGB(255, 255, 255));

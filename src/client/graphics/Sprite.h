@@ -22,6 +22,7 @@ public:
 	~Sprite();
 	void setTexture(LPDIRECT3DTEXTURE9 pTexture);
 	void setCenterToTextureMidpoint();
+	void setCenterToTopRight();
 	//void Sprite::draw(ID3DXSprite* pRenderer);
 };
 
