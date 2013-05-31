@@ -8,12 +8,16 @@
 Resource::Resource() :
 	Entity(RESOURCE)
 {
+	m_enableIdentifiers = false;
 }
 
 
 unsigned int Resource::encode(char *head) const {
 	// Get entity encode
 	unsigned int rtn = Entity::encode(head);
+	*(bool*) (head + rtn) = m_enableIdentifiers;
+	rtn += sizeof(bool);
+
 
 	return rtn;
 }
@@ -25,7 +29,10 @@ ostream& operator<<(ostream& os, const Resource& e) {
 }
 
 unsigned int Resource::decode(const char *buff) {
-	return Entity::decode(buff);
+	auto rtn = Entity::decode(buff);
+	m_enableIdentifiers = *(bool*) (buff + rtn);
+	rtn += sizeof(bool);
+	return rtn;
 }
 
 
@@ -40,5 +47,6 @@ void Resource::update(shared_ptr<Entity> sp_source) {
 #endif
 	} else {
 		Entity::update(sp_source);
+		m_enableIdentifiers = srcResource->m_enableIdentifiers;
 	}
 }

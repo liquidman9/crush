@@ -12,12 +12,10 @@
 #include <shared/game/Entity.h>
 #include <shared/game/Ship.h>
  
-// Defines
-#define POWER_TYPE char
-enum PowerType : char { SPEEDUP, PULSE, SHIELD};
 
-#define STATE_TYPE char
-enum StateType : char { WAITING, SPAWNED, HOLDING, CONSUMED};
+// Defines
+
+
 
 class Powerup : public virtual Entity {
 private:

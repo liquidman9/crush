@@ -95,10 +95,14 @@ public:
 	static std::wstring ship4EIDTextureFilepath_insig;
 	static std::wstring ship4EIDTextureFilepath_arrow;
 
+	static std::wstring extractorEIDTextureOnScreenFilepath;
+	static std::wstring extractorEIDTextureOffScreenFilepath;
 
+	static std::wstring resourceEIDTextureFilepath;
 	static std::wstring mothershipEIDTextureFilepath;
 	static std::wstring tBeamPartTexFilepath;
-	static std::wstring enginePartTexFilepath;
+	static std::wstring enginePartTexNormFilepath;
+	static std::wstring enginePartTexSpeedupFilepath;
 	static std::wstring fontStyle;
 	static int fontSize;
 

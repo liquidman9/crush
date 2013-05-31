@@ -133,11 +133,11 @@ private:
 	long long m_startTick;
 	long long m_endClock;
 	int m_timeLimit;
-	bool m_startGame;
+	volatile bool m_startGame;
 	ofstream m_f_error;
-	bool m_start;
-	bool m_reload;
-	bool m_pause;
+	volatile bool m_start;
+	volatile bool m_reload;
+	volatile bool m_pause;
 
 	//threadStuff
 	CRITICAL_SECTION m_cs;

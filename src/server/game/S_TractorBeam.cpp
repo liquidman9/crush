@@ -48,6 +48,7 @@ bool S_TractorBeam::isLocked() {
 
 void S_TractorBeam::lockOn(ServerEntity * entity) {
 	if(m_object != entity) {
+	//	cout<<(int)(entity->m_type)<<endl;
 		lockOff();
 		entity->m_heldBy = m_ship;
 	}
@@ -128,7 +129,7 @@ void S_TractorBeam::calculateForce() {
 		D3DXVECTOR3 disV = getCurrentDirection();
 		float disL = getCurrentDistance();
 		
-		D3DXVECTOR3 force = m_strength*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 2));
+		D3DXVECTOR3 force = m_strength*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 1.66f));
 
 		if(m_isPulling) {
 			// Check for extreme force that pulls the object in the opposite direction
@@ -317,6 +318,7 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 
 		if(entity->m_type == SHIP && m_ship == entity || 
 			entity->m_type == MOTHERSHIP || 
+			entity->m_type == TRACTORBEAM ||
 			entity->m_type == EXTRACTOR || 
 			entity->m_type == POWERUP || // can not tractorbeam powerups
 			(entity->m_type == RESOURCE &&  (((S_Resource *)entity)->m_droppedFrom == m_ship->m_playerNum)) ||

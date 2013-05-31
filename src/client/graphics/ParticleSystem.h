@@ -45,6 +45,8 @@ public:
 	//void RestartParticleSystem(void);
 
 	HRESULT update(ParticleGroup * pGroup, float newTime);
+	HRESULT ParticleSystem::releaseBurst(ParticleGroup * pGroup);
+
 
 	static float getRandomMinMax( float fMin, float fMax );
 	static D3DXVECTOR3 getRandomVector( void );

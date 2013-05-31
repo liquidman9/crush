@@ -94,6 +94,14 @@ public:
 		return m_meta.time;
 	}
 
+	void setServerTime(long long const &time) {
+		m_meta.serverTime = time;
+	}
+
+	long long getServerTime() const {
+		return m_meta.serverTime;
+	}
+
 	shared_ptr<E> getEntityById(int id) {
 		for (unsigned int i = 0; i < size(); i++) {
 			if (m_entities[i]->m_id == id) return m_entities[i];
@@ -263,6 +271,7 @@ private:
 
 	struct gameStateMeta {	
 		int time;
+		long long serverTime;
 		int score[4];
 		char winner;
 	} m_meta;

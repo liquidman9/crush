@@ -15,11 +15,12 @@
 
 class Resource : public virtual Entity {
 private:
-	static const unsigned int m_size = Entity::m_size;
+	static const unsigned int m_size = Entity::m_size + sizeof(bool);
 
 public:
 	// Constructors
 	Resource();
+
 
 	// Methods
 	virtual unsigned int encode(char *) const;

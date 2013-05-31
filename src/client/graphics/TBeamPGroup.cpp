@@ -20,6 +20,8 @@ TBeamPGroup::TBeamPGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
 	m_lastUpdate = 0.0f;
 	m_currentTime = 0.0f;
     m_ptexParticle = ptexParticle; // Particle's texture
+	m_curColor = D3DCOLOR_XRGB(0,0,255);
+	m_perParticleColor = FALSE;
 
 	tBeamEnt = NULL;
 	float prevElapsedTime = -1.0f;
@@ -65,7 +67,7 @@ void TBeamPGroup::updateGroup() {
 }
 
 bool TBeamPGroup::initNewParticle(Particle * pParticle) {
-	pParticle->m_color = D3DCOLOR_XRGB(0,0,255);
+	pParticle->m_color = m_curColor; //D3DCOLOR_XRGB(0,0,255);
 	float x, y;
 	do { // get random, evenly distributed points in circle
 		x = ParticleSystem::getRandomMinMax(-1.0f, 1.0f);
@@ -82,6 +84,7 @@ bool TBeamPGroup::initNewParticle(Particle * pParticle) {
  * Returns true if particle is still valid
  */
 bool TBeamPGroup::updateParticle(Particle * pParticle, float elapsedTime) {
+	//pParticle->m_color = m_curColor;
 	pParticle->m_vCurPos.z += speed * elapsedTime;
 	if (pParticle->m_vCurPos.z < 0.0f || pParticle->m_vCurPos.z > defaultLength) {
 		return false;

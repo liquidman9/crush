@@ -115,46 +115,87 @@ HRESULT ParticleSystem::update(ParticleGroup * pGroup, float elapsedTime) {
 
 	float timeSinceUpdate = pGroup->m_currentTime - pGroup->m_lastUpdate;
 
-    while( timeSinceUpdate > pGroup->m_releaseInterval) { // create particles if enough time has passed
-		timeSinceUpdate -= pGroup->m_releaseInterval; // decrement time since update
-    	// Reset update timing...
-		pGroup->m_lastUpdate = pGroup->m_currentTime;
+	if (pGroup->m_releaseInterval > 0.00000001) { //periodic release
+		while( timeSinceUpdate > pGroup->m_releaseInterval) { // create particles if enough time has passed
+			timeSinceUpdate -= pGroup->m_releaseInterval; // decrement time since update
+    		// Reset update timing...
+			pGroup->m_lastUpdate = pGroup->m_currentTime;
 
-        // Emit new particles at specified flow rate
-        for( DWORD i = 0; i < pGroup->m_numToRelease; ++i )
-        {
-            // Do we have any free particles to put back to work?
-            if( m_pFreeList )
-            {
-                // If so, hand over the first free one to be reused.
-                pParticle = m_pFreeList;
-                // Then make the next free particle in the list next to go!
-                m_pFreeList = pParticle->m_pNext;
-            }
-            else
-            {
-                // There are no free particles to recycle...
-                // We'll have to create a new one from scratch!
-                if( NULL == ( pParticle = new Particle ) )
-                    return E_OUTOFMEMORY;
-            }
+			// Emit new particles at specified flow rate
+			for( DWORD i = 0; i < pGroup->m_numToRelease; ++i )
+			{
+				// Do we have any free particles to put back to work?
+				if( m_pFreeList )
+				{
+					// If so, hand over the first free one to be reused.
+					pParticle = m_pFreeList;
+					// Then make the next free particle in the list next to go!
+					m_pFreeList = pParticle->m_pNext;
+				}
+				else
+				{
+					// There are no free particles to recycle...
+					// We'll have to create a new one from scratch!
+					if( NULL == ( pParticle = new Particle ) )
+						return E_OUTOFMEMORY;
+				}
 			
-            pParticle->m_fInitTime  = pGroup->m_currentTime - timeSinceUpdate;
-            if (pGroup->initNewParticle(pParticle) && pGroup->updateParticle(pParticle, timeSinceUpdate)) { // init and update particle to current time
-			//if (isValid) { // particle is valid, put onto particle list for pGroup
-				pParticle->m_pNext = pGroup->m_partList; // Make it the new head
-				pGroup->m_partList = pParticle;
-			} else { // particle wasn't created in a valid state, put back on free list
-				//*ppParticle = pParticle->m_pNext;
-				pParticle->m_pNext = m_pFreeList;
-				m_pFreeList = pParticle;
+				pParticle->m_fInitTime  = pGroup->m_currentTime - timeSinceUpdate;
+				if (pGroup->initNewParticle(pParticle) && pGroup->updateParticle(pParticle, timeSinceUpdate)) { // init and update particle to current time
+				//if (isValid) { // particle is valid, put onto particle list for pGroup
+					pParticle->m_pNext = pGroup->m_partList; // Make it the new head
+					pGroup->m_partList = pParticle;
+				} else { // particle wasn't created in a valid state, put back on free list
+					//*ppParticle = pParticle->m_pNext;
+					pParticle->m_pNext = m_pFreeList;
+					m_pFreeList = pParticle;
+				}
+
 			}
 
-        }
-    }
+		}
+	}
 
     return S_OK;
 }
+
+HRESULT ParticleSystem::releaseBurst(ParticleGroup * pGroup) {
+	Particle  *pParticle;
+    Particle **ppParticle;
+
+    ppParticle = &pGroup->m_partList; // Start at the head of the active list
+	// Emit new particles at specified flow rate
+	for( DWORD i = 0; i < pGroup->m_numToRelease; ++i )
+	{
+		// Do we have any free particles to put back to work?
+		if( m_pFreeList )
+		{
+			// If so, hand over the first free one to be reused.
+			pParticle = m_pFreeList;
+			// Then make the next free particle in the list next to go!
+			m_pFreeList = pParticle->m_pNext;
+		}
+		else
+		{
+			// There are no free particles to recycle...
+			// We'll have to create a new one from scratch!
+			if( NULL == ( pParticle = new Particle ) )
+				return E_OUTOFMEMORY;
+		}
+			
+		pParticle->m_fInitTime  = pGroup->m_currentTime;
+		if (pGroup->initNewParticle(pParticle)) { // init and update particle to current time
+		//if (isValid) { // particle is valid, put onto particle list for pGroup
+			pParticle->m_pNext = pGroup->m_partList; // Make it the new head
+			pGroup->m_partList = pParticle;
+		} else { // particle wasn't created in a valid state, put back on free list
+			//*ppParticle = pParticle->m_pNext;
+			pParticle->m_pNext = m_pFreeList;
+			m_pFreeList = pParticle;
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Name: Render()
@@ -230,7 +271,11 @@ HRESULT ParticleSystem::render( LPDIRECT3DDEVICE9 pd3dDevice, ParticleGroup * pG
         D3DXVECTOR3 vVel(pParticle->m_vCurVel);
 
         pVertices->posit = vPos;
-		pVertices->color = pParticle->m_color;
+		if (pGroup->m_perParticleColor) {
+			pVertices->color = pParticle->m_color;
+		} else {
+			pVertices->color = pGroup->m_curColor;
+		}
         pVertices++;
 
         if( ++dwNumParticlesToRender == m_dwFlush )

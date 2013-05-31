@@ -48,7 +48,7 @@ void S_Asteroid::reCreateAsteroid(float boundaryRadius) {
 	D3DXVECTOR3 rot_inertia = calculateRotationalInertia(m_mass);
 	m_rot_inertia = *D3DXMatrixScaling(&m_rot_inertia, rot_inertia.x, rot_inertia.y, rot_inertia.z);
 	D3DXMatrixInverse(&m_rot_inertia_inverse, NULL, &m_rot_inertia);
-	m_length = 1.0;
+	m_length = 0.0;
 
 	// zeroing values
 	reset();

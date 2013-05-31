@@ -16,7 +16,8 @@ S_Extractor::S_Extractor(D3DXVECTOR3 pos, Quaternion orientation) :
 	Extractor(),
 	ServerEntity(mass, (m_length = 5.0f), calculateRotationalInertia(mass)),
 	m_cur_resource(NULL),
-	m_timer(resource_respawn_time)
+	m_timer(resource_respawn_time),
+	m_hubRadius(25)
 { 
 	m_immovable = true;
 }

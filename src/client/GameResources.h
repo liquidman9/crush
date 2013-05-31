@@ -31,6 +31,7 @@
 #include <client/graphics/ParticleSystem.h>
 #include <client/graphics/TBeamPGroup.h>
 #include <client/graphics/EnginePGroup.h>
+#include <client/graphics/BurstPGroup.h>
 #include <client/SoundManager.h>
 
 class GameResources {
@@ -84,12 +85,17 @@ public:
 	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_arrow[4];
 	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_insig[4];
 
+	static LPDIRECT3DTEXTURE9 extractorEIDTextureOnScreen;
+	static LPDIRECT3DTEXTURE9 extractorEIDTextureOffScreen;
 
+	static LPDIRECT3DTEXTURE9 resourceEIDTexture;
 	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
-	static LPDIRECT3DTEXTURE9 EnginePartTexture;
+	static LPDIRECT3DTEXTURE9 EnginePartNormTexture;
+	static LPDIRECT3DTEXTURE9 EnginePartSpeedupTexture;
 	static ParticleSystem * partSystem;
 	static TBeamPGroup * tBeamPGroup;
+	static BurstPGroup * burstPowerupPGroup;
 	static std::wstring timeStr;
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
@@ -104,6 +110,7 @@ public:
 
 	static D3DXMATRIX sunWorldMat;
 	static LPD3DXMESH sunMesh;
+	static LPD3DXMESH shieldMesh;
 	static LPDIRECT3DTEXTURE9 pGlowmapTexture;
 	static LPDIRECT3DSURFACE9 pGlowmapSurface;
 	static LPDIRECT3DTEXTURE9 pTmpBlurTexture;
@@ -119,6 +126,10 @@ public:
 	//static std::vector<Entity*> entityList;
 	//static std::vector<R_Ship*> r_ShipList;
 	//static std::vector<std::vector<Renderable*>*> renderList;
+
+	//toggles for debug powerup vis
+	static bool shieldVisToggle;
+	static bool speedupVisToggle;
 
 	static struct KeyboardState{
 		bool wDown;
@@ -165,8 +176,11 @@ public:
 	static void drawModel(C_Entity * cEnt);
 	static void drawAllModels();
 	static void drawAllTractorBeams();
+	static void drawAllShields();
+	static void releaseBurstPowerupParticles();
 	static void drawAllEngines();
 	static void drawAllEID();
+	static void drawShield(C_Ship * ship);
 	static void drawStaticHudElements();
 	static void drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius);
 	static void playSounds();

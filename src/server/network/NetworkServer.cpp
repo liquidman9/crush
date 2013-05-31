@@ -116,10 +116,11 @@ void NetworkServer::broadcastGameStateWorker() {
 		_CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
 		unsigned int size1;
 		unsigned int size2;
-
+#ifdef ENABLE_DELTA
 		char* tmp1 = new char[m_oldSize];
 		auto tmp2 = m_oldSize;
 		memcpy(tmp1,m_oldState, m_oldSize);
+#endif
 		auto buff1 = m_sendGS.getSendBuff();
 		unsigned int sendSize = m_sendGS.sendSize();
 		_ASSERTE( _CrtCheckMemory( ) );
@@ -140,10 +141,12 @@ void NetworkServer::broadcastGameStateWorker() {
 		delete []buff2;
 		delete []buff3;
 		_ASSERTE( _CrtCheckMemory( ) );
+#ifdef ENABLE_DELTA
 		delete []m_oldState;
 		m_oldState = tmp1;
 		m_oldSize = tmp2;
 		_ASSERTE( _CrtCheckMemory( ) );
+#endif
 #endif
 
 

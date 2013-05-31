@@ -18,12 +18,15 @@ class EntityIdentifier
 {
 public:
 	//D3DXMATRIX m_scaleOffsetMatrix;
+	EntityIdentifier();
 	C_Entity * targetEntity;
 	bool rotateOn;
-	EntityIdentifier();
 	~EntityIdentifier();
 	Sprite m_onScreenSprite;
+	Sprite m_altOnScreenSprite;
+	Sprite m_altOffScreenSprite;
 	Sprite m_offScreenSprite;
+	bool enableAltSprite;
 	//void setScaleOffset(float scaleFactor, float x, float y, float z);
 	void draw(Camera * cam, ID3DXSprite* pSpriteRenderer);
 };

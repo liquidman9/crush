@@ -53,6 +53,22 @@ C_Mothership* GameResources::playerMothership = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
 
+static float shipColors[4][4] =
+{
+	0.0f, 0.0f,    1.0f, 0.5f,
+	1.0f, 0.7333f, 0.0f, 0.5f,
+	1.0f, 0.0f,    0.0f, 0.5f,
+	1.0f, 1.0f,    0.0f, 0.5f,
+};
+
+static D3DCOLOR shipColorsInt[4] = 
+{
+	D3DCOLOR_XRGB((int)(shipColors[0][0]*255),(int)(shipColors[0][1]*255),(int)(shipColors[0][2]*255)),
+	D3DCOLOR_XRGB((int)(shipColors[1][0]*255),(int)(shipColors[1][1]*255),(int)(shipColors[1][2]*255)),
+	D3DCOLOR_XRGB((int)(shipColors[2][0]*255),(int)(shipColors[2][1]*255),(int)(shipColors[2][2]*255)),
+	D3DCOLOR_XRGB((int)(shipColors[3][0]*255),(int)(shipColors[3][1]*255),(int)(shipColors[3][2]*255))
+};
+
 
 LPDIRECT3DTEXTURE9 GameResources::shipEIDTexture_resource = NULL;
 LPDIRECT3DTEXTURE9 GameResources::ship1EIDTexture_insig = NULL;
@@ -76,12 +92,18 @@ LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_insig[4] = {
 	&GameResources::ship4EIDTexture_insig
 };
 
+LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
+
+LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOnScreen = NULL;
+LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
-LPDIRECT3DTEXTURE9 GameResources::EnginePartTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::EnginePartNormTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::EnginePartSpeedupTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
+BurstPGroup * GameResources::burstPowerupPGroup = NULL;
 LPDIRECT3DTEXTURE9 GameResources::pGlowmapTexture = NULL;
 LPDIRECT3DSURFACE9 GameResources::pGlowmapSurface = NULL;
 LPDIRECT3DTEXTURE9 GameResources::pTmpBlurTexture = NULL;
@@ -90,6 +112,7 @@ LPDIRECT3DSURFACE9 GameResources::pDefaultRenderSurface = NULL;
 LPDIRECT3DSURFACE9 GameResources::pBackBuffer = NULL;
 D3DXMATRIX GameResources::sunWorldMat;
 LPD3DXMESH GameResources::sunMesh = NULL;
+LPD3DXMESH GameResources::shieldMesh = NULL;
 
 // for debugging collisions
 bool GameResources::renderCBWireframe = false;
@@ -112,14 +135,15 @@ ID3DXEffect * GameResources::pEffectTexToScreen;
 ID3DXEffect * GameResources::pEffectBlend;
 ID3DXEffect * GameResources::pEffectBlur;
 
-//for testing
+//debug vis toggles
+bool GameResources::shieldVisToggle = FALSE;
+bool GameResources::speedupVisToggle = FALSE;
+
 #define TEXTOSCREENFVF (D3DFVF_XYZRHW | D3DFVF_TEX1)
 struct CUSTOMVERTEX {FLOAT X, Y, Z, RHW, U, V;};
 static LPDIRECT3DVERTEXBUFFER9 fsQuadVBuffer = NULL;
 static LPDIRECT3DVERTEXBUFFER9 bloomQuadVBuffer = NULL;
 static CUSTOMVERTEX fsQuadVerts[4];
-
-
 HRESULT GameResources::initState() {
 	HRESULT hres;
 	
@@ -173,6 +197,9 @@ HRESULT GameResources::initState() {
 	partSystem = new ParticleSystem();
 	tBeamPGroup = new TBeamPGroup(tBeamPartTexture);
 	tBeamPGroup->initBeamToFull();
+	burstPowerupPGroup = new BurstPGroup(tBeamPartTexture);
+	//TODO Remove
+	burstPowerupPGroup->releasePos = D3DXVECTOR3(5,5,5);
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
@@ -206,6 +233,11 @@ void GameResources::releaseResources() {
 	if(tBeamPGroup) {
 		delete tBeamPGroup;
 		tBeamPGroup = NULL;
+	}
+
+	if(burstPowerupPGroup) {
+		delete burstPowerupPGroup;
+		burstPowerupPGroup = NULL;
 	}
 
 	if(partSystem) {
@@ -283,8 +315,8 @@ HRESULT GameResources::reInitState() {
     fsQuadVBuffer->Unlock();
 	
 	
-	right = ((float) Gbls::thePresentParams.BackBufferWidth)/4.0f - 0.5f;
-	bottom = ((float) Gbls::thePresentParams.BackBufferHeight)/4.0f - 0.5f;
+	right = ((float) Gbls::thePresentParams.BackBufferWidth) / 2.0f - 0.5f;
+	bottom = ((float) Gbls::thePresentParams.BackBufferHeight) / 2.0f - 0.5f;
 	CUSTOMVERTEX vertices2[] =
     {
 		{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
@@ -312,8 +344,8 @@ HRESULT GameResources::reInitState() {
 		pGlowmapTexture = NULL;
 	}
 	Gbls::pd3dDevice->CreateTexture(
-		Gbls::thePresentParams.BackBufferWidth / 4,
-		Gbls::thePresentParams.BackBufferHeight / 4,
+		Gbls::thePresentParams.BackBufferWidth / 2,
+		Gbls::thePresentParams.BackBufferHeight / 2,
         1,
         D3DUSAGE_RENDERTARGET,
         D3DFMT_R5G6B5,
@@ -328,8 +360,8 @@ HRESULT GameResources::reInitState() {
 		pTmpBlurTexture = NULL;
 	}
 	Gbls::pd3dDevice->CreateTexture(
-		Gbls::thePresentParams.BackBufferWidth / 4,
-		Gbls::thePresentParams.BackBufferHeight / 4,
+		Gbls::thePresentParams.BackBufferWidth / 2,
+		Gbls::thePresentParams.BackBufferHeight / 2,
         1,
         D3DUSAGE_RENDERTARGET,
         D3DFMT_R5G6B5,
@@ -368,8 +400,8 @@ HRESULT GameResources::reInitState() {
 
 
 	//set backface cullling off TODO remove after models are fixed
-	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 	
 	return S_OK;
 }
@@ -423,8 +455,10 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	if(FAILED(hres = Gbls::powerupMesh.Create(Gbls::powerupMeshFilepath)))
 			return hres;
-
+	
 	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 3.0f, 25, 25, &sunMesh, NULL)))
+		return hres;
+	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 1.0f, 25, 25, &shieldMesh, NULL)))
 		return hres;
 
 	//if(FAILED(hres = Gbls::tractorBeamMesh.Create(Gbls::tractorBeamMeshFilepath)))
@@ -545,10 +579,10 @@ HRESULT GameResources::initAdditionalTextures()
 
 	// load arrow spirte
 
-	/*hres = loadTexture(&shipEIDTexture_resource, Gbls::shipEIDTextureFilePath_resource);
+	hres = loadTexture(&shipEIDTexture_resource, Gbls::shipEIDTextureFilepath_resource);
 	if (FAILED(hres)) {
 		return hres;
-	}*/
+	}
 	hres = loadTexture(&ship1EIDTexture_insig, Gbls::ship1EIDTextureFilepath_insig);
 	if (FAILED(hres)) {
 		return hres;
@@ -582,9 +616,22 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 	
+
+	hres = loadTexture(&extractorEIDTextureOnScreen, Gbls::extractorEIDTextureOnScreenFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&extractorEIDTextureOffScreen, Gbls::extractorEIDTextureOffScreenFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
 	
 	// load ship arrow spirte
 	hres = loadTexture(&mothershipEIDTexture, Gbls::mothershipEIDTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&resourceEIDTexture, Gbls::resourceEIDTextureFilepath);
 	if (FAILED(hres)) {
 		return hres;
 	}
@@ -595,8 +642,14 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 
-	// load engine particle spirte
-	hres = loadTexture(&EnginePartTexture, Gbls::enginePartTexFilepath);
+	// load normal engine particle spirte
+	hres = loadTexture(&EnginePartNormTexture, Gbls::enginePartTexNormFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+	// load boost engine particle spirte
+	hres = loadTexture(&EnginePartSpeedupTexture, Gbls::enginePartTexSpeedupFilepath);
 	if (FAILED(hres)) {
 		return hres;
 	}
@@ -630,6 +683,27 @@ void GameResources::releaseAdditionalTextures() {
 		shipEIDTexture_resource->Release();
 		shipEIDTexture_resource = NULL;
 	}
+
+	if(resourceEIDTexture) {
+		resourceEIDTexture->Release();
+		resourceEIDTexture = NULL;
+	}
+
+	if(extractorEIDTextureOnScreen) {
+		extractorEIDTextureOnScreen->Release();
+		extractorEIDTextureOnScreen = NULL;
+	}
+
+	if(extractorEIDTextureOffScreen) {
+		extractorEIDTextureOffScreen->Release();
+		extractorEIDTextureOffScreen = NULL;
+	}
+
+	if(shipEIDTexture_resource) {
+		shipEIDTexture_resource->Release();
+		shipEIDTexture_resource = NULL;
+	}
+
 	
 	for(unsigned int i = 0; i < 4; i++) {
 		if(*shipEIDTextureArray_arrow[i]){
@@ -722,10 +796,35 @@ void GameResources::drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, fl
 	collisionSphere->DrawSubset(0);
 }
 
+void GameResources::releaseBurstPowerupParticles() {
+	for (UINT i = 0; i < shipList.size(); i++) {
+		C_Ship * ship = shipList[i];
+		if(ship->m_hasPowerup && ship->m_powerupType == PULSE && ship->m_powerupStateType == CONSUMED) {
+			GameResources::burstPowerupPGroup->releasePos = GameResources::playerShip->m_pos;
+			GameResources::partSystem->releaseBurst(GameResources::burstPowerupPGroup);
+		}
+	}
+}
+
+void GameResources::drawAllShields() {
+	if (shieldVisToggle && playerShip) {
+		playerShip->m_hasPowerup = TRUE;
+		playerShip->m_powerupType = SHIELD;
+		playerShip->m_powerupStateType = CONSUMED;
+	}
+	for (UINT i = 0; i < shipList.size(); i++) {
+		C_Ship * ship = shipList[i];
+		if(ship->m_hasPowerup && ship->m_powerupType == SHIELD && ship->m_powerupStateType == CONSUMED) {
+			drawShield(ship);
+		}
+	}
+}
+
 void GameResources::drawAllTractorBeams() {
 	// render particles
 	for (UINT i = 0; i < tractorBeamList.size(); i++) {
 		if(tractorBeamList[i]->m_isOn) {
+			tBeamPGroup->m_curColor = shipColorsInt[i];
 			tBeamPGroup->tBeamEnt = tractorBeamList[i];
 			tBeamPGroup->updateGroup();
 			partSystem->render(Gbls::pd3dDevice, tBeamPGroup);
@@ -735,7 +834,13 @@ void GameResources::drawAllTractorBeams() {
 
 void GameResources::drawAllEngines() {
 	// render particles
+	if (speedupVisToggle && playerShip) {
+		playerShip->m_hasPowerup = TRUE;
+		playerShip->m_powerupType = SPEEDUP;
+		playerShip->m_powerupStateType = CONSUMED;
+	}
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
+		enginePGroupList[i]->updateGroup();
 		partSystem->render(Gbls::pd3dDevice, enginePGroupList[i]);
 	}
 }
@@ -873,6 +978,26 @@ void GameResources::drawAllModels() {
 		pEffectDefault->EndPass();
 	}
 	pEffectDefault->End();
+	
+	Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+
+	if (playerShip) {
+		pEffectDefault->SetTechnique("Shield");
+		pEffectDefault->Begin(&cPasses, 0);
+		for (UINT iPass = 0; iPass < cPasses; iPass++)
+		{
+			pEffectDefault->BeginPass(iPass);
+			drawAllShields();
+			pEffectDefault->EndPass();
+		}
+		pEffectDefault->End();
+	}
+
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
@@ -1138,43 +1263,21 @@ void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUF
 	
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+}
 
-
-	//WORKING LOL
-	//LPDIRECT3DSURFACE9 surface;
-	//tex->GetSurfaceLevel(0, &surface);
-	//D3DSURFACE_DESC desc;
-	//surface->GetDesc(&desc);
-	//UINT surfaceHeight = desc.Height;
-	//UINT surfaceWidth = desc.Width;
-
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-	//Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
- //  	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
-	//if(FAILED(hResult))
-	//{
-	//	std::wstring tmpStr = L"BeginScene() failed. Error: " + Util::DXErrorToString(hResult);
-	//	MessageBox( NULL, tmpStr.c_str(), L"CRUSH.exe", MB_OK );
-	//	return;
-	//}
-
-	//RECT r1, r2;
-	//r1.top = 0;
-	//r1.left = 0;
-	//r1.right = surfaceWidth;
-	//r1.bottom = surfaceHeight;
- //
-	//r2.top = 0;
-	//r2.left = 0;
-	//r2.right = Gbls::thePresentParams.BackBufferWidth;
-	//r2.bottom = Gbls::thePresentParams.BackBufferHeight;
- //
-	//Gbls::pd3dDevice->StretchRect( surface, &r1, pBackBuffer, &r2, D3DTEXF_POINT );
-
-	//Gbls::pd3dDevice->EndScene();
-
-	//surface->Release();
-
+void GameResources::drawShield(C_Ship * ship) {
+	D3DXMATRIX tmp;
+	float scale = 7.0;
+	D3DXMatrixScaling(&tmp, scale, scale, scale);
+	tmp *= ship->worldMat;
+	pEffectDefault->SetMatrix("World", &tmp);
+	float det = D3DXMatrixDeterminant(&tmp);
+	D3DXMatrixTranspose(&tmp, D3DXMatrixInverse(&tmp, &det, &tmp));
+	
+	pEffectDefault->SetMatrix("WorldInverseTranspose", &tmp);
+	pEffectDefault->SetFloatArray("ShieldColor", shipColors[ship->m_playerNum], 4);
+	pEffectDefault->CommitChanges();
+	shieldMesh->DrawSubset(0);
 }
 
 void GameResources::drawAll()
@@ -1245,9 +1348,12 @@ void GameResources::drawAll()
 
 	// Render tractor beams
 	drawAllTractorBeams();
-	
+
 	//Render all engine exhausts
 	drawAllEngines();
+
+	//Render burst push effect TODO fix to work with actual powerup
+	partSystem->render(Gbls::pd3dDevice, burstPowerupPGroup);
 	
 	// unset state for particle effects
     Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE );
@@ -1444,7 +1550,8 @@ void GameResources::updateDebugCamera() {
 
 void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
-	double curTime = timeGetTime();
+	//double curTime = timeGetTime();
+	double curTime = newGameState.getServerTime();
 	static double s_lastTime = curTime; // first time initialization, static otherwise
 	float elapsedTime = (float)((curTime - s_lastTime) * 0.001);
 	s_lastTime = curTime;
@@ -1499,7 +1606,9 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	}
 
 	// Update particle system
+	releaseBurstPowerupParticles();
 	partSystem->update(tBeamPGroup, elapsedTime);
+	partSystem->update(burstPowerupPGroup, elapsedTime);
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
 		partSystem->update(enginePGroupList[i], elapsedTime);
 	}
@@ -1559,6 +1668,12 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		shipEID_insig->targetEntity = tmp;
 		shipEID_insig->rotateOn = false;
 
+		shipEID->m_altOffScreenSprite.setTexture(shipEIDTexture_resource);
+		shipEID->m_altOnScreenSprite.setTexture(shipEIDTexture_resource);
+		shipEID->m_altOffScreenSprite.setCenterToTextureMidpoint();
+		shipEID->m_altOnScreenSprite.setCenterToTextureMidpoint();
+		shipEID->enableAltSprite = true;
+
 		shipEID->m_onScreenSprite.setTexture(*shipEIDTextureArray_arrow[tmp->m_playerNum]);
 		shipEID_insig->m_onScreenSprite.setTexture(*shipEIDTextureArray_insig[tmp->m_playerNum]);
 		
@@ -1573,7 +1688,7 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		
 		eIDList.push_back(shipEID);
 		eIDList.push_back(shipEID_insig);
-		EnginePGroup * epg = new EnginePGroup(EnginePartTexture);
+		EnginePGroup * epg = new EnginePGroup(EnginePartNormTexture, EnginePartSpeedupTexture);
 		epg->shipEnt = tmp;
 		enginePGroupList.push_back(epg);
 		ret = tmp;
@@ -1615,13 +1730,27 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 	case RESOURCE :
 		{
 		C_Resource * tmp = new C_Resource(newEnt);
-		resourceList.push_back(tmp);
+		EntityIdentifier * mResourceEID = new EntityIdentifier();
+		mResourceEID->targetEntity = tmp;
+		mResourceEID->m_onScreenSprite.setTexture(resourceEIDTexture);
+		mResourceEID->m_onScreenSprite.setCenterToTextureMidpoint();
+		mResourceEID->m_offScreenSprite.setTexture(NULL);
+		//mResourceEID->m_offScreenSprite.setCenterToTextureMidpoint();
+		eIDList.push_back(mResourceEID);
+		resourceList.push_back(tmp);		
 		ret = tmp;
 		}
 		break;
 	case EXTRACTOR :
 		{
 		C_Extractor * tmp = new C_Extractor(newEnt);
+		EntityIdentifier * mExtractorEID = new EntityIdentifier();
+		mExtractorEID->targetEntity = tmp;
+		mExtractorEID->m_onScreenSprite.setTexture(extractorEIDTextureOnScreen);
+		mExtractorEID->m_onScreenSprite.setCenterToTextureMidpoint();
+		mExtractorEID->m_offScreenSprite.setTexture(extractorEIDTextureOffScreen);
+		mExtractorEID->m_offScreenSprite.setCenterToTextureMidpoint();
+		eIDList.push_back(mExtractorEID);
 		extractorList.push_back(tmp);
 		ret = tmp;
 		}

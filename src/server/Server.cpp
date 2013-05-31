@@ -24,6 +24,7 @@ Server::Server(unsigned int port):m_server(port)
 void Server::start() {
 	m_pause = false;
 	m_start = true;
+	m_startGame = true;
 	if(m_hThread == NULL) {
 		unsigned int threadID;
 		m_hThread = (HANDLE)_beginthreadex( NULL, // security
@@ -216,6 +217,7 @@ void Server::checkReadyClients() {
 		}
 	}
 	m_start = true;
+	m_startGame = true;
 }
 
 void Server::updateReadyClients() {
@@ -297,12 +299,11 @@ void Server::loop() {
 
 		long long cur = milliseconds_now();
 		float physics_delta = (float)(milliseconds_now() - prev_tick) / 1000.0f;
+		m_gameState.setServerTime(cur);
 		prev_tick = cur;
 
 		
 		m_powerupSource->update(milliseconds_now());
-
-		m_world.collision(physics_delta);
 
 		for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) {
 			for(auto j = m_mothershipMap.begin(); j != m_mothershipMap.end(); j++) {
@@ -311,6 +312,10 @@ void Server::loop() {
 			m_world.checkPulse(i->second);
 			i->second->calcTractorBeam();
 		}
+
+		m_world.collision(physics_delta);
+
+
 		m_world.update(physics_delta);
 
 		// Add new resource (if spawned)

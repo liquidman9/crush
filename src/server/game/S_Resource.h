@@ -13,8 +13,11 @@
 #include <shared/game/Resource.h>
 #include <server/game/ServerEntity.h>
 #include <shared/InputState.h>
+#include <server/game/S_Extractor.h>
 
 #define SHIP_PLAYERNUM_TYPE char
+
+class S_Extractor;
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )

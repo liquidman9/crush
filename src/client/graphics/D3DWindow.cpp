@@ -277,6 +277,16 @@ LRESULT CALLBACK D3DWindow::StaticWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		case '8':
 			GameResources::renderCBWireframe = !GameResources::renderCBWireframe;
 			break;
+		case '7':
+			GameResources::burstPowerupPGroup->releasePos = GameResources::playerShip->m_pos;
+			GameResources::partSystem->releaseBurst(GameResources::burstPowerupPGroup);
+			break;
+		case '6':
+			GameResources::shieldVisToggle = !GameResources::shieldVisToggle;
+			break;
+		case '5':
+			GameResources::speedupVisToggle = !GameResources::speedupVisToggle;
+			break;
 
 		case VK_UP:
 			GameResources::m_ks.upDown = true;
