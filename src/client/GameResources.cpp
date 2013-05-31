@@ -97,6 +97,12 @@ LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOnScreen = NULL;
 LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen = NULL;
 
+LPDIRECT3DTEXTURE9 GameResources::powerupTextureArray[3] = {
+	NULL,
+	NULL,
+	NULL
+};
+
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartNormTexture = NULL;
@@ -625,6 +631,20 @@ HRESULT GameResources::initAdditionalTextures()
 	if (FAILED(hres)) {
 		return hres;
 	}
+
+	//load powerup reps
+	hres = loadTexture(&powerupTextureArray[0], Gbls::powerupTexture1Filepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&powerupTextureArray[1], Gbls::powerupTexture2Filepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&powerupTextureArray[2], Gbls::powerupTexture3Filepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
 	
 	// load ship arrow spirte
 	hres = loadTexture(&mothershipEIDTexture, Gbls::mothershipEIDTextureFilepath);
@@ -704,6 +724,12 @@ void GameResources::releaseAdditionalTextures() {
 		shipEIDTexture_resource = NULL;
 	}
 
+	for(unsigned int i = 0; i < 3; i++) {
+		if(powerupTextureArray[i]) {
+			powerupTextureArray[i]->Release();
+			powerupTextureArray[i] = NULL;
+		}
+	}
 	
 	for(unsigned int i = 0; i < 4; i++) {
 		if(*shipEIDTextureArray_arrow[i]){
@@ -902,6 +928,17 @@ void GameResources::drawStaticHudElements() {
 	HRESULT hres = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
 	if(SUCCEEDED(hres))
 	{
+		if(playerShip && playerShip->m_hasPowerup) {
+			float scale = (float)(Gbls::thePresentParams.BackBufferWidth*Gbls::thePresentParams.BackBufferHeight)/(float)(1280*720);
+			D3DXVECTOR2 transV, scaleV(scale,scale);
+			transV.x = (float)(Gbls::thePresentParams.BackBufferWidth - Gbls::thePresentParams.BackBufferWidth/8);
+			transV.y = (float)Gbls::thePresentParams.BackBufferHeight/8;
+			D3DXMATRIX mat;
+			D3DXMatrixIdentity(&mat);
+			D3DXMatrixTransformation2D(&mat, NULL, 0.0f, NULL, &scaleV, 0.0f, &transV);
+			pd3dSprite->SetTransform(&mat);
+			pd3dSprite->Draw(powerupTextureArray[playerShip->m_powerupType], NULL, NULL, NULL, 0XFFFFFFFF);
+		}
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
 		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
 		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
@@ -1551,8 +1588,8 @@ void GameResources::updateDebugCamera() {
 void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
 	//double curTime = timeGetTime();
-	double curTime = newGameState.getServerTime();
-	static double s_lastTime = curTime; // first time initialization, static otherwise
+	long long curTime = newGameState.getServerTime();
+	static long long s_lastTime = curTime; // first time initialization, static otherwise
 	float elapsedTime = (float)((curTime - s_lastTime) * 0.001);
 	s_lastTime = curTime;
 
