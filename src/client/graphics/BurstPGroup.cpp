@@ -22,6 +22,7 @@ BurstPGroup::BurstPGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
 	m_lastUpdate = 0.0f;
 	m_currentTime = 0.0f;
     m_ptexParticle = ptexParticle; // Particle's texture
+	m_perParticleColor = TRUE;
 	
 	releasePos.x = 0;
 	releasePos.y = 0;

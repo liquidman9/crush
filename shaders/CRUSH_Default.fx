@@ -104,9 +104,9 @@ technique Shield
 {
     pass Pass1
     {	
-		AlphaBlendEnable	= true;
-		SrcBlend			= SrcAlpha;
-		DestBlend			= InvSrcAlpha;
+		//AlphaBlendEnable	= true;
+		//SrcBlend			= SrcAlpha;
+		//DestBlend			= InvSrcAlpha;
         VertexShader = compile vs_2_0 VertexShaderFunction();
         PixelShader = compile ps_2_0 PixelShaderFunctionShinyShield();
     }

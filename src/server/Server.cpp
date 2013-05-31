@@ -157,6 +157,7 @@ void Server::initializeGameState() {
 	m_playerMap.clear();
 	m_mothershipMap.clear();
 	m_world.entities.clear();
+	m_world.state = & m_gameState;
 	m_clientReadyMap.clear();
 	addNewClients(m_server.getConnectedClientIDs());
 	
@@ -326,7 +327,6 @@ void Server::loop() {
 		}
 
 		m_server.broadcastGameState(m_gameState);
-
 		endOfTick();
 	}
 
@@ -429,6 +429,12 @@ inline void Server::endOfTick() {
 		m_f_error << "Clock tick violated! " << sleeptime << endl;
 	} else {
 		Sleep((DWORD)sleeptime);
+	}
+	
+	for(int i = 0; i < m_gameState.m_events.size(); i++)
+	{
+		m_gameState.m_size -= m_gameState.m_events[i]->size();
+		m_gameState.m_events.erase(m_gameState.m_events.begin() + i);
 	}
 }
 

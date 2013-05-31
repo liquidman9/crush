@@ -1,25 +1,56 @@
 /*
- * S_Ship.cpp
+ * Collision.cpp
  */
 
 // Project includes
 #include <server/game/Collision.h>
+#include <server/game/SRCollision.h>
+#include <server/game/MSCollision.h>
+#include <server/game/SSCollision.h>
+#include <server/game/SACollision.h>
+#include <server/game/RMCollision.h>
+#include <server/game/TCollision.h>
+#include <server/game/RRCollision.h>
+#include <server/game/PPCollision.h>
+#include <server/game/SPCollision.h>
+#include <server/game/SECollision.h>
 #include <shared/util/SharedUtils.h>
+#include <shared/CollisionGEvent.h>
+
 
 Collision::Collision() {
+	m_type = C,
 	m_a = m_b = NULL;
-	m_closeA = m_closeB = D3DXVECTOR3(0.0, 0.0, 0.0);
+	m_closeA = m_closeB = m_poi = m_collision_normal = D3DXVECTOR3(0.0, 0.0, 0.0);
+	m_elasticity = m_friction = 0.0;
 }
 
-Collision::Collision(ServerEntity * a, ServerEntity * b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB) :
+Collision::Collision(CType type, ServerEntity * a, ServerEntity * b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB, float elasticity, float friction) :
+	m_type(type),
 	m_a(a),
 	m_b(b),
 	m_closeA(closeA),
-	m_closeB(closeB)
-{}
+	m_closeB(closeB),
+	m_elasticity(elasticity),
+	m_friction(friction)
+{
+	// calculate point of impact
+	D3DXVECTOR3 delta_pos = closeA - closeB;
+	D3DXVec3Normalize(&delta_pos, &delta_pos);
+
+	D3DXVECTOR3 poi = (delta_pos * b->m_radius + closeB) + (-delta_pos * a->m_radius + closeA);
+	poi /= 2;
+
+	m_collision_normal = delta_pos;
+	m_poi = poi;
+}
 
 Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB)
 {
+	ServerEntity * one, * two;
+	Collision * c;
+	D3DXVECTOR3 temp;
+
 	if (DEBUG) {
 		if ((a->m_type == SHIP && b->m_type == MOTHERSHIP) || (b->m_type == MOTHERSHIP && a->m_type == SHIP)) {
 			a->print();
@@ -27,27 +58,84 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 			cout << "Closest to A: " << closeA << " , Closest to B: " << closeB << endl;
 		}
 	}
-	switch (a->m_type) {
-	default:
-		Collision * c = new Collision(a, b, closeA, closeB);
 
-		// calculate point of impact
-		D3DXVECTOR3 delta_pos;
+	// Ships & Resources
+	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == SHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == SHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new SRCollision(two, one, closeB, closeA, 0.8, 0.6);
 
-		delta_pos = closeA - closeB;
+		return c;		
+	}
 
-		D3DXVec3Normalize(&(c->m_collision_normal), &delta_pos);
-		c->m_poi = (c->m_collision_normal * c->m_b->m_radius + c->m_closeB) + (-c->m_collision_normal * c->m_a->m_radius + c->m_closeA);
-		c->m_poi /= 2;
+	// Give/Take Resource to Mothership
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == SHIP && (two = a)->m_type == MOTHERSHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new MSCollision(two, one, closeB, closeA, 0.8, 0.6);
+		return c; 
+	}
+
+	// Ship to Ship
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == SHIP) ){
+		c = new SSCollision(one, two, closeA, closeB, 0.8, 0.6);
 		return c;
 	}
 
+	// Asteroid hits Ship
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == ASTEROID) || ((one = b)->m_type == SHIP && (two = a)->m_type == ASTEROID && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new SACollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
+	}
+
+	//Resource and Mothership
+	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == MOTHERSHIP  && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new RMCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
+	}
+
+	// TractorBeam
+	if(((one = a)->m_type == TRACTORBEAM && (two = b)->m_type) || ((one = b)->m_type == TRACTORBEAM && (two = a)->m_type  && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new TCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
+	}
+
+	// Resource
+	if(((one = a)->m_type == RESOURCE) && ((one = b)->m_type == RESOURCE)){
+		c = new RRCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
+	}
+
+	/*
+	// Resource Temp
+	if(((one = a)->m_type == RESOURCE)|| ((one = b)->m_type == RESOURCE)){
+		rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
+	}
+	*/
+
+	// Powerup Temp - until is given some implementation
+	if(((one = a)->m_type == POWERUP && (two = b))|| ((one = b)->m_type == POWERUP && (two = a))){
+		c = new PPCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
+	}
+
+	if(((one = a)->m_type == POWERUP && (two = b)->m_type == SHIP)|| ((one = b)->m_type == POWERUP && (two = a)->m_type == SHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new SPCollision(two, one, closeB, closeA, 0.8, 0.6);
+		return c;
+	}
+
+	//Extractor and Ship
+	if(((one = a)->m_type == EXTRACTOR && (two = b)->m_type == SHIP)|| ((one = b)->m_type == EXTRACTOR && (two = a)->m_type == SHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new SECollision(two, one, closeB, closeA, 0.8, 0.6);
+		return c;
+	}
+	
+	
+	c = new Collision(C, a, b, closeA, closeB, 0.9, 0.6);
+
+	return c;
 }
 
-void Collision::resolve()
+CollisionGEvent * Collision::resolve()
 {
-	float e_coll = 0.8f;
-	float u_fr = 0.6f;
+	//float e_coll = 0.8f;
+	//float u_fr = 0.6f;
 	D3DXVECTOR4 temp;
 	
 	/*
@@ -94,7 +182,7 @@ void Collision::resolve()
 	D3DXVECTOR3 inertBoth = *D3DXVec3Cross(&inertA, &inertA, &r_a) + *D3DXVec3Cross(&inertB, &inertB, &r_b);
 
 	// calculate the impulse
-	float impulse = (-(1 + e_coll) * vN) / (m_a->m_mass_inverse + m_b->m_mass_inverse + D3DXVec3Dot(&inertBoth, &m_collision_normal));
+	float impulse = (-(1 + m_elasticity) * vN) / (m_a->m_mass_inverse + m_b->m_mass_inverse + D3DXVec3Dot(&inertBoth, &m_collision_normal));
 	
 	D3DXVECTOR3 jN = impulse * m_collision_normal;
 
@@ -121,7 +209,7 @@ void Collision::resolve()
 
 		float kt = m_a->m_mass_inverse + m_b->m_mass_inverse + D3DXVec3Dot(&inertBoth, &tangent);
 
-		friction = max(-u_fr * impulse, min(u_fr * impulse, -vt / kt));
+		friction = max(-m_friction * impulse, min(m_friction * impulse, -vt / kt));
 
 		jN += friction * tangent;
 	}
@@ -168,6 +256,5 @@ void Collision::resolve()
 		m_b->applyAngularImpulse(angular_impulse);
 	}
 
-	
-
+	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, impulse, m_type);
 }

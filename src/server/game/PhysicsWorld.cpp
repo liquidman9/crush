@@ -21,16 +21,14 @@ void PhysicsWorld::collision(float delta_time) {
 			Collision * c;
 			if ((c = checkCollision(*entities[i], *entities[j])) != NULL){
 				// Object Specific Logic
-				
-				if(typeResponse(entities[i], entities[j])){
-					c->resolve();
-				}
-			}
+				state->push_back_event((*c).resolve());
+
 			delete(c);
 		}
 
 		checkInBounds(entities[i]);
 
+		}
 	}
 }
 
@@ -171,11 +169,7 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 
 	// Ships & Resources
 	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == SHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == SHIP)){
-		S_Ship * ship = (S_Ship *)two;
-		S_Resource * res = (S_Resource *) one;
-		bool gatheredOrDropped = ship->interact(res);
-		if(gatheredOrDropped) rtn = false;
-		else rtn = true;
+		return true;
 	}
 
 	// Give/Take Resource to Mothership

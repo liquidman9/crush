@@ -3,13 +3,13 @@
 */
 
 // Project includes
-#include <shared/Event.h>
+#include <shared/GEvent.h>
 
-Event::Event(shared::events::Type type) :
+GEvent::GEvent(Type type) :
 	m_type(type)
 { }
 
-unsigned int Event::encode(char *tmp) const {
+unsigned int GEvent::encode(char *tmp) const {
 	send_struct s;
 	s.type = m_type;
 
@@ -19,12 +19,12 @@ unsigned int Event::encode(char *tmp) const {
 	return sizeof(send_struct);
 }
 
-unsigned int Event::decode(const char * tmp) {
+unsigned int GEvent::decode(const char * tmp) {
 	send_struct s;
 	memcpy((char *) &s, tmp, sizeof(send_struct));
 
 	return sizeof(send_struct);
 }
 
-Event::~Event(){
+GEvent::~GEvent(){
 }
