@@ -28,6 +28,7 @@ CollisionGEvent::CollisionGEvent(int id_a, int id_b, D3DXVECTOR3 poi, float impu
 unsigned int CollisionGEvent::encode(char *tmp) const {
 	send_struct s;
 	s.type = m_type;
+	s.ctype = m_ctype;
 	s.id_a = m_idA;
 	s.id_b = m_idB;
 	s.poi = m_poi;
@@ -42,6 +43,7 @@ unsigned int CollisionGEvent::encode(char *tmp) const {
 unsigned int CollisionGEvent::decode(const char * tmp) {
 	send_struct s;
 	memcpy((char *) &s, tmp, sizeof(send_struct));
+	m_ctype = s.ctype;
 	m_idA = s.id_a;
 	m_idB = s.id_b;
 	m_poi = s.poi;
