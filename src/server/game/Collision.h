@@ -18,7 +18,7 @@ public:
 	float m_elasticity, m_friction;
 
 	static Collision * generateCollision(ServerEntity * a, ServerEntity * b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB);
-	CollisionGEvent * resolve();
+	virtual CollisionGEvent * resolve();
 
 	Collision();
 	Collision(CType type, ServerEntity * a, ServerEntity *b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB,  float elasticity, float friction);
