@@ -10,8 +10,6 @@
 #include <shared/CollisionGEvent.h>
 #include <server/game/S_Ship.h>
 
-enum CType : char {C, SR};
-
 class Collision {
 public:
 	CType m_type;
@@ -23,7 +21,7 @@ public:
 	CollisionGEvent * resolve();
 
 	Collision();
-	Collision(CType type, ServerEntity * a, ServerEntity *b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB, float elasticity, float friction);
+	Collision(CType type, ServerEntity * a, ServerEntity *b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB,  float elasticity, float friction);
 };
 
 #endif

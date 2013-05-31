@@ -20,7 +20,7 @@ CollisionGEvent * SRCollision::resolve()
 	bool gatheredOrDropped = ship->interact(res);
 
 	if(gatheredOrDropped)
-		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0);
+		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SR);
 
 	else
 		return Collision::resolve();

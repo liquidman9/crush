@@ -21,8 +21,7 @@ void PhysicsWorld::collision(float delta_time) {
 			Collision * c;
 			if ((c = checkCollision(*entities[i], *entities[j])) != NULL){
 				// Object Specific Logic
-				if(typeResponse(entities[i], entities[j]))
-					state->push_back_event(c->resolve());
+				state->push_back_event((*c).resolve());
 
 			delete(c);
 		}

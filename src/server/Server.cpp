@@ -425,7 +425,12 @@ inline void Server::endOfTick() {
 	} else {
 		Sleep((DWORD)sleeptime);
 	}
-	m_gameState.m_events.clear();
+	
+	for(int i = 0; i < m_gameState.m_events.size(); i++)
+	{
+		m_gameState.m_size -= m_gameState.m_events[i]->size();
+		m_gameState.m_events.erase(m_gameState.m_events.begin() + i);
+	}
 }
 
 GameState<Entity> Server::getGameState() {

@@ -8,6 +8,7 @@
 
 CollisionGEvent::CollisionGEvent() :
 	GEvent(COLLISIONEVENT),
+	m_ctype(C),
 	m_idA(0),
 	m_idB(0),
 	m_poi(D3DXVECTOR3(0.0, 0.0, 0.0)),
@@ -15,12 +16,13 @@ CollisionGEvent::CollisionGEvent() :
 {}
 
 
-CollisionGEvent::CollisionGEvent(int id_a, int id_b, D3DXVECTOR3 poi, float impulse) :
+CollisionGEvent::CollisionGEvent(int id_a, int id_b, D3DXVECTOR3 poi, float impulse, CType ctype) :
 	GEvent(COLLISIONEVENT),
 	m_idA(id_a),
 	m_idB(id_b),
 	m_poi(poi),
-	m_impulse(impulse)
+	m_impulse(impulse),
+	m_ctype(ctype)
 {}
 
 unsigned int CollisionGEvent::encode(char *tmp) const {

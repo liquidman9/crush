@@ -5,6 +5,15 @@
 // Project includes
 #include <server/game/Collision.h>
 #include <server/game/SRCollision.h>
+#include <server/game/MSCollision.h>
+#include <server/game/SSCollision.h>
+#include <server/game/SACollision.h>
+#include <server/game/RMCollision.h>
+#include <server/game/TCollision.h>
+#include <server/game/RRCollision.h>
+#include <server/game/PPCollision.h>
+#include <server/game/SPCollision.h>
+#include <server/game/SECollision.h>
 #include <shared/util/SharedUtils.h>
 #include <shared/CollisionGEvent.h>
 
@@ -12,7 +21,7 @@
 Collision::Collision() {
 	m_type = C,
 	m_a = m_b = NULL;
-	m_closeA = m_closeB = D3DXVECTOR3(0.0, 0.0, 0.0);
+	m_closeA = m_closeB = m_poi = m_collision_normal = D3DXVECTOR3(0.0, 0.0, 0.0);
 	m_elasticity = m_friction = 0.0;
 }
 
@@ -24,21 +33,23 @@ Collision::Collision(CType type, ServerEntity * a, ServerEntity * b, D3DXVECTOR3
 	m_closeB(closeB),
 	m_elasticity(elasticity),
 	m_friction(friction)
-{}
+{
+	// calculate point of impact
+	D3DXVECTOR3 delta_pos = closeA - closeB;
+	D3DXVec3Normalize(&delta_pos, &delta_pos);
+
+	D3DXVECTOR3 poi = (delta_pos * b->m_radius + closeB) + (-delta_pos * a->m_radius + closeA);
+	poi /= 2;
+
+	m_collision_normal = delta_pos;
+	m_poi = poi;
+}
 
 Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DXVECTOR3 closeA, D3DXVECTOR3 closeB)
 {
 	ServerEntity * one, * two;
 	Collision * c;
 	D3DXVECTOR3 temp;
-
-	// calculate point of impact
-	D3DXVECTOR3 delta_pos;
-	delta_pos = closeA - closeB;
-	D3DXVec3Normalize(&delta_pos, &delta_pos);
-
-	D3DXVECTOR3 poi = (delta_pos * b->m_radius + closeB) + (-delta_pos * a->m_radius + closeA);
-	poi /= 2;
 
 	if (DEBUG) {
 		if ((a->m_type == SHIP && b->m_type == MOTHERSHIP) || (b->m_type == MOTHERSHIP && a->m_type == SHIP)) {
@@ -47,90 +58,76 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 			cout << "Closest to A: " << closeA << " , Closest to B: " << closeB << endl;
 		}
 	}
+
 	// Ships & Resources
-	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == SHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == SHIP && (temp = closeA) && (closeA = closeB) && (closeB = temp) && (delta_pos = -delta_pos))){
+	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == SHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == SHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
 		c = new SRCollision(two, one, closeB, closeA, 0.8, 0.6);
-		c->m_collision_normal = delta_pos;
-		c->m_poi = poi;
 
 		return c;		
 	}
 
-	/*
 	// Give/Take Resource to Mothership
-	if(((one = a)->m_type == SHIP && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == SHIP && (two = a)->m_type == MOTHERSHIP)){
-		S_Mothership * mothership = (S_Mothership *)two;
-		S_Ship * ship = (S_Ship *) one;
-		mothership->interact(ship);
-		rtn = true; 
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == SHIP && (two = a)->m_type == MOTHERSHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new MSCollision(two, one, closeB, closeA, 0.8, 0.6);
+		return c; 
 	}
 
 	// Ship to Ship
 	if(((one = a)->m_type == SHIP && (two = b)->m_type == SHIP) ){
-		S_Ship * ship1 = (S_Ship *) one;
-		S_Ship * ship2 = (S_Ship *) two;
-		if(ship1->interact(ship2)) rtn = true;
-		else rtn = false; 
+		c = new SSCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
 	}
 
 	// Asteroid hits Ship
-	if(((one = a)->m_type == SHIP && (two = b)->m_type == ASTEROID) || ((one = b)->m_type == SHIP && (two = a)->m_type == ASTEROID)){
-		S_Asteroid * asteroid = (S_Asteroid *)two;
-		S_Ship * ship = (S_Ship *) one;
-		return ship->interact(asteroid);
-		//rtn = true; 
+	if(((one = a)->m_type == SHIP && (two = b)->m_type == ASTEROID) || ((one = b)->m_type == SHIP && (two = a)->m_type == ASTEROID && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new SACollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
 	}
 
 	//Resource and Mothership
-	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == MOTHERSHIP)){
-		rtn = false;  // change if possible to push a resource into the mothership with the tractorbeam
+	if(((one = a)->m_type == RESOURCE && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == RESOURCE && (two = a)->m_type == MOTHERSHIP  && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new RMCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
 	}
 
 	// TractorBeam
-	if(((one = a)->m_type == TRACTORBEAM && (two = b)->m_type) || ((one = b)->m_type == TRACTORBEAM && (two = a)->m_type)){
-		S_TractorBeam * beam = (S_TractorBeam *)one;
-		ServerEntity * entity = two;
-
-		beam->interact(entity); //lock on check 
-		rtn = false; // could give them the immovable tag 
+	if(((one = a)->m_type == TRACTORBEAM && (two = b)->m_type) || ((one = b)->m_type == TRACTORBEAM && (two = a)->m_type  && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new TCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
 	}
 
 	// Resource
 	if(((one = a)->m_type == RESOURCE) && ((one = b)->m_type == RESOURCE)){
-		S_Resource * res1 = (S_Resource *)one;
-		S_Resource * res2 = (S_Resource *)two;
-
-		if(res1->m_carrier != NULL && res2->m_carrier != NULL) rtn = true; 
-		else rtn = false; // resources can be placed on top of it each other when on the mothership
-		// or could give them the immovable tag (relative to their carrier) when on the mothership and while being held
+		c = new RRCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
 	}
 
+	/*
 	// Resource Temp
 	if(((one = a)->m_type == RESOURCE)|| ((one = b)->m_type == RESOURCE)){
 		rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
 	}
+	*/
 
 	// Powerup Temp - until is given some implementation
-	if(((one = a)->m_type == POWERUP)|| ((one = b)->m_type == POWERUP)){
-		rtn = false;
+	if(((one = a)->m_type == POWERUP && (two = b))|| ((one = b)->m_type == POWERUP && (two = a))){
+		c = new PPCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return c;
 	}
 
-	if(((one = a)->m_type == POWERUP && (two = b)->m_type == SHIP)|| ((one = b)->m_type == POWERUP && (two = a)->m_type == SHIP)){
-		S_Powerup * power = (S_Powerup *)one;
-		S_Ship * ship = (S_Ship *)two;
-		ship->interact(power);
-		rtn = false;
+	if(((one = a)->m_type == POWERUP && (two = b)->m_type == SHIP)|| ((one = b)->m_type == POWERUP && (two = a)->m_type == SHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new SPCollision(two, one, closeB, closeA, 0.8, 0.6);
+		return c;
 	}
 
 	//Extractor and Ship
-	if(((one = a)->m_type == EXTRACTOR && (two = b)->m_type == SHIP)|| ((one = b)->m_type == EXTRACTOR && (two = a)->m_type == SHIP)){
-		//rtn = false; // temporarily disabling reaction between ship and extractor
+	if(((one = a)->m_type == EXTRACTOR && (two = b)->m_type == SHIP)|| ((one = b)->m_type == EXTRACTOR && (two = a)->m_type == SHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+		c = new SECollision(two, one, closeB, closeA, 0.8, 0.6);
+		return c;
 	}
-	*/
+	
 	
 	c = new Collision(C, a, b, closeA, closeB, 0.9, 0.6);
-	c->m_collision_normal = delta_pos;
-	c->m_poi = poi;
 
 	return c;
 }
@@ -240,5 +237,5 @@ CollisionGEvent * Collision::resolve()
 	if(!(m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield()))
 		m_b->applyImpulse(-jN, m_poi);
 
-	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, impulse);
+	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, impulse, m_type);
 }
