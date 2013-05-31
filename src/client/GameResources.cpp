@@ -1552,6 +1552,8 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
 	//double curTime = timeGetTime();
 	double curTime = newGameState.getServerTime();
+	if (curTime < 0) return;
+
 	static double s_lastTime = curTime; // first time initialization, static otherwise
 	float elapsedTime = (float)((curTime - s_lastTime) * 0.001);
 	s_lastTime = curTime;

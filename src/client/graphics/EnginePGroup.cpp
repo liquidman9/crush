@@ -56,9 +56,9 @@ EnginePGroup::~EnginePGroup() {
 void EnginePGroup::updateGroup() {
 	if (this->shipEnt) {
 		if (shipEnt->m_hasPowerup && shipEnt->m_powerupType == SPEEDUP && shipEnt->m_powerupStateType == CONSUMED) {
-			m_size = defaultSize*2.0;
+			m_size = defaultSize*2.0f;
 			//m_speed = defaultSpeed*2.0;
-			m_ttl = defaultTTL*2.0;
+			m_ttl = defaultTTL*2.0f;
 			m_ptexParticle = m_ptexParticleSpeedup;
 			m_color_r = speedupColor_r;
 			m_color_g = speedupColor_g;
