@@ -30,25 +30,39 @@ class GameState
 {
 public:
 
-	GameState(void):m_entities(){
+	GameState(void):m_entities() {
+		m_event_size = 0;
 		m_size = gsMinSize();
+		m_entities_size = 0;
 		memset(&m_meta,-1,sizeof(m_meta));
 	};
 
 	GameState(GameState const & g): m_entities(g.m_entities), m_meta(g.m_meta) {
+		m_event_size = g.m_event_size;
+		m_events = g.m_events;
+		m_entities_size = g.m_entities_size;
 		m_size = g.m_size;	
 	};
+
+	void assignAppendingEvents (GameState const &g) {
+		m_meta = g.m_meta;
+		m_size = g.m_size + this->m_event_size;
+		m_entities_size = g.m_entities_size;
+		m_events.insert(m_events.end(), g.m_events.begin(), g.m_events.end());
+		m_entities = g.m_entities;
+	}
 
 	void push_back(E *e) {
 		if (getEntityById(e->m_id) == NULL) {
 			m_size += e->size();
+			m_entities_size += e->size();
 			m_entities.push_back(shared_ptr<E>(e));
 		}
 	};
 
-	void push_back_event(GEvent * e)
-	{
+	void push_back_event(GEvent * e) {
 		m_size += e->size();
+		m_event_size += e->size();
 		m_events.push_back(shared_ptr<GEvent>(e));
 	};
 
@@ -146,13 +160,25 @@ public:
 		return m_meta.time == 0;
 	}
 
-	void setGameInProgress() {
-		m_meta.gameInProgress = true;
+	void clearEvents() {
+		m_size -= m_event_size;
+		m_event_size = 0;
+		m_events.clear();
 	}
 
-	void setGameOver() {
-		m_meta.gameInProgress = false;
+	void clearEntities() {
+		m_size -= m_entities_size;
+		m_entities_size = 0;
+		m_entities.clear();
 	}
+
+	//void setGameInProgress() {
+	//	m_meta.gameInProgress = true;
+	//}
+
+	//void setGameOver() {
+	//	m_meta.gameInProgress = false;
+	//}
 
 	void clear() {
 		m_entities.clear();
@@ -277,6 +303,8 @@ private:
 	} m_meta;
 
 	unsigned int m_size;
+	unsigned int m_event_size;
+	unsigned int m_entities_size;
 	//static string m_serverMessages[3];
 
 	vector<shared_ptr<E> > m_entities;
