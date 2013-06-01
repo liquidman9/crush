@@ -99,7 +99,9 @@ public:
 	static std::wstring powerupTexture2Filepath;
 	static std::wstring powerupTexture3Filepath;
 
-	static std::wstring consumedPowerupTextureFilepath;
+	static std::wstring consumedPowerupTexture1Filepath;
+	static std::wstring consumedPowerupTexture2Filepath;
+	static std::wstring consumedPowerupTexture3Filepath;
 
 	static std::wstring extractorEIDTextureOnScreenFilepath;
 	static std::wstring extractorEIDTextureOffScreenFilepath;

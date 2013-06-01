@@ -91,7 +91,7 @@ public:
 	static LPDIRECT3DTEXTURE9 resourceEIDTexture;
 	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
 
-	static LPDIRECT3DTEXTURE9 powerupConsumedTexture;
+	static LPDIRECT3DTEXTURE9 powerupConsumedTexture[3];
 	static LPDIRECT3DTEXTURE9 powerupTextureArray[3];
 
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
