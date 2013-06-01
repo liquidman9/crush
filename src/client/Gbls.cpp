@@ -23,6 +23,8 @@ LPDIRECT3DTEXTURE9 Gbls::mothershipTexture1 = NULL;
 LPDIRECT3DTEXTURE9 Gbls::mothershipTexture2 = NULL; 
 LPDIRECT3DTEXTURE9 Gbls::mothershipTexture3 = NULL; 
 LPDIRECT3DTEXTURE9 Gbls::mothershipTexture4 = NULL; 
+LPDIRECT3DTEXTURE9 Gbls::scoreScreenTexture[4] = {NULL, NULL, NULL, NULL};
+LPDIRECT3DTEXTURE9 Gbls::pScoreScrenAlphaTexture = NULL;
 
 // Still hardcoded:
 
@@ -56,6 +58,11 @@ std::wstring Gbls::mothershipTexFilepath1 = L"mothership_skin_001.dds";
 std::wstring Gbls::mothershipTexFilepath2 = L"mothership_skin_002.dds";
 std::wstring Gbls::mothershipTexFilepath3 = L"mothership_skin_003.dds";
 std::wstring Gbls::mothershipTexFilepath4 = L"mothership_skin_004.dds";
+std::wstring Gbls::scoreScreenTexFilepath1 = L"scoreboard_001.png";
+std::wstring Gbls::scoreScreenTexFilepath2 = L"scoreboard_002.png";
+std::wstring Gbls::scoreScreenTexFilepath3 = L"scoreboard_003.png";
+std::wstring Gbls::scoreScreenTexFilepath4 = L"scoreboard_004.png";
+std::wstring Gbls::pScoreScrenAlphaTexFilepath = L"scoreboard_alpha.png";
 
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;

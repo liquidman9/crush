@@ -52,6 +52,8 @@ C_Ship* GameResources::playerShip = NULL;
 C_Mothership* GameResources::playerMothership = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
+bool GameResources::gameOver = FALSE;
+scoreList_t GameResources::winnerList(4, std::pair<UINT, int>(0,0));
 
 static float shipColors[4][4] =
 {
@@ -105,7 +107,9 @@ ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
 BurstPGroup * GameResources::burstPowerupPGroup = NULL;
 LPDIRECT3DTEXTURE9 GameResources::pGlowmapTexture = NULL;
-LPDIRECT3DSURFACE9 GameResources::pGlowmapSurface = NULL;
+LPDIRECT3DSURFACE9 GameResources::pGlowmapSurface = NULL; 
+LPDIRECT3DTEXTURE9 GameResources::pScoreScreenTexture = NULL;
+LPDIRECT3DSURFACE9 GameResources::pScoreScreenSurface = NULL;
 LPDIRECT3DTEXTURE9 GameResources::pTmpBlurTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::pDefaultRenderTexture = NULL;
 LPDIRECT3DSURFACE9 GameResources::pDefaultRenderSurface = NULL;
@@ -139,14 +143,16 @@ ID3DXEffect * GameResources::pEffectBlur;
 bool GameResources::shieldVisToggle = FALSE;
 bool GameResources::speedupVisToggle = FALSE;
 
-#define TEXTOSCREENFVF (D3DFVF_XYZRHW | D3DFVF_TEX1)
-struct CUSTOMVERTEX {FLOAT X, Y, Z, RHW, U, V;};
-static LPDIRECT3DVERTEXBUFFER9 fsQuadVBuffer = NULL;
-static LPDIRECT3DVERTEXBUFFER9 bloomQuadVBuffer = NULL;
-static CUSTOMVERTEX fsQuadVerts[4];
+//static LPDIRECT3DVERTEXBUFFER9 fsQuadVBuffer = NULL;
+//static LPDIRECT3DVERTEXBUFFER9 bloomQuadVBuffer = NULL;
+//initialize quads for screen without proper corner values
+static CUSTOMQUAD fsQuad;
+static CUSTOMQUAD bloomQuad;
+static CUSTOMQUAD scoreScreenQuad[4];
+
 HRESULT GameResources::initState() {
 	HRESULT hres;
-	
+
 	curCam = &playerCam;
 	debugCamOn = false;
 	
@@ -292,52 +298,141 @@ HRESULT GameResources::reInitState() {
 	float top = -0.5;
 	float right = ((float) Gbls::thePresentParams.BackBufferWidth) - 0.5f;
 	float bottom = ((float) Gbls::thePresentParams.BackBufferHeight) - 0.5f;
-    CUSTOMVERTEX vertices1[] =
+
+	
+//static CUSTOMQUAD bloomQuad    = fsQuad;
+//static CUSTOMQUAD scoreScreenQuad1 = fsQuad;
+//static CUSTOMQUAD scoreScreenQuad2 = fsQuad;
+//static CUSTOMQUAD scoreScreenQuad3 = fsQuad;
+//static CUSTOMQUAD scoreScreenQuad4 = fsQuad;
+
+	UINT screenWidth = Gbls::thePresentParams.BackBufferWidth;
+	UINT screenHeight = Gbls::thePresentParams.BackBufferHeight;
+
+	CUSTOMQUAD tmpQuad_fsQuad =
     {
 		{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
 		{ right, bottom, 0.5f, 1.0f, 1.0f, 1.0f },
 		{ left,  top,    0.5f, 1.0f, 0.0f, 0.0f },
 		{ left,  bottom, 0.5f, 1.0f, 0.0f, 1.0f },
     };
-	// create a vertex buffer interface called v_buffer
-	if (!fsQuadVBuffer) {
-		Gbls::pd3dDevice->CreateVertexBuffer(4*sizeof(CUSTOMVERTEX),
-								   0,
-								   TEXTOSCREENFVF,
-								   D3DPOOL_MANAGED,
-								   &fsQuadVBuffer,
-								   NULL);
+
+	float bRight = ((float) screenWidth) / 2.0f - 0.5f;
+	float bBottom = ((float) screenHeight) / 2.0f - 0.5f;
+	CUSTOMQUAD tmpQuad_bloomQuad =
+    {
+		{ bRight, top,    0.5f, 1.0f, 1.0f, 0.0f },
+		{ bRight, bBottom, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,  top,    0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,  bBottom, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+	float screenAR = ((float)screenWidth)/screenHeight;
+	float scoreScreenAR = 16.0f/9.0f;
+	float scoreScreenWidth, scoreScreenHeight;
+	if ( screenAR > scoreScreenAR) { //screen wider than scoreScreen
+		scoreScreenWidth = screenWidth*scoreScreenAR/screenAR;
+		scoreScreenHeight = (float) screenHeight;
+		float spacing = (screenWidth - scoreScreenWidth) / 2.0f;
+		left = left + spacing;
+		right = right - spacing;
+	} else { //screen narrower than scoreScreen
+		scoreScreenHeight = screenHeight*(1.0f/(scoreScreenAR/screenAR));
+		scoreScreenWidth = (float) screenWidth;
+		float spacing = (screenHeight - scoreScreenHeight) / 2.0f;
+		top = top + spacing;
+		bottom = bottom - spacing;
 	}
-    VOID* pVoid;    // a void pointer
-    // lock v_buffer and load the vertices into it
-    fsQuadVBuffer->Lock(0, 0, (void**)&pVoid, 0);
-    std::memcpy(pVoid, vertices1, sizeof(vertices1));
-    fsQuadVBuffer->Unlock();
-	
-	
-	right = ((float) Gbls::thePresentParams.BackBufferWidth) / 2.0f - 0.5f;
-	bottom = ((float) Gbls::thePresentParams.BackBufferHeight) / 2.0f - 0.5f;
-	CUSTOMVERTEX vertices2[] =
+	float hs = (bottom - top) / 4.0f; // height spacing (height of a single score panel in pixels)
+	CUSTOMQUAD tmpQuad_scoreScreenQuad1 =
     {
 		{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, bottom, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ right, top + hs, 0.5f, 1.0f, 1.0f, 1.0f },
 		{ left,  top,    0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  bottom, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ left,  top + hs, 0.5f, 1.0f, 0.0f, 1.0f },
     };
-	// create a vertex buffer interface called v_buffer
-	if (!bloomQuadVBuffer) {
-		Gbls::pd3dDevice->CreateVertexBuffer(4*sizeof(CUSTOMVERTEX),
-								   0,
-								   TEXTOSCREENFVF,
-								   D3DPOOL_MANAGED,
-								   &bloomQuadVBuffer,
-								   NULL);
+	CUSTOMQUAD tmpQuad_scoreScreenQuad2 =
+    {
+		{ right, top + hs,      0.5f, 1.0f, 1.0f, 0.0f },
+		{ right, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,  top + hs,      0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,  top + hs*2.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+	CUSTOMQUAD tmpQuad_scoreScreenQuad3 =
+    {
+		{ right, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ right, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,  top + hs*2.0f, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,  top + hs*3.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+	CUSTOMQUAD tmpQuad_scoreScreenQuad4 =
+    {
+		{ right, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ right, top + hs*4.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,  top + hs*3.0f, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,  top + hs*4.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+	fsQuad = tmpQuad_fsQuad;
+	scoreScreenQuad[0] = tmpQuad_scoreScreenQuad1;
+	scoreScreenQuad[1] = tmpQuad_scoreScreenQuad2;
+	scoreScreenQuad[2] = tmpQuad_scoreScreenQuad3;
+	scoreScreenQuad[3] = tmpQuad_scoreScreenQuad4;
+	bloomQuad = tmpQuad_bloomQuad;
+
+	//// create a vertex buffer interface called v_buffer
+	//if (!fsQuadVBuffer) {
+	//	Gbls::pd3dDevice->CreateVertexBuffer(4*sizeof(CUSTOMVERTEX),
+	//							   0,
+	//							   TEXTOSCREENFVF,
+	//							   D3DPOOL_MANAGED,
+	//							   &fsQuadVBuffer,
+	//							   NULL);
+	//}
+ //   VOID* pVoid;    // a void pointer
+ //   // lock v_buffer and load the vertices into it
+ //   fsQuadVBuffer->Lock(0, 0, (void**)&pVoid, 0);
+ //   std::memcpy(pVoid, vertices1, sizeof(vertices1));
+ //   fsQuadVBuffer->Unlock();
+	//
+	//
+	//right = ((float) Gbls::thePresentParams.BackBufferWidth) / 2.0f - 0.5f;
+	//bottom = ((float) Gbls::thePresentParams.BackBufferHeight) / 2.0f - 0.5f;
+	//CUSTOMVERTEX vertices2[] =
+ //   {
+	//	{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
+	//	{ right, bottom, 0.5f, 1.0f, 1.0f, 1.0f },
+	//	{ left,  top,    0.5f, 1.0f, 0.0f, 0.0f },
+	//	{ left,  bottom, 0.5f, 1.0f, 0.0f, 1.0f },
+ //   };
+	//// create a vertex buffer interface called v_buffer
+	//if (!bloomQuadVBuffer) {
+	//	Gbls::pd3dDevice->CreateVertexBuffer(4*sizeof(CUSTOMVERTEX),
+	//							   0,
+	//							   TEXTOSCREENFVF,
+	//							   D3DPOOL_MANAGED,
+	//							   &bloomQuadVBuffer,
+	//							   NULL);
+	//}
+ //   // lock v_buffer and load the vertices into it
+ //   bloomQuadVBuffer->Lock(0, 0, (void**)&pVoid, 0);
+ //   std::memcpy(pVoid, vertices2, sizeof(vertices2));
+ //   bloomQuadVBuffer->Unlock();
+	//
+
+	// Create score screen texture
+	if (pScoreScreenTexture) {
+		pScoreScreenTexture->Release();
+		pScoreScreenTexture = NULL;
 	}
-    // lock v_buffer and load the vertices into it
-    bloomQuadVBuffer->Lock(0, 0, (void**)&pVoid, 0);
-    std::memcpy(pVoid, vertices2, sizeof(vertices2));
-    bloomQuadVBuffer->Unlock();
-	
+	Gbls::pd3dDevice->CreateTexture(
+		(UINT) scoreScreenWidth,
+		(UINT) scoreScreenHeight,
+        1,
+        D3DUSAGE_RENDERTARGET,
+        D3DFMT_R5G6B5,
+        D3DPOOL_DEFAULT,
+        &pScoreScreenTexture,
+        NULL);
+
 	// Create glowmap texture
 	if (pGlowmapTexture) {
 		pGlowmapTexture->Release();
@@ -577,6 +672,29 @@ HRESULT GameResources::initAdditionalTextures()
 		return hres;
 	}
 
+	// load score screen sprites
+	hres = loadTextureWithFormat(&Gbls::scoreScreenTexture[0], Gbls::scoreScreenTexFilepath1, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::scoreScreenTexture[1], Gbls::scoreScreenTexFilepath2, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::scoreScreenTexture[2], Gbls::scoreScreenTexFilepath3, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::scoreScreenTexture[3], Gbls::scoreScreenTexFilepath4, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTextureWithFormat(&Gbls::pScoreScrenAlphaTexture, Gbls::pScoreScrenAlphaTexFilepath, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	
+
 	// load arrow spirte
 
 	hres = loadTexture(&shipEIDTexture_resource, Gbls::shipEIDTextureFilepath_resource);
@@ -658,6 +776,10 @@ HRESULT GameResources::initAdditionalTextures()
 }
 
 void GameResources::releaseAdditionalTextures() {
+	if (pScoreScreenTexture) {
+		pScoreScreenTexture->Release();
+		pScoreScreenTexture = NULL;
+	}
 	if (pGlowmapTexture) { //actually init in reInitState
 		pGlowmapTexture->Release();
 		pGlowmapTexture = NULL;
@@ -1164,8 +1286,9 @@ void GameResources::blurTexture(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2
 	for (UINT iPass = 0; iPass < cPasses; iPass++) {
 		pEffectBlur->BeginPass(iPass);
 		Gbls::pd3dDevice->SetFVF(TEXTOSCREENFVF);
-		Gbls::pd3dDevice->SetStreamSource(0, bloomQuadVBuffer, 0, sizeof(CUSTOMVERTEX));
-		Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		//Gbls::pd3dDevice->SetStreamSource(0, bloomQuadVBuffer, 0, sizeof(CUSTOMVERTEX));
+		//Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		Gbls::pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, (void *) &bloomQuad, sizeof(CUSTOMVERTEX));
 		pEffectBlur->EndPass();
 	}
 	pEffectBlur->End();
@@ -1190,8 +1313,9 @@ void GameResources::blurTexture(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2
 	for (UINT iPass = 0; iPass < cPasses; iPass++) {
 		pEffectBlur->BeginPass(iPass);
 		Gbls::pd3dDevice->SetFVF(TEXTOSCREENFVF);
-		Gbls::pd3dDevice->SetStreamSource(0, bloomQuadVBuffer, 0, sizeof(CUSTOMVERTEX));
-		Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		//Gbls::pd3dDevice->SetStreamSource(0, bloomQuadVBuffer, 0, sizeof(CUSTOMVERTEX));
+		//Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		Gbls::pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, (void *) &bloomQuad, sizeof(CUSTOMVERTEX));
 		pEffectBlur->EndPass();
 	}
 	pEffectBlur->End();
@@ -1204,7 +1328,12 @@ void GameResources::blurTexture(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2
 
 }
 
-void GameResources::blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2, LPDIRECT3DVERTEXBUFFER9 quadVBuffer) {
+void GameResources::blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2, CUSTOMQUAD * pQuad, bool copyAlpha) {
+	if (copyAlpha) { // copy color from tex1 and alpha channel from tex2
+		pEffectBlend->SetTechnique("CopyAlpha");
+	} else { // blend colors and alphas from tex1 & tex2 additively
+		pEffectBlend->SetTechnique("AdditiveBlend");
+	}
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
    	HRESULT hResult = Gbls::pd3dDevice->BeginScene();
@@ -1223,8 +1352,9 @@ void GameResources::blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTU
 	for (UINT iPass = 0; iPass < cPasses; iPass++) {
 		pEffectBlend->BeginPass(iPass);
 		Gbls::pd3dDevice->SetFVF(TEXTOSCREENFVF);
-		Gbls::pd3dDevice->SetStreamSource(0, quadVBuffer, 0, sizeof(CUSTOMVERTEX));
-		Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		//Gbls::pd3dDevice->SetStreamSource(0, quadVBuffer, 0, sizeof(CUSTOMVERTEX));
+		//Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		Gbls::pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, pQuad, sizeof(CUSTOMVERTEX));
 		pEffectBlend->EndPass();
 	}
 	pEffectBlend->End();
@@ -1235,7 +1365,7 @@ void GameResources::blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTU
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 }
 
-void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUFFER9 quadVBuffer) {
+void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, CUSTOMQUAD * pQuad /*LPDIRECT3DVERTEXBUFFER9 quadVBuffer*/) {
 
 	//Gbls::pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
@@ -1255,8 +1385,9 @@ void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUF
 	for (UINT iPass = 0; iPass < cPasses; iPass++) {
 		pEffectTexToScreen->BeginPass(iPass);
 		Gbls::pd3dDevice->SetFVF(TEXTOSCREENFVF);
-		Gbls::pd3dDevice->SetStreamSource(0, quadVBuffer, 0, sizeof(CUSTOMVERTEX));
-		Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		//Gbls::pd3dDevice->SetStreamSource(0, quadVBuffer, 0, sizeof(CUSTOMVERTEX));
+		//Gbls::pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		Gbls::pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, pQuad, sizeof(CUSTOMVERTEX));
 		pEffectTexToScreen->EndPass();
 	}
 	pEffectTexToScreen->End();
@@ -1287,6 +1418,8 @@ void GameResources::drawAll()
 	Gbls::pd3dDevice->GetRenderTarget(0,&pBackBuffer);
 	pDefaultRenderTexture->GetSurfaceLevel(0,&pDefaultRenderSurface);
 	pGlowmapTexture->GetSurfaceLevel(0,&pGlowmapSurface);
+	pScoreScreenTexture->GetSurfaceLevel(0,&pScoreScreenSurface);
+	
 	//pDefaultRenderTexture->Release();
 
 	
@@ -1365,24 +1498,40 @@ void GameResources::drawAll()
 	Gbls::pd3dDevice->EndScene();
 
 	Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
-	blendTexesToSurface(pDefaultRenderTexture, pGlowmapTexture, fsQuadVBuffer);
-	//drawTexToSurface(pDefaultRenderTexture);
-	//drawTexToSurface(pGlowmapTexture);
-
-	Gbls::pd3dDevice->BeginScene();
-
-	// Render entity indicators
-	drawAllEID();
-
-	// Render static hud elements
-	drawStaticHudElements();
+	blendTexesToSurface(pDefaultRenderTexture, pGlowmapTexture, &fsQuad, false);
 	
-	Gbls::pd3dDevice->EndScene();
+	if (gameOver) { // draw winner screen
+		Gbls::pd3dDevice->SetRenderTarget(0,pScoreScreenSurface); // set render target back to back buf
+		for (UINT i = 0; i < 4; i++) {
+			drawTexToSurface(Gbls::scoreScreenTexture[i], &scoreScreenQuad[winnerList[i].first]);
+		}
+		Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		blendTexesToSurface(pScoreScreenTexture, Gbls::pScoreScrenAlphaTexture, &fsQuad, true);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	}
 
+	else {
+		Gbls::pd3dDevice->BeginScene();
+
+		// Render entity indicators
+		drawAllEID();
+
+		// Render static hud elements
+		drawStaticHudElements();
+	
+		Gbls::pd3dDevice->EndScene();
+	}
 
 	if (pGlowmapSurface) {
 		pGlowmapSurface->Release();
 		pGlowmapSurface = NULL;
+	}
+	if (pScoreScreenSurface) {
+		pScoreScreenSurface->Release();
+		pScoreScreenSurface = NULL;
 	}
 
 	if (pDefaultRenderSurface) {
@@ -1550,6 +1699,10 @@ void GameResources::updateDebugCamera() {
 	debugCam.updateView();
 }
 
+static bool score_t_comp(pair<unsigned int, int> i, pair<unsigned int, int> j) {
+	return (i.second < j.second);
+}
+
 void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
 	//double curTime = timeGetTime();
@@ -1592,6 +1745,14 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 			}
 			entityMap[id]->updateWorldMat();
 		}
+		if(newGameState.isGameOver() && !gameOver) {
+		gameOver = TRUE;
+		for (int i = 0; i < 4; i++) {
+			winnerList[i].first = i;
+			winnerList[i].second = playerScore[i];
+		}
+		sort(winnerList.begin(), winnerList.end(), score_t_comp);
+	}
 	}
 
 	//used for individual deletes if we ever implement that
@@ -1622,6 +1783,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 }
 
 void GameResources::resetGameState() {
+	gameOver = FALSE;
 	playerShip = NULL;
 	playerMothership = NULL;
 	shipList.clear();

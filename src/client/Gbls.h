@@ -68,6 +68,11 @@ public:
 	static std::wstring mothershipTexFilepath2;
 	static std::wstring mothershipTexFilepath3;
 	static std::wstring mothershipTexFilepath4;
+	static std::wstring scoreScreenTexFilepath1;
+	static std::wstring scoreScreenTexFilepath2;
+	static std::wstring scoreScreenTexFilepath3;
+	static std::wstring scoreScreenTexFilepath4;
+	static std::wstring pScoreScrenAlphaTexFilepath;
 	
 	static LPDIRECT3DTEXTURE9 shipTexture1; 
 	static LPDIRECT3DTEXTURE9 shipTexture2; 
@@ -77,6 +82,8 @@ public:
 	static LPDIRECT3DTEXTURE9 mothershipTexture2; 
 	static LPDIRECT3DTEXTURE9 mothershipTexture3; 
 	static LPDIRECT3DTEXTURE9 mothershipTexture4;
+	static LPDIRECT3DTEXTURE9 scoreScreenTexture[4];
+	static LPDIRECT3DTEXTURE9 pScoreScrenAlphaTexture;
 
 	static std::wstring skyboxTextureFilepath_Front;
 	static std::wstring skyboxTextureFilepath_Back;

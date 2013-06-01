@@ -16,22 +16,35 @@ sampler2D textureSampler2 = sampler_state {
     AddressV = Clamp;
 };
 
-float4 PixelShaderFunction(float2 textureCoordinate : TEXCOORD0) : COLOR0
+float4 AdditiveBlendPS(float2 textureCoordinate : TEXCOORD0) : COLOR0
 {
     float4 textureColor1 = tex2D(textureSampler1, textureCoordinate);
     float4 textureColor2 = tex2D(textureSampler2, textureCoordinate);
     textureColor1 = saturate(textureColor1 + textureColor2);
-    // textureColor1.r = textureColor1.r + textureColor2.r;
-    // textureColor1.r = textureColor1.g + textureColor2.g;
-    // textureColor1.r = textureColor1.b + textureColor2.b;
     textureColor1.a = 1;
     return textureColor1;
 }
 
-technique Default
+float4 CopyAlphaPS(float2 textureCoordinate : TEXCOORD0) : COLOR0
+{
+    float4 textureColor1 = tex2D(textureSampler1, textureCoordinate);
+    float4 textureColor2 = tex2D(textureSampler2, textureCoordinate);
+    textureColor1.a = textureColor2.a;
+    return textureColor1;
+}
+
+technique AdditiveBlend
 {
     pass Pass1
     {
-        PixelShader = compile ps_2_0 PixelShaderFunction();
+        PixelShader = compile ps_2_0 AdditiveBlendPS();
+    }
+}
+
+technique CopyAlpha
+{
+    pass Pass1
+    {
+        PixelShader = compile ps_2_0 CopyAlphaPS();
     }
 }
