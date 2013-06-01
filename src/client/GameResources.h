@@ -34,6 +34,11 @@
 #include <client/graphics/BurstPGroup.h>
 #include <client/SoundManager.h>
 
+
+#define TEXTOSCREENFVF (D3DFVF_XYZRHW | D3DFVF_TEX1)
+struct CUSTOMVERTEX {FLOAT X, Y, Z, RHW, U, V;};
+struct CUSTOMQUAD {CUSTOMVERTEX topRight, bottomRight, topLeft, bottomLeft;};
+
 class GameResources {
 public:
 
@@ -71,6 +76,8 @@ public:
 	static int playerNum;
 	static LPD3DXSPRITE pd3dSprite;
 	static LPD3DXFONT GameResources::pd3dFont;
+	static bool gameOver;
+	static scoreList_t winnerList;
 	
 	//ship indicators
 	static LPDIRECT3DTEXTURE9 shipEIDTexture_resource;
@@ -117,6 +124,8 @@ public:
 	static LPD3DXMESH shieldMesh;
 	static LPDIRECT3DTEXTURE9 pGlowmapTexture;
 	static LPDIRECT3DSURFACE9 pGlowmapSurface;
+	static LPDIRECT3DTEXTURE9 pScoreScreenTexture;
+	static LPDIRECT3DSURFACE9 pScoreScreenSurface;
 	static LPDIRECT3DTEXTURE9 pTmpBlurTexture;
 	static LPDIRECT3DTEXTURE9 pDefaultRenderTexture;
 	static LPDIRECT3DSURFACE9 pDefaultRenderSurface;
@@ -174,8 +183,8 @@ public:
 	static void createGlowmap();
 	static void DrawBGSun();
 	//static void drawTexToScreen(LPDIRECT3DSURFACE9 surface, UINT surfaceHeight, UINT surfaceWidth);
-	static void drawTexToSurface(LPDIRECT3DTEXTURE9 tex, LPDIRECT3DVERTEXBUFFER9 quadVBuffer);
-	static void blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2, LPDIRECT3DVERTEXBUFFER9 quadVBuffer);
+	static void drawTexToSurface(LPDIRECT3DTEXTURE9 tex, CUSTOMQUAD * quad /*LPDIRECT3DVERTEXBUFFER9 quadVBuffer*/);
+	static void blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2, CUSTOMQUAD * quad, bool copyAlpha);
 	static void blurTexture(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2);
 	static void drawModel(C_Entity * cEnt);
 	static void drawAllModels();

@@ -212,7 +212,6 @@ void S_Ship::dropResource(long time) {
 
 void S_Ship::disableTractorBeam() {
 	m_tractorBeam->disable();
-	m_heldBy = NULL;
 }
 
 
@@ -232,9 +231,11 @@ void S_Ship::updateDefensiveOffensiveCounter() {
 			m_presses.erase(m_presses.begin() + i);
 	}
 	
-	if(m_heldBy != NULL) {
+	if(m_heldBy.size() > 0) {
 		if(m_presses.size() >= 15) { 
-			((S_Ship *)m_heldBy)->disableTractorBeam();
+			for(int i = 0; i < m_heldBy.size(); i++)
+				((S_Ship *)m_heldBy[i])->disableTractorBeam();
+			m_heldBy.clear();
 			m_presses.clear();
 		}
 	}
@@ -318,6 +319,10 @@ bool S_Ship::interact(S_Resource * res) {
 			res->m_spot = 0;
 			res->m_startTravelTime = GetTickCount();
 			cout<<"Gathered"<<endl;
+
+			for(int i = 0; i < res->m_heldBy.size(); i++)
+				((S_Ship *)res->m_heldBy[i])->m_tractorBeam->lockOff();
+			res->m_heldBy.clear();
 		}
 		return true;
 	}

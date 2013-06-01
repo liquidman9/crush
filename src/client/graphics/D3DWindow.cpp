@@ -866,6 +866,10 @@ void D3DWindow::setFontHeight(int desiredSize) {
 
 void D3DWindow::OnLostDevice()
 {	// Release glowmap texture
+	if (GameResources::pScoreScreenTexture) {
+		GameResources::pScoreScreenTexture->Release();
+		GameResources::pScoreScreenTexture = NULL;
+	}
 	if (GameResources::pGlowmapTexture) {
 		GameResources::pGlowmapTexture->Release();
 		GameResources::pGlowmapTexture = NULL;

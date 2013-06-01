@@ -111,7 +111,7 @@ void S_Resource::update(float delta_time){
 		}
 	}
 
-	if(m_carrier == NULL  && m_heldBy != NULL) {
+	if(m_carrier == NULL  && m_heldBy.size() > 0) {
 		ServerEntity::update(delta_time);
 	}
 	else if(m_carrier == NULL) {
