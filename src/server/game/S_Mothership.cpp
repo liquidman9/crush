@@ -50,6 +50,11 @@ bool S_Mothership::giveResource(S_Ship * ship){
 		this->m_resources++;
 		res->m_startTravelTime = GetTickCount();
 		cout<<"Given"<<endl;
+
+		for(int i = 0; i < res->m_heldBy.size(); i++)
+			((S_Ship *)res->m_heldBy[i])->m_tractorBeam->lockOff();
+		res->m_heldBy.clear();
+
 		return true;
 	}
 	return false;

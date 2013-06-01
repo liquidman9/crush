@@ -50,14 +50,21 @@ void S_TractorBeam::lockOn(ServerEntity * entity) {
 	if(m_object != entity) {
 	//	cout<<(int)(entity->m_type)<<endl;
 		lockOff();
-		entity->m_heldBy = m_ship;
+		entity->m_heldBy.push_back(m_ship);
 	}
 	m_object = entity;
 }
 
 void S_TractorBeam::lockOff() {
 	if(m_object != NULL) {
-		m_object->m_heldBy = NULL;
+		// Remove the object's reference to this ship
+		for(int i = 0; i < m_object->m_heldBy.size(); i++) {
+			if(m_object->m_heldBy[i] == m_ship){
+				m_object->m_heldBy.erase(m_object->m_heldBy.begin()+i);
+				break;
+			}
+		}
+		// Remove reference to the object
 		m_object = NULL;
 	}
 	m_isColliding = false;
@@ -279,8 +286,22 @@ void S_TractorBeam::updateData() {
 		}
 	}
 	else if(m_isOn){
-		calculateForce();
-		m_isColliding = false;
+		bool breakBeam = false;
+		if(m_object != NULL) {
+			// Check if object is now being held by anyone that is not you
+			for(int i = 0; i < m_object->m_heldBy.size(); i++) {
+				if(m_object->m_heldBy[i] != m_ship && ((S_Ship *)m_object->m_heldBy[i])->m_tractorBeam->m_isHolding) {
+					breakBeam = true;
+					break;
+				}
+			}
+		}
+
+		if(breakBeam) lockOff();
+		else {
+			calculateForce();
+			m_isColliding = false;
+		}
 	}
 	else {
 		lockOff();
@@ -321,6 +342,7 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 			entity->m_type == TRACTORBEAM ||
 			entity->m_type == EXTRACTOR || 
 			entity->m_type == POWERUP || // can not tractorbeam powerups
+			entity->m_heldBy.size() > 0 ||
 			(entity->m_type == RESOURCE &&  (((S_Resource *)entity)->m_droppedFrom == m_ship->m_playerNum)) ||
 			(entity->m_type == RESOURCE && (((S_Resource *)entity)->m_carrier != NULL && ((S_Resource *)entity)->m_carrier->m_type != EXTRACTOR)) )
 				return false; 
