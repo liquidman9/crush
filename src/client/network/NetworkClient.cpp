@@ -186,7 +186,7 @@ void NetworkClient::updateGameState() {
 			//update GameState that will be given to user when getGameState() is called
 			EnterCriticalSection(&m_cs);
 			if(!(m_stateAvailable && m_gameState.size() == 0)) {
-				m_gameState = local_gs;
+				m_gameState.assignAppendingEvents(local_gs);
 			}			
 			m_stateAvailable = true;
 			LeaveCriticalSection(&m_cs);
@@ -241,7 +241,7 @@ int NetworkClient::recvFromServer(char * local_buf, unsigned int size, unsigned 
 
 const GameState<Entity> NetworkClient::getGameState() {
 	EnterCriticalSection(&m_cs);
-	GameState<Entity> rtn= GameState<Entity>(m_gameState);
+	GameState<Entity> rtn = GameState<Entity>(m_gameState);
 	m_gameState.clear();
 	m_stateAvailable = false;
 	LeaveCriticalSection(&m_cs);

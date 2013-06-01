@@ -99,6 +99,14 @@ LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOnScreen = NULL;
 LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen = NULL;
 
+
+LPDIRECT3DTEXTURE9 GameResources::powerupConsumedTexture = NULL;
+LPDIRECT3DTEXTURE9 GameResources::powerupTextureArray[3] = {
+	NULL,
+	NULL,
+	NULL
+};
+
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartNormTexture = NULL;
@@ -743,6 +751,24 @@ HRESULT GameResources::initAdditionalTextures()
 	if (FAILED(hres)) {
 		return hres;
 	}
+
+	//load powerup reps
+	hres = loadTexture(&powerupConsumedTexture, Gbls::consumedPowerupTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&powerupTextureArray[0], Gbls::powerupTexture1Filepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&powerupTextureArray[1], Gbls::powerupTexture2Filepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&powerupTextureArray[2], Gbls::powerupTexture3Filepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
 	
 	// load ship arrow spirte
 	hres = loadTexture(&mothershipEIDTexture, Gbls::mothershipEIDTextureFilepath);
@@ -826,6 +852,17 @@ void GameResources::releaseAdditionalTextures() {
 		shipEIDTexture_resource = NULL;
 	}
 
+	if(powerupConsumedTexture) {
+		powerupConsumedTexture->Release();
+		powerupConsumedTexture = NULL;
+	}
+
+	for(unsigned int i = 0; i < 3; i++) {
+		if(powerupTextureArray[i]) {
+			powerupTextureArray[i]->Release();
+			powerupTextureArray[i] = NULL;
+		}
+	}
 	
 	for(unsigned int i = 0; i < 4; i++) {
 		if(*shipEIDTextureArray_arrow[i]){
@@ -1024,6 +1061,24 @@ void GameResources::drawStaticHudElements() {
 	HRESULT hres = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
 	if(SUCCEEDED(hres))
 	{
+		if(playerShip && playerShip->m_hasPowerup) {
+			Sprite powerupSprite;
+			powerupSprite.m_pTexture = powerupTextureArray[playerShip->m_powerupType];
+			powerupSprite.setCenterToTopRight();
+			float scale = (float).75*(sqrt((float)(Gbls::thePresentParams.BackBufferWidth * Gbls::thePresentParams.BackBufferHeight))/sqrt((float)(1920*1080)));
+			D3DXVECTOR2 transV, centerV(powerupSprite.m_vCenter.x, powerupSprite.m_vCenter.y), scaleV(scale,scale);
+			transV.x = (float)(Gbls::thePresentParams.BackBufferWidth - powerupSprite.m_vCenter.x);
+			transV.y = (float)(Gbls::thePresentParams.BackBufferHeight/10.0);
+			D3DXMATRIX mat;
+			D3DXMatrixIdentity(&mat);
+			D3DXMatrixTransformation2D(&mat, &centerV, 0.0f, &scaleV, NULL, 0.0f, &transV);
+			D3DXVECTOR3 centerV3(powerupSprite.m_vCenter.x, powerupSprite.m_vCenter.y, 0);
+			pd3dSprite->SetTransform(&mat);
+			pd3dSprite->Draw(powerupTextureArray[playerShip->m_powerupType], NULL, &centerV3, NULL, 0XFFFFFFFF);
+			if(playerShip->m_powerupStateType == CONSUMED) {
+				pd3dSprite->Draw(powerupConsumedTexture, NULL, &centerV3, NULL, 0XFFFFFFFF);
+			}
+		}
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
 		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
 		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
@@ -1706,10 +1761,9 @@ static bool score_t_comp(pair<unsigned int, int> i, pair<unsigned int, int> j) {
 void GameResources::updateGameState(GameState<Entity> & newGameState) {
 
 	//double curTime = timeGetTime();
-	double curTime = newGameState.getServerTime();
+	long long curTime = newGameState.getServerTime();
 	if (curTime < 0) return;
-
-	static double s_lastTime = curTime; // first time initialization, static otherwise
+	static long long s_lastTime = curTime; // first time initialization, static otherwise
 	float elapsedTime = (float)((curTime - s_lastTime) * 0.001);
 	s_lastTime = curTime;
 
