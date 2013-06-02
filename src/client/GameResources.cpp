@@ -157,6 +157,7 @@ bool GameResources::speedupVisToggle = FALSE;
 static CUSTOMQUAD fsQuad;
 static CUSTOMQUAD bloomQuad;
 static CUSTOMQUAD scoreScreenQuad[4];
+static CUSTOMQUAD scoreScreenQuadMain;
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -337,53 +338,67 @@ HRESULT GameResources::reInitState() {
 	float screenAR = ((float)screenWidth)/screenHeight;
 	float scoreScreenAR = 16.0f/9.0f;
 	float scoreScreenWidth, scoreScreenHeight;
+	const float scoreScreenPercent = 0.8f;
 	if ( screenAR > scoreScreenAR) { //screen wider than scoreScreen
-		scoreScreenWidth = screenWidth*scoreScreenAR/screenAR;
 		scoreScreenHeight = (float) screenHeight;
-		float spacing = (screenWidth - scoreScreenWidth) / 2.0f;
-		left = left + spacing;
-		right = right - spacing;
+		scoreScreenWidth = scoreScreenHeight*scoreScreenAR;
+		//float spacing = (screenWidth - scoreScreenWidth) / 2.0f;
+		//left = left + spacing;
+		//right = right - spacing;
 	} else { //screen narrower than scoreScreen
-		scoreScreenHeight = screenHeight*(1.0f/(scoreScreenAR/screenAR));
 		scoreScreenWidth = (float) screenWidth;
-		float spacing = (screenHeight - scoreScreenHeight) / 2.0f;
-		top = top + spacing;
-		bottom = bottom - spacing;
+		scoreScreenHeight = scoreScreenWidth/scoreScreenAR;
+		//scoreScreenHeight = screenHeight*(1.0f/(scoreScreenAR/screenAR));
+		//float spacing = (screenHeight - scoreScreenHeight) / 2.0f;
+		//top = top + spacing;
+		//bottom = bottom - spacing;
 	}
-	float hs = (bottom - top) / 4.0f; // height spacing (height of a single score panel in pixels)
+	float hs = scoreScreenHeight / 4.0f; // height spacing (height of a single score panel in pixels)
+	float sRight = left + scoreScreenWidth;
 	CUSTOMQUAD tmpQuad_scoreScreenQuad1 =
     {
-		{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, top + hs, 0.5f, 1.0f, 1.0f, 1.0f },
-		{ left,  top,    0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  top + hs, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ sRight, top,    0.5f, 1.0f, 1.0f, 0.0f },
+		{ sRight, top + hs, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,   top,    0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,   top + hs, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 	CUSTOMQUAD tmpQuad_scoreScreenQuad2 =
     {
-		{ right, top + hs,      0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 1.0f },
-		{ left,  top + hs,      0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  top + hs*2.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ sRight, top + hs,      0.5f, 1.0f, 1.0f, 0.0f },
+		{ sRight, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,   top + hs,      0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,   top + hs*2.0f, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 	CUSTOMQUAD tmpQuad_scoreScreenQuad3 =
     {
-		{ right, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 1.0f },
-		{ left,  top + hs*2.0f, 0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  top + hs*3.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ sRight, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ sRight, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,   top + hs*2.0f, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,   top + hs*3.0f, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 	CUSTOMQUAD tmpQuad_scoreScreenQuad4 =
     {
-		{ right, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, top + hs*4.0f, 0.5f, 1.0f, 1.0f, 1.0f },
-		{ left,  top + hs*3.0f, 0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  top + hs*4.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ sRight, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ sRight, top + hs*4.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,   top + hs*3.0f, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,   top + hs*4.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+	float widthSpacing = ((screenWidth - scoreScreenWidth) / 2.0f) + screenWidth*((1.0-scoreScreenPercent)/2.0f);
+	float heightSpacing = ((screenHeight - scoreScreenHeight) / 2.0f) + screenHeight*((1.0-scoreScreenPercent)/2.0f);;
+
+	CUSTOMQUAD tmpQuad_scoreScreenQuadMain =
+    {
+		{ right - widthSpacing, top    + heightSpacing, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ right - widthSpacing, bottom - heightSpacing, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left  + widthSpacing, top    + heightSpacing, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left  + widthSpacing, bottom - heightSpacing, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 	fsQuad = tmpQuad_fsQuad;
 	scoreScreenQuad[0] = tmpQuad_scoreScreenQuad1;
 	scoreScreenQuad[1] = tmpQuad_scoreScreenQuad2;
 	scoreScreenQuad[2] = tmpQuad_scoreScreenQuad3;
 	scoreScreenQuad[3] = tmpQuad_scoreScreenQuad4;
+	scoreScreenQuadMain = tmpQuad_scoreScreenQuadMain;
 	bloomQuad = tmpQuad_bloomQuad;
 
 	//// create a vertex buffer interface called v_buffer
@@ -1561,11 +1576,11 @@ void GameResources::drawAll()
 			drawTexToSurface(Gbls::scoreScreenTexture[i], &scoreScreenQuad[winnerList[i].first]);
 		}
 		Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
-	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		blendTexesToSurface(pScoreScreenTexture, Gbls::pScoreScrenAlphaTexture, &fsQuad, true);
-	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		blendTexesToSurface(pScoreScreenTexture, Gbls::pScoreScrenAlphaTexture, &scoreScreenQuadMain, true);
+		Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	}
 
 	else {
@@ -1755,7 +1770,7 @@ void GameResources::updateDebugCamera() {
 }
 
 static bool score_t_comp(pair<unsigned int, int> i, pair<unsigned int, int> j) {
-	return (i.second < j.second);
+	return (i.second > j.second);
 }
 
 void GameResources::updateGameState(GameState<Entity> & newGameState) {
