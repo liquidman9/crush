@@ -199,7 +199,7 @@ public:
 	static void drawShield(C_Ship * ship);
 	static void drawStaticHudElements();
 	static void drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius);
-	static void playSounds();
+	static void playSounds(vector<shared_ptr<GEvent> > events);
 	//static void drawAllSprites();
 	static void updateDebugCamera();
 	static void updatePlayerCamera();

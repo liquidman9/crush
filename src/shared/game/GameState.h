@@ -200,6 +200,10 @@ public:
 		return sizeof(gameStateMeta) + sizeof(unsigned int);
 	}
 
+	vector<shared_ptr<GEvent> > getEvents() {
+		return m_events;
+	}
+
 private:
 
 	void decode(const char *head, unsigned int size) {
