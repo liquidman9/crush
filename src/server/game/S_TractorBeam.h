@@ -31,6 +31,9 @@ public:
 	long disableLength;
 	long disableStart;
 
+	ServerEntity * m_lastHeld;
+	long m_lastHeldTimer;
+
 	ServerEntity * m_object;
 	S_Ship * m_ship; 
 	float m_strength;
@@ -38,9 +41,7 @@ public:
 	bool m_isColliding;
 	bool m_isHolding;
 	float m_heldDistance; //temp
-	D3DXVECTOR3 m_totalPulling;
 
-	D3DXVECTOR3 m_shipLastCorrection, m_objectLastCorrection;
 
 	// Constructors
 	S_TractorBeam(S_Ship *);

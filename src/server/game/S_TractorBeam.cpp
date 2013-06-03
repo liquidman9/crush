@@ -26,11 +26,9 @@ S_TractorBeam::S_TractorBeam(S_Ship * ship) :
 	m_isColliding(false),
 	m_isHolding(false),
 	m_heldDistance(0.0f),
-	m_totalPulling(0,0,0),
-	m_shipLastCorrection(0.0,0.0,0.0),
-	m_objectLastCorrection(0.0,0.0,0.0),
 	disableStart(-1),
-	disableLength(5000)
+	disableLength(5000),
+	m_lastHeldTimer(0)
 {
 	m_radius = m_sentRadius;
 	m_object = NULL;
@@ -64,14 +62,17 @@ void S_TractorBeam::lockOff() {
 				break;
 			}
 		}
+
+		if(m_object->m_type == ASTEROID) {
+			m_lastHeld = m_object;
+			m_lastHeldTimer = GetTickCount();
+		}
 		// Remove reference to the object
 		m_object = NULL;
 	}
 	m_isColliding = false;
 	m_isHolding = false; 
-	m_shipLastCorrection = shared::utils::VEC3_ZERO;
-	m_objectLastCorrection = shared::utils::VEC3_ZERO;
-	m_totalPulling = shared::utils::VEC3_ZERO;
+
 }
 
 D3DXVECTOR3 S_TractorBeam::getCurrentDirection() {
@@ -137,15 +138,28 @@ void S_TractorBeam::calculateForce() {
 		float disL = getCurrentDistance();
 		
 		D3DXVECTOR3 force = m_strength*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 1.66f));
+		D3DXVECTOR3 shipForce = force;
+		D3DXVECTOR3 objForce = force;
+
+	/*	max velocities if neccessary
+	    float shipForceVelocity = D3DXVec3Length(&((shipForce)*m_ship->m_mass_inverse));
+		float objForceVelocity = D3DXVec3Length(&((objForce)*m_object->m_mass_inverse));
+		cout<<shipForceVelocity<<endl;
+		if(shipForceVelocity > max_velocity_increase)
+			shipForce = shipForce*(max_velocity_increase/shipForceVelocity);
+		if(objForceVelocity > max_velocity_increase)
+			objForce = objForce*(max_velocity_increase/objForceVelocity);*/
+			
+
 
 		if(m_isPulling) {
 			// Check for extreme force that pulls the object in the opposite direction
 			D3DXVECTOR3 shipMomentumTest, objectMomentumTest, shipVelocityTest, objectVelocityTest, shipPositionTest, objectPositionTest;
-			shipMomentumTest = m_ship->m_momentum + m_ship->t_impulse + (force*.01f);
+			shipMomentumTest = m_ship->m_momentum + m_ship->t_impulse + (force);
 			shipVelocityTest = shipMomentumTest * m_ship->m_mass_inverse;
 			shipPositionTest = m_ship->m_pos + shipVelocityTest * (1.0f/60.0f);
 
-			objectMomentumTest = m_object->m_momentum + m_object->t_impulse + (-force*.01f);
+			objectMomentumTest = m_object->m_momentum + m_object->t_impulse + (-force);
 			objectVelocityTest = objectMomentumTest * m_object->m_mass_inverse;
 			objectPositionTest = m_object->m_pos + objectVelocityTest * (1.0f/60.0f);
 
@@ -169,20 +183,7 @@ void S_TractorBeam::calculateForce() {
 
 					if(!m_isHolding) {
 						m_heldDistance = (m_object->m_length > m_object->m_radius? m_object->m_length:m_object->m_radius) + (m_ship->m_length > m_ship->m_radius? m_ship->m_length:m_ship->m_radius);//disL; // Set permanent holding distance
-						m_shipLastCorrection = shared::utils::VEC3_ZERO;
-						m_objectLastCorrection = shared::utils::VEC3_ZERO;
-
-						// Equal out momentums (lock)
-						//D3DXVECTOR3 vel = ((m_ship->t_impulse + m_ship->m_momentum) + (m_object->m_momentum  + m_object->t_impulse))/(m_ship->m_mass + m_object->m_mass);
-						//m_object->m_momentum = vel*m_object->m_mass;
-						//m_ship->m_momentum = vel*m_ship->m_mass;
-
-
-						// Zero outs probably temporary
-					//	m_object->m_momentum = shared::utils::VEC3_ZERO;
-					//	m_ship->m_momentum =shared::utils::VEC3_ZERO;
-					//	m_object->t_impulse =shared::utils::VEC3_ZERO;
-					//	m_ship->t_impulse = shared::utils::VEC3_ZERO;
+		
 					}
 					
 						float deltaTime = (float) 1.0/60.0f;
@@ -193,9 +194,6 @@ void S_TractorBeam::calculateForce() {
 						float objectMassLength = m_heldDistance*(m_ship->m_mass/(m_ship->m_mass + m_object->m_mass)) ;
 						D3DXVECTOR3 rShip = center - m_ship->m_pos;
 						D3DXVECTOR3 rObj = m_object->m_pos -center;
-
-						//m_ship->m_momentum -= m_shipLastCorrection;
-						//m_object->m_momentum -= m_objectLastCorrection; 
 
 						D3DXVECTOR3 shipImp = m_ship->getDamping();
 					    D3DXVECTOR3 velShip = ((shipImp)*m_ship->m_mass_inverse);
@@ -212,8 +210,6 @@ void S_TractorBeam::calculateForce() {
 
 						// Calculate new center of mass
 						center += ((m_object->m_momentum + (velObject*m_object->m_mass)*m_object->m_mass) + (m_ship->m_momentum + (velShip*m_ship->m_mass)*m_ship->m_mass))/pow(totalMass,2); 
-						//center += ((m_object->m_momentum + (velObject*m_object->m_mass))*m_object->m_mass + (m_ship->m_momentum + (velShip*m_ship->m_mass)*m_ship->m_mass))/pow(totalMass,2); 
-						//center += ((m_object->m_momentum + (velObject*m_object->m_mass))*m_object->m_mass + (m_ship->m_momentum + (velShip*m_ship->m_mass))*m_ship->m_mass)/pow(totalMass,2); 
 					
 						D3DXVECTOR3 newRShip, newRObject;
 						D3DXVec3Normalize(&newRObject,&(posObject - posShip));
@@ -229,9 +225,7 @@ void S_TractorBeam::calculateForce() {
 
 						m_ship->applyLinearImpulse(adjustShip*m_ship->m_mass);
 						m_object->applyLinearImpulse(adjustObj*m_object->m_mass);
-						
-						//m_shipLastCorrection = adjustShip*m_ship->m_mass;
-						//m_objectLastCorrection = adjustObj*m_object->m_mass;
+		
 
 				
 				
@@ -243,19 +237,17 @@ void S_TractorBeam::calculateForce() {
 			}
 			// Apply normal pulling force
 			else {
-				m_ship->applyLinearImpulse(force * .01f);
-				m_object->applyLinearImpulse(-force * .01f);
-
-
-
-				m_totalPulling = m_totalPulling + force;
+				
+			
+				m_ship->applyLinearImpulse(shipForce);
+				m_object->applyLinearImpulse(-objForce);
 			}
 					
 		}
 		// Push
 		else {
-				m_ship->applyLinearImpulse(-force * .01f);
-				m_object->applyLinearImpulse(force * .01f);
+				m_ship->applyLinearImpulse(-shipForce);
+				m_object->applyLinearImpulse(objForce);
 
 				m_isHolding = false; 
 		}
@@ -275,6 +267,11 @@ void S_TractorBeam::timeout() {
 }
 
 void S_TractorBeam::updateData() {
+	if(m_lastHeld != NULL) {
+		if(GetTickCount() - m_lastHeldTimer > invincible_resource_time_limit) m_lastHeld = NULL;
+	}
+
+
 	setStartPoint();
 	setEndPoint();
 
