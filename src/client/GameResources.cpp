@@ -161,6 +161,7 @@ static CUSTOMQUAD fsQuad;
 static CUSTOMQUAD bloomQuad;
 static CUSTOMQUAD scoreScreenQuad[4];
 static CUSTOMQUAD alertQuad;
+static CUSTOMQUAD scoreScreenQuadMain;
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -341,50 +342,69 @@ HRESULT GameResources::reInitState() {
 	float screenAR = ((float)screenWidth)/screenHeight;
 	float scoreScreenAR = 16.0f/9.0f;
 	float scoreScreenWidth, scoreScreenHeight;
+	const float scoreScreenPercent = 0.8f;
 	if ( screenAR > scoreScreenAR) { //screen wider than scoreScreen
-		scoreScreenWidth = screenWidth*scoreScreenAR/screenAR;
 		scoreScreenHeight = (float) screenHeight;
-		float spacing = (screenWidth - scoreScreenWidth) / 2.0f;
-		left = left + spacing;
-		right = right - spacing;
+		scoreScreenWidth = scoreScreenHeight*scoreScreenAR;
+		//float spacing = (screenWidth - scoreScreenWidth) / 2.0f;
+		//left = left + spacing;
+		//right = right - spacing;
 	} else { //screen narrower than scoreScreen
-		scoreScreenHeight = screenHeight*(1.0f/(scoreScreenAR/screenAR));
 		scoreScreenWidth = (float) screenWidth;
-		float spacing = (screenHeight - scoreScreenHeight) / 2.0f;
-		top = top + spacing;
-		bottom = bottom - spacing;
+		scoreScreenHeight = scoreScreenWidth/scoreScreenAR;
+		//scoreScreenHeight = screenHeight*(1.0f/(scoreScreenAR/screenAR));
+		//float spacing = (screenHeight - scoreScreenHeight) / 2.0f;
+		//top = top + spacing;
+		//bottom = bottom - spacing;
 	}
-	float hs = (bottom - top) / 4.0f; // height spacing (height of a single score panel in pixels)
+	float scoreScreenTexW = 1920;
+	float scoreScreenTexH = 1080;
+	float hs = scoreScreenTexH / 4.0f; // height spacing (height of a single score panel in pixels)
+	float sRight = left + scoreScreenTexW;
+	
 	CUSTOMQUAD tmpQuad_scoreScreenQuad1 =
     {
-		{ right, top,    0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, top + hs, 0.5f, 1.0f, 1.0f, 1.0f },
-		{ left,  top,    0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  top + hs, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ sRight, top,    0.5f, 1.0f, 1.0f, 0.0f },
+		{ sRight, top + hs, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,   top,    0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,   top + hs, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 	CUSTOMQUAD tmpQuad_scoreScreenQuad2 =
     {
-		{ right, top + hs,      0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 1.0f },
-		{ left,  top + hs,      0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  top + hs*2.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ sRight, top + hs,      0.5f, 1.0f, 1.0f, 0.0f },
+		{ sRight, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,   top + hs,      0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,   top + hs*2.0f, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 	CUSTOMQUAD tmpQuad_scoreScreenQuad3 =
     {
-		{ right, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 1.0f },
-		{ left,  top + hs*2.0f, 0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  top + hs*3.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ sRight, top + hs*2.0f, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ sRight, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,   top + hs*2.0f, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,   top + hs*3.0f, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 	CUSTOMQUAD tmpQuad_scoreScreenQuad4 =
     {
-		{ right, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 0.0f },
-		{ right, top + hs*4.0f, 0.5f, 1.0f, 1.0f, 1.0f },
-		{ left,  top + hs*3.0f, 0.5f, 1.0f, 0.0f, 0.0f },
-		{ left,  top + hs*4.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+		{ sRight, top + hs*3.0f, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ sRight, top + hs*4.0f, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left,   top + hs*3.0f, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left,   top + hs*4.0f, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+    
+    	float widthSpacing = ((screenWidth - scoreScreenWidth) / 2.0f) + screenWidth*((1.0f-scoreScreenPercent)/2.0f);
+	float heightSpacing = ((screenHeight - scoreScreenHeight) / 2.0f) + screenHeight*((1.0f-scoreScreenPercent)/2.0f);;
+
+	CUSTOMQUAD tmpQuad_scoreScreenQuadMain =
+    {
+		{ right - widthSpacing, top    + heightSpacing, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ right - widthSpacing, bottom - heightSpacing, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left  + widthSpacing, top    + heightSpacing, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left  + widthSpacing, bottom - heightSpacing, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 
-	float alert_scale = sqrt((float)(Gbls::thePresentParams.BackBufferWidth * Gbls::thePresentParams.BackBufferHeight))/sqrt((float)(1920*1080));
+    
+    
+ 	float alert_scale = sqrt((float)(Gbls::thePresentParams.BackBufferWidth * Gbls::thePresentParams.BackBufferHeight))/sqrt((float)(1920*1080));
 	float alert_scale_h = (float) Gbls::thePresentParams.BackBufferHeight/1080;
 	float alert_scale_w = (float) Gbls::thePresentParams.BackBufferWidth/1920;
 	float alert_size = 64*alert_scale;
@@ -393,6 +413,8 @@ HRESULT GameResources::reInitState() {
 	float alert_left = (Gbls::thePresentParams.BackBufferWidth/2 - 0.5f) + alert_scale_w*alert_skew_w - alert_size/2;
 	float alert_right = (alert_left + alert_size);
 	float alert_bottom = (((float) Gbls::thePresentParams.BackBufferHeight) - 0.5f) + alert_scale_h*alert_skew_h;
+	float alert_top = alert_bottom - alert_size;
+
 	float alert_top = alert_bottom - alert_size;
 	
 
@@ -410,6 +432,9 @@ HRESULT GameResources::reInitState() {
 	scoreScreenQuad[2] = tmpQuad_scoreScreenQuad3;
 	scoreScreenQuad[3] = tmpQuad_scoreScreenQuad4;
 	alertQuad = tmpQuad_alertQuad;
+	scoreScreenQuadMain = tmpQuad_scoreScreenQuadMain;
+
+
 	bloomQuad = tmpQuad_bloomQuad;
 
 	//// create a vertex buffer interface called v_buffer
@@ -458,11 +483,11 @@ HRESULT GameResources::reInitState() {
 		pScoreScreenTexture = NULL;
 	}
 	Gbls::pd3dDevice->CreateTexture(
-		(UINT) scoreScreenWidth,
-		(UINT) scoreScreenHeight,
+		scoreScreenTexW, //1920, //(UINT) scoreScreenWidth,
+		scoreScreenTexH, //1080, //(UINT) scoreScreenHeight,
         1,
         D3DUSAGE_RENDERTARGET,
-        D3DFMT_R5G6B5,
+        /*D3DFMT_X8R8G8B8, /*/D3DFMT_A8R8G8B8, //D3DFMT_R5G6B5,
         D3DPOOL_DEFAULT,
         &pScoreScreenTexture,
         NULL);
@@ -1055,40 +1080,50 @@ void GameResources::drawAllEID() {
 
 }
 
+void GameResources::placeTextCenter(LPCWSTR str, UINT x, UINT y) {
+	D3DXMATRIX mat;
+	D3DXMatrixIdentity(&mat);
+		
+	pd3dSprite->SetTransform(&mat);
+	RECT rect = {0, 0, 0, 0};
+	pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CALCRECT,
+		NULL);
+	rect.top += y - (rect.bottom/2);;
+	rect.bottom += y - (rect.bottom/2);;
+	rect.left += x - (rect.right/2);
+	rect.right += x - (rect.right/2);
+	pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CENTER | DT_WORDBREAK,
+		D3DCOLOR_XRGB(255, 255, 255));
+}
+
 void GameResources::placeTextCenterCeiling(LPCWSTR str, UINT x) {
 	D3DXMATRIX mat;
-		D3DXMatrixIdentity(&mat);
+	D3DXMatrixIdentity(&mat);
 		
-		//std::wstring timeStr = L"Time goes here!!!";
-		//int pixel_x = Gbls::thePresentParams.BackBufferWidth/2;
-		pd3dSprite->SetTransform(&mat);
-		RECT rect = {0, 0, 0, 0};
-		pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CALCRECT,
-			NULL);
-		//rect.top += pixel_y - (rect.bottom/2);
-		//rect.bottom += pixel_y - (rect.bottom/2);
-		rect.left += x - (rect.right/2);
-		rect.right += x - (rect.right/2);
-		pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CENTER | DT_WORDBREAK,
-			D3DCOLOR_XRGB(255, 255, 255));
+	pd3dSprite->SetTransform(&mat);
+	RECT rect = {0, 0, 0, 0};
+	pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CALCRECT,
+		NULL);
+	rect.left += x - (rect.right/2);
+	rect.right += x - (rect.right/2);
+	pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CENTER | DT_WORDBREAK,
+		D3DCOLOR_XRGB(255, 255, 255));
 }
 
 void GameResources::placeTextCenterFloor(LPCWSTR str, UINT x) {
-		D3DXMATRIX mat;
-		D3DXMatrixIdentity(&mat);
+	D3DXMATRIX mat;
+	D3DXMatrixIdentity(&mat);
 		
-		//std::wstring timeStr = L"Time goes here!!!";
-		//int pixel_x = Gbls::thePresentParams.BackBufferWidth/2;
-		pd3dSprite->SetTransform(&mat);
-		RECT rect = {0, 0, 0, 0};
-		pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CALCRECT,
-			NULL);
-		rect.top += Gbls::thePresentParams.BackBufferHeight - rect.bottom;
-		rect.bottom = Gbls::thePresentParams.BackBufferHeight;
-		rect.left += x - (rect.right/2);
-		rect.right += x - (rect.right/2);
-		pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CENTER | DT_WORDBREAK,
-			D3DCOLOR_XRGB(255, 255, 255));
+	pd3dSprite->SetTransform(&mat);
+	RECT rect = {0, 0, 0, 0};
+	pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CALCRECT,
+		NULL);
+	rect.top += Gbls::thePresentParams.BackBufferHeight - rect.bottom;
+	rect.bottom = Gbls::thePresentParams.BackBufferHeight;
+	rect.left += x - (rect.right/2);
+	rect.right += x - (rect.right/2);
+	pd3dFont->DrawText(pd3dSprite, str, -1, &rect, DT_CENTER | DT_WORDBREAK,
+		D3DCOLOR_XRGB(255, 255, 255));
 }
 
 void GameResources::drawFlashingSprite(Sprite const &sprite, CUSTOMQUAD &location, long long const &time, unsigned int const &flash_period) {
@@ -1473,7 +1508,13 @@ void GameResources::blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTU
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 }
 
-void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, CUSTOMQUAD * pQuad /*LPDIRECT3DVERTEXBUFFER9 quadVBuffer*/) {
+void GameResources::drawTexToSurface(LPDIRECT3DTEXTURE9 tex, CUSTOMQUAD * pQuad, bool useTexAlpha) {
+
+	if (useTexAlpha) {
+		pEffectTexToScreen->SetTechnique("UseTexAlpha");
+	} else {
+		pEffectTexToScreen->SetTechnique("SolidAlpha");
+	}
 
 	//Gbls::pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 0, 0), 1.0f, 0);
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
@@ -1519,6 +1560,60 @@ void GameResources::drawShield(C_Ship * ship) {
 	pEffectDefault->SetFloatArray("ShieldColor", shipColors[ship->m_playerNum], 4);
 	pEffectDefault->CommitChanges();
 	shieldMesh->DrawSubset(0);
+}
+
+void GameResources::drawScoreScreen() {
+	Gbls::pd3dDevice->SetRenderTarget(0,pScoreScreenSurface); // set render target back to back buf
+	for (UINT i = 0; i < 4; i++) {
+		drawTexToSurface(Gbls::scoreScreenTexture[i], &scoreScreenQuad[winnerList[i].first], false);
+	}
+	Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	blendTexesToSurface(pScoreScreenTexture, Gbls::pScoreScrenAlphaTexture, &scoreScreenQuadMain, true);
+	//Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	//Gbls::pd3dDevice->SetRenderTarget(0,pScoreScreenSurface); // set render target back to back buf
+	//Gbls::pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(100, 255, 100, 100), 0.0f, 0);
+	/*D3DSURFACE_DESC desc;
+	pScoreScreenTexture->GetLevelDesc(0, &desc);
+	UINT h = desc.Height;
+	UINT w = desc.Width;*/
+	float top = scoreScreenQuadMain.topLeft.Y;
+	float left = scoreScreenQuadMain.topLeft.X;
+	float bottom = scoreScreenQuadMain.bottomRight.Y;
+	float right = scoreScreenQuadMain.bottomRight.X;
+	float height = bottom - top;
+	float width = right - left;
+	Gbls::pd3dDevice->BeginScene();
+	HRESULT hres = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
+	if(SUCCEEDED(hres))
+	{
+		std::wostringstream str;
+		for (int i = 0; i < 4; i++) {
+			str << L"Player " << winnerList[i].first + 1;
+			placeTextCenter(str.str().c_str(), left + width*0.6f, top + (1.0f + i*2.0f)*(height/8.0f));
+			str.str(L"");
+			str << winnerList[i].second;
+			placeTextCenter(str.str().c_str(), left + width*0.80f, top + (1.0f + i*2.0f)*(height/8.0f));
+			str.str(L"");
+		}
+		//str << L"Player " << winnerList[i].first + 1;
+		//placeTextCenter(str.str().c_str(), left + width/2.0f, top + height/8.0f);
+		//placeTextCenter(L"Player 2", left + width/2.0f, top + 3.0f*(height/8.0f));
+		//placeTextCenter(L"Player 3", left + width/2.0f, top + 5.0f*(height/8.0f));
+		//placeTextCenter(L"Player 4", left + width/2.0f, top + 7.0f*(height/8.0f));
+
+		
+		//placeTextCenter(L"Player 1", left + width/2.0f, top + height/8.0f);
+		//placeTextCenter(L"Player 2", left + width/2.0f, top + 3.0f*(height/8.0f));
+		//placeTextCenter(L"Player 3", left + width/2.0f, top + 5.0f*(height/8.0f));
+		//placeTextCenter(L"Player 4", left + width/2.0f, top + 7.0f*(height/8.0f));
+		pd3dSprite->End();
+	}
+	Gbls::pd3dDevice->EndScene();
+	//Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
+	//drawTexToSurface(pScoreScreenTexture, &scoreScreenQuadMain, true);
 }
 
 void GameResources::drawAll()
@@ -1609,16 +1704,8 @@ void GameResources::drawAll()
 	blendTexesToSurface(pDefaultRenderTexture, pGlowmapTexture, &fsQuad, false);
 	
 	if (gameOver) { // draw winner screen
-		Gbls::pd3dDevice->SetRenderTarget(0,pScoreScreenSurface); // set render target back to back buf
-		for (UINT i = 0; i < 4; i++) {
-			drawTexToSurface(Gbls::scoreScreenTexture[i], &scoreScreenQuad[winnerList[i].first]);
-		}
-		Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
-	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-	Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		blendTexesToSurface(pScoreScreenTexture, Gbls::pScoreScrenAlphaTexture, &fsQuad, true);
-	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+		drawScoreScreen();
+
 	}
 
 	else {
@@ -1809,7 +1896,7 @@ void GameResources::updateDebugCamera() {
 }
 
 static bool score_t_comp(pair<unsigned int, int> i, pair<unsigned int, int> j) {
-	return (i.second < j.second);
+	return (i.second > j.second);
 }
 
 void GameResources::updateGameState(GameState<Entity> & newGameState) {

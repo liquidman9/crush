@@ -39,6 +39,27 @@ SoundManager::SoundManager() {
 			formats[THRUSTSOUND] = wfx;
 			formats[TBEAMSOUND] = wfxtb;
 
+			WAVEFORMATEXTENSIBLE wfx_engs = {0};
+			XAUDIO2_BUFFER buffer_engs = {0};
+			buffer_engs.LoopCount = XAUDIO2_LOOP_INFINITE;
+
+			loadSound(_TEXT("enginestart.wav"),wfx_engs, buffer_engs);
+			sounds[ENGINESTARTSOUND] = buffer_engs;
+			formats[ENGINESTARTSOUND] = wfx_engs;
+
+			//Load ambience (music)
+			WAVEFORMATEXTENSIBLE wfx_amb = {0};
+			XAUDIO2_BUFFER buffer_amb = {0};
+			buffer_amb.LoopCount = XAUDIO2_LOOP_INFINITE;
+			loadSound(_TEXT("ambience.wav"),wfx_amb, buffer_amb);
+			IXAudio2SourceVoice* temp;
+			if( FAILED(hr = pXAudio2->CreateSourceVoice( &temp, (WAVEFORMATEX*)(&wfx_amb) ) ) ) 
+				std::cout << "failure 2!" << std::endl;
+			if( FAILED(hr = (temp->SubmitSourceBuffer( &buffer_amb ) ) ) )
+				std::cout << "failure 3!" << std::endl;
+			temp->Start(0);
+			
+			//Set up 3D Sound
 			pXAudio2->GetDeviceDetails(0,&deviceDetails);
 			X3DAudioInitialize( deviceDetails.OutputFormat.dwChannelMask, X3DAUDIO_SPEED_OF_SOUND/100.0f, X3DInstance );
 		}
@@ -66,33 +87,35 @@ void SoundManager::playTractorBeam(C_TractorBeam beam) {
 		tractorBeams3d[beam.m_playerNum]->ChannelCount = 1;
 		tractorBeams3d[beam.m_playerNum]->CurveDistanceScaler = AUDSCALE;
 		tractorBeams3d[beam.m_playerNum]->DopplerScaler = 20.0;
+
 	}
 
-	X3DAUDIO_VECTOR aud;
-	aud.x=0; aud.y=0; aud.z=1;
-	tractorBeams3d[beam.m_playerNum]->OrientFront = aud;
-	aud.x=0; aud.y=1; aud.z=0;
-	tractorBeams3d[beam.m_playerNum]->OrientTop = aud;
-	tractorBeams3d[beam.m_playerNum]->Position = beam.m_pos;
-	tractorBeams3d[beam.m_playerNum]->Velocity = beam.m_velocity;
+	if (beam.m_isOn && beam.m_playerNum != GameResources::playerNum) { //no 3d for player sounds
+		X3DAUDIO_VECTOR aud;
+		aud.x=0; aud.y=0; aud.z=1;
+		tractorBeams3d[beam.m_playerNum]->OrientFront = aud;
+		aud.x=0; aud.y=1; aud.z=0;
+		tractorBeams3d[beam.m_playerNum]->OrientTop = aud;
+		tractorBeams3d[beam.m_playerNum]->Position = beam.m_start;
+		tractorBeams3d[beam.m_playerNum]->Velocity = beam.m_velocity;
 
-	X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
-	FLOAT32 * matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
-	DSPSettings.SrcChannelCount = 1;
-	DSPSettings.DstChannelCount = deviceDetails.OutputFormat.Format.nChannels;
-	DSPSettings.pMatrixCoefficients = matrix;
+		X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
+		FLOAT32 * matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
+		DSPSettings.SrcChannelCount = 1;
+		DSPSettings.DstChannelCount = deviceDetails.OutputFormat.Format.nChannels;
+		DSPSettings.pMatrixCoefficients = matrix;
 
-	X3DAudioCalculate(X3DInstance, &Listener, tractorBeams3d[beam.m_playerNum],
-X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_REVERB,
-&DSPSettings );
+		X3DAudioCalculate(X3DInstance, &Listener, tractorBeams3d[beam.m_playerNum],
+	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_REVERB,
+	&DSPSettings );
 
-	tractorBeams[beam.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
-	tractorBeams[beam.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
-	//tractorBeams[beam.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
+		tractorBeams[beam.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+		tractorBeams[beam.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
+		//tractorBeams[beam.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
 
-	//XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient), 1.0f };
-	//tractorBeams[beam.m_playerNum]->SetFilterParameters(&FilterParameters);
-
+		//XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient), 1.0f };
+		//tractorBeams[beam.m_playerNum]->SetFilterParameters(&FilterParameters);
+	}
 	if(beam.m_isOn) {
 		tractorBeams[beam.m_playerNum]->Start(0);
 	} else {
@@ -101,21 +124,15 @@ X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_
 }
 
 void SoundManager::playEngine(C_Ship ship) {
-	if (ship.m_playerNum == GameResources::playerNum) {
-		X3DAUDIO_VECTOR aud;
-		aud.x=0; aud.y=0; aud.z=1;
-		Listener.OrientFront = aud;
-		aud.x=0; aud.y=1; aud.z=0;
-		Listener.OrientTop = aud;
-		Listener.Position = ship.m_pos;
-		Listener.Velocity = ship.m_velocity;
-	}
 	if (engines.find(ship.m_playerNum) == engines.end()) {
 		HRESULT hr;
 		IXAudio2SourceVoice* temp2;
 		engines.insert(pair<int,IXAudio2SourceVoice*>(ship.m_playerNum,temp2));
 		if( FAILED(hr = pXAudio2->CreateSourceVoice( &(engines[ship.m_playerNum]), (WAVEFORMATEX*)(&formats[THRUSTSOUND]) ) ) ) 
 			std::cout << "failure 2!" << std::endl;
+
+		/*if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[ENGINESTARTSOUND] ) ) )
+			std::cout << "failure 3!" << std::endl;*/
 
 		if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[THRUSTSOUND] ) ) )
 			std::cout << "failure 3!" << std::endl;
@@ -127,40 +144,50 @@ void SoundManager::playEngine(C_Ship ship) {
 		engines3d[ship.m_playerNum]->DopplerScaler = 20.0;
 	}
 
-	X3DAUDIO_VECTOR aud;
-	aud.x=0; aud.y=0; aud.z=1;
-	engines3d[ship.m_playerNum]->OrientFront = aud;
-	aud.x=0; aud.y=1; aud.z=0;
-	engines3d[ship.m_playerNum]->OrientTop = aud;
-	engines3d[ship.m_playerNum]->Position = ship.m_pos;
-	engines3d[ship.m_playerNum]->Velocity = ship.m_velocity;
+	if (ship.m_playerNum == GameResources::playerNum) {
+		X3DAUDIO_VECTOR aud;
+		aud.x=0; aud.y=0; aud.z=1;
+		Listener.OrientFront = aud;
+		aud.x=0; aud.y=1; aud.z=0;
+		Listener.OrientTop = aud;
+		Listener.Position = ship.m_pos;
+		Listener.Velocity = ship.m_velocity;
+	} else if (ship.m_thruster != 0) { //dont do 3d if self
+		X3DAUDIO_VECTOR aud;
+		aud.x=0; aud.y=0; aud.z=1;
+		engines3d[ship.m_playerNum]->OrientFront = aud;
+		aud.x=0; aud.y=1; aud.z=0;
+		engines3d[ship.m_playerNum]->OrientTop = aud;
+		engines3d[ship.m_playerNum]->Position = ship.m_pos;
+		engines3d[ship.m_playerNum]->Velocity = ship.m_velocity;
 
-	X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
-	FLOAT32 * matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
-	DSPSettings.SrcChannelCount = 1;
-	DSPSettings.DstChannelCount = deviceDetails.OutputFormat.Format.nChannels;
-	DSPSettings.pMatrixCoefficients = matrix;
+		X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
+		FLOAT32 * matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
+		DSPSettings.SrcChannelCount = 1;
+		DSPSettings.DstChannelCount = deviceDetails.OutputFormat.Format.nChannels;
+		DSPSettings.pMatrixCoefficients = matrix;
 
-	X3DAudioCalculate(X3DInstance, &Listener, engines3d[ship.m_playerNum],
-X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_REVERB,
-&DSPSettings );
+		X3DAudioCalculate(X3DInstance, &Listener, engines3d[ship.m_playerNum],
+	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_REVERB,
+	&DSPSettings );
 
-	engines[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
-	engines[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
-	//engines[ship.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
+		engines[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+		engines[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
+		//engines[ship.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
 
-	/*XAUDIO2_FILTER_PARAMETERS FilterParameters;
-	FilterParameters.Type = LowPassFilter;
-	FilterParameters.OneOverQ= 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient);
-	FilterParameters.Frequency = 1.0f;*/
-	//engines[ship.m_playerNum]->SetFilterParameters(NULL);
+		/*XAUDIO2_FILTER_PARAMETERS FilterParameters;
+		FilterParameters.Type = LowPassFilter;
+		FilterParameters.OneOverQ= 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient);
+		FilterParameters.Frequency = 1.0f;*/
+		//engines[ship.m_playerNum]->SetFilterParameters(NULL);
+	}
 
 	if (ship.m_thruster == 0) {
 		engines[ship.m_playerNum]->Stop();
 	}else {
+		engines[ship.m_playerNum]->SetVolume((float)ship.m_thruster);
 		engines[ship.m_playerNum]->Start(0);
 	}
-	engines[ship.m_playerNum]->SetVolume((float)ship.m_thruster);
 }
 /*
 void SoundManager::newVoice(vector<IXAudio2SourceVoice> * list, SENUM_TYPE type) {

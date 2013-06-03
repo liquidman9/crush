@@ -7,17 +7,32 @@ sampler2D textureSampler = sampler_state {
     AddressV = Clamp;
 };
 
-float4 PixelShaderFunction(float2 textureCoordinate : TEXCOORD0) : COLOR0
+float4 SolidAlphaPS(float2 textureCoordinate : TEXCOORD0) : COLOR0
 {
     float4 textureColor = tex2D(textureSampler, textureCoordinate);
     textureColor.a = 1;
     return textureColor;
 }
 
-technique Default
+float4 UseTexAlphaPS(float2 textureCoordinate : TEXCOORD0) : COLOR0
+{
+    float4 textureColor = tex2D(textureSampler, textureCoordinate);
+    //textureColor.a = 1;
+    return textureColor;
+}
+
+technique SolidAlpha
 {
     pass Pass1
     {
-        PixelShader = compile ps_2_0 PixelShaderFunction();
+        PixelShader = compile ps_2_0 SolidAlphaPS();
+    }
+}
+
+technique UseTexAlpha
+{
+    pass Pass1
+    {
+        PixelShader = compile ps_2_0 UseTexAlphaPS();
     }
 }

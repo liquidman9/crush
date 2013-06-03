@@ -16,7 +16,7 @@ namespace server {
 		// Asteroids
 		float asteroids_num = 50;
 		float asteroids_pos_start = 50.0f;
-		float asteroids_pos_range = 150.0f;
+		float asteroids_pos_range = 450.0f;
 		float asteroids_scale_start = 0.5f;
 		float asteroids_scale_range = 5.0f;
 		float asteroids_vel_range = 5.0f;
@@ -25,13 +25,15 @@ namespace server {
 
 	namespace entities {
 		namespace asteroid {
-			float scaleToRadius = 1.0f;
-			float density = 10.0f;
+			float scaleToRadius = 1.5f;
+			float density = 8.0f;
 		}
 
 		namespace tractorbeam {
-			float power = 5.0f;
+			float power = 0.2f;
 			float length = 350.0f;
+			float max_velocity_increase = 100.0f;
+			float invincible_resource_time_limit = 1000.0f;
 		}
 
 		namespace resource {

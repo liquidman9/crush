@@ -183,7 +183,7 @@ public:
 	static void createGlowmap();
 	static void DrawBGSun();
 	//static void drawTexToScreen(LPDIRECT3DSURFACE9 surface, UINT surfaceHeight, UINT surfaceWidth);
-	static void drawTexToSurface(LPDIRECT3DTEXTURE9 tex, CUSTOMQUAD * quad /*LPDIRECT3DVERTEXBUFFER9 quadVBuffer*/);
+	static void drawTexToSurface(LPDIRECT3DTEXTURE9 tex, CUSTOMQUAD * quad, bool useTexAlpha);
 	static void blendTexesToSurface(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2, CUSTOMQUAD * quad, bool copyAlpha);
 	static void blurTexture(LPDIRECT3DTEXTURE9 tex1, LPDIRECT3DTEXTURE9 tex2);
 	static void drawModel(C_Entity * cEnt);
@@ -193,6 +193,7 @@ public:
 	static void releaseBurstPowerupParticles();
 	static void drawAllEngines();
 	static void drawAllEID();
+	static void drawScoreScreen();
 	static void drawShield(C_Ship * ship);
 	static void drawStaticHudElements();
 	static void drawCollisionBounds(D3DXVECTOR3 & pt1, D3DXVECTOR3 & pt2, float radius);
@@ -210,6 +211,7 @@ public:
 
 private:
 	static void placeTextCenterCeiling(LPCWSTR str, UINT x);
+	static void placeTextCenter(LPCWSTR str, UINT x, UINT y);
 	static void placeTextCenterFloor(LPCWSTR str, UINT x);
 };
 

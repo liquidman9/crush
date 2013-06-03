@@ -335,7 +335,7 @@ bool S_Ship::interact(S_Asteroid * asteroid) {
 		m_tractorBeam->m_isColliding = true;
 		return false;
 	}
-	else if(m_resource != NULL && !m_shieldOn) {
+	else if(m_resource != NULL && !m_shieldOn && m_tractorBeam->m_lastHeld != asteroid) {
 		dropResource(2000);
 	}
 	return true;

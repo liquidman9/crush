@@ -16,7 +16,7 @@
 #pragma comment(lib,"x3daudio.lib")
 
 #define SENUM_TYPE char
-enum Sound : char { THRUSTSOUND, TBEAMSOUND};
+enum Sound : char { THRUSTSOUND, TBEAMSOUND, ENGINESTARTSOUND};
 
 class SoundManager {
 public:
