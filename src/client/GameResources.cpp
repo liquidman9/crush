@@ -160,6 +160,7 @@ bool GameResources::speedupVisToggle = FALSE;
 static CUSTOMQUAD fsQuad;
 static CUSTOMQUAD bloomQuad;
 static CUSTOMQUAD scoreScreenQuad[4];
+static CUSTOMQUAD alertQuad;
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -382,11 +383,33 @@ HRESULT GameResources::reInitState() {
 		{ left,  top + hs*3.0f, 0.5f, 1.0f, 0.0f, 0.0f },
 		{ left,  top + hs*4.0f, 0.5f, 1.0f, 0.0f, 1.0f },
     };
+
+	float alert_scale = sqrt((float)(Gbls::thePresentParams.BackBufferWidth * Gbls::thePresentParams.BackBufferHeight))/sqrt((float)(1920*1080));
+	float alert_scale_h = (float) Gbls::thePresentParams.BackBufferHeight/1080;
+	float alert_scale_w = (float) Gbls::thePresentParams.BackBufferWidth/1920;
+	float alert_size = 64*alert_scale;
+	const float alert_skew_h = -400;
+	const float alert_skew_w = 0;
+	float alert_left = (Gbls::thePresentParams.BackBufferWidth/2 - 0.5f) + alert_scale_w*alert_skew_w - alert_size/2;
+	float alert_right = (alert_left + alert_size);
+	float alert_bottom = (((float) Gbls::thePresentParams.BackBufferHeight) - 0.5f) + alert_scale_h*alert_skew_h;
+	float alert_top = alert_bottom - alert_size;
+	
+
+	CUSTOMQUAD tmpQuad_alertQuad =
+    {
+		{ alert_right, alert_top,    0.5f, 1.0f, 1.0f, 0.0f },
+		{ alert_right, alert_bottom, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ alert_left,  alert_top,    0.5f, 1.0f, 0.0f, 0.0f },
+		{ alert_left,  alert_bottom, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+
 	fsQuad = tmpQuad_fsQuad;
 	scoreScreenQuad[0] = tmpQuad_scoreScreenQuad1;
 	scoreScreenQuad[1] = tmpQuad_scoreScreenQuad2;
 	scoreScreenQuad[2] = tmpQuad_scoreScreenQuad3;
 	scoreScreenQuad[3] = tmpQuad_scoreScreenQuad4;
+	alertQuad = tmpQuad_alertQuad;
 	bloomQuad = tmpQuad_bloomQuad;
 
 	//// create a vertex buffer interface called v_buffer
@@ -1068,6 +1091,21 @@ void GameResources::placeTextCenterFloor(LPCWSTR str, UINT x) {
 			D3DCOLOR_XRGB(255, 255, 255));
 }
 
+void GameResources::drawFlashingSprite(Sprite const &sprite, CUSTOMQUAD &location, long long const &time, unsigned int const &flash_period) {
+	static long long last_time = timeGetTime();
+	static bool draw_on = true;
+	unsigned int elapsed_time = (unsigned int) (time - last_time);
+	if(elapsed_time < flash_period/2) {
+		Gbls::pd3dDevice->EndScene();
+		Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		drawTexToSurface(sprite.m_pTexture, &location);
+		Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+		Gbls::pd3dDevice->BeginScene();	
+	} else if(elapsed_time >= flash_period) {
+		last_time = timeGetTime();
+	}
+}
+
 void GameResources::drawStaticHudElements() {
 	HRESULT hres = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
 	if(SUCCEEDED(hres))
@@ -1091,6 +1129,9 @@ void GameResources::drawStaticHudElements() {
 			pd3dSprite->SetTransform(&mat);
 			pd3dSprite->Draw(powerupSprite.m_pTexture, NULL, &centerV3, NULL, 0XFFFFFFFF);
 		}
+		Sprite alertSprite;
+		alertSprite.m_pTexture = shipEIDTexture_resource;
+		drawFlashingSprite(alertSprite, alertQuad, timeGetTime(), 250);
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
 		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
 		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
@@ -1588,8 +1629,9 @@ void GameResources::drawAll()
 
 		// Render static hud elements
 		drawStaticHudElements();
-	
+
 		Gbls::pd3dDevice->EndScene();
+
 	}
 
 	if (pGlowmapSurface) {

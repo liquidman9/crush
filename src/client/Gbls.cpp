@@ -94,7 +94,7 @@ std::wstring Gbls::powerupTexture1Filepath = L"powerup_speed.png";
 std::wstring Gbls::powerupTexture2Filepath = L"powerup_blast.png";
 std::wstring Gbls::powerupTexture3Filepath = L"powerup_shield.png";
 
-std::wstring Gbls::resourceEIDTextureFilepath = L"arrow.png";
+std::wstring Gbls::resourceEIDTextureFilepath = L"arrow_resource.png";
 std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
 std::wstring Gbls::enginePartTexNormFilepath = L"particle02.bmp"; 

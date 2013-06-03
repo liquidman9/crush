@@ -206,6 +206,7 @@ public:
 	static void resetGameState();
 	static C_Entity * createEntity(Entity * newEnt);
 	static void releaseResources();
+	static void drawFlashingSprite(Sprite const &sprite, CUSTOMQUAD &location, long long const &time, unsigned int const &flash_period);
 
 private:
 	static void placeTextCenterCeiling(LPCWSTR str, UINT x);
