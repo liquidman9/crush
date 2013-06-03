@@ -224,6 +224,8 @@ void S_Ship::unlockResource(S_Ship * enemy) {
 }
 
 void S_Ship::updateDefensiveOffensiveCounter() {
+	m_isLockOnTarget =m_heldBy.size() > 0;
+
 	// Erases mashes that have gone for too long
 	for(int i = m_presses.size() -1; i >= 0; i--) {
 		long time = GetTickCount();

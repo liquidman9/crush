@@ -94,14 +94,19 @@ LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_insig[4] = {
 	&GameResources::ship4EIDTexture_insig
 };
 
+LPDIRECT3DTEXTURE9 GameResources::alertTexture = NULL;
+
 LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOnScreen = NULL;
 LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen = NULL;
 
-
-LPDIRECT3DTEXTURE9 GameResources::powerupConsumedTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::powerupTextureArray[3] = {
+	NULL,
+	NULL,
+	NULL
+};
+LPDIRECT3DTEXTURE9 GameResources::powerupConsumedTexture[3] = {
 	NULL,
 	NULL,
 	NULL
@@ -157,6 +162,7 @@ bool GameResources::speedupVisToggle = FALSE;
 static CUSTOMQUAD fsQuad;
 static CUSTOMQUAD bloomQuad;
 static CUSTOMQUAD scoreScreenQuad[4];
+static CUSTOMQUAD alertQuad;
 static CUSTOMQUAD scoreScreenQuadMain;
 
 HRESULT GameResources::initState() {
@@ -386,7 +392,8 @@ HRESULT GameResources::reInitState() {
 		{ left,   top + hs*3.0f, 0.5f, 1.0f, 0.0f, 0.0f },
 		{ left,   top + hs*4.0f, 0.5f, 1.0f, 0.0f, 1.0f },
     };
-	float widthSpacing = ((screenWidth - scoreScreenWidth) / 2.0f) + screenWidth*((1.0f-scoreScreenPercent)/2.0f);
+    
+    	float widthSpacing = ((screenWidth - scoreScreenWidth) / 2.0f) + screenWidth*((1.0f-scoreScreenPercent)/2.0f);
 	float heightSpacing = ((screenHeight - scoreScreenHeight) / 2.0f) + screenHeight*((1.0f-scoreScreenPercent)/2.0f);;
 
 	CUSTOMQUAD tmpQuad_scoreScreenQuadMain =
@@ -396,12 +403,37 @@ HRESULT GameResources::reInitState() {
 		{ left  + widthSpacing, top    + heightSpacing, 0.5f, 1.0f, 0.0f, 0.0f },
 		{ left  + widthSpacing, bottom - heightSpacing, 0.5f, 1.0f, 0.0f, 1.0f },
     };
+
+    
+    
+ 	float alert_scale = sqrt((float)(Gbls::thePresentParams.BackBufferWidth * Gbls::thePresentParams.BackBufferHeight))/sqrt((float)(1920*1080));
+	float alert_scale_h = (float) Gbls::thePresentParams.BackBufferHeight/1080;
+	float alert_scale_w = (float) Gbls::thePresentParams.BackBufferWidth/1920;
+	float alert_size = 64*alert_scale;
+	const float alert_skew_h = -400;
+	const float alert_skew_w = 0;
+	float alert_left = (Gbls::thePresentParams.BackBufferWidth/2 - 0.5f) + alert_scale_w*alert_skew_w - alert_size/2;
+	float alert_right = (alert_left + alert_size);
+	float alert_bottom = (((float) Gbls::thePresentParams.BackBufferHeight) - 0.5f) + alert_scale_h*alert_skew_h;
+	float alert_top = alert_bottom - alert_size;	
+
+	CUSTOMQUAD tmpQuad_alertQuad =
+    {
+		{ alert_right, alert_top,    0.5f, 1.0f, 1.0f, 0.0f },
+		{ alert_right, alert_bottom, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ alert_left,  alert_top,    0.5f, 1.0f, 0.0f, 0.0f },
+		{ alert_left,  alert_bottom, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+
 	fsQuad = tmpQuad_fsQuad;
 	scoreScreenQuad[0] = tmpQuad_scoreScreenQuad1;
 	scoreScreenQuad[1] = tmpQuad_scoreScreenQuad2;
 	scoreScreenQuad[2] = tmpQuad_scoreScreenQuad3;
 	scoreScreenQuad[3] = tmpQuad_scoreScreenQuad4;
+	alertQuad = tmpQuad_alertQuad;
 	scoreScreenQuadMain = tmpQuad_scoreScreenQuadMain;
+
+
 	bloomQuad = tmpQuad_bloomQuad;
 
 	//// create a vertex buffer interface called v_buffer
@@ -759,6 +791,11 @@ HRESULT GameResources::initAdditionalTextures()
 	if (FAILED(hres)) {
 		return hres;
 	}
+
+	hres = loadTexture(&alertTexture, Gbls::alertTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
 	
 
 	hres = loadTexture(&extractorEIDTextureOnScreen, Gbls::extractorEIDTextureOnScreenFilepath);
@@ -771,10 +808,19 @@ HRESULT GameResources::initAdditionalTextures()
 	}
 
 	//load powerup reps
-	hres = loadTexture(&powerupConsumedTexture, Gbls::consumedPowerupTextureFilepath);
+	hres = loadTexture(&powerupConsumedTexture[0], Gbls::consumedPowerupTexture1Filepath);
 	if (FAILED(hres)) {
 		return hres;
 	}
+	hres = loadTexture(&powerupConsumedTexture[1], Gbls::consumedPowerupTexture2Filepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&powerupConsumedTexture[2], Gbls::consumedPowerupTexture3Filepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
 	hres = loadTexture(&powerupTextureArray[0], Gbls::powerupTexture1Filepath);
 	if (FAILED(hres)) {
 		return hres;
@@ -870,12 +916,11 @@ void GameResources::releaseAdditionalTextures() {
 		shipEIDTexture_resource = NULL;
 	}
 
-	if(powerupConsumedTexture) {
-		powerupConsumedTexture->Release();
-		powerupConsumedTexture = NULL;
-	}
-
 	for(unsigned int i = 0; i < 3; i++) {
+		if(powerupConsumedTexture[i]) {
+			powerupConsumedTexture[i]->Release();
+			powerupConsumedTexture[i] = NULL;
+		}
 		if(powerupTextureArray[i]) {
 			powerupTextureArray[i]->Release();
 			powerupTextureArray[i] = NULL;
@@ -1085,15 +1130,34 @@ void GameResources::placeTextCenterFloor(LPCWSTR str, UINT x) {
 		D3DCOLOR_XRGB(255, 255, 255));
 }
 
+void GameResources::drawFlashingSprite(Sprite const &sprite, CUSTOMQUAD &location, long long const &time, unsigned int const &flash_period) {
+	static long long last_time = timeGetTime();
+	static bool draw_on = true;
+	unsigned int elapsed_time = (unsigned int) (time - last_time);
+	if(elapsed_time < flash_period/2) {
+		Gbls::pd3dDevice->EndScene();
+		Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		drawTexToSurface(sprite.m_pTexture, &location, true);
+		Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
+		Gbls::pd3dDevice->BeginScene();	
+	} else if(elapsed_time >= flash_period) {
+		last_time = timeGetTime();
+	}
+}
+
 void GameResources::drawStaticHudElements() {
 	HRESULT hres = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND | D3DXSPRITE_SORT_TEXTURE);
 	if(SUCCEEDED(hres))
 	{
 		if(playerShip && playerShip->m_hasPowerup) {
 			Sprite powerupSprite;
-			powerupSprite.m_pTexture = powerupTextureArray[playerShip->m_powerupType];
+			if(playerShip->m_powerupStateType == CONSUMED) {
+				powerupSprite.m_pTexture = powerupConsumedTexture[playerShip->m_powerupType];
+			} else {
+				powerupSprite.m_pTexture = powerupTextureArray[playerShip->m_powerupType];
+			}
 			powerupSprite.setCenterToTopRight();
-			float scale = (float).75*(sqrt((float)(Gbls::thePresentParams.BackBufferWidth * Gbls::thePresentParams.BackBufferHeight))/sqrt((float)(1920*1080)));
+			float scale = (float)(sqrt((float)(Gbls::thePresentParams.BackBufferWidth * Gbls::thePresentParams.BackBufferHeight))/sqrt((float)(1920*1080)));
 			D3DXVECTOR2 transV, centerV(powerupSprite.m_vCenter.x, powerupSprite.m_vCenter.y), scaleV(scale,scale);
 			transV.x = (float)(Gbls::thePresentParams.BackBufferWidth - powerupSprite.m_vCenter.x);
 			transV.y = (float)(Gbls::thePresentParams.BackBufferHeight/10.0);
@@ -1102,10 +1166,12 @@ void GameResources::drawStaticHudElements() {
 			D3DXMatrixTransformation2D(&mat, &centerV, 0.0f, &scaleV, NULL, 0.0f, &transV);
 			D3DXVECTOR3 centerV3(powerupSprite.m_vCenter.x, powerupSprite.m_vCenter.y, 0);
 			pd3dSprite->SetTransform(&mat);
-			pd3dSprite->Draw(powerupTextureArray[playerShip->m_powerupType], NULL, &centerV3, NULL, 0XFFFFFFFF);
-			if(playerShip->m_powerupStateType == CONSUMED) {
-				pd3dSprite->Draw(powerupConsumedTexture, NULL, &centerV3, NULL, 0XFFFFFFFF);
-			}
+			pd3dSprite->Draw(powerupSprite.m_pTexture, NULL, &centerV3, NULL, 0XFFFFFFFF);
+		}
+		if(playerShip && playerShip->m_isLockOnTarget) { 
+			Sprite alertSprite;
+			alertSprite.m_pTexture = alertTexture;
+			drawFlashingSprite(alertSprite, alertQuad, timeGetTime(), 250);
 		}
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
 		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
@@ -1672,8 +1738,9 @@ void GameResources::drawAll()
 
 		// Render static hud elements
 		drawStaticHudElements();
-	
+
 		Gbls::pd3dDevice->EndScene();
+
 	}
 
 	if (pGlowmapSurface) {

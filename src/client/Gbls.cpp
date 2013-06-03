@@ -83,15 +83,20 @@ std::wstring Gbls::ship3EIDTextureFilepath_arrow = L"arrow_color_003.png";
 std::wstring Gbls::ship4EIDTextureFilepath_insig = L"arrow_icon_004.png";
 std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
 
+std::wstring Gbls::alertTextureFilepath = L"lock_on.png";
+
 std::wstring Gbls::extractorEIDTextureOnScreenFilepath = L"extractor_onscreen.png";
 std::wstring Gbls::extractorEIDTextureOffScreenFilepath = L"extractor_offscreen.png";
 
-std::wstring Gbls::consumedPowerupTextureFilepath = L"powerup_consumed_cover.png";
-std::wstring Gbls::powerupTexture1Filepath = L"powerup_rep_1.png";
-std::wstring Gbls::powerupTexture2Filepath = L"powerup_rep_2.png";
-std::wstring Gbls::powerupTexture3Filepath = L"powerup_rep_3.png";
+std::wstring Gbls::consumedPowerupTexture1Filepath = L"powerup_speed_consumed.png";
+std::wstring Gbls::consumedPowerupTexture2Filepath = L"powerup_blast_consumed.png";
+std::wstring Gbls::consumedPowerupTexture3Filepath = L"powerup_shield_consumed.png";
 
-std::wstring Gbls::resourceEIDTextureFilepath = L"arrow.png";
+std::wstring Gbls::powerupTexture1Filepath = L"powerup_speed.png";
+std::wstring Gbls::powerupTexture2Filepath = L"powerup_blast.png";
+std::wstring Gbls::powerupTexture3Filepath = L"powerup_shield.png";
+
+std::wstring Gbls::resourceEIDTextureFilepath = L"arrow_resource.png";
 std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
 std::wstring Gbls::enginePartTexNormFilepath = L"particle02.bmp"; 
@@ -255,8 +260,14 @@ void Gbls::initFromConfig() {
 		skyboxTextureFilepath_Bottom = wstring(tmpString.begin(), tmpString.end());
 	}
 
-	if(conf.getValue("consumedPowerupTextureFilepath", tmpString)) {
-		consumedPowerupTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	if(conf.getValue("consumedPowerupTexture1Filepath", tmpString)) {
+		consumedPowerupTexture1Filepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("consumedPowerupTexture2Filepath", tmpString)) {
+		consumedPowerupTexture2Filepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("consumedPowerupTexture3Filepath", tmpString)) {
+		consumedPowerupTexture3Filepath = wstring(tmpString.begin(), tmpString.end());
 	}
 	if(conf.getValue("powerupTexture1Filepath", tmpString)) {
 		powerupTexture1Filepath = wstring(tmpString.begin(), tmpString.end());
@@ -294,6 +305,10 @@ void Gbls::initFromConfig() {
 	}
 	if(conf.getValue("ship4EIDTextureFilepath_arrow", tmpString)) {
 		ship4EIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+
+	if(conf.getValue("alertTextureFilepath", tmpString)) {
+		alertTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 
 	

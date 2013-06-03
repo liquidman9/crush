@@ -92,13 +92,15 @@ public:
 	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_arrow[4];
 	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_insig[4];
 
+	static LPDIRECT3DTEXTURE9 alertTexture;
+
 	static LPDIRECT3DTEXTURE9 extractorEIDTextureOnScreen;
 	static LPDIRECT3DTEXTURE9 extractorEIDTextureOffScreen;
 
 	static LPDIRECT3DTEXTURE9 resourceEIDTexture;
 	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
 
-	static LPDIRECT3DTEXTURE9 powerupConsumedTexture;
+	static LPDIRECT3DTEXTURE9 powerupConsumedTexture[3];
 	static LPDIRECT3DTEXTURE9 powerupTextureArray[3];
 
 	static LPDIRECT3DTEXTURE9 tBeamPartTexture;
@@ -207,6 +209,7 @@ public:
 	static void resetGameState();
 	static C_Entity * createEntity(Entity * newEnt);
 	static void releaseResources();
+	static void drawFlashingSprite(Sprite const &sprite, CUSTOMQUAD &location, long long const &time, unsigned int const &flash_period);
 
 private:
 	static void placeTextCenterCeiling(LPCWSTR str, UINT x);
