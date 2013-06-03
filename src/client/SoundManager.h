@@ -25,6 +25,7 @@ public:
 	void playTractorBeam(C_TractorBeam beam);
 	void playEngine(C_Ship ship);
 	void playEvent(shared_ptr<GEvent> e);
+	bool isValid;
 private:
 	IXAudio2MasteringVoice* pMasterVoice;
 	IXAudio2SourceVoice* pSourceVoice;

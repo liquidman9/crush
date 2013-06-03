@@ -188,7 +188,7 @@ HRESULT GameResources::initState() {
 		return hres;
 
 	// Init the SUN (mesh init in initmeshes)
-	D3DXMatrixTranslation(&sunWorldMat, 10, 5, 10);
+	D3DXMatrixTranslation(&sunWorldMat, 10, 3.5, 10);
 
 	// Initialize the skybox
 	hres = Skybox::initSkybox();
@@ -1225,6 +1225,17 @@ static void drawFastModel(C_Entity * cEnt, ID3DXEffect * pEffect) {
 	cEnt->m_pMesh->m_pMesh->DrawSubset(0);
 }
 
+static void drawGlowmapSpecModel(C_Entity * cEnt, ID3DXEffect * pEffect) {
+	D3DXMATRIX tmp;
+	pEffect->SetMatrix("World", &cEnt->worldMat);
+	float det = D3DXMatrixDeterminant(&cEnt->worldMat);
+	D3DXMatrixTranspose(&tmp, D3DXMatrixInverse(&tmp, &det, &cEnt->worldMat));
+	
+	pEffect->SetMatrix("WorldInverseTranspose", &tmp);
+	pEffect->CommitChanges();
+	cEnt->m_pMesh->m_pMesh->DrawSubset(0);
+}
+
 void GameResources::drawAllModels() {
 	
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -1236,7 +1247,7 @@ void GameResources::drawAllModels() {
 	D3DXVec4Normalize(&viewVec, &viewVec);
 	pEffectDefault->SetVector("ViewVector", &viewVec);
 	
-    pEffectDefault->SetTechnique( "Shiny" );
+    pEffectDefault->SetTechnique( "Shiny" ); // used to be shiny, handled in glowmap shader now
 	UINT cPasses;
 	pEffectDefault->Begin(&cPasses, 0);
 	for (UINT iPass = 0; iPass < cPasses; iPass++)
@@ -1257,6 +1268,8 @@ void GameResources::drawAllModels() {
 		for (UINT i = 0; i < powerupList.size(); i++) {
 			drawModel(powerupList[i]);
 		}
+//begin
+ // used to be the only dull section, but now shineyness is handled in the glowmap shader
 		pEffectDefault->EndPass();
 	}
 	pEffectDefault->End();
@@ -1267,6 +1280,7 @@ void GameResources::drawAllModels() {
 	for (UINT iPass = 0; iPass < cPasses; iPass++)
 	{
 		pEffectDefault->BeginPass(iPass);
+//end
 		for (UINT i = 0; i < asteroidList.size(); i++) {
 			drawModel(asteroidList[i]);
 		}
@@ -1352,6 +1366,9 @@ void GameResources::createGlowmap() {
 	GameResources::curCam->setCenteredView();
 	pEffectGlowmap->SetMatrix("View", curCam->getViewMatrix(tmp));
 	pEffectGlowmap->SetMatrix("Projection", curCam->getProjMatrix(tmp));
+	D3DXVECTOR4 viewVec = curCam->m_vAt - curCam->m_vEye;
+	D3DXVec4Normalize(&viewVec, &viewVec);
+	pEffectGlowmap->SetVector("ViewVector", &viewVec);
 	
 	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, FALSE ); // sun is behind ALL
     pEffectGlowmap->SetTechnique( "Emissive" );
@@ -1366,7 +1383,8 @@ void GameResources::createGlowmap() {
 		pEffectGlowmap->EndPass();
 	}
 	pEffectGlowmap->End();
-
+	
+	Gbls::pd3dDevice->SetRenderState( D3DRS_ZWRITEENABLE, TRUE ); // sun is behind ALL
 	GameResources::curCam->updateView();
 	pEffectGlowmap->SetMatrix("View", curCam->getViewMatrix(tmp));
 
@@ -1375,24 +1393,33 @@ void GameResources::createGlowmap() {
 	pEffectGlowmap->Begin(&cPasses, 0);
 	for (UINT iPass = 0; iPass < cPasses; iPass++)
 	{
-		pEffectGlowmap->BeginPass(iPass);
-		for (UINT i = 0; i < shipList.size(); i++) {
-			drawFastModel(shipList[i], pEffectGlowmap);
-		}
-		for (UINT i = 0; i < mothershipList.size(); i++) {
-			drawFastModel(mothershipList[i], pEffectGlowmap);
-		}
-		for (UINT i = 0; i < resourceList.size(); i++) {
-			drawFastModel(resourceList[i], pEffectGlowmap);
-		}
-		for (UINT i = 0; i < extractorList.size(); i++) {
-			drawFastModel(extractorList[i], pEffectGlowmap);
-		}
 		for (UINT i = 0; i < powerupList.size(); i++) {
 			drawFastModel(powerupList[i], pEffectGlowmap);
 		}
 		for (UINT i = 0; i < asteroidList.size(); i++) {
 			drawFastModel(asteroidList[i], pEffectGlowmap);
+		}
+		pEffectGlowmap->EndPass();
+	}
+	pEffectGlowmap->End();
+
+	pEffectGlowmap->SetTechnique( "Specular" );
+	cPasses;
+	pEffectGlowmap->Begin(&cPasses, 0);
+	for (UINT iPass = 0; iPass < cPasses; iPass++)
+	{
+		pEffectGlowmap->BeginPass(iPass);
+		for (UINT i = 0; i < shipList.size(); i++) {
+			drawGlowmapSpecModel(shipList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < mothershipList.size(); i++) {
+			drawGlowmapSpecModel(mothershipList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < resourceList.size(); i++) {
+			drawGlowmapSpecModel(resourceList[i], pEffectGlowmap);
+		}
+		for (UINT i = 0; i < extractorList.size(); i++) {
+			drawGlowmapSpecModel(extractorList[i], pEffectGlowmap);
 		}
 		pEffectGlowmap->EndPass();
 	}
@@ -1628,17 +1655,6 @@ void GameResources::drawScoreScreen() {
 			placeTextCenter(str.str().c_str(), left + width*0.80f, top + (1.0f + i*2.0f)*(height/8.0f));
 			str.str(L"");
 		}
-		//str << L"Player " << winnerList[i].first + 1;
-		//placeTextCenter(str.str().c_str(), left + width/2.0f, top + height/8.0f);
-		//placeTextCenter(L"Player 2", left + width/2.0f, top + 3.0f*(height/8.0f));
-		//placeTextCenter(L"Player 3", left + width/2.0f, top + 5.0f*(height/8.0f));
-		//placeTextCenter(L"Player 4", left + width/2.0f, top + 7.0f*(height/8.0f));
-
-		
-		//placeTextCenter(L"Player 1", left + width/2.0f, top + height/8.0f);
-		//placeTextCenter(L"Player 2", left + width/2.0f, top + 3.0f*(height/8.0f));
-		//placeTextCenter(L"Player 3", left + width/2.0f, top + 5.0f*(height/8.0f));
-		//placeTextCenter(L"Player 4", left + width/2.0f, top + 7.0f*(height/8.0f));
 		pd3dSprite->End();
 	}
 	Gbls::pd3dDevice->EndScene();
@@ -1774,18 +1790,20 @@ void GameResources::drawAll()
 // called each frame to update the state of all game sounds
 void GameResources::playSounds(vector<shared_ptr<GEvent> > events)
 {
-	//Engine sounds
-	for (UINT i = 0; i < shipList.size(); i++) {
-		sound.playEngine(shipList[i]);
-	}
+	if (sound.isValid) {
+		//Engine sounds
+		for (UINT i = 0; i < shipList.size(); i++) {
+			sound.playEngine(shipList[i]);
+		}
 
-	//Tractor Beam Sounds
-	for (UINT i = 0; i < tractorBeamList.size(); i++) {
-		sound.playTractorBeam(tractorBeamList[i]);
-	}
+		//Tractor Beam Sounds
+		for (UINT i = 0; i < tractorBeamList.size(); i++) {
+			sound.playTractorBeam(tractorBeamList[i]);
+		}
 
-	for (UINT i = 0; i < events.size(); i++) {
-		sound.playEvent(events[i]);
+		for (UINT i = 0; i < events.size(); i++) {
+			sound.playEvent(events[i]);
+		}
 	}
 }
 
