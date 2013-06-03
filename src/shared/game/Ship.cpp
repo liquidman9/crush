@@ -127,5 +127,6 @@ void Ship::update(shared_ptr<Entity> sp_source) {
 		m_powerupType = srcShip->m_powerupType;
 		m_powerupStateType = srcShip->m_powerupStateType;
 		m_useAltSprite = srcShip->m_useAltSprite;
+		m_isLockOnTarget = srcShip->m_isLockOnTarget;
 	}
 }
