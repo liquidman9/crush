@@ -16,7 +16,7 @@
 #pragma comment(lib,"x3daudio.lib")
 
 #define SENUM_TYPE char
-enum Sound : char { THRUSTSOUND, TBEAMSOUND, ENGINESTARTSOUND};
+enum Sound : char { THRUSTSOUND, TBEAMSOUND, ENGINESTARTSOUND, PULSESOUND, COLLISIONSOUND, AMBIENCESOUND};
 
 class SoundManager {
 public:
@@ -24,6 +24,7 @@ public:
 	~SoundManager();
 	void playTractorBeam(C_TractorBeam beam);
 	void playEngine(C_Ship ship);
+	void playEvent(shared_ptr<GEvent> e);
 private:
 	IXAudio2MasteringVoice* pMasterVoice;
 	IXAudio2SourceVoice* pSourceVoice;
@@ -36,8 +37,13 @@ private:
 	map<SENUM_TYPE, WAVEFORMATEXTENSIBLE> formats;
 	map<int,IXAudio2SourceVoice*> engines;
 	map<int,X3DAUDIO_EMITTER*> engines3d;
+	map<int,IXAudio2SourceVoice*> powerups;
+	map<int,X3DAUDIO_EMITTER*> powerups3d;
 	map<int,IXAudio2SourceVoice*> tractorBeams;
 	map<int,X3DAUDIO_EMITTER*> tractorBeams3d;
+	void newSound(TCHAR * path, Sound type, int loop);
+	void newVoice(map<int,IXAudio2SourceVoice*> & map, int idx, Sound type);
+	void new3dEmitter(map<int,X3DAUDIO_EMITTER*> & map, int idx);
 };
 
 #endif

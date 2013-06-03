@@ -24,40 +24,21 @@ SoundManager::SoundManager() {
 			CoUninitialize();
 		} else {
 	
-			WAVEFORMATEXTENSIBLE wfx = {0};
-			XAUDIO2_BUFFER buffer = {0};
-			buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
-
-			WAVEFORMATEXTENSIBLE wfxtb = {0};
-			XAUDIO2_BUFFER buffertb = {0};
-			buffertb.LoopCount = XAUDIO2_LOOP_INFINITE;
-
-			loadSound(_TEXT("engine.wav"),wfx, buffer);
-			loadSound(_TEXT("tractorbeam.wav"),wfxtb, buffertb);
-			sounds[THRUSTSOUND] = buffer;
-			sounds[TBEAMSOUND] = buffertb;
-			formats[THRUSTSOUND] = wfx;
-			formats[TBEAMSOUND] = wfxtb;
-
-			WAVEFORMATEXTENSIBLE wfx_engs = {0};
-			XAUDIO2_BUFFER buffer_engs = {0};
-			buffer_engs.LoopCount = XAUDIO2_LOOP_INFINITE;
-
-			loadSound(_TEXT("enginestart.wav"),wfx_engs, buffer_engs);
-			sounds[ENGINESTARTSOUND] = buffer_engs;
-			formats[ENGINESTARTSOUND] = wfx_engs;
+			//Load all sound effects
+			newSound(_TEXT("engine_m.wav"),THRUSTSOUND,XAUDIO2_LOOP_INFINITE);
+			newSound(_TEXT("tractorbeam_m.wav"),TBEAMSOUND,XAUDIO2_LOOP_INFINITE);
+			newSound(_TEXT("enginestart_m.wav"),ENGINESTARTSOUND,0);
+			newSound(_TEXT("pulse_m.wav"),PULSESOUND,0);
+			newSound(_TEXT("impact1.wav"),COLLISIONSOUND,0);
 
 			//Load ambience (music)
-			WAVEFORMATEXTENSIBLE wfx_amb = {0};
-			XAUDIO2_BUFFER buffer_amb = {0};
-			buffer_amb.LoopCount = XAUDIO2_LOOP_INFINITE;
-			loadSound(_TEXT("ambience.wav"),wfx_amb, buffer_amb);
+			newSound(_TEXT("ambience.wav"),AMBIENCESOUND,XAUDIO2_LOOP_INFINITE);
 			IXAudio2SourceVoice* temp;
-			if( FAILED(hr = pXAudio2->CreateSourceVoice( &temp, (WAVEFORMATEX*)(&wfx_amb) ) ) ) 
+			if( FAILED(hr = pXAudio2->CreateSourceVoice( &temp, (WAVEFORMATEX*)(&formats[AMBIENCESOUND]) ) ) ) 
 				std::cout << "failure 2!" << std::endl;
-			if( FAILED(hr = (temp->SubmitSourceBuffer( &buffer_amb ) ) ) )
+			if( FAILED(hr = (temp->SubmitSourceBuffer( &sounds[AMBIENCESOUND] ) ) ) )
 				std::cout << "failure 3!" << std::endl;
-			temp->Start(0);
+			//temp->Start(0);
 			
 			//Set up 3D Sound
 			pXAudio2->GetDeviceDetails(0,&deviceDetails);
@@ -73,21 +54,13 @@ SoundManager::~SoundManager() {
 
 void SoundManager::playTractorBeam(C_TractorBeam beam) {
 	if (tractorBeams.find(beam.m_playerNum) == tractorBeams.end()) {
-		HRESULT hr;
-		IXAudio2SourceVoice* temp;
-		tractorBeams.insert(pair<int,IXAudio2SourceVoice*>(beam.m_playerNum,temp));
-		if( FAILED(hr = pXAudio2->CreateSourceVoice( &(tractorBeams[beam.m_playerNum]), (WAVEFORMATEX*)(&formats[TBEAMSOUND]) ) ) ) 
-			std::cout << "failure 2!" << std::endl;
 
+		newVoice(tractorBeams,beam.m_playerNum,TBEAMSOUND);
+		new3dEmitter(tractorBeams3d,beam.m_playerNum);
+
+		HRESULT hr;
 		if( FAILED(hr = (tractorBeams[beam.m_playerNum])->SubmitSourceBuffer( &sounds[TBEAMSOUND] ) ) )
 			std::cout << "failure 3!" << std::endl;
-
-		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
-		tractorBeams3d.insert(pair<int,X3DAUDIO_EMITTER*>(beam.m_playerNum, Emitter));
-		tractorBeams3d[beam.m_playerNum]->ChannelCount = 1;
-		tractorBeams3d[beam.m_playerNum]->CurveDistanceScaler = AUDSCALE;
-		tractorBeams3d[beam.m_playerNum]->DopplerScaler = 20.0;
-
 	}
 
 	if (beam.m_isOn && beam.m_playerNum != GameResources::playerNum) { //no 3d for player sounds
@@ -125,23 +98,13 @@ void SoundManager::playTractorBeam(C_TractorBeam beam) {
 
 void SoundManager::playEngine(C_Ship ship) {
 	if (engines.find(ship.m_playerNum) == engines.end()) {
-		HRESULT hr;
-		IXAudio2SourceVoice* temp2;
-		engines.insert(pair<int,IXAudio2SourceVoice*>(ship.m_playerNum,temp2));
-		if( FAILED(hr = pXAudio2->CreateSourceVoice( &(engines[ship.m_playerNum]), (WAVEFORMATEX*)(&formats[THRUSTSOUND]) ) ) ) 
-			std::cout << "failure 2!" << std::endl;
 
-		/*if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[ENGINESTARTSOUND] ) ) )
-			std::cout << "failure 3!" << std::endl;*/
+		newVoice(engines,ship.m_playerNum,THRUSTSOUND);
+		newVoice(powerups,ship.m_playerNum,PULSESOUND);
 
-		if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[THRUSTSOUND] ) ) )
-			std::cout << "failure 3!" << std::endl;
+		new3dEmitter(engines3d,ship.m_playerNum);
+		new3dEmitter(powerups3d,ship.m_playerNum);
 
-		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
-		engines3d.insert(pair<int,X3DAUDIO_EMITTER*>(ship.m_playerNum, Emitter));
-		engines3d[ship.m_playerNum]->ChannelCount = 1;
-		engines3d[ship.m_playerNum]->CurveDistanceScaler = AUDSCALE;
-		engines3d[ship.m_playerNum]->DopplerScaler = 20.0;
 	}
 
 	if (ship.m_playerNum == GameResources::playerNum) {
@@ -161,6 +124,13 @@ void SoundManager::playEngine(C_Ship ship) {
 		engines3d[ship.m_playerNum]->Position = ship.m_pos;
 		engines3d[ship.m_playerNum]->Velocity = ship.m_velocity;
 
+		aud.x=0; aud.y=0; aud.z=1;
+		powerups3d[ship.m_playerNum]->OrientFront = aud;
+		aud.x=0; aud.y=1; aud.z=0;
+		powerups3d[ship.m_playerNum]->OrientTop = aud;
+		powerups3d[ship.m_playerNum]->Position = ship.m_pos;
+		powerups3d[ship.m_playerNum]->Velocity = ship.m_velocity;
+
 		X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
 		FLOAT32 * matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
 		DSPSettings.SrcChannelCount = 1;
@@ -173,6 +143,13 @@ void SoundManager::playEngine(C_Ship ship) {
 
 		engines[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
 		engines[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
+
+		X3DAudioCalculate(X3DInstance, &Listener, powerups3d[ship.m_playerNum],
+	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_REVERB,
+	&DSPSettings );
+
+		powerups[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+		powerups[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
 		//engines[ship.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
 
 		/*XAUDIO2_FILTER_PARAMETERS FilterParameters;
@@ -184,14 +161,96 @@ void SoundManager::playEngine(C_Ship ship) {
 
 	if (ship.m_thruster == 0) {
 		engines[ship.m_playerNum]->Stop();
+		engines[ship.m_playerNum]->FlushSourceBuffers();
 	}else {
+		XAUDIO2_VOICE_STATE vs;
+		(engines[ship.m_playerNum])->GetState(&vs);
+		if (vs.BuffersQueued == 0) {
+		HRESULT hr;
+		if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[ENGINESTARTSOUND] ) ) )
+			std::cout << "failure 3!" << std::endl;
+		} else if (vs.BuffersQueued == 1) {
+			HRESULT hr;
+			if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[THRUSTSOUND] ) ) )
+				std::cout << "failure 3!" << std::endl;
+		}
+
 		engines[ship.m_playerNum]->SetVolume((float)ship.m_thruster);
 		engines[ship.m_playerNum]->Start(0);
 	}
+	if (ship.m_hasPowerup && ship.m_powerupType == SPEEDUP && ship.m_powerupStateType == CONSUMED) {
+		engines[ship.m_playerNum]->SetVolume(2.0f);
+	}
+	if (ship.m_hasPowerup && ship.m_powerupType == PULSE && ship.m_powerupStateType == CONSUMED) {
+		XAUDIO2_VOICE_STATE vs;
+		(powerups[ship.m_playerNum])->GetState(&vs);
+		if (vs.BuffersQueued == 0) {
+			HRESULT hr;
+			if( FAILED(hr = (powerups[ship.m_playerNum])->SubmitSourceBuffer( &sounds[PULSESOUND] ) ) )
+				std::cout << "failure 3!" << std::endl;
+			powerups[ship.m_playerNum]->Start(0);
+		}
+	}
 }
-/*
-void SoundManager::newVoice(vector<IXAudio2SourceVoice> * list, SENUM_TYPE type) {
 
-}*/
+void SoundManager::playEvent(shared_ptr<GEvent> e) {
+
+	if (e->m_type == COLLISIONEVENT) {
+
+		
+	CollisionGEvent * c = dynamic_cast<CollisionGEvent*>(&*e);
+
+	if (c->m_ctype == SA) {
+	HRESULT hr;
+	IXAudio2SourceVoice* temp;
+	if( FAILED(hr = pXAudio2->CreateSourceVoice( &(temp), (WAVEFORMATEX*)(&formats[COLLISIONSOUND]) ) ) ) 
+			std::cout << "failure 2!" << std::endl;
+
+	if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[COLLISIONSOUND] ) ) )
+			std::cout << "failure 3!" << std::endl;
+	/*
+	X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
+	tractorBeams3d.insert(pair<int,X3DAUDIO_EMITTER*>(beam.m_playerNum, Emitter));
+	tractorBeams3d[beam.m_playerNum]->ChannelCount = 1;
+	tractorBeams3d[beam.m_playerNum]->CurveDistanceScaler = AUDSCALE;
+	tractorBeams3d[beam.m_playerNum]->DopplerScaler = 20.0;
+	*/
+	float impulse = c->m_impulse;
+	temp->SetVolume(c->m_impulse/200000.0);
+	temp->SetFrequencyRatio(1/(c->m_impulse/200000.0));
+	temp->Start(0);
+	}
+
+	/*
+	switch(c->m_ctype) {
+	case 
+	}*/
+	}
+}
+
+void SoundManager::newSound(TCHAR * path, Sound type, int loop) {
+	WAVEFORMATEXTENSIBLE wfx_tmp = {0};
+	XAUDIO2_BUFFER buffer_tmp  = {0};
+	buffer_tmp.LoopCount = loop;
+	loadSound(path,wfx_tmp , buffer_tmp );
+	sounds[type] = buffer_tmp;
+	formats[type] = wfx_tmp;
+}
+
+void SoundManager::newVoice(map<int,IXAudio2SourceVoice*> & map, int idx, Sound type) {
+	HRESULT hr;
+	IXAudio2SourceVoice* temp2;
+	map.insert(pair<int,IXAudio2SourceVoice*>(idx,temp2));
+	if( FAILED(hr = pXAudio2->CreateSourceVoice( &(map[idx]), (WAVEFORMATEX*)(&formats[type]) ) ) ) 
+		std::cout << "failure 2!" << std::endl;
+}
+
+void SoundManager::new3dEmitter(map<int,X3DAUDIO_EMITTER*> & map, int idx) {
+	X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
+	map.insert(pair<int,X3DAUDIO_EMITTER*>(idx, Emitter));
+	map[idx]->ChannelCount = 1;
+	map[idx]->CurveDistanceScaler = AUDSCALE;
+	map[idx]->DopplerScaler = 20.0;
+}
 
 
