@@ -86,7 +86,8 @@ std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
 std::wstring Gbls::alertTextureFilepath = L"lock_on.png";
 
 std::wstring Gbls::extractorEIDTextureOnScreenFilepath = L"extractor_onscreen.png";
-std::wstring Gbls::extractorEIDTextureOffScreenFilepath = L"extractor_offscreen.png";
+std::wstring Gbls::extractorEIDTextureOffScreenFilepath_insig = L"arrow_resource_icon.png";
+std::wstring Gbls::extractorEIDTextureOffScreenFilepath_arrow = L"arrow_mothership_base.png";
 
 std::wstring Gbls::consumedPowerupTexture1Filepath = L"powerup_speed_consumed.png";
 std::wstring Gbls::consumedPowerupTexture2Filepath = L"powerup_blast_consumed.png";
@@ -97,7 +98,11 @@ std::wstring Gbls::powerupTexture2Filepath = L"powerup_blast.png";
 std::wstring Gbls::powerupTexture3Filepath = L"powerup_shield.png";
 
 std::wstring Gbls::resourceEIDTextureFilepath = L"arrow_resource.png";
-std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
+
+std::wstring Gbls::mothershipEIDTextureFilepath_arrow = L"arrow_mothership_base.png";
+std::wstring Gbls::mothershipEIDTextureFilepath_insig = L"arrow_mothership_icon.png";
+
+
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
 std::wstring Gbls::enginePartTexNormFilepath = L"particle02.bmp"; 
 std::wstring Gbls::enginePartTexSpeedupFilepath = L"particle03.bmp"; 
@@ -312,15 +317,21 @@ void Gbls::initFromConfig() {
 	}
 
 	
-	if(conf.getValue("extractorEIDTextureOffScreenFilepath", tmpString)) {
-		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	if(conf.getValue("extractorEIDTextureOffScreenFilepath_arrow", tmpString)) {
+		extractorEIDTextureOffScreenFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("extractorEIDTextureOffScreenFilepath_insig", tmpString)) {
+		extractorEIDTextureOffScreenFilepath_insig = wstring(tmpString.begin(), tmpString.end());
 	}
 	if(conf.getValue("extractorEIDTextureOnScreenFilepath", tmpString)) {
-		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+		extractorEIDTextureOnScreenFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 
-	if(conf.getValue("mothershipEIDTextureFilepath", tmpString)) {
-		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	if(conf.getValue("mothershipEIDTextureFilepath_arrow", tmpString)) {
+		mothershipEIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("mothershipEIDTextureFilepath_insig", tmpString)) {
+		mothershipEIDTextureFilepath_insig = wstring(tmpString.begin(), tmpString.end());
 	}
 
 	if(conf.getValue("resourceEIDTextureFilepath", tmpString)) {

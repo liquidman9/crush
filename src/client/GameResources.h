@@ -95,10 +95,14 @@ public:
 	static LPDIRECT3DTEXTURE9 alertTexture;
 
 	static LPDIRECT3DTEXTURE9 extractorEIDTextureOnScreen;
-	static LPDIRECT3DTEXTURE9 extractorEIDTextureOffScreen;
+	static LPDIRECT3DTEXTURE9 extractorEIDTextureOffScreen_arrow;
+	static LPDIRECT3DTEXTURE9 extractorEIDTextureOffScreen_insig;
 
 	static LPDIRECT3DTEXTURE9 resourceEIDTexture;
-	static LPDIRECT3DTEXTURE9 mothershipEIDTexture;
+
+	static LPDIRECT3DTEXTURE9 mothershipEIDTexture_arrow;
+	static LPDIRECT3DTEXTURE9 mothershipEIDTexture_insig;
+
 
 	static LPDIRECT3DTEXTURE9 powerupConsumedTexture[3];
 	static LPDIRECT3DTEXTURE9 powerupTextureArray[3];
