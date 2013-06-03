@@ -1766,18 +1766,20 @@ void GameResources::drawAll()
 // called each frame to update the state of all game sounds
 void GameResources::playSounds(vector<shared_ptr<GEvent> > events)
 {
-	//Engine sounds
-	for (UINT i = 0; i < shipList.size(); i++) {
-		sound.playEngine(shipList[i]);
-	}
+	if (sound.isValid) {
+		//Engine sounds
+		for (UINT i = 0; i < shipList.size(); i++) {
+			sound.playEngine(shipList[i]);
+		}
 
-	//Tractor Beam Sounds
-	for (UINT i = 0; i < tractorBeamList.size(); i++) {
-		sound.playTractorBeam(tractorBeamList[i]);
-	}
+		//Tractor Beam Sounds
+		for (UINT i = 0; i < tractorBeamList.size(); i++) {
+			sound.playTractorBeam(tractorBeamList[i]);
+		}
 
-	for (UINT i = 0; i < events.size(); i++) {
-		sound.playEvent(events[i]);
+		for (UINT i = 0; i < events.size(); i++) {
+			sound.playEvent(events[i]);
+		}
 	}
 }
 
