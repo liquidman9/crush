@@ -121,7 +121,7 @@ char * Network::decodeDelta(const char *buff, unsigned int &size) {
 	buff += sizeof(unsigned int);
 	auto rtn = m_deltaField.decode(buff);
 	assert(rtn < tmp_size);
-	assert(tmp_size <= size);
+	assert(tmp_size == size);
 	auto orig_buff = buff;
 	buff += rtn;
 	if(m_oldState == NULL) {

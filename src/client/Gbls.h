@@ -102,6 +102,8 @@ public:
 	static std::wstring ship4EIDTextureFilepath_insig;
 	static std::wstring ship4EIDTextureFilepath_arrow;
 
+	static std::wstring alertTextureFilepath;
+
 	static std::wstring powerupTexture1Filepath;
 	static std::wstring powerupTexture2Filepath;
 	static std::wstring powerupTexture3Filepath;

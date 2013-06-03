@@ -83,6 +83,8 @@ std::wstring Gbls::ship3EIDTextureFilepath_arrow = L"arrow_color_003.png";
 std::wstring Gbls::ship4EIDTextureFilepath_insig = L"arrow_icon_004.png";
 std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
 
+std::wstring Gbls::alertTextureFilepath = L"lock_on.png";
+
 std::wstring Gbls::extractorEIDTextureOnScreenFilepath = L"extractor_onscreen.png";
 std::wstring Gbls::extractorEIDTextureOffScreenFilepath = L"extractor_offscreen.png";
 
@@ -303,6 +305,10 @@ void Gbls::initFromConfig() {
 	}
 	if(conf.getValue("ship4EIDTextureFilepath_arrow", tmpString)) {
 		ship4EIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+
+	if(conf.getValue("alertTextureFilepath", tmpString)) {
+		alertTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 
 	

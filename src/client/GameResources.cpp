@@ -94,6 +94,8 @@ LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_insig[4] = {
 	&GameResources::ship4EIDTexture_insig
 };
 
+LPDIRECT3DTEXTURE9 GameResources::alertTexture = NULL;
+
 LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOnScreen = NULL;
@@ -413,10 +415,7 @@ HRESULT GameResources::reInitState() {
 	float alert_left = (Gbls::thePresentParams.BackBufferWidth/2 - 0.5f) + alert_scale_w*alert_skew_w - alert_size/2;
 	float alert_right = (alert_left + alert_size);
 	float alert_bottom = (((float) Gbls::thePresentParams.BackBufferHeight) - 0.5f) + alert_scale_h*alert_skew_h;
-	float alert_top = alert_bottom - alert_size;
-
-	float alert_top = alert_bottom - alert_size;
-	
+	float alert_top = alert_bottom - alert_size;	
 
 	CUSTOMQUAD tmpQuad_alertQuad =
     {
@@ -792,6 +791,11 @@ HRESULT GameResources::initAdditionalTextures()
 	if (FAILED(hres)) {
 		return hres;
 	}
+
+	hres = loadTexture(&alertTexture, Gbls::alertTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
 	
 
 	hres = loadTexture(&extractorEIDTextureOnScreen, Gbls::extractorEIDTextureOnScreenFilepath);
@@ -1133,7 +1137,7 @@ void GameResources::drawFlashingSprite(Sprite const &sprite, CUSTOMQUAD &locatio
 	if(elapsed_time < flash_period/2) {
 		Gbls::pd3dDevice->EndScene();
 		Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		drawTexToSurface(sprite.m_pTexture, &location);
+		drawTexToSurface(sprite.m_pTexture, &location, true);
 		Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ZERO);
 		Gbls::pd3dDevice->BeginScene();	
 	} else if(elapsed_time >= flash_period) {
@@ -1164,9 +1168,11 @@ void GameResources::drawStaticHudElements() {
 			pd3dSprite->SetTransform(&mat);
 			pd3dSprite->Draw(powerupSprite.m_pTexture, NULL, &centerV3, NULL, 0XFFFFFFFF);
 		}
-		Sprite alertSprite;
-		alertSprite.m_pTexture = shipEIDTexture_resource;
-		drawFlashingSprite(alertSprite, alertQuad, timeGetTime(), 250);
+		if(playerShip && playerShip->m_isLockOnTarget) { 
+			Sprite alertSprite;
+			alertSprite.m_pTexture = alertTexture;
+			drawFlashingSprite(alertSprite, alertQuad, timeGetTime(), 250);
+		}
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
 		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
 		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
