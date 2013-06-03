@@ -7,13 +7,13 @@ float AmbientIntensity = 0.75;
 
 float4x4 WorldInverseTranspose;
 
-float3 DiffuseLightDirection = normalize(float3(1, 1, 1));
+float3 DiffuseLightDirection = normalize(float3( 10, 3.5, 10));
 float4 DiffuseColor = float4(1, 1, 1, 1);
 float DiffuseIntensity = 1.0;
 
 float Shininess = 200;
 float4 SpecularColor = float4(1, 1, 1, 1);    
-float SpecularIntensity = 1;
+float SpecularIntensity = 0.30;
 float3 ViewVector = float3(1, 0, 0);
 
 float4 ShieldColor = float4(1, 0, 0, 0.5);
@@ -68,7 +68,7 @@ float4 PixelShaderFunctionShiny(VertexShaderOutput input) : COLOR0
     float3 v = normalize(mul(normalize(ViewVector), World));
 
     float dotProduct = dot(r, v);
-    float4 specular = SpecularIntensity * SpecularColor * max(pow(dotProduct, Shininess), 0) * length(input.Color);
+    float4 specular = SpecularIntensity * SpecularColor * max(pow(dotProduct, Shininess), 0);// * length(input.Color);
 
     float4 textureColor = tex2D(textureSampler, input.TextureCoordinate);
     textureColor.a = 1;
