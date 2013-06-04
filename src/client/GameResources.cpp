@@ -1369,6 +1369,7 @@ void GameResources::createGlowmap() {
 	pEffectGlowmap->Begin(&cPasses, 0);
 	for (UINT iPass = 0; iPass < cPasses; iPass++)
 	{
+		pEffectGlowmap->BeginPass(iPass);
 		for (UINT i = 0; i < powerupList.size(); i++) {
 			drawFastModel(powerupList[i], pEffectGlowmap);
 		}
