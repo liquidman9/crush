@@ -127,7 +127,7 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 		return c;
 	}
 
-	if(((one = a)->m_type == ASTEROID && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == ASTEROID && (two = a)->m_type == MOTHERSHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+	if(((one = a)->m_type == ASTEROID && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == ASTEROID && (two = a)->m_type == MOTHERSHIP )){
 		c = new Collision(AM, a, b, closeA, closeB, 0.9, 0.6);
 		return c;
 	}
@@ -137,7 +137,7 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 		return c;
 	}
 	
-	if(((one = a)->m_type == ASTEROID && (two = b)->m_type == EXTRACTOR) || ((one = b)->m_type == ASTEROID && (two = a)->m_type == EXTRACTOR && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+	if(((one = a)->m_type == ASTEROID && (two = b)->m_type == EXTRACTOR) || ((one = b)->m_type == ASTEROID && (two = a)->m_type == EXTRACTOR) ){
 		c = new Collision(AE, a, b, closeA, closeB, 0.9, 0.6);
 		return c;
 	}

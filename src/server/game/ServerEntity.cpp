@@ -106,9 +106,15 @@ void ServerEntity::recalculateRelativeValues() {
 	// Generate rotation matrix
 	D3DXMatrixRotationQuaternion(&mat_rotate, &m_orientation);
 
+	
 	// calculate front/back points	
 	D3DXVECTOR3 front(0.0f, 0.0f, m_length), 
 				back(0.0f, 0.0f, -m_length);
+
+	if(m_type == EXTRACTOR) {
+		front = D3DXVECTOR3(0.0f,m_length, 0.0f);
+		back = D3DXVECTOR3(0.0f,-m_length, 0.0f);
+	}
 
 	D3DXVec3Transform(&temp, &front, &mat_rotate);
 	m_pFront = D3DXVECTOR3(temp.x, temp.y, temp.z);
