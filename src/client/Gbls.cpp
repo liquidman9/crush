@@ -66,12 +66,12 @@ std::wstring Gbls::pScoreScrenAlphaTexFilepath = L"scoreboard_alpha.png";
 
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;
-std::wstring Gbls::skyboxTextureFilepath_Front = L"SkyBox_Front.jpg";
-std::wstring Gbls::skyboxTextureFilepath_Back = L"SkyBox_Back.jpg";
-std::wstring Gbls::skyboxTextureFilepath_Left = L"SkyBox_Left.jpg";
-std::wstring Gbls::skyboxTextureFilepath_Right = L"SkyBox_Right.jpg";
-std::wstring Gbls::skyboxTextureFilepath_Top = L"SkyBox_Top.jpg";
-std::wstring Gbls::skyboxTextureFilepath_Bottom = L"SkyBox_Bottom.jpg";
+std::wstring Gbls::skyboxTextureFilepath_Front = L"nebula_003.png";
+std::wstring Gbls::skyboxTextureFilepath_Back = L"nebula_003.png";
+std::wstring Gbls::skyboxTextureFilepath_Left = L"nebula_003.png";
+std::wstring Gbls::skyboxTextureFilepath_Right = L"nebula_003.png";
+std::wstring Gbls::skyboxTextureFilepath_Top = L"nebula_003.png";
+std::wstring Gbls::skyboxTextureFilepath_Bottom = L"nebula_003.png";
 
 std::wstring Gbls::shipEIDTextureFilepath_resource = L"arrow_icon_resource.png";
 std::wstring Gbls::ship1EIDTextureFilepath_insig = L"arrow_icon_001.png";
@@ -86,7 +86,8 @@ std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
 std::wstring Gbls::alertTextureFilepath = L"lock_on.png";
 
 std::wstring Gbls::extractorEIDTextureOnScreenFilepath = L"extractor_onscreen.png";
-std::wstring Gbls::extractorEIDTextureOffScreenFilepath = L"extractor_offscreen.png";
+std::wstring Gbls::extractorEIDTextureOffScreenFilepath_insig = L"arrow_resource_icon.png";
+std::wstring Gbls::extractorEIDTextureOffScreenFilepath_arrow = L"arrow_mothership_base.png";
 
 std::wstring Gbls::consumedPowerupTexture1Filepath = L"powerup_speed_consumed.png";
 std::wstring Gbls::consumedPowerupTexture2Filepath = L"powerup_blast_consumed.png";
@@ -96,13 +97,22 @@ std::wstring Gbls::powerupTexture1Filepath = L"powerup_speed.png";
 std::wstring Gbls::powerupTexture2Filepath = L"powerup_blast.png";
 std::wstring Gbls::powerupTexture3Filepath = L"powerup_shield.png";
 
+std::wstring Gbls::player1HudFilepath_insig = L"player_1_icon.png";
+std::wstring Gbls::player2HudFilepath_insig = L"player_2_icon.png";
+std::wstring Gbls::player3HudFilepath_insig = L"player_3_icon.png";
+std::wstring Gbls::player4HudFilepath_insig = L"player_4_icon.png";
+
 std::wstring Gbls::resourceEIDTextureFilepath = L"arrow_resource.png";
-std::wstring Gbls::mothershipEIDTextureFilepath = L"arrowMothership.png";
+
+std::wstring Gbls::mothershipEIDTextureFilepath_arrow = L"arrow_mothership_base.png";
+std::wstring Gbls::mothershipEIDTextureFilepath_insig = L"arrow_mothership_icon.png";
+
+
 std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
 std::wstring Gbls::enginePartTexNormFilepath = L"particle02.bmp"; 
 std::wstring Gbls::enginePartTexSpeedupFilepath = L"particle03.bmp"; 
-std::wstring Gbls::fontStyle = L"Ariel";
-int Gbls::fontSize = 48;
+std::wstring Gbls::fontStyle = L"GunShip";
+int Gbls::fontSize = 24;
 D3DXCOLOR Gbls::lightDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
 D3DXCOLOR Gbls::lightSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 D3DXVECTOR3 Gbls::lightDirection(1.0f, 0.5f, 1.0f);
@@ -311,16 +321,36 @@ void Gbls::initFromConfig() {
 		alertTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 
-	
-	if(conf.getValue("extractorEIDTextureOffScreenFilepath", tmpString)) {
-		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	if(conf.getValue("player1HudFilepath_insig", tmpString)) {
+		player1HudFilepath_insig = wstring(tmpString.begin(), tmpString.end());
 	}
-	if(conf.getValue("extractorEIDTextureOnScreenFilepath", tmpString)) {
-		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	if(conf.getValue("player2HudFilepath_insig", tmpString)) {
+		player2HudFilepath_insig = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("player3HudFilepath_insig", tmpString)) {
+		player3HudFilepath_insig = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("player4HudFilepath_insig", tmpString)) {
+		player4HudFilepath_insig = wstring(tmpString.begin(), tmpString.end());
 	}
 
-	if(conf.getValue("mothershipEIDTextureFilepath", tmpString)) {
-		mothershipEIDTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+
+	
+	if(conf.getValue("extractorEIDTextureOffScreenFilepath_arrow", tmpString)) {
+		extractorEIDTextureOffScreenFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("extractorEIDTextureOffScreenFilepath_insig", tmpString)) {
+		extractorEIDTextureOffScreenFilepath_insig = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("extractorEIDTextureOnScreenFilepath", tmpString)) {
+		extractorEIDTextureOnScreenFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+
+	if(conf.getValue("mothershipEIDTextureFilepath_arrow", tmpString)) {
+		mothershipEIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("mothershipEIDTextureFilepath_insig", tmpString)) {
+		mothershipEIDTextureFilepath_insig = wstring(tmpString.begin(), tmpString.end());
 	}
 
 	if(conf.getValue("resourceEIDTextureFilepath", tmpString)) {

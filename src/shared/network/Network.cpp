@@ -116,12 +116,12 @@ char * Network::encodeDelta(const char* new_data, unsigned int &size) {
 char * Network::decodeDelta(const char *buff, unsigned int &size) {
 	m_deltaField.clear();
 	//skip over header size
-	unsigned int tmp_size;
-	tmp_size = *(unsigned int*) buff;
+	unsigned int expected_size;
+	expected_size = *(unsigned int*) buff;
 	buff += sizeof(unsigned int);
 	auto rtn = m_deltaField.decode(buff);
-	assert(rtn < tmp_size);
-	assert(tmp_size == size);
+	assert(rtn < expected_size);
+	assert(expected_size == size);
 	auto orig_buff = buff;
 	buff += rtn;
 	if(m_oldState == NULL) {
@@ -338,16 +338,17 @@ unsigned int BitField::encode(char * buff) {
 }
 
 unsigned int BitField::decode(const char *buff) {
-	unsigned int rtn =  *(BITFIELD_CONTAINER *) buff;
+	unsigned int expected_bits =  *(BITFIELD_CONTAINER *) buff;
 	buff += sizeof(BITFIELD_CONTAINER);
-	unsigned int size = (unsigned int) ceil(rtn/8.0); 
+	unsigned int size = (unsigned int) ceil(expected_bits/8.0);
+	unsigned int total_bits = 0;
 	for(unsigned int i = 0; i < size; i++) {
-		for(unsigned int k = 0; k < sizeof(char)*8; ++k) {
-			if(i == size -1 && k != 0 && k == rtn%8) {
-				//don't decode bits that aren't part of the
-				//delta filed
-				break;
-			}
+		for(unsigned int k = 0; k < sizeof(char)*8 && total_bits < expected_bits; ++k, ++total_bits) {
+			//if(i == size -1 && k != 0 && k == rtn%8) {
+			//	//don't decode bits that aren't part of the
+			//	//delta filed
+			//	break;
+			//}
 			auto tmp =(buff[i] & (1 << k));
 			m_field.push_back(((buff[i] & (1 << k)) > 0) ? 1 : 0);
 		}

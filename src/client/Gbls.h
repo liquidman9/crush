@@ -102,6 +102,11 @@ public:
 	static std::wstring ship4EIDTextureFilepath_insig;
 	static std::wstring ship4EIDTextureFilepath_arrow;
 
+	static std::wstring player1HudFilepath_insig;
+	static std::wstring player2HudFilepath_insig;
+	static std::wstring player3HudFilepath_insig;
+	static std::wstring player4HudFilepath_insig;
+
 	static std::wstring alertTextureFilepath;
 
 	static std::wstring powerupTexture1Filepath;
@@ -113,10 +118,14 @@ public:
 	static std::wstring consumedPowerupTexture3Filepath;
 
 	static std::wstring extractorEIDTextureOnScreenFilepath;
-	static std::wstring extractorEIDTextureOffScreenFilepath;
+	static std::wstring extractorEIDTextureOffScreenFilepath_arrow;
+	static std::wstring extractorEIDTextureOffScreenFilepath_insig;
 
 	static std::wstring resourceEIDTextureFilepath;
-	static std::wstring mothershipEIDTextureFilepath;
+	static std::wstring mothershipEIDTextureFilepath_arrow;
+	static std::wstring mothershipEIDTextureFilepath_insig;
+
+
 	static std::wstring tBeamPartTexFilepath;
 	static std::wstring enginePartTexNormFilepath;
 	static std::wstring enginePartTexSpeedupFilepath;

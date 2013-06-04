@@ -94,12 +94,15 @@ LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_insig[4] = {
 	&GameResources::ship4EIDTexture_insig
 };
 
+LPDIRECT3DTEXTURE9 GameResources::playerHudArray_insig[4] = {NULL};
+
 LPDIRECT3DTEXTURE9 GameResources::alertTexture = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOnScreen = NULL;
-LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen = NULL;
+LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen_arrow = NULL;
+LPDIRECT3DTEXTURE9 GameResources::extractorEIDTextureOffScreen_insig = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::powerupTextureArray[3] = {
 	NULL,
@@ -112,7 +115,11 @@ LPDIRECT3DTEXTURE9 GameResources::powerupConsumedTexture[3] = {
 	NULL
 };
 
-LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture = NULL;
+
+
+LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture_arrow = NULL;
+LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture_insig = NULL;
+
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartNormTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartSpeedupTexture = NULL;
@@ -164,6 +171,7 @@ static CUSTOMQUAD bloomQuad;
 static CUSTOMQUAD scoreScreenQuad[4];
 static CUSTOMQUAD alertQuad;
 static CUSTOMQUAD scoreScreenQuadMain;
+static CUSTOMQUAD playerIconHudQuad[4];
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -425,6 +433,39 @@ HRESULT GameResources::reInitState() {
 		{ alert_left,  alert_bottom, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 
+
+	float icon_scale = alert_scale;
+	float icon_size = 64*icon_scale;
+	float icon_scale_h = alert_scale_h;
+	float icon_scale_w = alert_scale_w;
+	const float icon_skew_h = -75;
+	const float icon_skew_w = 0;
+	float icon_left;
+	float icon_right;
+	float icon_bottom = (((float) Gbls::thePresentParams.BackBufferHeight) - 0.5f) + icon_skew_h;
+	float icon_top = icon_bottom - icon_size;
+
+	float icon_fract_array[4] = {
+		1.0f/9.0f,
+		3.0f/9.0f,
+		6.0f/9.0f,
+		8.0f/9.0f
+	};
+
+	for(unsigned int i = 0; i < 4; i++) {
+		icon_left = icon_fract_array[i]*(Gbls::thePresentParams.BackBufferWidth - 0.5f) + icon_scale_w*icon_skew_w - icon_size/2;
+		icon_right = icon_left + icon_size;
+		CUSTOMQUAD tmp =
+		{
+			{ icon_right, icon_top,    0.5f, 1.0f, 1.0f, 0.0f },
+			{ icon_right, icon_bottom, 0.5f, 1.0f, 1.0f, 1.0f },
+			{ icon_left,  icon_top,    0.5f, 1.0f, 0.0f, 0.0f },
+			{ icon_left,  icon_bottom, 0.5f, 1.0f, 0.0f, 1.0f },
+		};
+		playerIconHudQuad[i] = tmp;		
+	}
+
+
 	fsQuad = tmpQuad_fsQuad;
 	scoreScreenQuad[0] = tmpQuad_scoreScreenQuad1;
 	scoreScreenQuad[1] = tmpQuad_scoreScreenQuad2;
@@ -435,6 +476,8 @@ HRESULT GameResources::reInitState() {
 
 
 	bloomQuad = tmpQuad_bloomQuad;
+
+	
 
 	//// create a vertex buffer interface called v_buffer
 	//if (!fsQuadVBuffer) {
@@ -751,10 +794,27 @@ HRESULT GameResources::initAdditionalTextures()
 	if (FAILED(hres)) {
 		return hres;
 	}
-	
+
+	//load player HUD sprites
+	hres = loadTexture(&playerHudArray_insig[0], Gbls::player1HudFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerHudArray_insig[1], Gbls::player2HudFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerHudArray_insig[2], Gbls::player3HudFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerHudArray_insig[3], Gbls::player4HudFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
 
 	// load arrow spirte
-
 	hres = loadTexture(&shipEIDTexture_resource, Gbls::shipEIDTextureFilepath_resource);
 	if (FAILED(hres)) {
 		return hres;
@@ -802,10 +862,16 @@ HRESULT GameResources::initAdditionalTextures()
 	if (FAILED(hres)) {
 		return hres;
 	}
-	hres = loadTexture(&extractorEIDTextureOffScreen, Gbls::extractorEIDTextureOffScreenFilepath);
+	hres = loadTexture(&extractorEIDTextureOffScreen_arrow, Gbls::extractorEIDTextureOffScreenFilepath_arrow);
 	if (FAILED(hres)) {
 		return hres;
 	}
+	hres = loadTexture(&extractorEIDTextureOffScreen_insig, Gbls::extractorEIDTextureOffScreenFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
+
 
 	//load powerup reps
 	hres = loadTexture(&powerupConsumedTexture[0], Gbls::consumedPowerupTexture1Filepath);
@@ -835,10 +901,15 @@ HRESULT GameResources::initAdditionalTextures()
 	}
 	
 	// load ship arrow spirte
-	hres = loadTexture(&mothershipEIDTexture, Gbls::mothershipEIDTextureFilepath);
+	hres = loadTexture(&mothershipEIDTexture_arrow, Gbls::mothershipEIDTextureFilepath_arrow);
 	if (FAILED(hres)) {
 		return hres;
 	}
+	hres = loadTexture(&mothershipEIDTexture_insig, Gbls::mothershipEIDTextureFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
 	hres = loadTexture(&resourceEIDTexture, Gbls::resourceEIDTextureFilepath);
 	if (FAILED(hres)) {
 		return hres;
@@ -886,10 +957,15 @@ void GameResources::releaseAdditionalTextures() {
 		tBeamPartTexture->Release();
 		tBeamPartTexture = NULL;
 	}
-	if (mothershipEIDTexture) {
-		mothershipEIDTexture->Release();
-		mothershipEIDTexture = NULL;
+	if (mothershipEIDTexture_arrow) {
+		mothershipEIDTexture_arrow->Release();
+		mothershipEIDTexture_arrow = NULL;
 	}
+	if (mothershipEIDTexture_insig) {
+		mothershipEIDTexture_insig->Release();
+		mothershipEIDTexture_insig = NULL;
+	}
+
 	shipEIDTexture_resource = NULL;
 	if (shipEIDTexture_resource) {
 		shipEIDTexture_resource->Release();
@@ -906,14 +982,25 @@ void GameResources::releaseAdditionalTextures() {
 		extractorEIDTextureOnScreen = NULL;
 	}
 
-	if(extractorEIDTextureOffScreen) {
-		extractorEIDTextureOffScreen->Release();
-		extractorEIDTextureOffScreen = NULL;
+	if(extractorEIDTextureOffScreen_arrow) {
+		extractorEIDTextureOffScreen_arrow->Release();
+		extractorEIDTextureOffScreen_arrow = NULL;
+	}
+	if(extractorEIDTextureOffScreen_insig) {
+		extractorEIDTextureOffScreen_insig->Release();
+		extractorEIDTextureOffScreen_insig = NULL;
 	}
 
 	if(shipEIDTexture_resource) {
 		shipEIDTexture_resource->Release();
 		shipEIDTexture_resource = NULL;
+	}
+
+	for(unsigned int i = 0; i < 4; i++) {
+		if(playerHudArray_insig[i]) {
+			playerHudArray_insig[i]->Release();
+			playerHudArray_insig[i] = NULL;
+		}
 	}
 
 	for(unsigned int i = 0; i < 3; i++) {
@@ -1173,6 +1260,11 @@ void GameResources::drawStaticHudElements() {
 			alertSprite.m_pTexture = alertTexture;
 			drawFlashingSprite(alertSprite, alertQuad, timeGetTime(), 250);
 		}
+		Gbls::pd3dDevice->EndScene();
+		for(unsigned int i = 0; i < 4; i++) {
+			drawTexToSurface(playerHudArray_insig[i], &playerIconHudQuad[i], false);
+		}
+		Gbls::pd3dDevice->BeginScene();	
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
 		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
 		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
@@ -1767,18 +1859,20 @@ void GameResources::drawAll()
 // called each frame to update the state of all game sounds
 void GameResources::playSounds(vector<shared_ptr<GEvent> > events)
 {
-	//Engine sounds
-	for (UINT i = 0; i < shipList.size(); i++) {
-		sound.playEngine(shipList[i]);
-	}
+	if (sound.isValid) {
+		//Engine sounds
+		for (UINT i = 0; i < shipList.size(); i++) {
+			sound.playEngine(shipList[i]);
+		}
 
-	//Tractor Beam Sounds
-	for (UINT i = 0; i < tractorBeamList.size(); i++) {
-		sound.playTractorBeam(tractorBeamList[i]);
-	}
+		//Tractor Beam Sounds
+		for (UINT i = 0; i < tractorBeamList.size(); i++) {
+			sound.playTractorBeam(tractorBeamList[i]);
+		}
 
-	for (UINT i = 0; i < events.size(); i++) {
-		sound.playEvent(events[i]);
+		for (UINT i = 0; i < events.size(); i++) {
+			sound.playEvent(events[i]);
+		}
 	}
 }
 
@@ -2105,12 +2199,22 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		if (tmp->m_playerNum == playerNum) {
 			playerMothership = tmp;
 			EntityIdentifier * mShipEID = new EntityIdentifier();
+			EntityIdentifier * mShipEID_insig = new EntityIdentifier();
 			mShipEID->targetEntity = tmp;
-			mShipEID->m_onScreenSprite.setTexture(mothershipEIDTexture);
+			mShipEID->m_onScreenSprite.setTexture(mothershipEIDTexture_arrow);
 			mShipEID->m_onScreenSprite.setCenterToTextureMidpoint();
-			mShipEID->m_offScreenSprite.setTexture(mothershipEIDTexture);
+			mShipEID->m_offScreenSprite.setTexture(mothershipEIDTexture_arrow);
 			mShipEID->m_offScreenSprite.setCenterToTextureMidpoint();
+
+			mShipEID_insig->targetEntity = tmp;
+			mShipEID_insig->rotateOn = false;
+			mShipEID_insig->m_onScreenSprite.setTexture(mothershipEIDTexture_insig);
+			mShipEID_insig->m_onScreenSprite.setCenterToTextureMidpoint();
+			mShipEID_insig->m_offScreenSprite.setTexture(mothershipEIDTexture_insig);
+			mShipEID_insig->m_offScreenSprite.setCenterToTextureMidpoint();
+		
 			eIDList.push_back(mShipEID);
+			eIDList.push_back(mShipEID_insig);
 		}
 		ret = tmp;
 		}
@@ -2133,12 +2237,23 @@ C_Entity * GameResources::createEntity(Entity * newEnt) {
 		{
 		C_Extractor * tmp = new C_Extractor(newEnt);
 		EntityIdentifier * mExtractorEID = new EntityIdentifier();
+		EntityIdentifier * mExtractorEID_insig = new EntityIdentifier();
+
 		mExtractorEID->targetEntity = tmp;
-		mExtractorEID->m_onScreenSprite.setTexture(extractorEIDTextureOnScreen);
+		mExtractorEID->m_onScreenSprite.setTexture(extractorEIDTextureOffScreen_arrow);
 		mExtractorEID->m_onScreenSprite.setCenterToTextureMidpoint();
-		mExtractorEID->m_offScreenSprite.setTexture(extractorEIDTextureOffScreen);
+		mExtractorEID->m_offScreenSprite.setTexture(extractorEIDTextureOffScreen_arrow);
 		mExtractorEID->m_offScreenSprite.setCenterToTextureMidpoint();
+
+		mExtractorEID_insig->targetEntity = tmp;
+		mExtractorEID_insig->rotateOn = false;
+		mExtractorEID_insig->m_onScreenSprite.setTexture(extractorEIDTextureOffScreen_insig);
+		mExtractorEID_insig->m_onScreenSprite.setCenterToTextureMidpoint();
+		mExtractorEID_insig->m_offScreenSprite.setTexture(extractorEIDTextureOffScreen_insig);
+		mExtractorEID_insig->m_offScreenSprite.setCenterToTextureMidpoint();
+	
 		eIDList.push_back(mExtractorEID);
+		eIDList.push_back(mExtractorEID_insig);
 		extractorList.push_back(tmp);
 		ret = tmp;
 		}
