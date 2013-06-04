@@ -102,19 +102,20 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 		return c;
 	}
 
-	/*
+	
 	// Resource Temp
 	if(((one = a)->m_type == RESOURCE)|| ((one = b)->m_type == RESOURCE)){
-		rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
+		//rtn = false; // temporarily disabling all collisions with resources because of the infinite movement
+		return NULL;
 	}
-	*/
-	/*
+	
+	
 	// Powerup Temp - until is given some implementation
 	if(((one = a)->m_type == POWERUP && (two = b))|| ((one = b)->m_type == POWERUP && (two = a))){
-		c = new PPCollision(one, two, closeA, closeB, 0.8, 0.6);
-		return c;
+		//c = new PPCollision(one, two, closeA, closeB, 0.8, 0.6);
+		return NULL;
 	}
-	*/
+	
 
 	if(((one = a)->m_type == POWERUP && (two = b)->m_type == SHIP)|| ((one = b)->m_type == POWERUP && (two = a)->m_type == SHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
 		c = new SPCollision(two, one, closeB, closeA, 0.8, 0.6);
@@ -127,7 +128,7 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 		return c;
 	}
 
-	if(((one = a)->m_type == ASTEROID && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == ASTEROID && (two = a)->m_type == MOTHERSHIP && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+	if(((one = a)->m_type == ASTEROID && (two = b)->m_type == MOTHERSHIP) || ((one = b)->m_type == ASTEROID && (two = a)->m_type == MOTHERSHIP )){
 		c = new Collision(AM, a, b, closeA, closeB, 0.9, 0.6);
 		return c;
 	}
@@ -137,7 +138,7 @@ Collision * Collision::generateCollision(ServerEntity *a, ServerEntity * b, D3DX
 		return c;
 	}
 	
-	if(((one = a)->m_type == ASTEROID && (two = b)->m_type == EXTRACTOR) || ((one = b)->m_type == ASTEROID && (two = a)->m_type == EXTRACTOR && ((temp = closeA) || 1) && ((closeA = closeB) || 1) && ((closeB = temp) || 1))){
+	if(((one = a)->m_type == ASTEROID && (two = b)->m_type == EXTRACTOR) || ((one = b)->m_type == ASTEROID && (two = a)->m_type == EXTRACTOR) ){
 		c = new Collision(AE, a, b, closeA, closeB, 0.9, 0.6);
 		return c;
 	}
