@@ -126,6 +126,7 @@ LPDIRECT3DTEXTURE9 GameResources::EnginePartSpeedupTexture = NULL;
 ParticleSystem * GameResources::partSystem = NULL;
 TBeamPGroup * GameResources::tBeamPGroup = NULL;
 BurstPGroup * GameResources::burstPowerupPGroup = NULL;
+PowerupPGroup * GameResources::powerupPGroup = NULL;
 LPDIRECT3DTEXTURE9 GameResources::pGlowmapTexture = NULL;
 LPDIRECT3DSURFACE9 GameResources::pGlowmapSurface = NULL; 
 LPDIRECT3DTEXTURE9 GameResources::pScoreScreenTexture = NULL;
@@ -227,8 +228,10 @@ HRESULT GameResources::initState() {
 	tBeamPGroup = new TBeamPGroup(tBeamPartTexture);
 	tBeamPGroup->initBeamToFull();
 	burstPowerupPGroup = new BurstPGroup(tBeamPartTexture);
+	powerupPGroup = new PowerupPGroup(tBeamPartTexture);
+	GameResources::partSystem->releaseBurst(powerupPGroup);
 	//TODO Remove
-	burstPowerupPGroup->releasePos = D3DXVECTOR3(5,5,5);
+	//burstPowerupPGroup->releasePos = D3DXVECTOR3(5,5,5);
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
@@ -1154,6 +1157,16 @@ void GameResources::drawAllEngines() {
 	}
 }
 
+void GameResources::drawAllPowerups() {
+	powerupPGroup;
+	// render particles
+	for (UINT i = 0; i < powerupList.size(); i++) {
+		powerupPGroup->pEnt = powerupList[i];
+		powerupPGroup->updateGroup();
+		partSystem->render(Gbls::pd3dDevice, powerupPGroup);
+	}
+}
+
 void GameResources::drawAllEID() {
 
 	HRESULT hResult = pd3dSprite->Begin(D3DXSPRITE_ALPHABLEND);
@@ -1804,6 +1817,8 @@ void GameResources::drawAll()
 
 	//Render all engine exhausts
 	drawAllEngines();
+
+	drawAllPowerups();
 
 	//Render burst push effect TODO fix to work with actual powerup
 	partSystem->render(Gbls::pd3dDevice, burstPowerupPGroup);
