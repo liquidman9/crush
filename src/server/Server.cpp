@@ -189,12 +189,13 @@ void Server::updateGameClock() {
 	if(time_remaining > 0) {
 		m_gameState.setTime(time_remaining);
 	} else {
+		m_gameState.setGameOver();
 		m_gameState.setTime(0);
 	}
 }
 
 bool Server::gameOver() {
-	return m_gameState.getRemainingTimeNum() == 0;
+	return m_gameState.isGameOver();
 }
 
 void Server::declareWinner() {
@@ -251,6 +252,13 @@ void Server::loop() {
 			setUpExtractor();
 			setUpAsteroids();
 			setUpPowerups();
+			static bool show_splash = true;
+			if(show_splash) {
+				m_gameState.setShowSplash();
+				show_splash = false;
+			} else {
+				m_gameState.setGameInProgress();
+			}
 
 			cout << "CRUSH Server has started" << endl;
 			m_start = false;
@@ -271,7 +279,7 @@ void Server::loop() {
 			cout << "Game Started" << endl;
 			m_startGame = false;
 		}
-
+	
 		updateGameClock();
 		updateScore();
 		if(gameOver()) {

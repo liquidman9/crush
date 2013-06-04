@@ -85,6 +85,11 @@ std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
 
 std::wstring Gbls::alertTextureFilepath = L"lock_on.png";
 
+std::wstring Gbls::player1SplashTextureFilepath = L"splashscreen_001.png";
+std::wstring Gbls::player2SplashTextureFilepath = L"splashscreen_002.png";
+std::wstring Gbls::player3SplashTextureFilepath = L"splashscreen_003.png";
+std::wstring Gbls::player4SplashTextureFilepath = L"splashscreen_004.png";
+
 std::wstring Gbls::extractorEIDTextureOnScreenFilepath = L"extractor_onscreen.png";
 std::wstring Gbls::extractorEIDTextureOffScreenFilepath_insig = L"arrow_resource_icon.png";
 std::wstring Gbls::extractorEIDTextureOffScreenFilepath_arrow = L"arrow_mothership_base.png";
@@ -334,7 +339,18 @@ void Gbls::initFromConfig() {
 		player4HudFilepath_insig = wstring(tmpString.begin(), tmpString.end());
 	}
 
-
+	if(conf.getValue("player1SplashTextureFilepath", tmpString)) {
+		player1SplashTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("player2SplashTextureFilepath", tmpString)) {
+		player2SplashTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("player3SplashTextureFilepath", tmpString)) {
+		player3SplashTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
+	if(conf.getValue("player4SplashTextureFilepath", tmpString)) {
+		player4SplashTextureFilepath = wstring(tmpString.begin(), tmpString.end());
+	}
 	
 	if(conf.getValue("extractorEIDTextureOffScreenFilepath_arrow", tmpString)) {
 		extractorEIDTextureOffScreenFilepath_arrow = wstring(tmpString.begin(), tmpString.end());

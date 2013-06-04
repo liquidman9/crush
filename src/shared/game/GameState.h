@@ -25,6 +25,8 @@
 
 typedef vector<pair<unsigned int, int>> scoreList_t;
 
+enum State : char { SPLASH_START, GAME_INPROGRESS, GAME_OVER };
+
 template <class E>
 class GameState
 {
@@ -35,6 +37,7 @@ public:
 		m_size = gsMinSize();
 		m_entities_size = 0;
 		memset(&m_meta,-1,sizeof(m_meta));
+		m_meta.state = SPLASH_START;
 	};
 
 	GameState(GameState const & g): m_entities(g.m_entities), m_meta(g.m_meta) {
@@ -84,6 +87,22 @@ public:
 
 	void setTime(long long const &time) {
 		m_meta.time = (int) time;
+	}
+
+	void setShowSplash() {
+		m_meta.state = SPLASH_START;
+	}
+
+	void setGameInProgress() {
+		m_meta.state = GAME_INPROGRESS;
+	}
+
+	void setGameOver() {
+		m_meta.state = GAME_OVER;
+	}
+
+	bool isShowSplash() {
+		return m_meta.state == SPLASH_START;
 	}
 
 	wstring getRemainingTimeString() const {
@@ -157,7 +176,7 @@ public:
 	}
 
 	bool isGameOver() {
-		return m_meta.time == 0;
+		return m_meta.state == GAME_OVER;
 	}
 
 	void clearEvents() {
@@ -299,11 +318,12 @@ private:
 		return minSize();
 	}
 
-	struct gameStateMeta {	
+	struct gameStateMeta {
 		int time;
 		long long serverTime;
 		int score[4];
 		char winner;
+		State state;
 	} m_meta;
 
 	unsigned int m_size;

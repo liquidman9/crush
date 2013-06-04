@@ -77,6 +77,7 @@ public:
 	static LPD3DXSPRITE pd3dSprite;
 	static LPD3DXFONT GameResources::pd3dFont;
 	static bool gameOver;
+	static bool splashStart;
 	static scoreList_t winnerList;
 	
 	//ship indicators
@@ -95,6 +96,8 @@ public:
 	static LPDIRECT3DTEXTURE9 playerHudArray_insig[4];
 
 	static LPDIRECT3DTEXTURE9 alertTexture;
+
+	static LPDIRECT3DTEXTURE9 playerSplashTexture[4];
 
 	static LPDIRECT3DTEXTURE9 extractorEIDTextureOnScreen;
 	static LPDIRECT3DTEXTURE9 extractorEIDTextureOffScreen_arrow;

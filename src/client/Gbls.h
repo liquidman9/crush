@@ -109,6 +109,11 @@ public:
 
 	static std::wstring alertTextureFilepath;
 
+	static std::wstring player1SplashTextureFilepath;
+	static std::wstring player2SplashTextureFilepath;
+	static std::wstring player3SplashTextureFilepath;
+	static std::wstring player4SplashTextureFilepath;
+
 	static std::wstring powerupTexture1Filepath;
 	static std::wstring powerupTexture2Filepath;
 	static std::wstring powerupTexture3Filepath;

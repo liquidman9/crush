@@ -53,6 +53,7 @@ C_Mothership* GameResources::playerMothership = NULL;
 LPD3DXSPRITE GameResources::pd3dSprite = NULL;
 LPD3DXFONT GameResources::pd3dFont = NULL;
 bool GameResources::gameOver = FALSE;
+bool GameResources::splashStart = FALSE;
 scoreList_t GameResources::winnerList(4, std::pair<UINT, int>(0,0));
 
 static float shipColors[4][4] =
@@ -120,6 +121,8 @@ LPDIRECT3DTEXTURE9 GameResources::powerupConsumedTexture[3] = {
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture_arrow = NULL;
 LPDIRECT3DTEXTURE9 GameResources::mothershipEIDTexture_insig = NULL;
 
+LPDIRECT3DTEXTURE9 GameResources::playerSplashTexture[4] = {NULL};
+
 LPDIRECT3DTEXTURE9 GameResources::tBeamPartTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartNormTexture = NULL;
 LPDIRECT3DTEXTURE9 GameResources::EnginePartSpeedupTexture = NULL;
@@ -172,6 +175,7 @@ static CUSTOMQUAD scoreScreenQuad[4];
 static CUSTOMQUAD alertQuad;
 static CUSTOMQUAD scoreScreenQuadMain;
 static CUSTOMQUAD playerIconHudQuad[4];
+static CUSTOMQUAD playerSplashQuad;
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -352,7 +356,7 @@ HRESULT GameResources::reInitState() {
 	float screenAR = ((float)screenWidth)/screenHeight;
 	float scoreScreenAR = 16.0f/9.0f;
 	float scoreScreenWidth, scoreScreenHeight;
-	const float scoreScreenPercent = 0.8f;
+	float scoreScreenPercent = 0.8f;
 	if ( screenAR > scoreScreenAR) { //screen wider than scoreScreen
 		scoreScreenHeight = (float) screenHeight;
 		scoreScreenWidth = scoreScreenHeight*scoreScreenAR;
@@ -401,10 +405,31 @@ HRESULT GameResources::reInitState() {
 		{ left,   top + hs*4.0f, 0.5f, 1.0f, 0.0f, 1.0f },
     };
     
-    	float widthSpacing = ((screenWidth - scoreScreenWidth) / 2.0f) + screenWidth*((1.0f-scoreScreenPercent)/2.0f);
+    float widthSpacing = ((screenWidth - scoreScreenWidth) / 2.0f) + screenWidth*((1.0f-scoreScreenPercent)/2.0f);
 	float heightSpacing = ((screenHeight - scoreScreenHeight) / 2.0f) + screenHeight*((1.0f-scoreScreenPercent)/2.0f);;
 
+
 	CUSTOMQUAD tmpQuad_scoreScreenQuadMain =
+    {
+		{ right - widthSpacing, top    + heightSpacing, 0.5f, 1.0f, 1.0f, 0.0f },
+		{ right - widthSpacing, bottom - heightSpacing, 0.5f, 1.0f, 1.0f, 1.0f },
+		{ left  + widthSpacing, top    + heightSpacing, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ left  + widthSpacing, bottom - heightSpacing, 0.5f, 1.0f, 0.0f, 1.0f },
+    };
+
+	scoreScreenAR = 16.0f/10.0f;
+	if ( screenAR > scoreScreenAR) { //screen wider than scoreScreen
+		scoreScreenHeight = (float) screenHeight;
+		scoreScreenWidth = scoreScreenHeight*scoreScreenAR;
+	} else { //screen narrower than scoreScreen
+		scoreScreenWidth = (float) screenWidth;
+		scoreScreenHeight = scoreScreenWidth/scoreScreenAR;
+	}
+	scoreScreenPercent = 1.0f;
+	widthSpacing = ((screenWidth - scoreScreenWidth) / 2.0f) + screenWidth*((1.0f-scoreScreenPercent)/2.0f);
+	heightSpacing = ((screenHeight - scoreScreenHeight) / 2.0f) + screenHeight*((1.0f-scoreScreenPercent)/2.0f);
+
+	CUSTOMQUAD tmpQuad_splashScreenQuadMain =
     {
 		{ right - widthSpacing, top    + heightSpacing, 0.5f, 1.0f, 1.0f, 0.0f },
 		{ right - widthSpacing, bottom - heightSpacing, 0.5f, 1.0f, 1.0f, 1.0f },
@@ -471,9 +496,9 @@ HRESULT GameResources::reInitState() {
 	scoreScreenQuad[1] = tmpQuad_scoreScreenQuad2;
 	scoreScreenQuad[2] = tmpQuad_scoreScreenQuad3;
 	scoreScreenQuad[3] = tmpQuad_scoreScreenQuad4;
+	playerSplashQuad = tmpQuad_splashScreenQuadMain;
 	alertQuad = tmpQuad_alertQuad;
 	scoreScreenQuadMain = tmpQuad_scoreScreenQuadMain;
-
 
 	bloomQuad = tmpQuad_bloomQuad;
 
@@ -872,6 +897,25 @@ HRESULT GameResources::initAdditionalTextures()
 	}
 
 
+	//load splash screens
+
+	hres = loadTexture(&playerSplashTexture[0], Gbls::player1SplashTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerSplashTexture[1], Gbls::player2SplashTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerSplashTexture[2], Gbls::player3SplashTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerSplashTexture[3], Gbls::player4SplashTextureFilepath);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
 
 	//load powerup reps
 	hres = loadTexture(&powerupConsumedTexture[0], Gbls::consumedPowerupTexture1Filepath);
@@ -994,6 +1038,13 @@ void GameResources::releaseAdditionalTextures() {
 	if(shipEIDTexture_resource) {
 		shipEIDTexture_resource->Release();
 		shipEIDTexture_resource = NULL;
+	}
+
+	for(unsigned int i = 0; i < 4; i++) {
+		if(playerSplashTexture[i]) {
+			playerSplashTexture[i]->Release();
+			playerSplashTexture[i] = NULL;
+		}
 	}
 
 	for(unsigned int i = 0; i < 4; i++) {
@@ -1821,9 +1872,11 @@ void GameResources::drawAll()
 	if (gameOver) { // draw winner screen
 		drawScoreScreen();
 
-	}
-
-	else {
+	} else if (splashStart) {
+		Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+		drawTexToSurface(playerSplashTexture[playerNum], &playerSplashQuad, true);
+		Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+	} else {
 		Gbls::pd3dDevice->BeginScene();
 
 		// Render entity indicators
@@ -2061,14 +2114,15 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 			}
 			entityMap[id]->updateWorldMat();
 		}
+		splashStart = newGameState.isShowSplash();
 		if(newGameState.isGameOver() && !gameOver) {
-		gameOver = TRUE;
-		for (int i = 0; i < 4; i++) {
-			winnerList[i].first = i;
-			winnerList[i].second = playerScore[i];
+			gameOver = TRUE;
+			for (int i = 0; i < 4; i++) {
+				winnerList[i].first = i;
+				winnerList[i].second = playerScore[i];
+			}
+			sort(winnerList.begin(), winnerList.end(), score_t_comp);
 		}
-		sort(winnerList.begin(), winnerList.end(), score_t_comp);
-	}
 	}
 
 	//used for individual deletes if we ever implement that
