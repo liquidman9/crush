@@ -94,6 +94,8 @@ LPDIRECT3DTEXTURE9* GameResources::shipEIDTextureArray_insig[4] = {
 	&GameResources::ship4EIDTexture_insig
 };
 
+LPDIRECT3DTEXTURE9 GameResources::playerHudArray_insig[4] = {NULL};
+
 LPDIRECT3DTEXTURE9 GameResources::alertTexture = NULL;
 
 LPDIRECT3DTEXTURE9 GameResources::resourceEIDTexture = NULL;
@@ -169,6 +171,7 @@ static CUSTOMQUAD bloomQuad;
 static CUSTOMQUAD scoreScreenQuad[4];
 static CUSTOMQUAD alertQuad;
 static CUSTOMQUAD scoreScreenQuadMain;
+static CUSTOMQUAD playerIconHudQuad[4];
 
 HRESULT GameResources::initState() {
 	HRESULT hres;
@@ -430,6 +433,39 @@ HRESULT GameResources::reInitState() {
 		{ alert_left,  alert_bottom, 0.5f, 1.0f, 0.0f, 1.0f },
     };
 
+
+	float icon_scale = alert_scale;
+	float icon_size = 64*icon_scale;
+	float icon_scale_h = alert_scale_h;
+	float icon_scale_w = alert_scale_w;
+	const float icon_skew_h = -75;
+	const float icon_skew_w = 0;
+	float icon_left;
+	float icon_right;
+	float icon_bottom = (((float) Gbls::thePresentParams.BackBufferHeight) - 0.5f) + icon_skew_h;
+	float icon_top = icon_bottom - icon_size;
+
+	float icon_fract_array[4] = {
+		1.0f/9.0f,
+		3.0f/9.0f,
+		6.0f/9.0f,
+		8.0f/9.0f
+	};
+
+	for(unsigned int i = 0; i < 4; i++) {
+		icon_left = icon_fract_array[i]*(Gbls::thePresentParams.BackBufferWidth - 0.5f) + icon_scale_w*icon_skew_w - icon_size/2;
+		icon_right = icon_left + icon_size;
+		CUSTOMQUAD tmp =
+		{
+			{ icon_right, icon_top,    0.5f, 1.0f, 1.0f, 0.0f },
+			{ icon_right, icon_bottom, 0.5f, 1.0f, 1.0f, 1.0f },
+			{ icon_left,  icon_top,    0.5f, 1.0f, 0.0f, 0.0f },
+			{ icon_left,  icon_bottom, 0.5f, 1.0f, 0.0f, 1.0f },
+		};
+		playerIconHudQuad[i] = tmp;		
+	}
+
+
 	fsQuad = tmpQuad_fsQuad;
 	scoreScreenQuad[0] = tmpQuad_scoreScreenQuad1;
 	scoreScreenQuad[1] = tmpQuad_scoreScreenQuad2;
@@ -440,6 +476,8 @@ HRESULT GameResources::reInitState() {
 
 
 	bloomQuad = tmpQuad_bloomQuad;
+
+	
 
 	//// create a vertex buffer interface called v_buffer
 	//if (!fsQuadVBuffer) {
@@ -756,7 +794,25 @@ HRESULT GameResources::initAdditionalTextures()
 	if (FAILED(hres)) {
 		return hres;
 	}
-	
+
+	//load player HUD sprites
+	hres = loadTexture(&playerHudArray_insig[0], Gbls::player1HudFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerHudArray_insig[1], Gbls::player2HudFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerHudArray_insig[2], Gbls::player3HudFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+	hres = loadTexture(&playerHudArray_insig[3], Gbls::player4HudFilepath_insig);
+	if (FAILED(hres)) {
+		return hres;
+	}
+
 
 	// load arrow spirte
 	hres = loadTexture(&shipEIDTexture_resource, Gbls::shipEIDTextureFilepath_resource);
@@ -938,6 +994,13 @@ void GameResources::releaseAdditionalTextures() {
 	if(shipEIDTexture_resource) {
 		shipEIDTexture_resource->Release();
 		shipEIDTexture_resource = NULL;
+	}
+
+	for(unsigned int i = 0; i < 4; i++) {
+		if(playerHudArray_insig[i]) {
+			playerHudArray_insig[i]->Release();
+			playerHudArray_insig[i] = NULL;
+		}
 	}
 
 	for(unsigned int i = 0; i < 3; i++) {
@@ -1197,6 +1260,11 @@ void GameResources::drawStaticHudElements() {
 			alertSprite.m_pTexture = alertTexture;
 			drawFlashingSprite(alertSprite, alertQuad, timeGetTime(), 250);
 		}
+		Gbls::pd3dDevice->EndScene();
+		for(unsigned int i = 0; i < 4; i++) {
+			drawTexToSurface(playerHudArray_insig[i], &playerIconHudQuad[i], false);
+		}
+		Gbls::pd3dDevice->BeginScene();	
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
 		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
 		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));

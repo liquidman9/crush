@@ -92,6 +92,8 @@ public:
 	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_arrow[4];
 	static LPDIRECT3DTEXTURE9* shipEIDTextureArray_insig[4];
 
+	static LPDIRECT3DTEXTURE9 playerHudArray_insig[4];
+
 	static LPDIRECT3DTEXTURE9 alertTexture;
 
 	static LPDIRECT3DTEXTURE9 extractorEIDTextureOnScreen;
