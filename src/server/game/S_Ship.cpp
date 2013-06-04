@@ -31,7 +31,7 @@ S_Ship::S_Ship() :
 S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), SHIP, pos, orientation, 3),
 	Ship(pNum),
-	ServerEntity(mass, 5.0, calculateRotationalInertia(mass)),
+	ServerEntity(mass, 3.0, calculateRotationalInertia(mass)),
 	m_linear_impulse(linear_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_braking_impulse(braking_impulse),

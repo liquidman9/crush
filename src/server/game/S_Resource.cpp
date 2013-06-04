@@ -57,7 +57,7 @@ void S_Resource::travel() {
 		float x = 0, y = 0, z = 0;
 		if(m_spot < m_carrier->m_resourceSpots/2) x -= m_carrier->m_radius/2;
 		else x+= m_carrier->m_radius/2;
-		y = m_carrier->m_radius*.25f;
+		y = m_carrier->m_radius*.5f;
 		z = m_carrier->m_length/4 - (m_spot%(m_carrier->m_resourceSpots/2))*(m_carrier->m_length/8);
 
 		D3DXVECTOR3 lockPos = m_carrier->m_pos+ D3DXVECTOR3(x,y,z);

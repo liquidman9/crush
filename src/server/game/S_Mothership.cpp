@@ -15,12 +15,11 @@ using namespace server::entities::mothership;
 S_Mothership::S_Mothership(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	Entity(genId(), MOTHERSHIP, pos, orientation),
 	Mothership(pNum),
-	ServerEntity(mass, 5.0f, calculateRotationalInertia(mass))
+	ServerEntity(mass,20.0f, calculateRotationalInertia(mass))
 {	
 	m_immovable = true;
 	m_radius = 10.0f;
 	m_resourceSpots = 10;
-	m_length = 20.0f;
 }
 	
 D3DXMATRIX S_Mothership::calculateRotationalInertia(float mass){
