@@ -34,7 +34,7 @@ SoundManager::SoundManager() {
 			newSound(_TEXT("pulse_m.wav"),PULSESOUND,0);
 			newSound(_TEXT("impact1.wav"),COLLISIONSOUND,0);
 
-			//Load ambience (music)
+			//Load ambience
 			newSound(_TEXT("ambience.wav"),AMBIENCESOUND,XAUDIO2_LOOP_INFINITE);
 			IXAudio2SourceVoice* temp;
 			if( FAILED(hr = pXAudio2->CreateSourceVoice( &temp, (WAVEFORMATEX*)(&formats[AMBIENCESOUND]) ) ) ) 
@@ -42,6 +42,15 @@ SoundManager::SoundManager() {
 			if( FAILED(hr = (temp->SubmitSourceBuffer( &sounds[AMBIENCESOUND] ) ) ) )
 				isValid = false;
 			temp->Start(0);
+
+			//Load music
+			newSound(_TEXT("music.wav"),MUSICSOUND,XAUDIO2_LOOP_INFINITE);
+			IXAudio2SourceVoice* temp2;
+			if( FAILED(hr = pXAudio2->CreateSourceVoice( &temp2, (WAVEFORMATEX*)(&formats[MUSICSOUND]) ) ) ) 
+				isValid = false;
+			if( FAILED(hr = (temp2->SubmitSourceBuffer( &sounds[MUSICSOUND] ) ) ) )
+				isValid = false;
+			temp2->Start(0);
 			
 			//Set up 3D Sound
 			pXAudio2->GetDeviceDetails(0,&deviceDetails);

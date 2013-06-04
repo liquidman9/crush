@@ -32,6 +32,7 @@
 #include <client/graphics/TBeamPGroup.h>
 #include <client/graphics/EnginePGroup.h>
 #include <client/graphics/BurstPGroup.h>
+#include <client/graphics/PowerupPGroup.h>
 #include <client/SoundManager.h>
 
 
@@ -118,6 +119,7 @@ public:
 	static ParticleSystem * partSystem;
 	static TBeamPGroup * tBeamPGroup;
 	static BurstPGroup * burstPowerupPGroup;
+	static PowerupPGroup * powerupPGroup;
 	static std::wstring timeStr;
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
@@ -203,6 +205,7 @@ public:
 	static void drawAllShields();
 	static void releaseBurstPowerupParticles();
 	static void drawAllEngines();
+	static void drawAllPowerups();
 	static void drawAllEID();
 	static void drawScoreScreen();
 	static void drawShield(C_Ship * ship);
