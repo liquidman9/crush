@@ -11,7 +11,7 @@
 // Project includes
 #include <shared/GEvent.h>
 
-enum CType : char {C, SR, MS, PP, RM, RR, SA, SE, SP, SS, T};
+enum CType : char {C, SR, MS, PP, RM, RR, SA, SE, SP, SS, T, AA, AM, AE};
 
 class CollisionGEvent : public GEvent {
 private:

@@ -199,29 +199,31 @@ void SoundManager::playEngine(C_Ship ship) {
 void SoundManager::playEvent(shared_ptr<GEvent> e) {
 
 	if (e->m_type == COLLISIONEVENT) {
-
+	
 		
 	CollisionGEvent * c = dynamic_cast<CollisionGEvent*>(&*e);
 
-	if (c->m_ctype == SA) {
-	HRESULT hr;
-	IXAudio2SourceVoice* temp;
-	if( FAILED(hr = pXAudio2->CreateSourceVoice( &(temp), (WAVEFORMATEX*)(&formats[COLLISIONSOUND]) ) ) ) 
+
+	if(c->m_ctype == AM || c->m_ctype == AE || c->m_ctype == AA || c->m_ctype == MS || c->m_ctype == SE || c->m_ctype == SS || c->m_ctype == SA) {
+		HRESULT hr;
+		IXAudio2SourceVoice* temp;
+		if( FAILED(hr = pXAudio2->CreateSourceVoice( &(temp), (WAVEFORMATEX*)(&formats[COLLISIONSOUND]) ) ) ) 
 			isValid = false;
 
-	if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[COLLISIONSOUND] ) ) )
+		if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[COLLISIONSOUND] ) ) )
 			isValid = false;
-	/*
-	X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
-	tractorBeams3d.insert(pair<int,X3DAUDIO_EMITTER*>(beam.m_playerNum, Emitter));
-	tractorBeams3d[beam.m_playerNum]->ChannelCount = 1;
-	tractorBeams3d[beam.m_playerNum]->CurveDistanceScaler = AUDSCALE;
-	tractorBeams3d[beam.m_playerNum]->DopplerScaler = 20.0;
-	*/
-	float impulse = c->m_impulse;
-	temp->SetVolume(c->m_impulse/200000.0);
-	temp->SetFrequencyRatio(1/(c->m_impulse/200000.0));
-	temp->Start(0);
+		/*
+		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
+		tractorBeams3d.insert(pair<int,X3DAUDIO_EMITTER*>(beam.m_playerNum, Emitter));
+		tractorBeams3d[beam.m_playerNum]->ChannelCount = 1;
+		tractorBeams3d[beam.m_playerNum]->CurveDistanceScaler = AUDSCALE;
+		tractorBeams3d[beam.m_playerNum]->DopplerScaler = 20.0;
+		*/
+		float impulse = c->m_impulse;
+		temp->SetVolume(c->m_impulse/200000.0);
+		temp->SetFrequencyRatio(1/(c->m_impulse/200000.0));
+		temp->Start(0);
+	
 	}
 
 	/*
