@@ -26,6 +26,7 @@ class InputState : public Sendable {
 	MashType mash;
 	StartType start;
 	TurnType strafe;
+	BrakeType reverse;
 
 
 	//Returns the current thrust value, normalized from 0 to 1
@@ -56,6 +57,11 @@ class InputState : public Sendable {
 	//Returns the whether or not the brake is on
 	bool getBrake() {
 		return brake;
+	}
+
+	//Returns the whether or not the reverse is on
+	bool getReverse() {
+		return reverse;
 	}
 
 	//Returns true if the player is pushing the reorient button
@@ -97,6 +103,7 @@ private:
 		MashType mash;
 		StartType start;
 		TurnType strafe;
+		BrakeType reverse;
 	};
 
 public:
@@ -116,6 +123,7 @@ public:
 		s.mash = mash;
 		s.start = start;
 		s.strafe = strafe;
+		s.reverse = reverse;
 		memcpy(tmp, (char*)&s, sizeof(s));
 		return sizeof(s);
 	};
@@ -135,6 +143,7 @@ public:
 		mash = s.mash;
 		start = s.start;
 		strafe = s.strafe;
+		reverse = s.reverse;
 		return sizeof(s);
 	};
 

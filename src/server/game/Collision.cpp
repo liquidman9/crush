@@ -247,7 +247,7 @@ CollisionGEvent * Collision::resolve()
 	// Add the impulse to both entities
 	if(!(m_a->m_type == SHIP && ((S_Ship *)m_a)->checkShield())) {
 		if (m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield()) {
-			m_a->applyLinearImpulse(jN * 2);
+			m_a->applyLinearImpulse(jN * 3);
 		} else { 
 			m_a->applyLinearImpulse(jN);
 		}
@@ -261,7 +261,7 @@ CollisionGEvent * Collision::resolve()
 	
 	if(!(m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield())) {
 		if (m_a->m_type == SHIP && ((S_Ship *)m_a)->checkShield()) {
-			m_b->applyLinearImpulse(-jN * 2);
+			m_b->applyLinearImpulse(-jN * 3);
 		} else { 
 			m_b->applyLinearImpulse(-jN);
 		}

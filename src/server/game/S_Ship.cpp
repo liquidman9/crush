@@ -100,6 +100,15 @@ void S_Ship::addPlayerInput(InputState input) {
 		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
 		
 		applyLinearImpulse(main_thrust_adj * m_linear_impulse);
+	} 
+	
+	if (input.getReverse()) {
+		D3DXVECTOR3 main_thrust_force(0, 0, -1), 
+					main_thrust_adj;
+		D3DXVec3Normalize(&main_thrust_force, &main_thrust_force);
+		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
+		
+		applyLinearImpulse(main_thrust_adj * m_linear_impulse);
 	}
 
 	// Rotational thrust calculations
