@@ -22,7 +22,7 @@ public:
 	~PowerupPGroup();
 
 	//static const float defaultSize;
-	//static const float ttl;
+	static const float ttl;
 	static const float defaultSize;
 	static const float ballScale;
 	static const float speed;

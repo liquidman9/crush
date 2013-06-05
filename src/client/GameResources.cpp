@@ -233,7 +233,7 @@ HRESULT GameResources::initState() {
 	tBeamPGroup->initBeamToFull();
 	burstPowerupPGroup = new BurstPGroup(tBeamPartTexture);
 	powerupPGroup = new PowerupPGroup(tBeamPartTexture);
-	GameResources::partSystem->releaseBurst(powerupPGroup);
+	//GameResources::partSystem->releaseBurst(powerupPGroup);
 	//TODO Remove
 	//burstPowerupPGroup->releasePos = D3DXVECTOR3(5,5,5);
 
@@ -2161,6 +2161,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 	releaseBurstPowerupParticles();
 	partSystem->update(tBeamPGroup, elapsedTime);
 	partSystem->update(burstPowerupPGroup, elapsedTime);
+	partSystem->update(powerupPGroup, elapsedTime);
 	for (UINT i = 0; i < enginePGroupList.size(); i++) {
 		partSystem->update(enginePGroupList[i], elapsedTime);
 	}
