@@ -1888,7 +1888,9 @@ void GameResources::drawAll()
 		drawScoreScreen();
 
 	} else if (splashStart) {
+		Gbls::pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+		Gbls::pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		drawTexToSurface(playerSplashTexture[playerNum], &playerSplashQuad, true);
 		Gbls::pd3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 	} else {
