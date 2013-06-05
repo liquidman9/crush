@@ -52,7 +52,8 @@ public:
 
 	GameState<Entity> getGameState();
 
-
+	
+	void givePowerup(int type, int ship);
 private:
 	//functions
 	void loop();
@@ -84,6 +85,8 @@ private:
 
 	// spawn an Asteroid
 	void spawnAsteroid();
+
+
 
 	//move clients that are currently known
 	void moveClients();
