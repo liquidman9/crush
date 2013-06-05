@@ -474,7 +474,7 @@ HRESULT GameResources::reInitState() {
 	float icon_size = 384*icon_scale;
 	float icon_scale_h = alert_scale_h;
 	float icon_scale_w = alert_scale_w;
-	const float icon_skew_h = 25;
+	const float icon_skew_h = -75;
 	const float icon_skew_w = 0;
 	float icon_left;
 	float icon_right;
