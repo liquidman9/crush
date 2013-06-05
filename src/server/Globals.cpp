@@ -64,11 +64,11 @@ namespace server {
 		namespace powerup {
 			float max_velocity_rate = 2.0f;
 			float impulse_rate = 3.0f;
-			float pulse_rate = .2f;
+			float pulse_rate = 2.0f;
 			float speedup_time = 7000;
 			float shield_time = 15000;
 			float pulse_time = 500;
-			float pulse_range = 450;
+			float pulse_range = 125;
 			float respawn = 15000;
 
 		}
