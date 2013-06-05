@@ -51,6 +51,7 @@ SoundManager::SoundManager() {
 			if( FAILED(hr = (temp2->SubmitSourceBuffer( &sounds[MUSICSOUND] ) ) ) )
 				isValid = false;
 			temp2->Start(0);
+			temp2->SetVolume(0.1f);
 			
 			//Set up 3D Sound
 			pXAudio2->GetDeviceDetails(0,&deviceDetails);
