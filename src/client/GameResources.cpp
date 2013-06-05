@@ -470,8 +470,8 @@ HRESULT GameResources::reInitState() {
     };
 
 
-	float icon_scale = alert_scale;
-	float icon_size = 384*icon_scale;
+	const float icon_scale = 1.0f; //alert_scale;
+	float icon_size = 260*icon_scale;
 	float icon_scale_h = alert_scale_h;
 	float icon_scale_w = alert_scale_w;
 	const float icon_skew_h = -75;
