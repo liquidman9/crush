@@ -6,9 +6,9 @@
 #include <client/graphics/PowerupPGroup.h>
 #include <client/graphics/ParticleSystem.h>
 
-const float PowerupPGroup::ttl = 2.0f;
-const float PowerupPGroup::defaultSize = 2.0f;
-const float PowerupPGroup::ballScale = 2.0f;
+const float PowerupPGroup::ttl = 0.5f;
+const float PowerupPGroup::defaultSize = 4.0f;
+const float PowerupPGroup::ballScale = 4.0f;
 const float PowerupPGroup::speed = 60.0f;
 const int PowerupPGroup::color_r = 255;
 const int PowerupPGroup::color_g = 255;
@@ -26,7 +26,7 @@ PowerupPGroup::PowerupPGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
 	m_lastUpdate = 0.0f;
 	m_currentTime = 0.0f;
     m_ptexParticle = ptexParticle; // Particle's texture
-	m_perParticleColor = TRUE;
+	m_perParticleColor = true;
 	m_curColor = D3DCOLOR_XRGB(255,255,255);
 	
 	float prevElapsedTime = -1.0f;

@@ -213,6 +213,14 @@ HRESULT GameResources::initState() {
 	if(FAILED (hres))
 		return hres;
 
+	//ugh ugly shouldn't be here sorry oh god last week
+	
+	Gbls::powerupMesh.m_dwNumMaterials = 1;
+	Gbls::powerupMesh.m_pMeshMaterials = new D3DMATERIAL9[1];
+	Gbls::powerupMesh.m_pMeshTextures = new LPDIRECT3DTEXTURE9[1];
+	Gbls::powerupMesh.m_matInitScaleRot = Gbls::shipMesh.m_matInitScaleRot;
+	Gbls::powerupMesh.m_pMeshTextures[0] = Gbls::powerupTexture;
+
 	// create sprite renderer
 	hres = D3DXCreateSprite(Gbls::pd3dDevice, &pd3dSprite);
 	if (FAILED(hres)) {
@@ -677,7 +685,7 @@ HRESULT GameResources::initMeshes()
 			return hres;
 	if(FAILED(hres = Gbls::extractorMesh.Create(Gbls::extractorMeshFilepath)))
 			return hres;
-	if(FAILED(hres = Gbls::powerupMesh.Create(Gbls::powerupMeshFilepath)))
+	if(FAILED(hres = Gbls::powerupMesh.CreateBlank(Gbls::powerupMeshFilepath)))
 			return hres;
 	
 	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 3.0f, 25, 25, &sunMesh, NULL)))
@@ -763,6 +771,11 @@ HRESULT GameResources::initAdditionalTextures()
 
 	_D3DFORMAT compressedFormat = D3DFMT_DXT3;
 	
+	// load powerup texture
+	hres = loadTextureWithFormat(&Gbls::powerupTexture, Gbls::powerupTextureFilepath, compressedFormat);
+	if (FAILED(hres)) {
+		return hres;
+	}
 	// load ship textures
 	hres = loadTextureWithFormat(&Gbls::shipTexture1, Gbls::shipTexFilepath1, compressedFormat);
 	if (FAILED(hres)) {
