@@ -162,6 +162,15 @@ void Server::setUpPowerups() {
 	}
 }
 
+void Server::givePowerup(int type, int ship) {
+	for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) {
+			if(i->second->m_playerNum == ship) {
+				m_powerupSource->request(type, i->second);
+			}
+	}
+
+}
+
 void Server::initializeGameState() {
 	m_gameState.clear();
 	m_server.broadcastGameState(m_gameState);

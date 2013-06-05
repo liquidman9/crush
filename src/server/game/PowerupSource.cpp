@@ -21,7 +21,7 @@ PowerupSource::PowerupSource(vector<D3DXVECTOR3> points, long long time)
 		m_powerups[i]->m_pos = m_spawnPoints[i].second;
 	}
 
-	for(int j = 0; j < 2; j++) {
+	for(int j = 0; j < 8; j++) {
 		m_powerups.push_back(new S_Powerup(m_pos1, m_dir1, (PowerType)(rand()%3)));// (PowerType)(rand()%4)));
 		m_powerups[i+j]->m_stateType = WAITING;
 	}
@@ -59,4 +59,26 @@ void PowerupSource::update(long long time) {
 		}
 	}
 	
+}
+
+
+void PowerupSource::request(int type, S_Ship * ship) {
+	bool found = false;
+	for(unsigned int j = 0; j < m_powerups.size(); j++) {
+				switch(m_powerups[j]->m_stateType){
+					case WAITING:
+						m_powerups[j]->m_powerType = (PowerType)(type);
+						m_powerups[j]->m_pos = 	D3DXVECTOR3(10000000,0,0); 
+						m_powerups[j]->m_stateType = SPAWNED;
+						ship->interact(m_powerups[j]);
+
+						found = true;
+						break;
+					default :
+						break;
+				}
+
+				if(found) break;
+			}
+
 }

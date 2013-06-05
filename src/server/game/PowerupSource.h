@@ -28,6 +28,7 @@ public:
 	
 	PowerupSource(vector<D3DXVECTOR3>, long long);
 	void update(long long);
+	void request(int type, S_Ship *);
 };
 
 #pragma warning( pop )

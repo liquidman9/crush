@@ -26,6 +26,23 @@ int main() {
 			break;
 		} else if (input_tokens[0] == "s") {
 			server.startGame();
+		}else if(input_tokens[0] == "give") {
+			if(input_tokens.size() >= 3) {
+				string ship = input_tokens[1], type = input_tokens[2];
+				int shipNum = -1, powerNum = -1;
+				if(ship == "0") shipNum = 0;
+				if(ship == "1") shipNum = 1;
+				if(ship == "2") shipNum = 2;
+				if(ship == "3") shipNum = 3;
+				if(type == "0") powerNum = 0;
+				if(type == "1") powerNum = 1;
+				if(type == "2") powerNum = 2;
+
+				if(shipNum != -1 && powerNum != -1)
+					server.givePowerup(powerNum, shipNum);
+				
+			}
+
 		} else  {
 			if (input_tokens[0] == "quit") {
 				break;
