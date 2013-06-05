@@ -58,17 +58,18 @@ namespace server {
 
 		namespace extractor {
 			float mass = 50000.0f;
-			float resource_respawn_time = 30.0f;
+			float resource_respawn_time = 15.0f;
 		}
 
 		namespace powerup {
 			float max_velocity_rate = 2.0f;
-			float impulse_rate = 1.20f;
-			float pulse_rate = 0.2f;
+			float impulse_rate = 3.0f;
+			float pulse_rate = .2f;
 			float speedup_time = 7000;
-			float shield_time = 7000;
-			float pulse_time = 250;
-			float pulse_range = 250;
+			float shield_time = 15000;
+			float pulse_time = 500;
+			float pulse_range = 450;
+			float respawn = 15000;
 
 		}
 	}

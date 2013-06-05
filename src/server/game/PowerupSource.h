@@ -13,7 +13,6 @@
 #include <server/game/ServerEntity.h>
 #include <server/game/S_Powerup.h>
 
-#define SPAWN_MIN_TIME 30000
 
 #pragma warning( push )
 #pragma warning( disable : 4250 )

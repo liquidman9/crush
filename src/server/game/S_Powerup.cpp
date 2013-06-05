@@ -85,10 +85,15 @@ void S_Powerup::start() {
 	case SHIELD:
 		m_totalTimeLength = shield_time;
 		m_ship->m_shieldOn = true;
+		m_ship->m_radius = 7; //hardcoded same as shield on client
+		m_ship->m_length = 0;
+		m_ship->recalculateRelativeValues();
 		break;
 	default:
 		break;
 	}
+
+	cout<<m_totalTimeLength<<endl;
 }
 
 void S_Powerup::end() {
@@ -104,6 +109,9 @@ void S_Powerup::end() {
 		break;
 	case SHIELD:
 		m_ship->m_shieldOn = false;
+		m_ship->m_radius = m_ship->m_baseRadius;
+		m_ship->m_length = m_ship->m_baseLength;
+		m_ship->recalculateRelativeValues();
 		break;
 	default:
 		break;

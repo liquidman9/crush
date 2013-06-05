@@ -29,7 +29,7 @@ protected:
 	*/
 
 	// Recalculates values based on position/orientation
-	void recalculateRelativeValues();
+	
 
 public:
 	// Effective constants
@@ -66,6 +66,8 @@ public:
 	ServerEntity(float mass, D3DXMATRIX rot_inertia);
 
 	ServerEntity(float mass, float length, D3DXMATRIX rot_inertia);
+
+	void recalculateRelativeValues();
 
 	// General Methods
 	int genId();
