@@ -203,6 +203,8 @@ public:
 		m_entities.clear();
 		m_events.clear();
 		m_size = gsMinSize();
+		m_entities_size = 0;
+		m_event_size = 0;
 	}
 
 	bool empty() const {
