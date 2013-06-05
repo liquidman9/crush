@@ -1176,7 +1176,7 @@ void GameResources::releaseBurstPowerupParticles() {
 	for (UINT i = 0; i < shipList.size(); i++) {
 		C_Ship * ship = shipList[i];
 		if(ship->m_hasPowerup && ship->m_powerupType == PULSE && ship->m_powerupStateType == CONSUMED) {
-			GameResources::burstPowerupPGroup->releasePos = GameResources::playerShip->m_pos;
+			GameResources::burstPowerupPGroup->releasePos = ship->m_pos;
 			GameResources::partSystem->releaseBurst(GameResources::burstPowerupPGroup);
 		}
 	}
