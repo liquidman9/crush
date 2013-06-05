@@ -17,9 +17,9 @@ CollisionGEvent * SRCollision::resolve()
 {
 	S_Ship * ship = (S_Ship *)m_a;
 	S_Resource * res = (S_Resource *)m_b;
-	bool gatheredOrDropped = ship->interact(res);
+	bool gathered = ship->interact(res);
 
-	if(gatheredOrDropped)
+	if(gathered)
 		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SR);
 
 	else

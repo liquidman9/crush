@@ -54,6 +54,9 @@ void S_Ship::init() {
 	m_mashTimeLimit = mash_time_limit;
 	m_shieldOn = false;
 	m_pulseOn = false;
+
+	m_baseRadius = m_radius;
+	m_baseLength = m_length;
 }
 
 // TODO!!!:
@@ -317,6 +320,7 @@ bool S_Ship::interact(S_Powerup * power) {
 	if(power->m_ship == NULL && power->m_stateType == SPAWNED && m_powerup == NULL) {	
 		power->pickUp(this);
 		m_powerup = power;
+		return true;
 	}
 
 	return false;
@@ -334,8 +338,10 @@ bool S_Ship::interact(S_Resource * res) {
 			for(int i = 0; i < res->m_heldBy.size(); i++)
 				((S_Ship *)res->m_heldBy[i])->m_tractorBeam->lockOff();
 			res->m_heldBy.clear();
+
+			return true;
 		}
-		return true;
+
 	}
 
 	return false;

@@ -15,6 +15,7 @@ D3DPRESENT_PARAMETERS Gbls::thePresentParams;
 int Gbls::fontHeight; // calculated
 float Gbls::percentMissedFrames;
 
+LPDIRECT3DTEXTURE9 Gbls::powerupTexture = NULL; 
 LPDIRECT3DTEXTURE9 Gbls::shipTexture1 = NULL; 
 LPDIRECT3DTEXTURE9 Gbls::shipTexture2 = NULL; 
 LPDIRECT3DTEXTURE9 Gbls::shipTexture3 = NULL; 
@@ -82,6 +83,7 @@ std::wstring Gbls::ship3EIDTextureFilepath_insig = L"arrow_icon_003.png";
 std::wstring Gbls::ship3EIDTextureFilepath_arrow = L"arrow_color_003.png";
 std::wstring Gbls::ship4EIDTextureFilepath_insig = L"arrow_icon_004.png";
 std::wstring Gbls::ship4EIDTextureFilepath_arrow = L"arrow_color_004.png";
+std::wstring Gbls::powerupTextureFilepath = L"powerup_skin.dds";
 
 std::wstring Gbls::alertTextureFilepath = L"lock_on.png";
 
@@ -245,7 +247,7 @@ void Gbls::initFromConfig() {
 
 	/* Powerup */
 	if(!conf.getValue("powerupMeshFilepath", tmpString)) {  //default
-			powerupMeshFilepath = L"tiger.x";
+			powerupMeshFilepath = L"powerup.x";
 	} else {  //assign to wstring
 			powerupMeshFilepath = wstring(tmpString.begin(), tmpString.end());
 	}

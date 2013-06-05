@@ -6,9 +6,9 @@
 #include <client/graphics/PowerupPGroup.h>
 #include <client/graphics/ParticleSystem.h>
 
-//const float PowerupPGroup::ttl = 2.0f;
-const float PowerupPGroup::defaultSize = 10.0f;
-const float PowerupPGroup::ballScale = 2.0f;
+const float PowerupPGroup::ttl = 0.5f;
+const float PowerupPGroup::defaultSize = 4.0f;
+const float PowerupPGroup::ballScale = 4.0f;
 const float PowerupPGroup::speed = 60.0f;
 const int PowerupPGroup::color_r = 255;
 const int PowerupPGroup::color_g = 255;
@@ -21,12 +21,12 @@ PowerupPGroup::PowerupPGroup(LPDIRECT3DTEXTURE9 ptexParticle) {
 	m_partList = NULL;
 	D3DXMatrixIdentity(&m_worldTransformMat);
     m_size = defaultSize; // Particle's size
-    m_numToRelease = 15;
-	m_releaseInterval = 0.0f; //no period release
+    m_numToRelease = 3;
+	m_releaseInterval = 0.02f; //no period release
 	m_lastUpdate = 0.0f;
 	m_currentTime = 0.0f;
     m_ptexParticle = ptexParticle; // Particle's texture
-	m_perParticleColor = FALSE;
+	m_perParticleColor = true;
 	m_curColor = D3DCOLOR_XRGB(255,255,255);
 	
 	float prevElapsedTime = -1.0f;
@@ -82,13 +82,15 @@ bool PowerupPGroup::initNewParticle(Particle * pParticle) {
 	//pParticle->m_vCurPos.y = cos(lat)*sin(lon);
 	//pParticle->m_vCurPos.z = sin(lat);
 
-	//pParticle->m_color = D3DCOLOR_XRGB(rand()%256,rand()%256,rand()%256);
+	pParticle->m_color = D3DCOLOR_XRGB(rand()%256,rand()%256,rand()%256);
 	D3DXVECTOR3 zeroVec(0,0,0);
 	do {
 	pParticle->m_vCurPos.x = ParticleSystem::getRandomMinMax(-1.0f, 1.0f);
 	pParticle->m_vCurPos.y = ParticleSystem::getRandomMinMax(-1.0f, 1.0f);
 	pParticle->m_vCurPos.z = ParticleSystem::getRandomMinMax(-1.0f, 1.0f);
 	} while (D3DXVec3Length(&(pParticle->m_vCurPos - zeroVec)) > 1.0f);
+	pParticle->m_vCurVel = pParticle->m_vCurPos;
+	pParticle->m_vCurPos = zeroVec;
 	D3DXVec3Normalize(&pParticle->m_vCurPos, &pParticle->m_vCurPos);
 	pParticle->m_vCurPos/=3.0f;
 	return true;
@@ -99,16 +101,16 @@ bool PowerupPGroup::initNewParticle(Particle * pParticle) {
  */
 bool PowerupPGroup::updateParticle(Particle * pParticle, float elapsedTime) {
 
-	//// check time to live
-	//float age = (m_currentTime - pParticle->m_fInitTime)/ttl;
-	//if ( age > 1.0f )
-	//	return false;
+	// check time to live
+	float age = (m_currentTime - pParticle->m_fInitTime)/ttl;
+	if ( age > 1.0f )
+		return false;
 
 	//float scale = (age);
 	////m_size = sqrt(defaultSize*age*5);
 	////pParticle->m_vCurVel -= pParticle->m_vCurVel*0.03;
 	////pParticle->m_color = D3DCOLOR_XRGB((int)(color_r*scale),(int)(color_g*scale),(int)(color_b*scale));
 	//
-	//pParticle->m_vCurPos += pParticle->m_vCurVel*elapsedTime;
+	pParticle->m_vCurPos += pParticle->m_vCurVel*elapsedTime;
 	return true;
 }

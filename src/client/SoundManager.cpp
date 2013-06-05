@@ -236,6 +236,16 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 	
 	}
 
+	// Picked up a resource // maybe sound?
+	if(c->m_ctype == SR){
+		// m_idA it is the entity id not the player id
+	}
+
+	// Picked up a Powerup
+	if(c->m_ctype == SP) {
+		// m_idA it is the entity id not the player id
+	}
+
 	/*
 	switch(c->m_ctype) {
 	case 

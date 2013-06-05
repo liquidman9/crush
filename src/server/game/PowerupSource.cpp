@@ -5,6 +5,7 @@
 // Project includes
 #include <server/game/PowerupSource.h>
 
+using namespace server::entities::powerup;
 PowerupSource::PowerupSource(vector<D3DXVECTOR3> points, long long time) 
 {	
 	srand((unsigned int)time);
@@ -37,7 +38,7 @@ void PowerupSource::update(long long time) {
 			m_startTimes[i] = time; // reset timer
 			m_spawnPoints[i].first = NULL;
 		}
-		else if(m_spawnPoints[i].first == NULL && time - m_startTimes[i] >= SPAWN_MIN_TIME){
+		else if(m_spawnPoints[i].first == NULL && time - m_startTimes[i] >= respawn){
 			for(unsigned int j = 0; j < m_powerups.size(); j++) {
 				switch(m_powerups[j]->m_stateType){
 					case WAITING:

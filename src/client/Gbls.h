@@ -74,7 +74,9 @@ public:
 	static std::wstring scoreScreenTexFilepath4;
 	static std::wstring pScoreScrenAlphaTexFilepath;
 	
-	static LPDIRECT3DTEXTURE9 shipTexture1; 
+	
+	static LPDIRECT3DTEXTURE9 powerupTexture;
+	static LPDIRECT3DTEXTURE9 shipTexture1;
 	static LPDIRECT3DTEXTURE9 shipTexture2; 
 	static LPDIRECT3DTEXTURE9 shipTexture3; 
 	static LPDIRECT3DTEXTURE9 shipTexture4;
@@ -101,6 +103,8 @@ public:
 	static std::wstring ship3EIDTextureFilepath_arrow;
 	static std::wstring ship4EIDTextureFilepath_insig;
 	static std::wstring ship4EIDTextureFilepath_arrow;
+	
+	static std::wstring powerupTextureFilepath;
 
 	static std::wstring player1HudFilepath_insig;
 	static std::wstring player2HudFilepath_insig;

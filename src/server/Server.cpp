@@ -80,6 +80,17 @@ void Server::setUpExtractor() {
 	m_gameState.push_back(res);
 	m_world.entities.push_back(res);
 
+	D3DXVECTOR3 posR2(m_extractor->m_pos.x+m_extractor->m_radius*2, m_extractor->m_pos.y+ m_extractor->m_length*.25, m_extractor->m_pos.z+m_extractor->m_radius*2);
+	D3DXVECTOR3 posR3(m_extractor->m_pos.x-m_extractor->m_radius*2, m_extractor->m_pos.y+ m_extractor->m_length*.25, m_extractor->m_pos.z-m_extractor->m_radius*2);
+	
+	S_Resource * res2 = new S_Resource(posR2, m_dir1);
+	m_gameState.push_back(res2);
+	m_world.entities.push_back(res2);
+
+	S_Resource * res3 = new S_Resource(posR3, m_dir1);
+	m_gameState.push_back(res3);
+	m_world.entities.push_back(res3);
+
 	//m_extractor->setStart(milliseconds_now());
 }
 

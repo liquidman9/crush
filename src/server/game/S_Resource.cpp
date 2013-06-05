@@ -115,12 +115,27 @@ void S_Resource::update(float delta_time){
 		ServerEntity::update(delta_time);
 	}
 	else if(m_carrier == NULL) {
+
+		float mag_velocity = D3DXVec3Length(&m_velocity), mag_angular_velocity = D3DXVec3Length(&m_angular_velocity);
+
+		if (mag_velocity > FP_ZERO) {
 		D3DXVECTOR3 lin_stabilizer_vec(-m_momentum);
 		D3DXVec3Normalize(&lin_stabilizer_vec, &lin_stabilizer_vec);
 		
 		D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * 100;
 		applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum));
+		}
+		
+		if (mag_angular_velocity > FP_ZERO) {
+		D3DXVECTOR3 rot_stabilizer_vec(-m_angular_momentum);
+		D3DXVec3Normalize(&rot_stabilizer_vec, &rot_stabilizer_vec);
+
+		D3DXVECTOR3 rot_stabilizer_force = rot_stabilizer_vec * 100;
+		applyAngularImpulse(Vec3ComponentAbsMin(rot_stabilizer_force, -m_angular_momentum));
+		}
+
 		ServerEntity::update(delta_time);
+
 	}
 	else if(m_carrier->m_type == EXTRACTOR) {
 		if(D3DXVec3Length(&(m_pos-m_carrier->m_pos)) > ((S_Extractor *)m_carrier)->m_hubRadius){

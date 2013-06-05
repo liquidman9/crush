@@ -58,6 +58,9 @@ public:
 	bool m_pulseOn;
 	bool m_isBraking;
 
+
+	float m_baseLength;
+	float m_baseRadius;
 	// Constructors
 	S_Ship();
 	S_Ship(D3DXVECTOR3, Quaternion, int);
