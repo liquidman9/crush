@@ -10,6 +10,7 @@
 #include <x3daudio.h> 
 #include <shared/game/GameState.h>
 #include <map>
+#include <list>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_TractorBeam.h>
 
@@ -25,6 +26,7 @@ public:
 	void playTractorBeam(C_TractorBeam beam);
 	void playEngine(C_Ship ship);
 	void playEvent(shared_ptr<GEvent> e);
+	void cleanEvents();
 	bool isValid;
 private:
 	IXAudio2MasteringVoice* pMasterVoice;
@@ -45,6 +47,8 @@ private:
 	void newSound(TCHAR * path, Sound type, int loop);
 	void newVoice(map<int,IXAudio2SourceVoice*> & map, int idx, Sound type);
 	void new3dEmitter(map<int,X3DAUDIO_EMITTER*> & map, int idx);
+
+	list<IXAudio2SourceVoice*> collisions;
 };
 
 #endif

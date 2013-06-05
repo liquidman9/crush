@@ -231,9 +231,16 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 		*/
 		float impulse = c->m_impulse;
 		temp->SetVolume(c->m_impulse/200000.0);
-		temp->SetFrequencyRatio(1/(c->m_impulse/200000.0));
+		if (1/(c->m_impulse/200000.0)<.05) {
+		temp->SetFrequencyRatio(.05f);
+		} else if (1/(c->m_impulse/200000.0)>6) {
+		temp->SetFrequencyRatio(6.0f);
+		} else {
+			temp->SetFrequencyRatio((1/(c->m_impulse/200000.0)));
+		}
+
 		temp->Start(0);
-	
+		collisions.push_back(temp);
 	}
 
 	// Picked up a resource // maybe sound?
@@ -250,6 +257,21 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 	switch(c->m_ctype) {
 	case 
 	}*/
+	}
+}
+
+void SoundManager::cleanEvents() {
+	vector<list<IXAudio2SourceVoice*>::iterator> deleteThem;
+	for (list<IXAudio2SourceVoice*>::iterator i = collisions.begin();i!=collisions.end();++i) {
+		XAUDIO2_VOICE_STATE vs;
+		(*i)->GetState(&vs);
+		if (vs.BuffersQueued == 0) {
+			(*i)->DestroyVoice();
+			deleteThem.push_back(i);
+		}
+	}
+	for (int i=0;i<deleteThem.size();i++) {
+		collisions.erase(deleteThem[i]);
 	}
 }
 

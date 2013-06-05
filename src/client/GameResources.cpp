@@ -1956,6 +1956,8 @@ void GameResources::playSounds(vector<shared_ptr<GEvent> > events)
 		for (UINT i = 0; i < events.size(); i++) {
 			sound.playEvent(events[i]);
 		}
+
+		sound.cleanEvents();
 	}
 }
 
