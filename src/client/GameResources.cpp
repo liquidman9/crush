@@ -463,10 +463,10 @@ HRESULT GameResources::reInitState() {
 
 
 	float icon_scale = alert_scale;
-	float icon_size = 64*icon_scale;
+	float icon_size = 384*icon_scale;
 	float icon_scale_h = alert_scale_h;
 	float icon_scale_w = alert_scale_w;
-	const float icon_skew_h = -75;
+	const float icon_skew_h = 25;
 	const float icon_skew_w = 0;
 	float icon_left;
 	float icon_right;
@@ -1326,7 +1326,7 @@ void GameResources::drawStaticHudElements() {
 		}
 		Gbls::pd3dDevice->EndScene();
 		for(unsigned int i = 0; i < 4; i++) {
-			drawTexToSurface(playerHudArray_insig[i], &playerIconHudQuad[i], false);
+			drawTexToSurface(playerHudArray_insig[i], &playerIconHudQuad[i], true);
 		}
 		Gbls::pd3dDevice->BeginScene();	
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);

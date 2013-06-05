@@ -102,10 +102,10 @@ std::wstring Gbls::powerupTexture1Filepath = L"powerup_speed.png";
 std::wstring Gbls::powerupTexture2Filepath = L"powerup_blast.png";
 std::wstring Gbls::powerupTexture3Filepath = L"powerup_shield.png";
 
-std::wstring Gbls::player1HudFilepath_insig = L"player_1_icon.png";
-std::wstring Gbls::player2HudFilepath_insig = L"player_2_icon.png";
-std::wstring Gbls::player3HudFilepath_insig = L"player_3_icon.png";
-std::wstring Gbls::player4HudFilepath_insig = L"player_4_icon.png";
+std::wstring Gbls::player1HudFilepath_insig = L"score_icon_001.png";
+std::wstring Gbls::player2HudFilepath_insig = L"score_icon_002.png";
+std::wstring Gbls::player3HudFilepath_insig = L"score_icon_003.png";
+std::wstring Gbls::player4HudFilepath_insig = L"score_icon_004.png";
 
 std::wstring Gbls::resourceEIDTextureFilepath = L"arrow_resource.png";
 
