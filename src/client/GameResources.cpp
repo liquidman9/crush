@@ -690,7 +690,7 @@ HRESULT GameResources::initMeshes()
 	if(FAILED(hres = Gbls::powerupMesh.CreateBlank(Gbls::powerupMeshFilepath)))
 			return hres;
 	
-	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 3.0f, 25, 25, &sunMesh, NULL)))
+	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 3.0f, 40, 40, &sunMesh, NULL)))
 		return hres;
 	if (FAILED(hres = D3DXCreateSphere(Gbls::pd3dDevice, 1.0f, 25, 25, &shieldMesh, NULL)))
 		return hres;
@@ -1345,10 +1345,10 @@ void GameResources::drawStaticHudElements() {
 		}
 		Gbls::pd3dDevice->BeginScene();	
 		placeTextCenterCeiling(timeStr.c_str(), Gbls::thePresentParams.BackBufferWidth/2);
-		placeTextCenterFloor((L"Player 1\n" + std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
-		placeTextCenterFloor((L"Player 2\n" + std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
-		placeTextCenterFloor((L"Player 3\n" + std::to_wstring((long long)playerScore[2])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f)));
-		placeTextCenterFloor((L"Player 4\n" + std::to_wstring((long long)playerScore[3])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f)));
+		placeTextCenterFloor((/*L"Player 1\n" + */std::to_wstring((long long)playerScore[0])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (1.0f/9.0f)));
+		placeTextCenterFloor((/*L"Player 2\n" + */std::to_wstring((long long)playerScore[1])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (3.0f/9.0f)));
+		placeTextCenterFloor((/*L"Player 3\n" + */std::to_wstring((long long)playerScore[2])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (6.0f/9.0f)));
+		placeTextCenterFloor((/*L"Player 4\n" + */std::to_wstring((long long)playerScore[3])).c_str(), (UINT) (Gbls::thePresentParams.BackBufferWidth * (8.0f/9.0f)));
 		// End sprite rendering
 		pd3dSprite->End();
 	}
@@ -1473,10 +1473,13 @@ void GameResources::DrawBGSun() {
     pEffectGlowmap->SetTechnique( "Emissive" );
 	cPasses;
 	pEffectGlowmap->Begin(&cPasses, 0);
+	//D3DXMATRIX scaleMat;
+	//float scale = 1.0f;
+	//D3DXMatrixScaling(&scaleMat, scale*1.01f, scale*0.98f, scale*1.01f);
 	for (UINT iPass = 0; iPass < cPasses; iPass++)
 	{
 		pEffectGlowmap->BeginPass(iPass);
-		pEffectGlowmap->SetMatrix("World", &sunWorldMat);
+		pEffectGlowmap->SetMatrix("World", &(/*scaleMat*/sunWorldMat));
 		pEffectGlowmap->CommitChanges();
 		sunMesh->DrawSubset(0);
 		pEffectGlowmap->EndPass();
@@ -1851,7 +1854,7 @@ void GameResources::drawAll()
 	}
 
 	Skybox::drawSkybox();
-	//DrawBGSun();
+	DrawBGSun();
 
 	// TODO this draws objects in no particular order, resulting in many loads and unloads (probably) for textures and models. Should be fixed if performance becomes an issue.
 	// Loop through all lists. Set up shaders, etc, as needed for each.

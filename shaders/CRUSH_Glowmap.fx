@@ -2,7 +2,8 @@ float4x4 World;
 float4x4 View;
 float4x4 Projection;
 
-float4 EmissiveColor = float4(1, 1, 1, 1);
+float4 EmissiveColor = float4(1, 0.8, 0.3, 1);
+//float4 EmissiveColor = float4(1, 1, 1, 1);
 float4 BlackColor = float4(0, 0, 0, 1);
 
 float4x4 WorldInverseTranspose;
