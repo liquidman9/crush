@@ -86,13 +86,14 @@ public:
 	static LPDIRECT3DTEXTURE9 mothershipTexture4;
 	static LPDIRECT3DTEXTURE9 scoreScreenTexture[4];
 	static LPDIRECT3DTEXTURE9 pScoreScrenAlphaTexture;
-
-	static std::wstring skyboxTextureFilepath_Front;
-	static std::wstring skyboxTextureFilepath_Back;
-	static std::wstring skyboxTextureFilepath_Left;
-	static std::wstring skyboxTextureFilepath_Right;
-	static std::wstring skyboxTextureFilepath_Top;
-	static std::wstring skyboxTextureFilepath_Bottom;
+	
+	static std::wstring skyboxTextureFilepath;
+	//static std::wstring skyboxTextureFilepath_Front;
+	//static std::wstring skyboxTextureFilepath_Back;
+	//static std::wstring skyboxTextureFilepath_Left;
+	//static std::wstring skyboxTextureFilepath_Right;
+	//static std::wstring skyboxTextureFilepath_Top;
+	//static std::wstring skyboxTextureFilepath_Bottom;
 	
 	static std::wstring shipEIDTextureFilepath_resource;
 	static std::wstring ship1EIDTextureFilepath_insig;

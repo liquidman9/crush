@@ -20,7 +20,7 @@ public:
 	};
 	
 	static LPDIRECT3DVERTEXBUFFER9 s_pVertexBuffer;
-	static LPDIRECT3DTEXTURE9 s_SkyTextures[6];
+	static LPDIRECT3DTEXTURE9 s_SkyTexture;
 	static TVertex s_SkyboxMesh [24];
 
 	static HRESULT initSkybox();

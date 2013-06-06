@@ -67,12 +67,13 @@ std::wstring Gbls::pScoreScrenAlphaTexFilepath = L"scoreboard_alpha.png";
 
 float Gbls::debugCamMoveSpeed = 0.5f;
 float Gbls::debugCamTurnSpeed = 2.0f;
-std::wstring Gbls::skyboxTextureFilepath_Front = L"nebula_003.png";
-std::wstring Gbls::skyboxTextureFilepath_Back = L"nebula_003.png";
-std::wstring Gbls::skyboxTextureFilepath_Left = L"nebula_003.png";
-std::wstring Gbls::skyboxTextureFilepath_Right = L"nebula_003.png";
-std::wstring Gbls::skyboxTextureFilepath_Top = L"nebula_003.png";
-std::wstring Gbls::skyboxTextureFilepath_Bottom = L"nebula_003.png";
+std::wstring Gbls::skyboxTextureFilepath = L"nebula_003.png";
+//std::wstring Gbls::skyboxTextureFilepath_Front = L"nebula_003.png";
+//std::wstring Gbls::skyboxTextureFilepath_Back = L"nebula_003.png";
+//std::wstring Gbls::skyboxTextureFilepath_Left = L"nebula_003.png";
+//std::wstring Gbls::skyboxTextureFilepath_Right = L"nebula_003.png";
+//std::wstring Gbls::skyboxTextureFilepath_Top = L"nebula_003.png";
+//std::wstring Gbls::skyboxTextureFilepath_Bottom = L"nebula_003.png";
 
 std::wstring Gbls::shipEIDTextureFilepath_resource = L"arrow_icon_resource.png";
 std::wstring Gbls::ship1EIDTextureFilepath_insig = L"arrow_icon_001.png";
@@ -257,25 +258,28 @@ void Gbls::initFromConfig() {
 	conf.getValue("debugCamMoveSpeed", debugCamMoveSpeed);
 	conf.getValue("debugCamTurnSpeed", debugCamTurnSpeed);
 	/* Skybox Texture Filepaths */
-
-	if(conf.getValue("skyboxTextureFilepath_Front", tmpString)) {
-		skyboxTextureFilepath_Front = wstring(tmpString.begin(), tmpString.end());
+	
+	if(conf.getValue("skyboxTextureFilepath", tmpString)) {
+		skyboxTextureFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
-	if(conf.getValue("skyboxTextureFilepath_Back", tmpString)) {
-		skyboxTextureFilepath_Back = wstring(tmpString.begin(), tmpString.end());
-	}
-	if(conf.getValue("skyboxTextureFilepath_Left", tmpString)) {
-		skyboxTextureFilepath_Left = wstring(tmpString.begin(), tmpString.end());
-	}
-	if(conf.getValue("skyboxTextureFilepath_Right", tmpString)) {
-		skyboxTextureFilepath_Right = wstring(tmpString.begin(), tmpString.end());
-	}
-	if(conf.getValue("skyboxTextureFilepath_Top", tmpString)) {
-		skyboxTextureFilepath_Top = wstring(tmpString.begin(), tmpString.end());
-	}
-	if(conf.getValue("skyboxTextureFilepath_Bottom", tmpString)) {
-		skyboxTextureFilepath_Bottom = wstring(tmpString.begin(), tmpString.end());
-	}
+	//if(conf.getValue("skyboxTextureFilepath_Front", tmpString)) {
+	//	skyboxTextureFilepath_Front = wstring(tmpString.begin(), tmpString.end());
+	//}
+	//if(conf.getValue("skyboxTextureFilepath_Back", tmpString)) {
+	//	skyboxTextureFilepath_Back = wstring(tmpString.begin(), tmpString.end());
+	//}
+	//if(conf.getValue("skyboxTextureFilepath_Left", tmpString)) {
+	//	skyboxTextureFilepath_Left = wstring(tmpString.begin(), tmpString.end());
+	//}
+	//if(conf.getValue("skyboxTextureFilepath_Right", tmpString)) {
+	//	skyboxTextureFilepath_Right = wstring(tmpString.begin(), tmpString.end());
+	//}
+	//if(conf.getValue("skyboxTextureFilepath_Top", tmpString)) {
+	//	skyboxTextureFilepath_Top = wstring(tmpString.begin(), tmpString.end());
+	//}
+	//if(conf.getValue("skyboxTextureFilepath_Bottom", tmpString)) {
+	//	skyboxTextureFilepath_Bottom = wstring(tmpString.begin(), tmpString.end());
+	//}
 
 	if(conf.getValue("consumedPowerupTexture1Filepath", tmpString)) {
 		consumedPowerupTexture1Filepath = wstring(tmpString.begin(), tmpString.end());
