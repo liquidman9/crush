@@ -17,8 +17,15 @@ public:
 	Controller * controller;
 	InputState input;
 	void refreshState();
-	void vibrate(int l=0, int r=0);
+	void vibrate();
+	void vibrate(int l, int r, int time);
+	void vibrateThrust(int thrust);
 	~GameInput();
+private:
+	int vibrateL;
+	int vibrateR;
+	int vibrateT;
+	int vibrateTh;
 };
 
 #endif

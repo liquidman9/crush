@@ -157,6 +157,7 @@ std::wstring GameResources::timeStr;
 std::wstring GameResources::playerNameStr[4];
 int GameResources::playerScore[4];
 SoundManager GameResources::sound;
+GameInput* GameResources::input;
 ID3DXEffect * GameResources::pEffectDefault;
 ID3DXEffect * GameResources::pEffectGlowmap; 
 ID3DXEffect * GameResources::pEffectTexToScreen;
