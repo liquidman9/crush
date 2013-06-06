@@ -1383,6 +1383,7 @@ static void drawGlowmapSpecModel(C_Entity * cEnt, ID3DXEffect * pEffect) {
 
 void GameResources::drawAllModels() {
 	
+	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	//Gbls::pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 	
 	D3DXMATRIX tmp;
