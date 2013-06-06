@@ -13,7 +13,7 @@
 using namespace server::entities::powerup;
 
 S_Powerup::S_Powerup(D3DXVECTOR3 pos, Quaternion orientation, PowerType type) :
-	Entity(genId(), POWERUP, pos, orientation, 10),
+	Entity(genId(), POWERUP, pos, orientation, 20),
 	Powerup(type),
 	ServerEntity(10, 0.0, calculateRotationalInertia(10)),
 	m_ship(NULL),
