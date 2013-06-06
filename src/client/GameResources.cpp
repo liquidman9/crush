@@ -1769,7 +1769,7 @@ void GameResources::drawShield(C_Ship * ship) {
 void GameResources::drawScoreScreen() {
 	Gbls::pd3dDevice->SetRenderTarget(0,pScoreScreenSurface); // set render target back to back buf
 	for (UINT i = 0; i < 4; i++) {
-		drawTexToSurface(Gbls::scoreScreenTexture[i], &scoreScreenQuad[winnerList[i].first], false);
+		drawTexToSurface(Gbls::scoreScreenTexture[winnerList[i].first], &scoreScreenQuad[winnerList[i].first], false);
 	}
 	Gbls::pd3dDevice->SetRenderTarget(0,pBackBuffer); // set render target back to back buf
 	Gbls::pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
