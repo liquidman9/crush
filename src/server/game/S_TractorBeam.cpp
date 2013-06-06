@@ -178,9 +178,9 @@ void S_TractorBeam::calculateForce() {
 					//	lockOff();
 					//}
 				}
-				/*else if(m_object->m_type == SHIP) {
+				else if(m_object->m_type == SHIP) {
 					
-				}*/
+				}
 				else { 
 
 					if(!m_isHolding) {

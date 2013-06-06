@@ -368,8 +368,7 @@ bool S_Ship::interact(S_Ship * ship) {
 
 	if(m_tractorBeam->m_object != NULL && m_tractorBeam->m_object == ship){
 		m_tractorBeam->m_isColliding = true;
-		//m_tractorBeam->lockOff();
-		return false;
+		m_tractorBeam->lockOff();
 	}
 	if(m_resource != NULL && !m_shieldOn && ship->m_resource == NULL && m_resource->m_droppedFrom != ship->m_playerNum) {
 		S_Resource * r = m_resource;
