@@ -23,6 +23,8 @@ CollisionGEvent * SRCollision::resolve()
 		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SR);
 	else if(response == -1)
 		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, C);
-	else
+	else {
+		m_type = C;
 		return Collision::resolve();
+	}
 }

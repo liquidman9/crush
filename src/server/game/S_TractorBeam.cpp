@@ -258,13 +258,14 @@ void S_TractorBeam::calculateForce() {
 	m_isColliding = false;
 }
 
-void S_TractorBeam::disable() {
+void S_TractorBeam::disable(long time) {
 	lockOff();
 
 	m_isOn = false;
-	timeout();
+	timeout(time);
 }
-void S_TractorBeam::timeout() {
+void S_TractorBeam::timeout(long time) {
+	disableLength = time;
 	disableStart = GetTickCount();
 }
 
@@ -287,6 +288,7 @@ void S_TractorBeam::updateData() {
 	else if(m_isOn){
 		bool breakBeam = false;
 		if(m_object != NULL) {
+
 			// Check if object is now being held by anyone that is not you
 			for(int i = 0; i < m_object->m_heldBy.size(); i++) {
 				if(m_object->m_heldBy[i] != m_ship && ((S_Ship *)m_object->m_heldBy[i])->m_tractorBeam->m_isHolding) {
@@ -294,9 +296,15 @@ void S_TractorBeam::updateData() {
 					break;
 				}
 			}
+
+			if(((S_Ship *)m_object)->checkShield()) {
+				breakBeam = true;
+			}
 		}
 
-		if(breakBeam) lockOff();
+		if(breakBeam) {
+			disable(1500);
+		}
 		else {
 			calculateForce();
 			m_isColliding = false;
@@ -337,6 +345,7 @@ bool S_TractorBeam::interact(ServerEntity * entity) {
 	if(m_isOn){
 
 		if(entity->m_type == SHIP && m_ship == entity || 
+			entity->m_type == SHIP && ((S_Ship *)entity)->checkShield() ||
 			entity->m_type == MOTHERSHIP || 
 			entity->m_type == TRACTORBEAM ||
 			entity->m_type == EXTRACTOR || 
