@@ -58,8 +58,9 @@ scoreList_t GameResources::winnerList(4, std::pair<UINT, int>(0,0));
 
 static float shipColors[4][4] =
 {
+	//1.0f, 0.7333f, 0.0f, 0.5f,
 	0.0f, 0.0f,    1.0f, 0.5f,
-	1.0f, 0.7333f, 0.0f, 0.5f,
+	1.0f, 0.4333f, 0.0f, 0.5f,
 	1.0f, 0.0f,    0.0f, 0.5f,
 	1.0f, 1.0f,    0.0f, 0.5f,
 };
