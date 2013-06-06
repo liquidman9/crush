@@ -11,7 +11,7 @@
 
 LPDIRECT3DVERTEXBUFFER9 Skybox::s_pVertexBuffer = NULL;
 
-LPDIRECT3DTEXTURE9 Skybox::s_SkyTextures[6];
+LPDIRECT3DTEXTURE9 Skybox::s_SkyTexture;
 
 Skybox::TVertex Skybox::s_SkyboxMesh[24] =
 {
@@ -78,13 +78,14 @@ HRESULT Skybox::initSkybox()
 	s_pVertexBuffer->Lock( 0, sizeof(TVertex) * 24, (void**)&pVertices, 0 );
     memcpy( pVertices, s_SkyboxMesh, sizeof(TVertex) * 24 );
     s_pVertexBuffer->Unlock();
-
-    hRes  = D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Front.c_str(), &s_SkyTextures[0] );
-    hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Back.c_str(), &s_SkyTextures[1] );
-    hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Left.c_str(), &s_SkyTextures[2] );
-    hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Right.c_str(), &s_SkyTextures[3] );
-    hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Top.c_str(), &s_SkyTextures[4] );
-    hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Bottom.c_str(), &s_SkyTextures[5] );
+	
+    hRes  = D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath.c_str(), &s_SkyTexture );
+    //hRes  = D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Front.c_str(), &s_SkyTextures[0] );
+    //hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Back.c_str(), &s_SkyTextures[1] );
+    //hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Left.c_str(), &s_SkyTextures[2] );
+    //hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Right.c_str(), &s_SkyTextures[3] );
+    //hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Top.c_str(), &s_SkyTextures[4] );
+    //hRes |= D3DXCreateTextureFromFile( Gbls::pd3dDevice, Gbls::skyboxTextureFilepath_Bottom.c_str(), &s_SkyTextures[5] );
     if ( FAILED(hRes) )
 	{
 		::MessageBox(NULL, L"Failed to load skybox!", L"Error Opening Texture Files", MB_OK | MB_ICONSTOP);
@@ -115,7 +116,7 @@ void Skybox::drawSkybox() {
 	for(int i = 0; i < 6; ++i)
     {
 		// Set the texture for this primitive
-        Gbls::pd3dDevice->SetTexture( 0, s_SkyTextures[i] );
+        Gbls::pd3dDevice->SetTexture( 0, s_SkyTexture );
 
 		// Render the face (one strip per face from the vertex buffer)  There are 2 primitives per face.
         Gbls::pd3dDevice->DrawPrimitive( D3DPT_TRIANGLESTRIP, i * 4, 2 );
@@ -130,12 +131,17 @@ void Skybox::drawSkybox() {
 }
 
 void Skybox::releaseSkybox() {
-	for (int i = 0; i < 6; i++)
-	{
-		if(s_SkyTextures[i]) {
-			s_SkyTextures[i]->Release();
-			s_SkyTextures[i] = NULL;
-		}
+	//for (int i = 0; i < 6; i++)
+	//{
+	//	if(s_SkyTextures[i]) {
+	//		s_SkyTextures[i]->Release();
+	//		s_SkyTextures[i] = NULL;
+	//	}
+	//}
+
+	if (s_SkyTexture) {
+		s_SkyTexture->Release();
+		s_SkyTexture = NULL;
 	}
 
 	// Release the vertex buffer
