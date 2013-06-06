@@ -24,6 +24,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			cerr.rdbuf(error_f.rdbuf());
 
 			GameInput input;
+			GameResources::input = &input;
 #ifndef MYNETWORKOFF  // defined in Gbls
 
 			//networking init
@@ -69,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 			{
 
 				input.refreshState();
-				input.vibrate(input.input.thrust*200,input.input.thrust*200);
+				input.vibrateThrust(input.input.thrust);
 				//for checking fps
 				//count++;
 				//if(!(count%600)) {

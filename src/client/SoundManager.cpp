@@ -21,7 +21,7 @@ SoundManager::SoundManager() {
 		CoUninitialize();
 		isValid = false;
 	} else {
-	
+
 		if ( FAILED(hr = pXAudio2->CreateMasteringVoice( &pMasterVoice ) ) ) {
 			pXAudio2->Release();
 			CoUninitialize();
@@ -33,6 +33,10 @@ SoundManager::SoundManager() {
 			newSound(_TEXT("enginestart_m.wav"),ENGINESTARTSOUND,0);
 			newSound(_TEXT("pulse_m.wav"),PULSESOUND,0);
 			newSound(_TEXT("impact1.wav"),COLLISIONSOUND,0);
+			//newSound(_TEXT("pupick.wav"),PUPICKSOUND,0);
+			//newSound(_TEXT("repick.wav"),REPICKSOUND,0);
+			//newSound(_TEXT("sheild.wav"),SHIELDSOUND,XAUDIO2_LOOP_INFINITE);
+			//newSound(_TEXT("shield_hit.wav"),SHIELDHITSOUND,0);
 
 			//Load ambience
 			newSound(_TEXT("ambience.wav"),AMBIENCESOUND,XAUDIO2_LOOP_INFINITE);
@@ -92,7 +96,7 @@ void SoundManager::playTractorBeam(C_TractorBeam beam) {
 		DSPSettings.pMatrixCoefficients = matrix;
 
 		X3DAudioCalculate(X3DInstance, &Listener, tractorBeams3d[beam.m_playerNum],
-	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_REVERB,
+	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_REVERB,
 	&DSPSettings );
 
 		tractorBeams[beam.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
@@ -149,14 +153,14 @@ void SoundManager::playEngine(C_Ship ship) {
 		DSPSettings.pMatrixCoefficients = matrix;
 
 		X3DAudioCalculate(X3DInstance, &Listener, engines3d[ship.m_playerNum],
-	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_REVERB,
+	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_REVERB,
 	&DSPSettings );
 
 		engines[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
 		engines[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
 
 		X3DAudioCalculate(X3DInstance, &Listener, powerups3d[ship.m_playerNum],
-	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_LPF_DIRECT | X3DAUDIO_CALCULATE_REVERB,
+	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_REVERB,
 	&DSPSettings );
 
 		powerups[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
@@ -243,26 +247,75 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 		} else {
 			temp->SetFrequencyRatio((1/(c->m_impulse/200000.0)));
 		}
-
+		GameResources::input->vibrate(c->m_impulse/200000.0*40000*DSPSettings.pMatrixCoefficients[0],c->m_impulse/200000.0*40000*DSPSettings.pMatrixCoefficients[0],10);
 		temp->Start(0);
 		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
 		delete(matrix);
 	}
 
 	// Picked up a resource // maybe sound?
-	if(c->m_ctype == SR){
+	if(c->m_ctype == SR){ /*
 		// m_idA it is the entity id not the player id
+		HRESULT hr;
+		IXAudio2SourceVoice* temp;
+		if( FAILED(hr = pXAudio2->CreateSourceVoice( &(temp), (WAVEFORMATEX*)(&formats[REPICKSOUND]) ) ) ) 
+			isValid = false;
+
+		if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[REPICKSOUND] ) ) )
+			isValid = false;
+		
+		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
+		Emitter->ChannelCount = 1;
+		Emitter->CurveDistanceScaler = AUDSCALE;
+		Emitter->Position = c->m_poi;
+
+		X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
+		FLOAT32 * matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
+		DSPSettings.SrcChannelCount = 1;
+		DSPSettings.DstChannelCount = deviceDetails.OutputFormat.Format.nChannels;
+		DSPSettings.pMatrixCoefficients = matrix;
+
+		X3DAudioCalculate(X3DInstance, &Listener, Emitter,
+	X3DAUDIO_CALCULATE_MATRIX,
+	&DSPSettings );
+
+		temp->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+		temp->Start(0);
+		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
+		delete(matrix);*/
 	}
 
 	// Picked up a Powerup
-	if(c->m_ctype == SP) {
+	if(c->m_ctype == SP) {/*
 		// m_idA it is the entity id not the player id
-	}
+		HRESULT hr;
+		IXAudio2SourceVoice* temp;
+		if( FAILED(hr = pXAudio2->CreateSourceVoice( &(temp), (WAVEFORMATEX*)(&formats[PUPICKSOUND]) ) ) ) 
+			isValid = false;
 
-	/*
-	switch(c->m_ctype) {
-	case 
-	}*/
+		if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[PUPICKSOUND] ) ) )
+			isValid = false;
+		
+		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
+		Emitter->ChannelCount = 1;
+		Emitter->CurveDistanceScaler = AUDSCALE;
+		Emitter->Position = c->m_poi;
+
+		X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
+		FLOAT32 * matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
+		DSPSettings.SrcChannelCount = 1;
+		DSPSettings.DstChannelCount = deviceDetails.OutputFormat.Format.nChannels;
+		DSPSettings.pMatrixCoefficients = matrix;
+
+		X3DAudioCalculate(X3DInstance, &Listener, Emitter,
+	X3DAUDIO_CALCULATE_MATRIX,
+	&DSPSettings );
+
+		temp->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+		temp->Start(0);
+		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
+		delete(matrix);*/
+	}
 	}
 }
 
@@ -304,6 +357,7 @@ void SoundManager::new3dEmitter(map<int,X3DAUDIO_EMITTER*> & map, int idx) {
 	map.insert(pair<int,X3DAUDIO_EMITTER*>(idx, Emitter));
 	map[idx]->ChannelCount = 1;
 	map[idx]->CurveDistanceScaler = AUDSCALE;
+	map[idx]->DopplerScaler = 3;
 	map[idx]->DopplerScaler = 20.0;
 }
 
