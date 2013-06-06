@@ -228,7 +228,7 @@ void S_Ship::dropResource(long time) {
 }
 
 void S_Ship::disableTractorBeam() {
-	m_tractorBeam->disable();
+	m_tractorBeam->disable(5000);
 }
 
 

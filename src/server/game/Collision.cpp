@@ -257,6 +257,13 @@ CollisionGEvent * Collision::resolve()
 		D3DXVec3Cross(&angular_impulse, &vector_to_point, &(jN / 3)); // Cross product finds torque
 		m_a->applyAngularImpulse(angular_impulse);
 	}
+	// shield with mothership
+	else if((m_a->m_type == SHIP && ((S_Ship *)m_a)->checkShield()) && (m_b->m_type == MOTHERSHIP)) {
+		m_a->applyLinearImpulse(jN);
+		D3DXVECTOR3 angular_impulse, vector_to_point = m_poi - m_a->m_pos;
+		D3DXVec3Cross(&angular_impulse, &vector_to_point, &(jN / 3)); // Cross product finds torque
+		m_a->applyAngularImpulse(angular_impulse);
+	}
 
 	
 	if(!(m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield())) {
@@ -266,6 +273,13 @@ CollisionGEvent * Collision::resolve()
 			m_b->applyLinearImpulse(-jN);
 		}
 
+		D3DXVECTOR3 angular_impulse, vector_to_point = m_poi - m_b->m_pos;
+		D3DXVec3Cross(&angular_impulse, &vector_to_point, &(-jN / 3)); // Cross product finds torque
+		m_b->applyAngularImpulse(angular_impulse);
+	}
+	// shield with mothership
+	else if((m_b->m_type == SHIP && ((S_Ship *)m_b)->checkShield()) && (m_a->m_type == MOTHERSHIP)) {
+		m_b->applyLinearImpulse(-jN);
 		D3DXVECTOR3 angular_impulse, vector_to_point = m_poi - m_b->m_pos;
 		D3DXVec3Cross(&angular_impulse, &vector_to_point, &(-jN / 3)); // Cross product finds torque
 		m_b->applyAngularImpulse(angular_impulse);
