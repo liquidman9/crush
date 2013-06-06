@@ -24,6 +24,9 @@ namespace server {
 	}
 
 	namespace entities {
+		float max_lin_vel = 300.0f;
+		float max_rot_vel = 3.14f;
+
 		namespace asteroid {
 			float scaleToRadius = 1.5f;
 			float density = 8.0f;

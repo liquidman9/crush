@@ -1,3 +1,4 @@
+#include <server/Globals.h>
 #include <shared/game/Entity.h>
 #include <server/game/ServerEntity.h>
 #include <shared/util/SharedUtils.h>
@@ -7,6 +8,8 @@ float FP_ZERO = 0.000001f;
 D3DXVECTOR3 zero_vec(0.0f, 0.0f, 0.0f);
 
 int ServerEntity::s_id_gen = 0;
+
+using namespace server::entities;
 
 ServerEntity::ServerEntity() :
 	m_mass(1),
@@ -141,7 +144,10 @@ void ServerEntity::update(float delta_time) {
 	// Apply current frame's physics
 	// Apply impulse
 	m_momentum += t_impulse;
-
+	if ((D3DXVec3Length(&m_momentum)) > FP_ZERO) {
+		float momentum_scale = min(max_lin_vel * m_mass / (D3DXVec3Length(&m_momentum)) , 1.0f);
+		m_momentum *= momentum_scale;
+	}
 
 	m_angular_momentum += t_angular_impulse;
 	
@@ -168,9 +174,11 @@ void ServerEntity::update(float delta_time) {
 		m_orientation_delta = Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
+	/*
 	if(D3DXQuaternionLength(&m_orientation_delta) > 10){
 		m_orientation_delta = m_orientation_delta*(10/D3DXQuaternionLength(&m_orientation_delta));
 	}
+	*/
 
 	// Moves according to last frame's values
 	m_pos += m_velocity * delta_time;

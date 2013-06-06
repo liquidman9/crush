@@ -106,12 +106,15 @@ void S_Ship::addPlayerInput(InputState input) {
 	} 
 	
 	if (input.getReverse()) {
+		m_reverse = true;
 		D3DXVECTOR3 main_thrust_force(0, 0, -1), 
 					main_thrust_adj;
 		D3DXVec3Normalize(&main_thrust_force, &main_thrust_force);
 		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
 		
-		applyLinearImpulse(main_thrust_adj * m_linear_impulse);
+		applyLinearImpulse(main_thrust_adj * m_braking_impulse);
+	} else {
+		m_reverse = false;
 	}
 
 	// Rotational thrust calculations
@@ -173,11 +176,13 @@ void S_Ship::applyDamping() {
 		} else if(m_isBraking) {
 			// Not thrusting, we need to slow down as quickly as possible
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_hard_braking_impulse;
-			applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum));
+			float damping_factor = max(1.0f, (mag_velocity / m_max_velocity));
+			applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force * damping_factor, -m_momentum));
 		} else {
 			// Not thrusting, we need to slow down as quickly as possible
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_braking_impulse;
-			applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force, -m_momentum));
+			float damping_factor = max(1.0f, mag_velocity / m_max_velocity);
+			applyLinearImpulse(Vec3ComponentAbsMin(lin_stabilizer_force * damping_factor, -m_momentum));
 		}
 	}
 //}

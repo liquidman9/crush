@@ -54,6 +54,9 @@ namespace server {
 
 	namespace entities {
 		static const string CONFIG_PREFIX = "entities_";
+		
+		extern float max_lin_vel;
+		extern float max_rot_vel;
 
 		// S_Asteroid
 		namespace asteroid {
@@ -184,6 +187,9 @@ namespace server {
 
 		// INIT ALL ENTITIES
 		inline void initFromConfig(string prefix) {
+			ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_lin_vel", max_lin_vel);
+			ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_rot_vel", max_rot_vel);
+
 			asteroid::initFromConfig(prefix + CONFIG_PREFIX);
 			ship::initFromConfig(prefix + CONFIG_PREFIX);
 			tractorbeam::initFromConfig(prefix + CONFIG_PREFIX);

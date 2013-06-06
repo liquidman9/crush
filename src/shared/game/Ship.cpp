@@ -12,7 +12,8 @@ Ship::Ship() :
 	m_hasPowerup(false),
 	m_powerupType(SPEEDUP),
 	m_powerupStateType(WAITING),
-	m_isLockOnTarget(false)
+	m_isLockOnTarget(false),
+	m_reverse(false)
 {
 }
 
@@ -24,7 +25,8 @@ Ship::Ship(int pNum) :
 	m_hasPowerup(false),
 	m_powerupType(SPEEDUP),
 	m_powerupStateType(WAITING),
-	m_isLockOnTarget(false)
+	m_isLockOnTarget(false),
+	m_reverse(false)
 {}
 
 void Ship::setPlayerName(const string &s) {
@@ -63,6 +65,9 @@ unsigned int Ship::encode(char *head) const {
 	*(bool*) (head + rtn) = m_isLockOnTarget;
 	rtn += sizeof(bool);
 
+	*(bool*) (head + rtn) = m_reverse;
+	rtn += sizeof(bool);
+
 	return rtn;
 }
 
@@ -91,6 +96,8 @@ unsigned int Ship::decode(const char *buff) {
 	m_useAltSprite = *(bool*) (buff + rtn);
 	rtn += sizeof(bool);
 	m_isLockOnTarget = *(bool*) (buff + rtn);
+	rtn += sizeof(bool);
+	m_reverse = *(bool*) (buff + rtn);
 	rtn += sizeof(bool);
 
 	return rtn;
