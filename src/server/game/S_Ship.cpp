@@ -112,7 +112,7 @@ void S_Ship::addPlayerInput(InputState input) {
 		D3DXVec3Normalize(&main_thrust_force, &main_thrust_force);
 		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
 		
-		applyLinearImpulse(main_thrust_adj * m_braking_impulse);
+		applyLinearImpulse(main_thrust_adj * m_linear_impulse);
 	} else {
 		m_reverse = false;
 	}
@@ -168,7 +168,7 @@ void S_Ship::applyDamping() {
 		D3DXVECTOR3 lin_stabilizer_vec(-m_momentum);
 		D3DXVec3Normalize(&lin_stabilizer_vec, &lin_stabilizer_vec);
 
-		if (m_thrusting) {
+		if (m_thrusting || m_reverse) {
 			// Thrusting, we only want to reduce the impulse
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_linear_impulse;
 			float damping_factor = (mag_velocity / m_max_velocity);

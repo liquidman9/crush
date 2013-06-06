@@ -170,7 +170,8 @@ CollisionGEvent * Collision::resolve()
 	D3DXVECTOR3 r_a = m_poi - m_a->m_pos;
 	D3DXVECTOR3 r_b = m_poi - m_b->m_pos;
 
-	D3DXVECTOR3 relative_linear_velocity = m_a->m_velocity - m_b->m_velocity;
+	D3DXVECTOR3 current_delta_velocity = m_a->t_impulse / m_a->m_mass - m_b->t_impulse / m_b->m_mass;
+	D3DXVECTOR3 relative_linear_velocity = current_delta_velocity + m_a->m_velocity - m_b->m_velocity;
 
 	// Calculate rotation velocity at point of collision
 	D3DXVECTOR3 a_collision_rotation_velocity, b_collision_rotation_velocity;
