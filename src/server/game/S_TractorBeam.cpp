@@ -138,6 +138,8 @@ void S_TractorBeam::calculateForce() {
 		float disL = getCurrentDistance();
 		
 		D3DXVECTOR3 force = m_strength*(m_power*m_ship->m_mass*m_object->m_mass)*(disV)/(pow(disL, 1.66f));
+		if(m_object->m_type == RESOURCE )
+			force = force*5;
 		D3DXVECTOR3 shipForce = force;
 		D3DXVECTOR3 objForce = force;
 
@@ -170,15 +172,15 @@ void S_TractorBeam::calculateForce() {
 			// If at the point to be held
 			if(angleDiff > 2 || m_isColliding || m_isHolding){
 				// Resources are not held by tractor beam once they collide with the ship
-				if(m_object->m_type == RESOURCE) {
-					if(m_ship->interact((S_Resource *)m_object)) cout << "Resource not gathered- error?"<<endl;
-					else {
-						lockOff();
-					}
+				if(m_object->m_type == RESOURCE && (m_ship->interact((S_Resource *)m_object) == 1)) {
+					//if(m_ship->interact((S_Resource *)m_object)) cout << "Resource not gathered- error?"<<endl;
+					//else {
+					//	lockOff();
+					//}
 				}
-				else if(m_object->m_type == SHIP) {
+				/*else if(m_object->m_type == SHIP) {
 					
-				}
+				}*/
 				else { 
 
 					if(!m_isHolding) {

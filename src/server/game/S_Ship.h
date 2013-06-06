@@ -99,7 +99,7 @@ public:
 	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 
 	// Collsion interactions
-	bool interact(S_Resource *);
+	int interact(S_Resource *);
 	bool interact(S_Asteroid *);
 	bool interact(S_Ship *);
 	bool interact(S_Powerup * power);

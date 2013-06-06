@@ -326,7 +326,7 @@ bool S_Ship::interact(S_Powerup * power) {
 	return false;
 }
 
-bool S_Ship::interact(S_Resource * res) {
+int S_Ship::interact(S_Resource * res) {
 	if(m_resource == NULL && (res->m_carrier == NULL || res->m_carrier->m_type == EXTRACTOR)) {
 		if(((res->m_droppedFrom != m_playerNum && res->m_onDropTimeout) || res->m_droppedFrom != m_playerNum)) {
 			m_resource = res;
@@ -339,12 +339,17 @@ bool S_Ship::interact(S_Resource * res) {
 				((S_Ship *)res->m_heldBy[i])->m_tractorBeam->lockOff();
 			res->m_heldBy.clear();
 
-			return true;
+			return 1;
 		}
 
 	}
 
-	return false;
+	if(m_tractorBeam->m_object != NULL && m_tractorBeam->m_object == res){
+		m_tractorBeam->m_isColliding = true;
+		return -1;
+	}
+
+	return 0;
 }
 
 bool S_Ship::interact(S_Asteroid * asteroid) {

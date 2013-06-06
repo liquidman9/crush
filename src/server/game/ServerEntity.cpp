@@ -141,6 +141,8 @@ void ServerEntity::update(float delta_time) {
 	// Apply current frame's physics
 	// Apply impulse
 	m_momentum += t_impulse;
+
+
 	m_angular_momentum += t_angular_impulse;
 	
 	// Reset temporary values
@@ -149,6 +151,11 @@ void ServerEntity::update(float delta_time) {
 
 	// Calculate velocity/angular velocity (second-order dependent values)
 	m_velocity = m_momentum * m_mass_inverse;
+
+	if(D3DXVec3Length(&m_velocity) > 250){
+		m_velocity = m_velocity*(250/D3DXVec3Length(&m_velocity));
+	}
+
 
 	D3DXVECTOR4 temp;
 	D3DXVec3Transform(&temp, &m_angular_momentum, &m_rot_inertia_inverse);

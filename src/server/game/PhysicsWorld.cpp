@@ -285,10 +285,25 @@ void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 void PhysicsWorld::checkInBounds(ServerEntity * a) {
 	float asteroidWorldRadius = m_worldRadius*(1.25);
 	if(abs(D3DXVec3Length(&a->m_pos)) +a->m_radius > m_worldRadius && a->m_type == SHIP) {
-		// Out of Bounds
-		D3DXVECTOR3 norm;
-		D3DXVec3Normalize(&norm, &-a->m_pos);
-		a->applyLinearImpulse(norm*10000);
+
+		if( abs(D3DXVec3Length(&a->m_pos)) +a->m_radius > m_worldRadius*(1.25)){
+			float distance = server::world::ship_spawn_distance_from_center;
+			int client_id = ((S_Ship *)a)->m_playerNum;
+			a->reset();
+
+			if (client_id % 2 == 0){
+				a->m_pos = D3DXVECTOR3((float)(-1.0+client_id)*distance, 0, 0);
+			} else {
+				a->m_pos = D3DXVECTOR3(0, 0, (float)(-2.0+client_id)*distance);
+			}
+
+		}
+		else {
+			// Out of Bounds
+			D3DXVECTOR3 norm;
+			D3DXVec3Normalize(&norm, &-a->m_pos);
+			a->applyLinearImpulse(norm*10000);
+		}
 
 	}
 	else if(abs(D3DXVec3Length(&a->m_pos)) +a->m_radius > m_worldRadius && a->m_type == RESOURCE) {

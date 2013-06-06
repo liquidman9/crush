@@ -17,11 +17,12 @@ CollisionGEvent * SRCollision::resolve()
 {
 	S_Ship * ship = (S_Ship *)m_a;
 	S_Resource * res = (S_Resource *)m_b;
-	bool gathered = ship->interact(res);
+	int response = ship->interact(res);
 
-	if(gathered)
+	if(response == 1)
 		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SR);
-
+	else if(response == -1)
+		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, C);
 	else
 		return Collision::resolve();
 }
