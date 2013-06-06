@@ -39,6 +39,19 @@ bool S_Mothership::interact(S_Ship * ship) {
 
 }
 
+void S_Mothership::getResource(S_Resource * res) {
+	m_resourceList.push_back(res);
+	res->m_carrier = this;
+	res->m_spot = this->m_resources >= m_resourceSpots? m_resourceSpots:this->m_resources;
+	this->m_resources++;
+	res->m_startTravelTime = GetTickCount();
+	cout<<"Given"<<endl;
+
+	for(int i = 0; i < res->m_heldBy.size(); i++)
+		((S_Ship *)res->m_heldBy[i])->m_tractorBeam->lockOff();
+	res->m_heldBy.clear();
+}
+
 //Ship gives resource
 bool S_Mothership::giveResource(S_Ship * ship){
 	if(ship->m_resource != NULL) {

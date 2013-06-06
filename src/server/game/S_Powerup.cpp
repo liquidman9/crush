@@ -155,5 +155,9 @@ void S_Powerup::pulseAll(vector<ServerEntity *> entities) {
 		
 		D3DXVECTOR3 force = (pulse_rate*m_ship->m_mass*entities[i]->m_mass)*(disV)/(pow(disL, 2));
 		entities[i]->applyLinearImpulse(force);
+
+		if(entities[i]->m_type == SHIP) {
+			((S_Ship *)entities[i])->dropResource(2000);
+		}
 	}
 }

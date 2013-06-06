@@ -16,7 +16,7 @@ using namespace server::entities::resource;
 S_Resource::S_Resource() :
 	Entity(RESOURCE),
 	Resource(),
-	ServerEntity(10, 0.0, calculateRotationalInertia(10)),
+	ServerEntity(1, 0.0, calculateRotationalInertia(10)),
 	m_carrier(NULL),
 	m_dropTimeoutStart(0),
 	m_onDropTimeout(false),
@@ -31,7 +31,7 @@ S_Resource::S_Resource() :
 S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), RESOURCE, pos, orientation, 3),
 	Resource(),
-	ServerEntity(10, 0.0, calculateRotationalInertia(10)),
+	ServerEntity(1, 0.0, calculateRotationalInertia(10)),
 	m_carrier(NULL),
 	m_dropTimeoutStart(0),
 	m_onDropTimeout(false),

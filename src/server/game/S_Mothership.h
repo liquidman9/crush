@@ -36,6 +36,7 @@ public:
 	virtual D3DXMATRIX calculateRotationalInertia(float mass);
 	bool interact(S_Ship * ship);
 	void update(float delta_time);
+	void getResource(S_Resource * res);
 
 private:
 	bool giveResource(S_Ship * ship);
