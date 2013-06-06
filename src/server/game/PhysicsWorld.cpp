@@ -247,6 +247,7 @@ bool PhysicsWorld::typeResponse(ServerEntity * a, ServerEntity * b) {
 	return rtn;
 
 }
+
 float lower = 1.0;
 void PhysicsWorld::respond(ServerEntity * a, ServerEntity * b) {
 	//cout<< (int) a->m_type << " and "<<(int) b->m_type << " collide"<<endl;
@@ -300,9 +301,15 @@ void PhysicsWorld::checkInBounds(ServerEntity * a) {
 		}
 		else {
 			// Out of Bounds
-			D3DXVECTOR3 norm;
-			D3DXVec3Normalize(&norm, &-a->m_pos);
-			a->applyLinearImpulse(norm*10000);
+			D3DXVECTOR3 norm = a->m_pos;
+			//cout << a->m_momentum << endl;
+			D3DXVec3Normalize(&norm, &norm);
+ 
+			if(D3DXVec3Dot(&norm, &(a->m_velocity)) > 0)
+			{
+				a->m_momentum -= a->m_momentum;
+			}
+			//cout << a->m_momentum << endl;;
 		}
 
 	}
