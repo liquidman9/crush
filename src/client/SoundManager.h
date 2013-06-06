@@ -48,7 +48,7 @@ private:
 	void newVoice(map<int,IXAudio2SourceVoice*> & map, int idx, Sound type);
 	void new3dEmitter(map<int,X3DAUDIO_EMITTER*> & map, int idx);
 
-	list<IXAudio2SourceVoice*> collisions;
+	list<pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>> collisions;
 };
 
 #endif

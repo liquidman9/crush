@@ -9,7 +9,7 @@
 #include <client/graphics/entities/C_Ship.h>
 #include <client/GameResources.h>
 
-const float AUDSCALE = 10.0;
+const float AUDSCALE = 30.0;
 SoundManager::SoundManager() {
 
 	isValid = true;
@@ -97,10 +97,8 @@ void SoundManager::playTractorBeam(C_TractorBeam beam) {
 
 		tractorBeams[beam.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
 		tractorBeams[beam.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
-		//tractorBeams[beam.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
 
-		//XAUDIO2_FILTER_PARAMETERS FilterParameters = { LowPassFilter, 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient), 1.0f };
-		//tractorBeams[beam.m_playerNum]->SetFilterParameters(&FilterParameters);
+		delete(matrix);
 	}
 	if(beam.m_isOn) {
 		tractorBeams[beam.m_playerNum]->Start(0);
@@ -163,13 +161,8 @@ void SoundManager::playEngine(C_Ship ship) {
 
 		powerups[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
 		powerups[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
-		//engines[ship.m_playerNum]->SetOutputMatrix(pMasterVoice, 1, 1, &DSPSettings.ReverbLevel);
 
-		/*XAUDIO2_FILTER_PARAMETERS FilterParameters;
-		FilterParameters.Type = LowPassFilter;
-		FilterParameters.OneOverQ= 2.0f * sinf(X3DAUDIO_PI/6.0f * DSPSettings.LPFDirectCoefficient);
-		FilterParameters.Frequency = 1.0f;*/
-		//engines[ship.m_playerNum]->SetFilterParameters(NULL);
+		delete(matrix);
 	}
 
 	if (ship.m_thruster == 0) {
@@ -179,9 +172,9 @@ void SoundManager::playEngine(C_Ship ship) {
 		XAUDIO2_VOICE_STATE vs;
 		(engines[ship.m_playerNum])->GetState(&vs);
 		if (vs.BuffersQueued == 0) {
-		HRESULT hr;
-		if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[ENGINESTARTSOUND] ) ) )
-			isValid = false;
+			HRESULT hr;
+			if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[ENGINESTARTSOUND] ) ) )
+				isValid = false;
 		} else if (vs.BuffersQueued == 1) {
 			HRESULT hr;
 			if( FAILED(hr = (engines[ship.m_playerNum])->SubmitSourceBuffer( &sounds[THRUSTSOUND] ) ) )
@@ -222,13 +215,25 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 
 		if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[COLLISIONSOUND] ) ) )
 			isValid = false;
-		/*
+		
 		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
-		tractorBeams3d.insert(pair<int,X3DAUDIO_EMITTER*>(beam.m_playerNum, Emitter));
-		tractorBeams3d[beam.m_playerNum]->ChannelCount = 1;
-		tractorBeams3d[beam.m_playerNum]->CurveDistanceScaler = AUDSCALE;
-		tractorBeams3d[beam.m_playerNum]->DopplerScaler = 20.0;
-		*/
+		Emitter->ChannelCount = 1;
+		Emitter->CurveDistanceScaler = AUDSCALE;
+		Emitter->Position = c->m_poi;
+
+
+		X3DAUDIO_DSP_SETTINGS DSPSettings = {0};
+		FLOAT32 * matrix = new FLOAT32[deviceDetails.OutputFormat.Format.nChannels];
+		DSPSettings.SrcChannelCount = 1;
+		DSPSettings.DstChannelCount = deviceDetails.OutputFormat.Format.nChannels;
+		DSPSettings.pMatrixCoefficients = matrix;
+
+		X3DAudioCalculate(X3DInstance, &Listener, Emitter,
+	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_REVERB,
+	&DSPSettings );
+
+		temp->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+
 		float impulse = c->m_impulse;
 		temp->SetVolume(c->m_impulse/200000.0);
 		if (1/(c->m_impulse/200000.0)<.05) {
@@ -240,7 +245,8 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 		}
 
 		temp->Start(0);
-		collisions.push_back(temp);
+		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
+		delete(matrix);
 	}
 
 	// Picked up a resource // maybe sound?
@@ -261,12 +267,13 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 }
 
 void SoundManager::cleanEvents() {
-	vector<list<IXAudio2SourceVoice*>::iterator> deleteThem;
-	for (list<IXAudio2SourceVoice*>::iterator i = collisions.begin();i!=collisions.end();++i) {
+	vector<list<pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>>::iterator> deleteThem;
+	for (list<pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>>::iterator i = collisions.begin();i!=collisions.end();++i) {
 		XAUDIO2_VOICE_STATE vs;
-		(*i)->GetState(&vs);
+		(*i).first->GetState(&vs);
 		if (vs.BuffersQueued == 0) {
-			(*i)->DestroyVoice();
+			(*i).first->DestroyVoice();
+			delete((*i).second);
 			deleteThem.push_back(i);
 		}
 	}
