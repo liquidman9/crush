@@ -82,6 +82,8 @@ void S_Ship::addPlayerInput(InputState input) {
 	if(input.getBrake()) m_isBraking = true;
 	else m_isBraking = false;
 
+	m_reverse = input.getReverse();
+
 	if(input.getMash() && !m_pressToggle) {
 		m_presses.push_back(GetTickCount());
 		m_pressToggle = true;
@@ -105,16 +107,13 @@ void S_Ship::addPlayerInput(InputState input) {
 		applyLinearImpulse(main_thrust_adj * m_linear_impulse);
 	} 
 	
-	if (input.getReverse()) {
-		m_reverse = true;
+	if (m_reverse) {
 		D3DXVECTOR3 main_thrust_force(0, 0, -1), 
 					main_thrust_adj;
 		D3DXVec3Normalize(&main_thrust_force, &main_thrust_force);
 		D3DXVec3Rotate(&main_thrust_adj, &main_thrust_force, &m_orientation);
 		
 		applyLinearImpulse(main_thrust_adj * m_linear_impulse);
-	} else {
-		m_reverse = false;
 	}
 
 	// Rotational thrust calculations
