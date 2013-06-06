@@ -297,7 +297,7 @@ void S_TractorBeam::updateData() {
 				}
 			}
 
-			if(((S_Ship *)m_object)->checkShield()) {
+			if(m_object->m_type == SHIP && ((S_Ship *)m_object)->checkShield()) {
 				breakBeam = true;
 			}
 		}
