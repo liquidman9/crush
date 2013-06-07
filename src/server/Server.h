@@ -146,6 +146,11 @@ private:
 	volatile bool m_reload;
 	volatile bool m_pause;
 
+	volatile int m_powerup_ship;
+	volatile int m_powerup_type;
+	volatile int m_ers_ship;
+	volatile int m_drs_ship;
+
 	//threadStuff
 	CRITICAL_SECTION m_cs;
 	HANDLE m_hThread;
