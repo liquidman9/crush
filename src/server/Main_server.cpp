@@ -77,6 +77,33 @@ int main() {
 					}
 				}
 			}
+			else if (input_tokens[0] == "p") {
+				if (input_tokens[1] == "ern") {
+					if (input_tokens.size() > 2) {
+						string ship = input_tokens[1], type = input_tokens[2];
+						int shipNum = -1, powerNum = -1;
+						if(ship == "0") shipNum = 0;
+						if(ship == "1") shipNum = 1;
+						if(ship == "2") shipNum = 2;
+						if(ship == "3") shipNum = 3;
+
+						if(shipNum != -1)
+							server.enableReverseNoise(shipNum);
+					}
+				} else if (input_tokens[1] == "drn") {
+					if (input_tokens.size() > 2) {
+						string ship = input_tokens[1], type = input_tokens[2];
+						int shipNum = -1, powerNum = -1;
+						if(ship == "0") shipNum = 0;
+						if(ship == "1") shipNum = 1;
+						if(ship == "2") shipNum = 2;
+						if(ship == "3") shipNum = 3;
+
+						if(shipNum != -1)
+							server.disableReverseNoise(shipNum);
+					}
+				}
+			}
 		}
 	}
 

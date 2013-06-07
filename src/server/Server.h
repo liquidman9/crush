@@ -54,6 +54,11 @@ public:
 
 	
 	void givePowerup(int type, int ship);
+
+	void enableReverseNoise(int playerNum);
+
+	void disableReverseNoise(int playerNum);
+
 private:
 	//functions
 	void loop();
@@ -121,7 +126,6 @@ private:
 	void updateReadyClients();
 
 	void checkReadyClients();
-
 
 	//variables
 	NetworkServer m_server;

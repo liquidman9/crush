@@ -151,8 +151,9 @@ void ServerEntity::update(float delta_time) {
 
 	m_angular_momentum += t_angular_impulse;
 	D3DXVECTOR4 temp;
+	D3DXVECTOR3 angular_vel;
 	D3DXVec3Transform(&temp, &m_angular_momentum, &m_rot_inertia_inverse);
-	D3DXVECTOR3 angular_vel = D3DXVECTOR3(temp.x, temp.y, temp.z);
+	angular_vel = D3DXVECTOR3(temp.x, temp.y, temp.z);
 	if ((D3DXVec3Length(&m_angular_momentum)) > FP_ZERO) {
 		float momentum_scale = min(max_rot_vel / (D3DXVec3Length(&angular_vel)) , 1.0f);
 		m_angular_momentum *= momentum_scale;

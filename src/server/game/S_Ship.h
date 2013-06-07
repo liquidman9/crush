@@ -44,6 +44,7 @@ private:
 
 	bool m_thrusting;
 	bool m_rotating;
+	bool m_reversing;
 
 public:
 
@@ -57,6 +58,7 @@ public:
 	bool m_shieldOn;
 	bool m_pulseOn;
 	bool m_isBraking;
+	bool m_enable_reverse_noise;
 
 
 	float m_baseLength;

@@ -473,6 +473,20 @@ GameState<Entity> Server::getGameState() {
 	return m_gameState;
 }
 
+void Server::enableReverseNoise(int playerNum) {
+	auto player = m_playerMap.find(playerNum);
+	if (player != m_playerMap.end()) {
+		player->second->m_enable_reverse_noise = true;
+	}
+}
+
+void Server::disableReverseNoise(int playerNum) {
+	auto player = m_playerMap.find(playerNum);
+	if (player != m_playerMap.end()) {
+		player->second->m_enable_reverse_noise = false;
+	}
+}
+
 Server::~Server(void)
 {
 	TerminateThread(m_hThread, 0);

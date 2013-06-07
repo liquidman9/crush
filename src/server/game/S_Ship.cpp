@@ -23,7 +23,8 @@ S_Ship::S_Ship() :
 	m_linear_impulse(linear_impulse),
 	m_rotation_impulse(rotation_impulse),
 	m_max_velocity(max_velocity),
-	m_max_rotation_velocity(max_rotation_velocity)
+	m_max_rotation_velocity(max_rotation_velocity),
+	m_enable_reverse_noise(false)
 {
 	init();
 }
@@ -38,7 +39,8 @@ S_Ship::S_Ship(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	m_hard_braking_impulse(hard_braking_impulse),
 	m_max_velocity(max_velocity),
 	m_max_rotation_velocity(max_rotation_velocity),
-	m_isBraking(false)
+	m_isBraking(false),
+	m_enable_reverse_noise(false)
 {	
 	init();
 }
@@ -54,6 +56,7 @@ void S_Ship::init() {
 	m_mashTimeLimit = mash_time_limit;
 	m_shieldOn = false;
 	m_pulseOn = false;
+	m_enable_reverse_noise = false;
 
 	m_baseRadius = m_radius;
 	m_baseLength = m_length;
@@ -82,7 +85,8 @@ void S_Ship::addPlayerInput(InputState input) {
 	if(input.getBrake()) m_isBraking = true;
 	else m_isBraking = false;
 
-	m_reverse = input.getReverse();
+	m_reversing = input.getReverse();
+	m_reverse = m_reversing && m_enable_reverse_noise;
 
 	if(input.getMash() && !m_pressToggle) {
 		m_presses.push_back(GetTickCount());
@@ -107,7 +111,7 @@ void S_Ship::addPlayerInput(InputState input) {
 		applyLinearImpulse(main_thrust_adj * m_linear_impulse);
 	} 
 	
-	if (m_reverse) {
+	if (m_reversing) {
 		D3DXVECTOR3 main_thrust_force(0, 0, -1), 
 					main_thrust_adj;
 		D3DXVec3Normalize(&main_thrust_force, &main_thrust_force);
@@ -167,7 +171,7 @@ void S_Ship::applyDamping() {
 		D3DXVECTOR3 lin_stabilizer_vec(-m_momentum);
 		D3DXVec3Normalize(&lin_stabilizer_vec, &lin_stabilizer_vec);
 
-		if (m_thrusting || m_reverse) {
+		if (m_thrusting || m_reversing) {
 			// Thrusting, we only want to reduce the impulse
 			D3DXVECTOR3 lin_stabilizer_force = lin_stabilizer_vec * m_linear_impulse;
 			float damping_factor = (mag_velocity / m_max_velocity);
