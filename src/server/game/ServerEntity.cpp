@@ -150,6 +150,13 @@ void ServerEntity::update(float delta_time) {
 	}
 
 	m_angular_momentum += t_angular_impulse;
+	D3DXVECTOR4 temp;
+	D3DXVec3Transform(&temp, &m_angular_momentum, &m_rot_inertia_inverse);
+	D3DXVECTOR3 angular_vel = D3DXVECTOR3(temp.x, temp.y, temp.z);
+	if ((D3DXVec3Length(&m_angular_momentum)) > FP_ZERO) {
+		float momentum_scale = min(max_rot_vel / (D3DXVec3Length(&angular_vel)) , 1.0f);
+		m_angular_momentum *= momentum_scale;
+	}
 	
 	// Reset temporary values
 	t_impulse = shared::utils::VEC3_ZERO;
@@ -162,8 +169,6 @@ void ServerEntity::update(float delta_time) {
 		m_velocity = m_velocity*(250/D3DXVec3Length(&m_velocity));
 	}
 
-
-	D3DXVECTOR4 temp;
 	D3DXVec3Transform(&temp, &m_angular_momentum, &m_rot_inertia_inverse);
 	m_angular_velocity = D3DXVECTOR3(temp.x, temp.y, temp.z);
 	

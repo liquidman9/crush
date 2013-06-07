@@ -154,7 +154,7 @@ void Gbls::initFromConfig() {
 			mothershipMeshFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
 	
-	mothershipMesh.setScaleRotate(1.0, 0.0, 180.0, 0.0);
+	mothershipMesh.setScaleRotate(2.0, 0.0, 180.0, 0.0);
 
 	//conf.getValue("numShipMeshes",numShipMeshes);
 	//shipMeshFilepath = new wstring[numShipMeshes];

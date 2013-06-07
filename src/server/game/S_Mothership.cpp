@@ -18,9 +18,9 @@ S_Mothership::S_Mothership(D3DXVECTOR3 pos, Quaternion orientation, int pNum) :
 	ServerEntity(mass, 20.0f, calculateRotationalInertia(mass))
 {	
 	m_immovable = true;
-	m_radius = 10.0f;
+	m_radius = 17.5f;
 	m_resourceSpots = 10;
-	m_length = 20.0f;
+	m_length = 40.0f;
 }
 	
 D3DXMATRIX S_Mothership::calculateRotationalInertia(float mass){
