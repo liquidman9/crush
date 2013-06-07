@@ -173,6 +173,7 @@ void Server::givePowerup(int type, int ship) {
 
 void Server::initializeGameState() {
 	m_gameState.clear();
+	m_gameState.clearScores();
 	m_server.broadcastGameState(m_gameState);
 	m_playerMap.clear();
 	m_mothershipMap.clear();
@@ -301,7 +302,8 @@ void Server::loop() {
 		}
 	
 		updateGameClock();
-		updateScore();
+		
+		if(!gameOver()) updateScore();
 		if(gameOver()) {
 			declareWinner();
 			if(print_once) {

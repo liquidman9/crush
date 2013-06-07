@@ -185,6 +185,10 @@ public:
 		m_events.clear();
 	}
 
+	void clearScores() {
+		memset(m_meta.score, -4, sizeof(m_meta.score));
+	}
+
 	void clearEntities() {
 		m_size -= m_entities_size;
 		m_entities_size = 0;
