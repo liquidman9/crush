@@ -137,6 +137,19 @@ float Gbls::collision3DScale = 240.0f;
 float Gbls::doppler3DScale = 20.0f;
 float Gbls::musicLevel = 0.1f;
 float Gbls::ambienceLevel = 1.0f;
+float Gbls::tbeamLevel = 1.0f;
+float Gbls::thrusterLevel = 1.0f;
+float Gbls::reverseLevel = 1.0f;
+float Gbls::speedLevel = 2.0f;
+float Gbls::pulseLevel = 1.0f;
+float Gbls::shieldLevel = 1.0f;
+float Gbls::repickupLevel = 1.0f;
+float Gbls::pupickupLevel = 1.0f;
+
+float Gbls::standardImpulse = 200000.0f;
+float Gbls::minFreqRatio = 0.05f;
+float Gbls::maxFreqRatio = 6.0f;
+float Gbls::maxImpulseVol = 100.0f;
 
 void Gbls::initFromConfig() {
 	std::stringstream stream;
@@ -461,5 +474,18 @@ void Gbls::initFromConfig() {
 	conf.getValue("doppler3DScale", doppler3DScale);
 	conf.getValue("musicLevel", musicLevel);
 	conf.getValue("ambienceLevel", ambienceLevel);
+	conf.getValue("thrusterLevel", thrusterLevel);
+	conf.getValue("tbeamLevel", tbeamLevel);
+	conf.getValue("reverseLevel", reverseLevel);
+	conf.getValue("speedLevel", speedLevel);
+	conf.getValue("pulseLevel", pulseLevel);
+	conf.getValue("shieldLevel", shieldLevel);
+	conf.getValue("repickupLevel", repickupLevel);
+	conf.getValue("pupickupLevel", pupickupLevel);
+
+	conf.getValue("standardImpulse", standardImpulse);
+	conf.getValue("minFreqRatio", minFreqRatio);
+	conf.getValue("maxFreqRatio", maxFreqRatio);
+	conf.getValue("maxImpulseVol", maxImpulseVol);
 
 }

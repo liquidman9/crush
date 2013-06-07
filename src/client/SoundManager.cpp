@@ -111,6 +111,7 @@ void SoundManager::playTractorBeam(C_TractorBeam beam) {
 		delete(matrix);
 	}
 	if(beam.m_isOn) {
+		tractorBeams[beam.m_playerNum]->SetVolume(Gbls::tbeamLevel);
 		tractorBeams[beam.m_playerNum]->Start(0);
 	} else {
 		tractorBeams[beam.m_playerNum]->Stop();
@@ -210,6 +211,7 @@ void SoundManager::playEngine(C_Ship ship) {
 	}
 
 	if (ship.m_reverse) {
+		reverse[ship.m_playerNum]->SetVolume(Gbls::reverseLevel);
 		reverse[ship.m_playerNum]->Start(0);
 	} else {
 		reverse[ship.m_playerNum]->Stop();
@@ -230,7 +232,7 @@ void SoundManager::playEngine(C_Ship ship) {
 				isValid = false;
 		}
 
-		engines[ship.m_playerNum]->SetVolume((float)ship.m_thruster);
+		engines[ship.m_playerNum]->SetVolume((float)ship.m_thruster*Gbls::thrusterLevel);
 		engines[ship.m_playerNum]->Start(0);
 	}
 	if (ship.m_hasPowerup && ship.m_powerupStateType == CONSUMED) {
@@ -244,7 +246,7 @@ void SoundManager::playEngine(C_Ship ship) {
 	}
 
 	if (ship.m_hasPowerup && ship.m_powerupType == SPEEDUP && ship.m_powerupStateType == CONSUMED) {
-		engines[ship.m_playerNum]->SetVolume(2.0f);
+		engines[ship.m_playerNum]->SetVolume((float)ship.m_thruster*Gbls::speedLevel);
 	}
 	if (ship.m_hasPowerup && ship.m_powerupType == PULSE && ship.m_powerupStateType == CONSUMED) {
 		XAUDIO2_VOICE_STATE vs;
@@ -253,6 +255,7 @@ void SoundManager::playEngine(C_Ship ship) {
 			HRESULT hr;
 			if( FAILED(hr = (powerups[ship.m_playerNum])->SubmitSourceBuffer( &sounds[PULSESOUND] ) ) )
 				isValid = false;
+			powerups[ship.m_playerNum]->SetVolume(Gbls::pulseLevel);
 			powerups[ship.m_playerNum]->Start(0);
 		}
 	} 
@@ -264,6 +267,7 @@ void SoundManager::playEngine(C_Ship ship) {
 			HRESULT hr;
 			if( FAILED(hr = (powerups[ship.m_playerNum])->SubmitSourceBuffer( &sounds[SHIELDSOUND] ) ) )
 				isValid = false;
+			powerups[ship.m_playerNum]->SetVolume(Gbls::shieldLevel);
 			powerups[ship.m_playerNum]->Start(0);
 		}
 	}
@@ -311,16 +315,20 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 
 		temp->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
 
-		float impulse = c->m_impulse;
-		temp->SetVolume(c->m_impulse/200000.0);
-		if (1/(c->m_impulse/200000.0)<.05) {
-		temp->SetFrequencyRatio(.05f);
-		} else if (1/(c->m_impulse/200000.0)>6) {
-		temp->SetFrequencyRatio(6.0f);
+		float impulse = c->m_impulse/Gbls::standardImpulse;
+		if (impulse > Gbls::maxImpulseVol) {
+			temp->SetVolume(Gbls::maxImpulseVol);
 		} else {
-			temp->SetFrequencyRatio((1/(c->m_impulse/200000.0)));
+			temp->SetVolume(impulse);
 		}
-		GameResources::input->vibrate(c->m_impulse/200000.0*40000*DSPSettings.pMatrixCoefficients[0],c->m_impulse/200000.0*40000*DSPSettings.pMatrixCoefficients[0],10);
+		if (1/(impulse)<Gbls::minFreqRatio) {
+		temp->SetFrequencyRatio(Gbls::minFreqRatio);
+		} else if (1/(impulse)>Gbls::maxFreqRatio) {
+		temp->SetFrequencyRatio(Gbls::maxFreqRatio);
+		} else {
+			temp->SetFrequencyRatio((1/(impulse)));
+		}
+		GameResources::input->vibrate(impulse*40000*DSPSettings.pMatrixCoefficients[0],impulse*40000*DSPSettings.pMatrixCoefficients[0],10);
 		temp->Start(0);
 		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
 		delete(matrix);
@@ -353,6 +361,7 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 	&DSPSettings );
 
 		temp->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+		temp->SetVolume(Gbls::repickupLevel);
 		temp->Start(0);
 		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
 		delete(matrix);
@@ -385,6 +394,7 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 	&DSPSettings );
 
 		temp->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+		temp->SetVolume(Gbls::pupickupLevel);
 		temp->Start(0);
 		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
 		delete(matrix);

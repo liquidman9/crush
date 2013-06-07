@@ -157,6 +157,19 @@ public:
 	static float doppler3DScale;
 	static float musicLevel;
 	static float ambienceLevel;
+	static float thrusterLevel;
+	static float tbeamLevel;
+	static float reverseLevel;
+	static float speedLevel;
+	static float pulseLevel;
+	static float shieldLevel;
+	static float repickupLevel;
+	static float pupickupLevel;
+	static float standardImpulse;
+	static float minFreqRatio;
+	static float maxFreqRatio;
+	static float maxImpulseVol;
+
 
 	// Does not actually do loading from config, only sets variables from already-loaded Settings class
 	static void initFromConfig();
