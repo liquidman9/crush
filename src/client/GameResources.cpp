@@ -2153,7 +2153,7 @@ void GameResources::updateGameState(GameState<Entity> & newGameState) {
 			entityMap[id]->updateWorldMat();
 		}
 		splashStart = newGameState.isShowSplash();
-		if(newGameState.isGameOver() && !gameOver) {
+		if(newGameState.isGameOver()/* && !gameOver*/) {
 			gameOver = TRUE;
 			for (int i = 0; i < 4; i++) {
 				winnerList[i].first = i;
