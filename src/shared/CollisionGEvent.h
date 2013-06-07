@@ -22,6 +22,8 @@ private:
 		int id_a, id_b;
 		D3DXVECTOR3 poi;
 		float impulse;
+		int m_player1;
+		int m_player2;
 	};
 
 protected:
@@ -33,11 +35,12 @@ public:
 	D3DXVECTOR3 m_poi;
 	float m_impulse;
 	CType m_ctype;
-
+	int m_player1;
+	int m_player2;
 
 	// Constructors
 	CollisionGEvent();
-	CollisionGEvent(int id_a, int id_b, D3DXVECTOR3 poi, float impulse, CType ctype);
+	CollisionGEvent(int id_a, int id_b, D3DXVECTOR3 poi, float impulse, CType ctype, int player1, int player2);
 
 	// Methods
 	virtual unsigned int encode(char *) const;

@@ -20,9 +20,9 @@ CollisionGEvent * SRCollision::resolve()
 	int response = ship->interact(res);
 
 	if(response == 1)
-		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SR);
+		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SR, ship->m_playerNum, -1);
 	else if(response == -1)
-		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, C);
+		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, C, ship->m_playerNum, -1);
 	else {
 		CollisionGEvent * tmp = Collision::resolve();
 		tmp->m_ctype = C;

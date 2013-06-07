@@ -19,5 +19,5 @@ CollisionGEvent * TCollision::resolve()
 	ServerEntity * entity = m_b;
 
 	beam->interact(entity); //lock on check 
-	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, T); // could give them the immovable tag 
+	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, T, -1, -1); // could give them the immovable tag 
 }

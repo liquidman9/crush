@@ -286,5 +286,9 @@ CollisionGEvent * Collision::resolve()
 		m_b->applyAngularImpulse(angular_impulse);
 	}
 
-	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, impulse, m_type);
+	int p1 = -1;
+	int p2 = -1;
+	if(m_a->m_type == SHIP) p1 = ((S_Ship *)m_a)->m_playerNum;
+	if(m_b->m_type == SHIP) p2 = ((S_Ship *)m_b)->m_playerNum;
+	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, impulse, m_type, p1, p2);
 }

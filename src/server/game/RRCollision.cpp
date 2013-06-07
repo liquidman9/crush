@@ -22,7 +22,7 @@ CollisionGEvent * RRCollision::resolve()
 		return Collision::resolve();
 
 	else
-		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, RR);
+		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, RR, -1, -1);
 	// resources can be placed on top of it each other when on the mothership
 	// or could give them the immovable tag (relative to their carrier) when on the mothership and while being held
 		

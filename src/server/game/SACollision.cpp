@@ -21,5 +21,5 @@ CollisionGEvent * SACollision::resolve()
 		return Collision::resolve();
 
 	else
-		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SA);
+		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SA, ship->m_playerNum, -1);
 }
