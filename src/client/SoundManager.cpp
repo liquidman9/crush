@@ -328,7 +328,7 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 		} else {
 			temp->SetFrequencyRatio((1/(impulse)));
 		}
-		GameResources::input->vibrate(impulse*40000*DSPSettings.pMatrixCoefficients[0],impulse*40000*DSPSettings.pMatrixCoefficients[0],10);
+		GameResources::input->vibrate((int)(impulse*40000*DSPSettings.pMatrixCoefficients[0]),(int)(impulse*40000*DSPSettings.pMatrixCoefficients[0]));
 		temp->Start(0);
 		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
 		delete(matrix);
@@ -414,7 +414,7 @@ void SoundManager::cleanEvents() {
 			deleteThem.push_back(i);
 		}
 	}
-	for (int i=0;i<deleteThem.size();i++) {
+	for (unsigned int i=0;i<deleteThem.size();i++) {
 		collisions.erase(deleteThem[i]);
 	}
 }

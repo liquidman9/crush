@@ -20,7 +20,6 @@ GameInput::GameInput() {
 		controller = new XBoxController(&input);
 		break;
 	}
-	vibrateT = 0;
 	vibrateR = 0;
 	vibrateL = 0;
 	vibrateLockOn = false;
@@ -48,10 +47,9 @@ void GameInput::vibrate() {
 	(*controller).vibrate(lTemp,rTemp);
 }
 
-void GameInput::vibrate(int l, int r, int time) {
+void GameInput::vibrate(int l, int r) {
 	vibrateL += l;
 	vibrateR += r;
-	vibrateT = time;
 }
 
 void GameInput::vibrateThrust(int thrust) {
