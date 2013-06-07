@@ -38,7 +38,7 @@ SoundManager::SoundManager() {
 			newSound(_TEXT("shield1_m.wav"),PUPICKSOUND,0);
 			newSound(_TEXT("shield1_m.wav"),REPICKSOUND,0);
 			newSound(_TEXT("shield2_m.wav"),SHIELDSOUND,0);
-			//newSound(_TEXT("shield_hit.wav"),SHIELDHITSOUND,0);
+			newSound(_TEXT("impactshield.wav"),SHIELDHITSOUND,0);
 			newSound(_TEXT("reverse.wav"),REVERSESOUND,XAUDIO2_LOOP_INFINITE);
 
 			//Load ambience
@@ -132,8 +132,6 @@ void SoundManager::playEngine(C_Ship ship) {
 		if( FAILED(hr = (reverse[ship.m_playerNum])->SubmitSourceBuffer( &sounds[REVERSESOUND] ) ) )
 			isValid = false;
 
-		reverse[ship.m_playerNum]->SetVolume(.02f);
-
 	}
 
 	if (ship.m_playerNum == GameResources::playerNum) {
@@ -221,6 +219,16 @@ void SoundManager::playEngine(C_Ship ship) {
 		engines[ship.m_playerNum]->SetVolume((float)ship.m_thruster);
 		engines[ship.m_playerNum]->Start(0);
 	}
+	if (ship.m_hasPowerup && ship.m_powerupStateType == CONSUMED) {
+		powerupTypes[ship.m_playerNum] = ship.m_powerupType;
+	} else if (powerupTypes[ship.m_playerNum] == SHIELD) {
+		powerups[ship.m_playerNum]->Stop();
+		powerups[ship.m_playerNum]->FlushSourceBuffers();
+		powerupTypes[ship.m_playerNum] = SPEEDUP;
+	} else {
+		powerupTypes[ship.m_playerNum] = SPEEDUP;
+	}
+
 	if (ship.m_hasPowerup && ship.m_powerupType == SPEEDUP && ship.m_powerupStateType == CONSUMED) {
 		engines[ship.m_playerNum]->SetVolume(2.0f);
 	}
@@ -261,9 +269,15 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 		IXAudio2SourceVoice* temp;
 		if( FAILED(hr = pXAudio2->CreateSourceVoice( &(temp), (WAVEFORMATEX*)(&formats[COLLISIONSOUND]) ) ) ) 
 			isValid = false;
-
-		if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[COLLISIONSOUND] ) ) )
-			isValid = false;
+		
+		if ((c->m_player1 >= 0 && powerupTypes[c->m_player1] == SHIELD) ||
+			(c->m_player2 >= 0 && powerupTypes[c->m_player2] == SHIELD)) {
+			if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[SHIELDHITSOUND] ) ) )
+				isValid = false;
+		} else {
+			if( FAILED(hr = (temp)->SubmitSourceBuffer( &sounds[COLLISIONSOUND] ) ) )
+				isValid = false;
+		}
 		
 		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
 		Emitter->ChannelCount = 1;
