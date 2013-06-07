@@ -314,7 +314,7 @@ void Server::loop() {
 		removeDisconClients();
 
 		addNewClients(m_server.getNewClientIDs());
-		if(m_powerup_ship > 0 && m_powerup_type > 0) {
+		if(m_powerup_ship >= 0 && m_powerup_type >= 0) {
 			for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) {
 				if(i->second->m_playerNum == m_powerup_ship) {
 					m_powerupSource->request(m_powerup_type, i->second);
@@ -324,7 +324,7 @@ void Server::loop() {
 			m_powerup_type = -1;
 		}
 
-		if(m_ers_ship > 0) {
+		if(m_ers_ship >= 0) {
 			auto player = m_playerMap.find(m_ers_ship);
 			if (player != m_playerMap.end()) {
 				player->second->m_enable_reverse_noise = true;
@@ -332,7 +332,7 @@ void Server::loop() {
 			m_ers_ship = -1;
 		}
 
-		if(m_drs_ship > 0) {
+		if(m_drs_ship >= 0) {
 			auto player = m_playerMap.find(m_drs_ship);
 			if (player != m_playerMap.end()) {
 				player->second->m_enable_reverse_noise = false;
