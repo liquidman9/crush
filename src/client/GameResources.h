@@ -123,7 +123,7 @@ public:
 	static std::wstring timeStr;
 	static std::wstring playerNameStr[4];
 	static int playerScore[4];
-	static SoundManager sound;
+	static SoundManager* sound;
 	static GameInput * input;
 
 	// effects (shaders)

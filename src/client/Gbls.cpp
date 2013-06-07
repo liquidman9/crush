@@ -132,6 +132,12 @@ int Gbls::windowHeight = 480;
 int Gbls::fullScreenWidth = 1280;
 int Gbls::fullScreenHeight = 720;
 
+float Gbls::audio3DScale = 30.0f;
+float Gbls::collision3DScale = 240.0f;
+float Gbls::doppler3DScale = 20.0f;
+float Gbls::musicLevel = 0.1f;
+float Gbls::ambienceLevel = 1.0f;
+
 void Gbls::initFromConfig() {
 	std::stringstream stream;
 	string tmpString;
@@ -449,5 +455,11 @@ void Gbls::initFromConfig() {
 
 	conf.getValue("fullScreenWidth", fullScreenWidth);
 	conf.getValue("fullScreenHeight", fullScreenHeight);
+
+	conf.getValue("audio3DScale", audio3DScale);
+	conf.getValue("collision3DScale", collision3DScale);
+	conf.getValue("doppler3DScale", doppler3DScale);
+	conf.getValue("musicLevel", musicLevel);
+	conf.getValue("ambienceLevel", ambienceLevel);
 
 }

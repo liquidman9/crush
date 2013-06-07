@@ -157,7 +157,7 @@ struct GameResources::KeyboardState GameResources::m_ks;
 std::wstring GameResources::timeStr;
 std::wstring GameResources::playerNameStr[4];
 int GameResources::playerScore[4];
-SoundManager GameResources::sound;
+SoundManager* GameResources::sound;
 GameInput* GameResources::input;
 ID3DXEffect * GameResources::pEffectDefault;
 ID3DXEffect * GameResources::pEffectGlowmap; 
@@ -246,6 +246,8 @@ HRESULT GameResources::initState() {
 	//GameResources::partSystem->releaseBurst(powerupPGroup);
 	//TODO Remove
 	//burstPowerupPGroup->releasePos = D3DXVECTOR3(5,5,5);
+
+	sound = new SoundManager();
 
 	// Clear keyboard state (at the moment only used for debug camera 4/13/2013)
 	memset(&GameResources::m_ks, 0, sizeof(GameResources::KeyboardState));
@@ -1948,22 +1950,22 @@ void GameResources::drawAll()
 // called each frame to update the state of all game sounds
 void GameResources::playSounds(vector<shared_ptr<GEvent> > events)
 {
-	if (sound.isValid) {
+	if (sound->isValid) {
 		//Engine sounds
 		for (UINT i = 0; i < shipList.size(); i++) {
-			sound.playEngine(shipList[i]);
+			sound->playEngine(shipList[i]);
 		}
 
 		//Tractor Beam Sounds
 		for (UINT i = 0; i < tractorBeamList.size(); i++) {
-			sound.playTractorBeam(tractorBeamList[i]);
+			sound->playTractorBeam(tractorBeamList[i]);
 		}
 
 		for (UINT i = 0; i < events.size(); i++) {
-			sound.playEvent(events[i]);
+			sound->playEvent(events[i]);
 		}
 
-		sound.cleanEvents();
+		sound->cleanEvents();
 	}
 }
 

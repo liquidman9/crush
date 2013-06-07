@@ -10,7 +10,7 @@
 #include <client/GameResources.h>
 
 //Distance scale multiplier, higher means louder farther away
-const float AUDSCALE = 30.0;
+const float AUDSCALE = Gbls::audio3DScale;
 
 SoundManager::SoundManager() {
 
@@ -48,6 +48,7 @@ SoundManager::SoundManager() {
 				isValid = false;
 			if( FAILED(hr = (temp->SubmitSourceBuffer( &sounds[AMBIENCESOUND] ) ) ) )
 				isValid = false;
+			temp->SetVolume(Gbls::ambienceLevel);
 			temp->Start(0);
 
 			//Load music
@@ -58,7 +59,7 @@ SoundManager::SoundManager() {
 			if( FAILED(hr = (temp2->SubmitSourceBuffer( &sounds[MUSICSOUND] ) ) ) )
 				isValid = false;
 			temp2->Start(0);
-			temp2->SetVolume(0.1f);
+			temp2->SetVolume(Gbls::musicLevel);
 			
 			//Set up 3D Sound
 			pXAudio2->GetDeviceDetails(0,&deviceDetails);
@@ -291,7 +292,7 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 		
 		X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
 		Emitter->ChannelCount = 1;
-		Emitter->CurveDistanceScaler = AUDSCALE;
+		Emitter->CurveDistanceScaler = Gbls::collision3DScale;
 		Emitter->Position = c->m_poi;
 
 
@@ -430,7 +431,7 @@ void SoundManager::new3dEmitter(map<int,X3DAUDIO_EMITTER*> & map, int idx) {
 	map.insert(pair<int,X3DAUDIO_EMITTER*>(idx, Emitter));
 	map[idx]->ChannelCount = 1;
 	map[idx]->CurveDistanceScaler = AUDSCALE;
-	map[idx]->DopplerScaler = 20.0;
+	map[idx]->DopplerScaler = Gbls::doppler3DScale;
 }
 
 

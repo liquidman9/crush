@@ -152,6 +152,12 @@ public:
 	static int fullScreenWidth;
 	static int fullScreenHeight;
 
+	static float audio3DScale;
+	static float collision3DScale;
+	static float doppler3DScale;
+	static float musicLevel;
+	static float ambienceLevel;
+
 	// Does not actually do loading from config, only sets variables from already-loaded Settings class
 	static void initFromConfig();
 };

@@ -13,6 +13,7 @@
 #include <list>
 #include <client/graphics/entities/C_Ship.h>
 #include <client/graphics/entities/C_TractorBeam.h>
+#include <client/Gbls.h>
 
 #pragma comment(lib,"x3daudio.lib")
 
