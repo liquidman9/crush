@@ -112,7 +112,7 @@ std::wstring Gbls::player4HudFilepath_insig = L"score_icon_004.png";
 
 std::wstring Gbls::resourceEIDTextureFilepath = L"arrow_resource.png";
 
-std::wstring Gbls::mothershipEIDTextureFilepath_arrow = L"arrow_mothership_base.png";
+std::wstring Gbls::mothershipEIDTextureFilepath_arrow = L"arrow_mothership.png";
 std::wstring Gbls::mothershipEIDTextureFilepath_insig = L"arrow_mothership_icon.png";
 
 
