@@ -116,9 +116,9 @@ std::wstring Gbls::mothershipEIDTextureFilepath_arrow = L"arrow_mothership_base.
 std::wstring Gbls::mothershipEIDTextureFilepath_insig = L"arrow_mothership_icon.png";
 
 
-std::wstring Gbls::tBeamPartTexFilepath = L"particle01.bmp"; 
-std::wstring Gbls::enginePartTexNormFilepath = L"particle02.bmp"; 
-std::wstring Gbls::enginePartTexSpeedupFilepath = L"particle03.bmp"; 
+std::wstring Gbls::tBeamPartTexFilepath = L"particle_001.bmp"; 
+std::wstring Gbls::enginePartTexNormFilepath = L"particle_002.bmp"; 
+std::wstring Gbls::enginePartTexSpeedupFilepath = L"particle_003.bmp"; 
 std::wstring Gbls::fontStyle = L"GunShip";
 int Gbls::fontSize = 24;
 D3DXCOLOR Gbls::lightDiffuseColor(0.5f, 0.5f, 0.5f, 1.0f);
@@ -232,7 +232,7 @@ void Gbls::initFromConfig() {
 
 	/* Resource */
 	if(!conf.getValue("resourceMeshFilepath", tmpString)) {  //default
-			resourceMeshFilepath = L"player_ship_001.x";
+			resourceMeshFilepath = L"resource.x";
 	} else {  //assign to wstring
 			resourceMeshFilepath = wstring(tmpString.begin(), tmpString.end());
 	}
