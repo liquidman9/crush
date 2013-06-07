@@ -35,9 +35,9 @@ SoundManager::SoundManager() {
 			newSound(_TEXT("enginestart_m.wav"),ENGINESTARTSOUND,0);
 			newSound(_TEXT("pulse_m.wav"),PULSESOUND,0);
 			newSound(_TEXT("impact1.wav"),COLLISIONSOUND,0);
-			newSound(_TEXT("impact1.wav"),PUPICKSOUND,0);
-			newSound(_TEXT("impact1.wav"),REPICKSOUND,0);
-			newSound(_TEXT("impact1.wav"),SHIELDSOUND,0);
+			newSound(_TEXT("shield1_m.wav"),PUPICKSOUND,0);
+			newSound(_TEXT("shield1_m.wav"),REPICKSOUND,0);
+			newSound(_TEXT("shield2_m.wav"),SHIELDSOUND,0);
 			//newSound(_TEXT("shield_hit.wav"),SHIELDHITSOUND,0);
 			newSound(_TEXT("reverse.wav"),REVERSESOUND,XAUDIO2_LOOP_INFINITE);
 
@@ -233,7 +233,8 @@ void SoundManager::playEngine(C_Ship ship) {
 				isValid = false;
 			powerups[ship.m_playerNum]->Start(0);
 		}
-	}
+	} 
+	
 	if (ship.m_hasPowerup && ship.m_powerupType == SHIELD && ship.m_powerupStateType == CONSUMED) {
 		XAUDIO2_VOICE_STATE vs;
 		(powerups[ship.m_playerNum])->GetState(&vs);
