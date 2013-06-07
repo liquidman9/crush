@@ -9,7 +9,9 @@
 #include <client/graphics/entities/C_Ship.h>
 #include <client/GameResources.h>
 
+//Distance scale multiplier, higher means louder farther away
 const float AUDSCALE = 30.0;
+
 SoundManager::SoundManager() {
 
 	isValid = true;
@@ -33,10 +35,11 @@ SoundManager::SoundManager() {
 			newSound(_TEXT("enginestart_m.wav"),ENGINESTARTSOUND,0);
 			newSound(_TEXT("pulse_m.wav"),PULSESOUND,0);
 			newSound(_TEXT("impact1.wav"),COLLISIONSOUND,0);
-			//newSound(_TEXT("pupick.wav"),PUPICKSOUND,0);
-			//newSound(_TEXT("repick.wav"),REPICKSOUND,0);
-			//newSound(_TEXT("sheild.wav"),SHIELDSOUND,XAUDIO2_LOOP_INFINITE);
+			newSound(_TEXT("shield1_m.wav"),PUPICKSOUND,0);
+			newSound(_TEXT("shield1_m.wav"),REPICKSOUND,0);
+			newSound(_TEXT("shield2_m.wav"),SHIELDSOUND,0);
 			//newSound(_TEXT("shield_hit.wav"),SHIELDHITSOUND,0);
+			newSound(_TEXT("reverse.wav"),REVERSESOUND,XAUDIO2_LOOP_INFINITE);
 
 			//Load ambience
 			newSound(_TEXT("ambience.wav"),AMBIENCESOUND,XAUDIO2_LOOP_INFINITE);
@@ -64,11 +67,13 @@ SoundManager::SoundManager() {
 	}
 }
 
+/* Release all appropriate sound stuff. */
 SoundManager::~SoundManager() {
 	pXAudio2->Release();
 	CoUninitialize();
 }
 
+/* Play sounds for all tractorbeams. */
 void SoundManager::playTractorBeam(C_TractorBeam beam) {
 	if (tractorBeams.find(beam.m_playerNum) == tractorBeams.end()) {
 
@@ -111,14 +116,23 @@ void SoundManager::playTractorBeam(C_TractorBeam beam) {
 	}
 }
 
+/*Play sounds for ship engines and powerups. */
 void SoundManager::playEngine(C_Ship ship) {
 	if (engines.find(ship.m_playerNum) == engines.end()) {
 
 		newVoice(engines,ship.m_playerNum,THRUSTSOUND);
 		newVoice(powerups,ship.m_playerNum,PULSESOUND);
+		newVoice(reverse,ship.m_playerNum,REVERSESOUND);
 
 		new3dEmitter(engines3d,ship.m_playerNum);
 		new3dEmitter(powerups3d,ship.m_playerNum);
+		new3dEmitter(reverse3d,ship.m_playerNum);
+
+		HRESULT hr;
+		if( FAILED(hr = (reverse[ship.m_playerNum])->SubmitSourceBuffer( &sounds[REVERSESOUND] ) ) )
+			isValid = false;
+
+		reverse[ship.m_playerNum]->SetVolume(.02f);
 
 	}
 
@@ -140,6 +154,13 @@ void SoundManager::playEngine(C_Ship ship) {
 		engines3d[ship.m_playerNum]->Velocity = ship.m_velocity;
 
 		aud.x=0; aud.y=0; aud.z=1;
+		reverse3d[ship.m_playerNum]->OrientFront = aud;
+		aud.x=0; aud.y=1; aud.z=0;
+		reverse3d[ship.m_playerNum]->OrientTop = aud;
+		reverse3d[ship.m_playerNum]->Position = ship.m_pos;
+		reverse3d[ship.m_playerNum]->Velocity = ship.m_velocity;
+
+		aud.x=0; aud.y=0; aud.z=1;
 		powerups3d[ship.m_playerNum]->OrientFront = aud;
 		aud.x=0; aud.y=1; aud.z=0;
 		powerups3d[ship.m_playerNum]->OrientTop = aud;
@@ -159,6 +180,13 @@ void SoundManager::playEngine(C_Ship ship) {
 		engines[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
 		engines[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
 
+		X3DAudioCalculate(X3DInstance, &Listener, reverse3d[ship.m_playerNum],
+	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_REVERB,
+	&DSPSettings );
+
+		reverse[ship.m_playerNum]->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
+		reverse[ship.m_playerNum]->SetFrequencyRatio(DSPSettings.DopplerFactor);
+
 		X3DAudioCalculate(X3DInstance, &Listener, powerups3d[ship.m_playerNum],
 	X3DAUDIO_CALCULATE_MATRIX | X3DAUDIO_CALCULATE_DOPPLER | X3DAUDIO_CALCULATE_REVERB,
 	&DSPSettings );
@@ -169,6 +197,11 @@ void SoundManager::playEngine(C_Ship ship) {
 		delete(matrix);
 	}
 
+	if (ship.m_reverse) {
+		reverse[ship.m_playerNum]->Start(0);
+	} else {
+		reverse[ship.m_playerNum]->Stop();
+	}
 	if (ship.m_thruster == 0) {
 		engines[ship.m_playerNum]->Stop();
 		engines[ship.m_playerNum]->FlushSourceBuffers();
@@ -200,9 +233,21 @@ void SoundManager::playEngine(C_Ship ship) {
 				isValid = false;
 			powerups[ship.m_playerNum]->Start(0);
 		}
+	} 
+	
+	if (ship.m_hasPowerup && ship.m_powerupType == SHIELD && ship.m_powerupStateType == CONSUMED) {
+		XAUDIO2_VOICE_STATE vs;
+		(powerups[ship.m_playerNum])->GetState(&vs);
+		if (vs.BuffersQueued == 0) {
+			HRESULT hr;
+			if( FAILED(hr = (powerups[ship.m_playerNum])->SubmitSourceBuffer( &sounds[SHIELDSOUND] ) ) )
+				isValid = false;
+			powerups[ship.m_playerNum]->Start(0);
+		}
 	}
 }
 
+/* Play the appropriate sounds for all events. */
 void SoundManager::playEvent(shared_ptr<GEvent> e) {
 
 	if (e->m_type == COLLISIONEVENT) {
@@ -254,7 +299,7 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 	}
 
 	// Picked up a resource // maybe sound?
-	if(c->m_ctype == SR){ /*
+	if(c->m_ctype == SR){ 
 		// m_idA it is the entity id not the player id
 		HRESULT hr;
 		IXAudio2SourceVoice* temp;
@@ -282,11 +327,11 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 		temp->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
 		temp->Start(0);
 		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
-		delete(matrix);*/
+		delete(matrix);
 	}
 
 	// Picked up a Powerup
-	if(c->m_ctype == SP) {/*
+	if(c->m_ctype == SP) {
 		// m_idA it is the entity id not the player id
 		HRESULT hr;
 		IXAudio2SourceVoice* temp;
@@ -314,11 +359,12 @@ void SoundManager::playEvent(shared_ptr<GEvent> e) {
 		temp->SetOutputMatrix( pMasterVoice, 1, deviceDetails.OutputFormat.Format.nChannels, DSPSettings.pMatrixCoefficients ) ;
 		temp->Start(0);
 		collisions.push_back(pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>(temp,Emitter));
-		delete(matrix);*/
+		delete(matrix);
 	}
 	}
 }
 
+/*Checks all non-owned sounds to see if they are done playing, if so, clean up. */
 void SoundManager::cleanEvents() {
 	vector<list<pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>>::iterator> deleteThem;
 	for (list<pair<IXAudio2SourceVoice*,X3DAUDIO_EMITTER*>>::iterator i = collisions.begin();i!=collisions.end();++i) {
@@ -335,6 +381,7 @@ void SoundManager::cleanEvents() {
 	}
 }
 
+/* Loads a Sound into a buffer and stores it in the appropriate vectors. */
 void SoundManager::newSound(TCHAR * path, Sound type, int loop) {
 	WAVEFORMATEXTENSIBLE wfx_tmp = {0};
 	XAUDIO2_BUFFER buffer_tmp  = {0};
@@ -344,6 +391,7 @@ void SoundManager::newSound(TCHAR * path, Sound type, int loop) {
 	formats[type] = wfx_tmp;
 }
 
+/*Creates a new voice for the specified sound and puts in the specified map. */
 void SoundManager::newVoice(map<int,IXAudio2SourceVoice*> & map, int idx, Sound type) {
 	HRESULT hr;
 	IXAudio2SourceVoice* temp2;
@@ -352,12 +400,12 @@ void SoundManager::newVoice(map<int,IXAudio2SourceVoice*> & map, int idx, Sound 
 		isValid = false;
 }
 
+/*Creates a new 3D emitter and places it in the specified map. */
 void SoundManager::new3dEmitter(map<int,X3DAUDIO_EMITTER*> & map, int idx) {
 	X3DAUDIO_EMITTER * Emitter = new X3DAUDIO_EMITTER();
 	map.insert(pair<int,X3DAUDIO_EMITTER*>(idx, Emitter));
 	map[idx]->ChannelCount = 1;
 	map[idx]->CurveDistanceScaler = AUDSCALE;
-	map[idx]->DopplerScaler = 3;
 	map[idx]->DopplerScaler = 20.0;
 }
 

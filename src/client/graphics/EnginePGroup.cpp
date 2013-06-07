@@ -13,9 +13,9 @@ const float EnginePGroup::zStartOffset = -5.5f;
 const int EnginePGroup::normColor_r = 200;
 const int EnginePGroup::normColor_g = 0;
 const int EnginePGroup::normColor_b = 255;
-const int EnginePGroup::speedupColor_r = 255;
+const int EnginePGroup::speedupColor_r = 8;
 const int EnginePGroup::speedupColor_g = 255;
-const int EnginePGroup::speedupColor_b = 255;
+const int EnginePGroup::speedupColor_b = 8;
 
 EnginePGroup::EnginePGroup(LPDIRECT3DTEXTURE9 ptexParticleNorm, LPDIRECT3DTEXTURE9 ptexParticleSpeedup) {
 	m_partList = NULL;

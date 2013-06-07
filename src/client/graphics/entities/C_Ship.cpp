@@ -36,6 +36,7 @@ C_Ship::C_Ship(Entity * newEnt) :
 		m_pos = srcShip->m_pos;
 		m_orientation = srcShip->m_orientation;
 		m_thruster = srcShip->m_thruster;
+		m_reverse = srcShip->m_reverse;
 		m_playerNum = srcShip -> m_playerNum;
 		m_hasPowerup = srcShip -> m_hasPowerup;
 		m_powerupType = srcShip -> m_powerupType;
