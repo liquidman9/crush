@@ -15,5 +15,5 @@ PPCollision::PPCollision(ServerEntity * a, ServerEntity * b, D3DXVECTOR3 closeA,
 
 CollisionGEvent * PPCollision::resolve() 
 {
-	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, PP);
+	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, PP, -1, -1);
 }

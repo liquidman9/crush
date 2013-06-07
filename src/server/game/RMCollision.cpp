@@ -19,5 +19,5 @@ CollisionGEvent * RMCollision::resolve()
 	S_Resource * res = (S_Resource *) m_a;
 	if(res->m_carrier == NULL)
 		mothership->getResource(res);
-	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, RM);	// change if possible to push a resource into the mothership with the tractorbeam
+	return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, RM, -1, -1);	// change if possible to push a resource into the mothership with the tractorbeam
 }

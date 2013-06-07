@@ -18,6 +18,6 @@ CollisionGEvent * SPCollision::resolve()
 	S_Powerup * power = (S_Powerup *)m_b;
 	S_Ship * ship = (S_Ship *)m_a;
 	if(ship->interact(power))
-		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SP);
+		return new CollisionGEvent(m_a->m_id, m_b->m_id, m_poi, 0.0, SP, ship->m_playerNum, -1);
 	return NULL;
 }

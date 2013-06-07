@@ -16,7 +16,7 @@ using namespace server::entities::resource;
 S_Resource::S_Resource() :
 	Entity(RESOURCE),
 	Resource(),
-	ServerEntity(0.5, 0.0, calculateRotationalInertia(10)),
+	ServerEntity(0.5, 0.0, calculateRotationalInertia(.5)),
 	m_carrier(NULL),
 	m_dropTimeoutStart(0),
 	m_onDropTimeout(false),
@@ -31,7 +31,7 @@ S_Resource::S_Resource() :
 S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 	Entity(genId(), RESOURCE, pos, orientation, 3),
 	Resource(),
-	ServerEntity(0.5, 0.0, calculateRotationalInertia(10)),
+	ServerEntity(0.5, 0.0, calculateRotationalInertia(.5)),
 	m_carrier(NULL),
 	m_dropTimeoutStart(0),
 	m_onDropTimeout(false),
@@ -43,7 +43,7 @@ S_Resource::S_Resource(D3DXVECTOR3 pos, Quaternion orientation) :
 }
 
 D3DXMATRIX S_Resource::calculateRotationalInertia(float mass){
-	float radius_squared = 1;
+	float radius_squared = 9;
 	return *D3DXMatrixScaling(&D3DXMATRIX(), (2.0f / 5.0f) * mass * radius_squared,
 											 (2.0f / 5.0f) * mass * radius_squared,
 											 (2.0f / 5.0f) * mass * radius_squared);
