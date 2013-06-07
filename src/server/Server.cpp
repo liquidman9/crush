@@ -163,12 +163,8 @@ void Server::setUpPowerups() {
 }
 
 void Server::givePowerup(int type, int ship) {
-	for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) {
-			if(i->second->m_playerNum == ship) {
-				m_powerupSource->request(type, i->second);
-			}
-	}
-
+	m_powerup_ship = ship;
+	m_powerup_type = type;
 }
 
 void Server::initializeGameState() {
@@ -318,7 +314,31 @@ void Server::loop() {
 		removeDisconClients();
 
 		addNewClients(m_server.getNewClientIDs());
+		if(m_powerup_ship > 0 && m_powerup_type > 0) {
+			for(auto i = m_playerMap.begin(); i != m_playerMap.end(); i++) {
+				if(i->second->m_playerNum == m_powerup_ship) {
+					m_powerupSource->request(m_powerup_type, i->second);
+				}
+			}
+			m_powerup_ship = -1;
+			m_powerup_type = -1;
+		}
 
+		if(m_ers_ship > 0) {
+			auto player = m_playerMap.find(m_ers_ship);
+			if (player != m_playerMap.end()) {
+				player->second->m_enable_reverse_noise = true;
+			}
+			m_ers_ship = -1;
+		}
+
+		if(m_drs_ship > 0) {
+			auto player = m_playerMap.find(m_drs_ship);
+			if (player != m_playerMap.end()) {
+				player->second->m_enable_reverse_noise = false;
+			}
+			m_drs_ship = -1;
+		}
 
 		m_clientInput = m_server.getEvents();
 		if(!m_clientInput.empty()) {
@@ -474,17 +494,11 @@ GameState<Entity> Server::getGameState() {
 }
 
 void Server::enableReverseNoise(int playerNum) {
-	auto player = m_playerMap.find(playerNum);
-	if (player != m_playerMap.end()) {
-		player->second->m_enable_reverse_noise = true;
-	}
+	m_ers_ship = playerNum;
 }
 
 void Server::disableReverseNoise(int playerNum) {
-	auto player = m_playerMap.find(playerNum);
-	if (player != m_playerMap.end()) {
-		player->second->m_enable_reverse_noise = false;
-	}
+	m_drs_ship = playerNum;	
 }
 
 Server::~Server(void)
