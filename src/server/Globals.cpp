@@ -37,8 +37,6 @@ namespace server {
 			float length = 350.0f;
 			float max_velocity_increase = 100.0f;
 			float invincible_resource_time_limit = 1000.0f;
-			float r_t = 5;
-			float r_a = 2;
 		}
 
 		namespace resource {

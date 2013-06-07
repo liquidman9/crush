@@ -114,16 +114,11 @@ namespace server {
 			extern float max_velocity_increase;
 			extern float invincible_resource_time_limit;
 
-			extern float r_t;
-			extern float r_a;
-
 			inline void initFromConfig(string prefix) {
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "power", power);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "length", length);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "max_velocity_increase", max_velocity_increase);
 				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "invincible_resource_time_limit", invincible_resource_time_limit);
-				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "r_a", r_a);
-				ConfigSettings::config->getValue(prefix + CONFIG_PREFIX + "r_t", r_t);
 			}
 		}
 
