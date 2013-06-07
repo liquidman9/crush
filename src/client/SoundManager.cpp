@@ -135,11 +135,21 @@ void SoundManager::playEngine(C_Ship ship) {
 	}
 
 	if (ship.m_playerNum == GameResources::playerNum) {
-		X3DAUDIO_VECTOR aud;
-		aud.x=0; aud.y=0; aud.z=1;
-		Listener.OrientFront = aud;
-		aud.x=0; aud.y=1; aud.z=0;
-		Listener.OrientTop = aud;
+		D3DXMATRIX matRotate;
+		D3DXQUATERNION temp_q;
+		D3DXMatrixRotationQuaternion(&matRotate, D3DXQuaternionNormalize(&temp_q, &(ship.m_orientation)));
+		
+		D3DXVECTOR3 dir(0,0,1);
+		D3DXVec3TransformCoord(&dir, &dir, &matRotate);
+
+		D3DXVECTOR3 up(0,1,0);
+		D3DXVec3TransformCoord(&up, &up, &matRotate);
+
+		D3DXVec3Normalize(&dir,&dir);
+		D3DXVec3Normalize(&up,&up);
+
+		Listener.OrientFront = dir;
+		Listener.OrientTop = up;
 		Listener.Position = ship.m_pos;
 		Listener.Velocity = ship.m_velocity;
 	} else if (ship.m_thruster != 0) { //dont do 3d if self
