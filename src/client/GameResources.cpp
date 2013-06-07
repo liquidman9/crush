@@ -901,10 +901,10 @@ HRESULT GameResources::initAdditionalTextures()
 	}
 	
 
-	hres = loadTexture(&extractorEIDTextureOnScreen, Gbls::extractorEIDTextureOnScreenFilepath);
-	if (FAILED(hres)) {
-		return hres;
-	}
+	//hres = loadTexture(&extractorEIDTextureOnScreen, Gbls::extractorEIDTextureOnScreenFilepath);
+	//if (FAILED(hres)) {
+	//	return hres;
+	//}
 	hres = loadTexture(&extractorEIDTextureOffScreen_arrow, Gbls::extractorEIDTextureOffScreenFilepath_arrow);
 	if (FAILED(hres)) {
 		return hres;

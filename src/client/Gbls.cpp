@@ -93,7 +93,7 @@ std::wstring Gbls::player2SplashTextureFilepath = L"splashscreen_002.png";
 std::wstring Gbls::player3SplashTextureFilepath = L"splashscreen_003.png";
 std::wstring Gbls::player4SplashTextureFilepath = L"splashscreen_004.png";
 
-std::wstring Gbls::extractorEIDTextureOnScreenFilepath = L"extractor_onscreen.png";
+//std::wstring Gbls::extractorEIDTextureOnScreenFilepath = L"extractor_onscreen.png";
 std::wstring Gbls::extractorEIDTextureOffScreenFilepath_insig = L"arrow_resource_icon.png";
 std::wstring Gbls::extractorEIDTextureOffScreenFilepath_arrow = L"arrow_mothership_base.png";
 
@@ -364,9 +364,9 @@ void Gbls::initFromConfig() {
 	if(conf.getValue("extractorEIDTextureOffScreenFilepath_insig", tmpString)) {
 		extractorEIDTextureOffScreenFilepath_insig = wstring(tmpString.begin(), tmpString.end());
 	}
-	if(conf.getValue("extractorEIDTextureOnScreenFilepath", tmpString)) {
-		extractorEIDTextureOnScreenFilepath = wstring(tmpString.begin(), tmpString.end());
-	}
+	//if(conf.getValue("extractorEIDTextureOnScreenFilepath", tmpString)) {
+	//	extractorEIDTextureOnScreenFilepath = wstring(tmpString.begin(), tmpString.end());
+	//}
 
 	if(conf.getValue("mothershipEIDTextureFilepath_arrow", tmpString)) {
 		mothershipEIDTextureFilepath_arrow = wstring(tmpString.begin(), tmpString.end());
