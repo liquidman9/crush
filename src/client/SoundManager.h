@@ -42,6 +42,7 @@ private:
 	map<int,X3DAUDIO_EMITTER*> engines3d;
 	map<int,IXAudio2SourceVoice*> reverse;
 	map<int,X3DAUDIO_EMITTER*> reverse3d;
+	map<int,PowerType> powerupTypes;
 	map<int,IXAudio2SourceVoice*> powerups;
 	map<int,X3DAUDIO_EMITTER*> powerups3d;
 	map<int,IXAudio2SourceVoice*> tractorBeams;
