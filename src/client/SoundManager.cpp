@@ -153,6 +153,9 @@ void SoundManager::playEngine(C_Ship ship) {
 		Listener.OrientTop = up;
 		Listener.Position = ship.m_pos;
 		Listener.Velocity = ship.m_velocity;
+
+		GameResources::input->vibrateLock(ship.m_isLockOnTarget);
+
 	} else if (ship.m_thruster != 0) { //dont do 3d if self
 		X3DAUDIO_VECTOR aud;
 		aud.x=0; aud.y=0; aud.z=1;

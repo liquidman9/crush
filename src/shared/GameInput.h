@@ -20,12 +20,14 @@ public:
 	void vibrate();
 	void vibrate(int l, int r, int time);
 	void vibrateThrust(int thrust);
+	void vibrateLock(bool lock);
 	~GameInput();
 private:
 	int vibrateL;
 	int vibrateR;
 	int vibrateT;
 	int vibrateTh;
+	bool vibrateLockOn;
 };
 
 #endif

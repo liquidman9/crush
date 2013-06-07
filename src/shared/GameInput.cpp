@@ -23,6 +23,7 @@ GameInput::GameInput() {
 	vibrateT = 0;
 	vibrateR = 0;
 	vibrateL = 0;
+	vibrateLockOn = false;
 }
 
 void GameInput::refreshState() {
@@ -33,6 +34,7 @@ void GameInput::refreshState() {
 void GameInput::vibrate() {
 	int rTemp = vibrateR+(2*vibrateTh);
 	int lTemp = vibrateL+vibrateTh;
+	if (vibrateLockOn) { rTemp+=10000; }
 	if (vibrateL > 0) {
 		vibrateL-=10000;
 	} else {
@@ -54,6 +56,10 @@ void GameInput::vibrate(int l, int r, int time) {
 
 void GameInput::vibrateThrust(int thrust) {
 	vibrateTh = thrust*20;
+}
+
+void GameInput::vibrateLock(bool lock) {
+	vibrateLockOn = lock;
 }
 
 GameInput::~GameInput() {
