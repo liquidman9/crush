@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="client\GameResources.cpp" />
+    <ClCompile Include="client\Gbls.cpp" />
+    <ClCompile Include="client\graphics\BurstPGroup.cpp" />
+    <ClCompile Include="client\graphics\Camera.cpp" />
+    <ClCompile Include="client\graphics\D3DWindow.cpp" />
+    <ClCompile Include="client\graphics\EnginePGroup.cpp" />
+    <ClCompile Include="client\graphics\entities\C_Asteroid.cpp" />
+    <ClCompile Include="client\graphics\entities\C_Entity.cpp" />
+    <ClCompile Include="client\graphics\entities\C_Extractor.cpp" />
+    <ClCompile Include="client\graphics\entities\C_Mothership.cpp" />
+    <ClCompile Include="client\graphics\entities\C_Powerup.cpp" />
+    <ClCompile Include="client\graphics\entities\C_Resource.cpp" />
+    <ClCompile Include="client\graphics\entities\C_Ship.cpp" />
+    <ClCompile Include="client\graphics\entities\C_TractorBeam.cpp" />
+    <ClCompile Include="client\graphics\EntityIdentifier.cpp" />
+    <ClCompile Include="client\graphics\Main.cpp" />
+    <ClCompile Include="client\graphics\Mesh.cpp" />
+    <ClCompile Include="client\graphics\ParticleSystem.cpp" />
+    <ClCompile Include="client\graphics\PowerupPGroup.cpp" />
+    <ClCompile Include="client\graphics\Skybox.cpp" />
+    <ClCompile Include="client\graphics\Sprite.cpp" />
+    <ClCompile Include="client\graphics\TBeamPGroup.cpp" />
+    <ClCompile Include="client\graphics\Util.cpp" />
+    <ClCompile Include="client\network\NetworkClient.cpp" />
+    <ClCompile Include="client\SoundManager.cpp" />
+    <ClCompile Include="shared\CollisionGEvent.cpp" />
+    <ClCompile Include="shared\ConfigSettings.cpp" />
+    <ClCompile Include="shared\GameInput.cpp" />
+    <ClCompile Include="shared\game\Asteroid.cpp" />
+    <ClCompile Include="shared\game\Entity.cpp" />
+    <ClCompile Include="shared\game\Extractor.cpp" />
+    <ClCompile Include="shared\game\Mothership.cpp" />
+    <ClCompile Include="shared\game\Powerup.cpp" />
+    <ClCompile Include="shared\game\Resource.cpp" />
+    <ClCompile Include="shared\game\Ship.cpp" />
+    <ClCompile Include="shared\game\TractorBeam.cpp" />
+    <ClCompile Include="shared\GEvent.cpp" />
+    <ClCompile Include="shared\KeyboardController.cpp" />
+    <ClCompile Include="shared\network\minilzo.c" />
+    <ClCompile Include="shared\network\Network.cpp" />
+    <ClCompile Include="shared\network\Sendable.cpp" />
+    <ClCompile Include="shared\XBoxController.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="client\GameResources.h" />
+    <ClInclude Include="client\Gbls.h" />
+    <ClInclude Include="client\graphics\BurstPGroup.h" />
+    <ClInclude Include="client\graphics\Camera.h" />
+    <ClInclude Include="client\graphics\D3DWindow.h" />
+    <ClInclude Include="client\graphics\EnginePGroup.h" />
+    <ClInclude Include="client\graphics\entities\C_Asteroid.h" />
+    <ClInclude Include="client\graphics\entities\C_Entity.h" />
+    <ClInclude Include="client\graphics\entities\C_Extractor.h" />
+    <ClInclude Include="client\graphics\entities\C_Mothership.h" />
+    <ClInclude Include="client\graphics\entities\C_Powerup.h" />
+    <ClInclude Include="client\graphics\entities\C_Resource.h" />
+    <ClInclude Include="client\graphics\entities\C_Ship.h" />
+    <ClInclude Include="client\graphics\entities\C_TractorBeam.h" />
+    <ClInclude Include="client\graphics\EntityIdentifier.h" />
+    <ClInclude Include="client\graphics\Mesh.h" />
+    <ClInclude Include="client\graphics\Particle.h" />
+    <ClInclude Include="client\graphics\ParticleGroup.h" />
+    <ClInclude Include="client\graphics\ParticleSystem.h" />
+    <ClInclude Include="client\graphics\PowerupPGroup.h" />
+    <ClInclude Include="client\graphics\Skybox.h" />
+    <ClInclude Include="client\graphics\Sprite.h" />
+    <ClInclude Include="client\graphics\TBeamPGroup.h" />
+    <ClInclude Include="client\graphics\Util.h" />
+    <ClInclude Include="client\network\NetworkClient.h" />
+    <ClInclude Include="client\SoundLoader.h" />
+    <ClInclude Include="client\SoundManager.h" />
+    <ClInclude Include="shared\CollisionGEvent.h" />
+    <ClInclude Include="shared\ConfigSettings.h" />
+    <ClInclude Include="shared\Controller.h" />
+    <ClInclude Include="shared\GameInput.h" />
+    <ClInclude Include="shared\game\Asteroid.h" />
+    <ClInclude Include="shared\game\Entity.h" />
+    <ClInclude Include="shared\game\Extractor.h" />
+    <ClInclude Include="shared\game\GameState.h" />
+    <ClInclude Include="shared\game\Mothership.h" />
+    <ClInclude Include="shared\game\Powerup.h" />
+    <ClInclude Include="shared\game\Resource.h" />
+    <ClInclude Include="shared\game\Ship.h" />
+    <ClInclude Include="shared\game\TractorBeam.h" />
+    <ClInclude Include="shared\GEvent.h" />
+    <ClInclude Include="shared\InputState.h" />
+    <ClInclude Include="shared\KeyboardController.h" />
+    <ClInclude Include="shared\network\lzoconf.h" />
+    <ClInclude Include="shared\network\lzodefs.h" />
+    <ClInclude Include="shared\network\minilzo.h" />
+    <ClInclude Include="shared\network\Network.h" />
+    <ClInclude Include="shared\network\Sendable.h" />
+    <ClInclude Include="shared\util\SharedUtils.h" />
+    <ClInclude Include="shared\XBoxController.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{E40692D3-29F2-6397-D89A-07BA3EEB5FEE}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)..\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\$(ProjectName)\$(Configuration)\obj</IntDir>
+    <IncludePath>$(DXSDK_DIR)\include\;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)\lib\x86\;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)..\$(ProjectName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\$(ProjectName)\$(Configuration)\obj</IntDir>
+    <IncludePath>$(DXSDK_DIR)\include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)\lib\x86;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
