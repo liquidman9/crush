@@ -1,9 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crush", "Crush.vcxproj", "{E40692D3-29F2-6397-D89A-07BA3EEB5FEE}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Crush.vcxproj", "{E40692D3-29F2-6397-D89A-07BA3EEB5FEE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Crush_Server", "Crush_Server.vcxproj", "{4EF352AC-63AF-698E-3C65-FA9A60C284CE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Crush_Server.vcxproj", "{4EF352AC-63AF-698E-3C65-FA9A60C284CE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7A97B83C-9A88-4474-A262-0E2C450807AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

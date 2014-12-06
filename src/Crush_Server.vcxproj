@@ -110,6 +110,7 @@
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{4EF352AC-63AF-698E-3C65-FA9A60C284CE}</ProjectGuid>
+    <ProjectName>Server</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -138,15 +139,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(DXSDK_DIR)include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
-    <OutDir>$(SolutionDir)..\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\$(ProjectName)\$(Configuration)\obj</IntDir>
+    <OutDir>$(SolutionDir)..\builds\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\builds\$(ProjectName)\$(Configuration)\obj</IntDir>
     <LibraryPath>$(DXSDK_DIR)lib\x86;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(DXSDK_DIR)include;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
-    <OutDir>$(SolutionDir)..\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\$(ProjectName)\$(Configuration)\obj</IntDir>
+    <OutDir>$(SolutionDir)..\builds\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\builds\$(ProjectName)\$(Configuration)\obj</IntDir>
     <LibraryPath>$(DXSDK_DIR)lib\x86;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSDK_LibraryPath_x86);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -158,6 +159,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
